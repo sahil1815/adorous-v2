@@ -56,59 +56,66 @@ export async function createOrder(orderData: any) {
 }
 
 export async function getOrders() {
-  const dbOrders = await prisma.order.findMany({
-    include: {
-      customer: true,
-      items: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return dbOrders.map(order => ({
-    orderId: order.orderId,
-    createdAt: order.createdAt.toISOString(),
-    status: order.status,
-    courierPartner: order.courierPartner,
-    consignmentId: order.consignmentId,
-    customer: order.customer ? {
-      fullName: order.customer.fullName,
-      phone: order.customer.phone,
-      email: order.customer.email || undefined,
-      address: order.customer.address,
-      district: order.customer.district,
-      giftNote: order.customer.giftNote || undefined,
-      whatsappUpdates: order.customer.whatsappUpdates,
-    } : {
-      fullName: 'Unknown',
-      phone: '',
-      address: '',
-      district: '',
-      whatsappUpdates: false,
-    },
-    paymentMethod: order.paymentMethod,
-    subtotal: order.subtotal,
-    shippingFee: order.shippingFee,
-    discountAmount: order.discountAmount || undefined,
-    couponCode: order.couponCode || undefined,
-    grandTotal: order.grandTotal,
-    internalNotes: order.internalNotes || undefined,
-    items: order.items.map(item => ({
-      product: {
-        id: item.productId || 'unknown',
-        name: item.productName,
-        category: '', // or fetch
-        slug: '',
-        price: item.price,
-        featuredImage: item.productImage,
+  try {
+    if (!process.env.DATABASE_URL) {
+      return [];
+    }
+    const dbOrders = await prisma.order.findMany({
+      include: {
+        customer: true,
+        items: true,
       },
-      selectedColor: {
-        name: item.colorName,
-        hex: item.colorHex,
+      orderBy: { createdAt: 'desc' },
+    });
+    return dbOrders.map(order => ({
+      orderId: order.orderId,
+      createdAt: order.createdAt.toISOString(),
+      status: order.status,
+      courierPartner: order.courierPartner,
+      consignmentId: order.consignmentId,
+      customer: order.customer ? {
+        fullName: order.customer.fullName,
+        phone: order.customer.phone,
+        email: order.customer.email || undefined,
+        address: order.customer.address,
+        district: order.customer.district,
+        giftNote: order.customer.giftNote || undefined,
+        whatsappUpdates: order.customer.whatsappUpdates,
+      } : {
+        fullName: 'Unknown',
+        phone: '',
+        address: '',
+        district: '',
+        whatsappUpdates: false,
       },
-      selectedSize: item.selectedSize || undefined,
-      quantity: item.quantity,
-    })),
-  }));
+      paymentMethod: order.paymentMethod,
+      subtotal: order.subtotal,
+      shippingFee: order.shippingFee,
+      discountAmount: order.discountAmount || undefined,
+      couponCode: order.couponCode || undefined,
+      grandTotal: order.grandTotal,
+      internalNotes: order.internalNotes || undefined,
+      items: order.items.map(item => ({
+        product: {
+          id: item.productId || 'unknown',
+          name: item.productName,
+          category: '',
+          slug: '',
+          price: item.price,
+          featuredImage: item.productImage,
+        },
+        selectedColor: {
+          name: item.colorName,
+          hex: item.colorHex,
+        },
+        selectedSize: item.selectedSize || undefined,
+        quantity: item.quantity,
+      })),
+    }));
+  } catch (error) {
+    console.error("Failed to fetch orders from database:", error);
+    return [];
+  }
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
