@@ -16,11 +16,16 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const products = await getAllProducts();
-  return products.map((product) => ({
-    category: product.category,
-    slug: product.slug,
-  }));
+  try {
+    const products = await getAllProducts();
+    return products.map((product) => ({
+      category: product.category,
+      slug: product.slug,
+    }));
+  } catch (error) {
+    console.warn('Could not fetch products during generateStaticParams, dynamicParams will render them on demand:', error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
