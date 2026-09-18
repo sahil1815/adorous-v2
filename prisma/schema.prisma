@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id             String            @id @default(uuid())
+  slug           String            @unique
+  name           String
+  category       String
+  categoryLabel  String
+  tagline        String?
+  price          Float
+  originalPrice  Float?
+  description    String?
+  featuredImage  String
+  badge          String?
+  inStock        Boolean           @default(true)
+  isNewDrop      Boolean           @default(false)
+  isGiftPick     Boolean           @default(false)
+  isBestseller   Boolean           @default(false)
+  featuredRank   Int?
+  seoKeywords    String            // Store as comma-separated string
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  details        ProductDetail[]
+  piecesIncluded ProductPiece[]
+  colorways      ProductColorway[]
+  galleryImages  ProductGalleryImage[]
+  orderItems     OrderItem[]
+}
+
+model ProductDetail {
+  id        String  @id @default(uuid())
+  text      String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductPiece {
+  id        String  @id @default(uuid())
+  text      String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductColorway {
+  id        String  @id @default(uuid())
+  colorId   String
+  name      String
+  hex       String
+  inStock   Boolean @default(true)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductGalleryImage {
+  id        String  @id @default(uuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  orderId        String      @unique // e.g. AF-2026-4102
+  status         String      @default("pending") // pending, verified, packaging, handed_to_courier, delivered, cancelled
+  courierPartner String?
+  consignmentId  String?
+  paymentMethod  String      @default("Cash on Delivery")
+  subtotal       Float
+  shippingFee    Float
+  discountAmount Float?
+  couponCode     String?
+  grandTotal     Float
+  internalNotes  String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  customer       Customer?
+  items          OrderItem[]
+}
+
+model Customer {
+  id              String  @id @default(uuid())
+  orderId         String  @unique
+  fullName        String
+  phone           String
+  email           String?
+  address         String
+  district        String
+  giftNote        String?
+  whatsappUpdates Boolean @default(true)
+
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model OrderItem {
+  id             String  @id @default(uuid())
+  orderId        String
+  productId      String?
+  productName    String
+  productImage   String
+  price          Float
+  quantity       Int
+  colorName      String
+  colorHex       String
+  selectedSize   String?
+
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}

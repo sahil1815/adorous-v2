@@ -1,0 +1,35 @@
+'use client';
+
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import AnnouncementBar from '@/components/layout/AnnouncementBar';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import MobileStickyBar from '@/components/layout/MobileStickyBar';
+import CartDrawer from '@/components/cart/CartDrawer';
+import WishlistDrawer from '@/components/wishlist/WishlistDrawer';
+
+export default function StorefrontLayoutWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
+
+  if (isAdminRoute) {
+    return <main className="flex-1 min-h-screen">{children}</main>;
+  }
+
+  return (
+    <>
+      <AnnouncementBar />
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
+      <MobileStickyBar />
+      <CartDrawer />
+      <WishlistDrawer />
+    </>
+  );
+}
