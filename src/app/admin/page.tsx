@@ -214,8 +214,8 @@ export default function AdminOrdersPage() {
               className="h-11 px-3 bg-[#222222] border border-white/10 rounded-xs text-xs text-paper focus:outline-none focus:border-gold"
             >
               <option value="all">All Delivery Regions</option>
-              <option value="dhaka">Rajshahi Metro (৳70 / Free)</option>
-              <option value="outside">Outside Dhaka (৳130 / Free)</option>
+              <option value="dhaka">Dhaka & Gazipur (৳80 / Free)</option>
+              <option value="outside">Outside Dhaka & Gazipur (৳130 / Free)</option>
             </select>
 
             <button

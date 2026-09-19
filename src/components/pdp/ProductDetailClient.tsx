@@ -399,10 +399,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   <div>
                     <strong className="font-semibold text-ink block">Delivery Rates & Timeline:</strong>
                     <span className="text-text-muted block">
-                      • Dhaka City: ৳70 (1–2 Days)
+                      • Dhaka & Gazipur: ৳80 (1–2 Days)
                     </span>
                     <span className="text-text-muted block">
-                      • All 64 Districts Nationwide: ৳130 (2–4 Days via Steadfast)
+                      • All Other Districts Nationwide: ৳130 (2–4 Days via Courier)
                     </span>
                     <span className="text-gold-deep font-medium block mt-0.5">
                       • Free Delivery on orders over ৳2,000

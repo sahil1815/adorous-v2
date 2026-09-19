@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useCoupons } from '@/context/CouponsContext';
-import { BANGLADESH_DISTRICTS } from '@/data/districts';
+import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
+import { CartItem } from '@/types';
 import {
   ShieldCheck,
   Truck,
@@ -21,21 +22,31 @@ import {
   Sparkles,
   Tag,
   CheckCircle2,
-  X
+  X,
+  MapPin,
+  ChevronDown,
+  Trash2,
+  Plus,
+  Minus
 } from 'lucide-react';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart();
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
+
+  // Deletion Confirmation Modal State
+  const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
 
   // Form State
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('Dhaka (Metro & Greater)');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
+  const districtContainerRef = useRef<HTMLDivElement>(null);
   const [giftNote, setGiftNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
@@ -55,13 +66,87 @@ export default function CheckoutPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Shipping Fee & Discount Calculation
-  const isDhaka = selectedDistrict.toLowerCase().includes('dhaka');
+  // Click outside to close district autocomplete
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (districtContainerRef.current && !districtContainerRef.current.contains(event.target as Node)) {
+        setIsDistrictDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Filter districts based on query (matches name or division)
+  const filteredDistricts = useMemo(() => {
+    const query = selectedDistrict.trim().toLowerCase();
+    if (!query) {
+      return BANGLADESH_DISTRICTS;
+    }
+    return BANGLADESH_DISTRICTS.filter(
+      (d) =>
+        d.name.toLowerCase().includes(query) ||
+        d.division.toLowerCase().includes(query)
+    );
+  }, [selectedDistrict]);
+
+  // Shipping Fee & Discount Calculation (৳80 for Dhaka & Gazipur, ৳130 for others)
+  const baseDistrictRate = getDistrictDeliveryFee(selectedDistrict);
   const isFreeDelivery = subtotal >= 2000;
-  const baseShippingFee = isFreeDelivery ? 0 : isDhaka ? 70 : 130;
+  const baseShippingFee = isFreeDelivery ? 0 : baseDistrictRate;
   const shippingFee = appliedCoupon?.freeShipping ? 0 : baseShippingFee;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+
+  // Quantity and Item Removal Handlers
+  const handleIncreaseQuantity = (item: CartItem) => {
+    updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize);
+  };
+
+  const handleDecreaseQuantity = (item: CartItem) => {
+    if (item.quantity > 1) {
+      updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize);
+    } else {
+      // Trigger confirmation popup if reducing from 1 to 0
+      setItemToDelete(item);
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    if (itemToDelete) {
+      removeItem(itemToDelete.product.id, itemToDelete.selectedColor.id, itemToDelete.selectedSize);
+      setItemToDelete(null);
+    }
+  };
+
+  // Close deletion modal with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && itemToDelete) {
+        setItemToDelete(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [itemToDelete]);
+
+  // Automatically re-evaluate coupon if subtotal changes due to quantity updates
+  useEffect(() => {
+    if (appliedCoupon) {
+      const result = validateCoupon(appliedCoupon.code, subtotal, baseShippingFee);
+      if (result.isValid) {
+        setAppliedCoupon({
+          code: result.coupon!.code,
+          discountAmount: result.discountAmount,
+          freeShipping: result.freeShipping,
+          description: result.coupon!.description,
+        });
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(`Coupon removed: ${result.message}`);
+      }
+    }
+  }, [subtotal, baseShippingFee]);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +192,11 @@ export default function CheckoutPage() {
 
     if (!address.trim()) {
       setErrorMsg('Please provide a complete delivery address (House, Road, Area).');
+      return;
+    }
+
+    if (!selectedDistrict.trim()) {
+      setErrorMsg('Please select or type your delivery district / city.');
       return;
     }
 
@@ -294,21 +384,114 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-4 text-xs">
-                <div className="space-y-1.5">
-                  <label className="block text-ink font-medium">
-                    District / City <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs cursor-pointer"
-                  >
-                    {BANGLADESH_DISTRICTS.map((dist) => (
-                      <option key={dist.name} value={dist.name}>
-                        {dist.name} ({dist.division} Division) {dist.isDhakaMetro ? '· ৳70 Delivery' : '· ৳130 Delivery'}
-                      </option>
-                    ))}
-                  </select>
+                <div className="space-y-1.5 relative" ref={districtContainerRef}>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-ink font-medium">
+                      District / City <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-[11px]">
+                      {selectedDistrict ? (
+                        baseDistrictRate === 80 ? (
+                          <span className="text-gold-deep font-semibold">৳80 Delivery (Dhaka / Gazipur)</span>
+                        ) : (
+                          <span className="text-ink font-medium">৳130 Delivery</span>
+                        )
+                      ) : null}
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gold-deep">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={selectedDistrict}
+                      onChange={(e) => {
+                        setSelectedDistrict(e.target.value);
+                        setIsDistrictDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDistrictDropdownOpen(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setIsDistrictDropdownOpen(false);
+                        }
+                      }}
+                      placeholder="Type or search district (e.g. Dhaka, Gazipur, Chittagong...)"
+                      className="w-full pl-10 pr-16 py-2.5 bg-sand/30 border border-line text-ink placeholder:text-text-muted focus:outline-none focus:border-gold rounded-xs transition-colors"
+                      autoComplete="off"
+                    />
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                      {selectedDistrict && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedDistrict('');
+                            setIsDistrictDropdownOpen(true);
+                          }}
+                          className="p-1 text-text-muted hover:text-ink transition-colors"
+                          aria-label="Clear district input"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsDistrictDropdownOpen(!isDistrictDropdownOpen)}
+                        className="p-1 text-text-muted hover:text-gold-deep transition-colors"
+                        aria-label="Toggle district suggestions"
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDistrictDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Autocomplete Suggestions Popover */}
+                  {isDistrictDropdownOpen && (
+                    <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-paper border border-gold/40 rounded-xs shadow-xl max-h-60 overflow-y-auto divide-y divide-line/40 animate-in fade-in slide-in-from-top-1 duration-150">
+                      {filteredDistricts.length > 0 ? (
+                        filteredDistricts.map((dist) => {
+                          const isSelected = selectedDistrict.trim().toLowerCase() === dist.name.toLowerCase();
+                          const isSpecialRate = dist.deliveryFee === 80;
+                          return (
+                            <button
+                              key={dist.name}
+                              type="button"
+                              onClick={() => {
+                                setSelectedDistrict(dist.name);
+                                setIsDistrictDropdownOpen(false);
+                              }}
+                              className={`w-full px-3.5 py-2.5 text-left flex items-center justify-between transition-colors hover:bg-sand/70 ${
+                                isSelected ? 'bg-sand font-medium' : ''
+                              }`}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span className="text-ink font-medium">{dist.name}</span>
+                                <span className="text-[10px] text-text-muted">({dist.division} Division)</span>
+                              </div>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded-[2px] font-semibold tracking-wide ${
+                                  isSpecialRate
+                                    ? 'bg-gold/20 text-gold-deep border border-gold/40'
+                                    : 'bg-sand text-text-muted border border-line'
+                                }`}
+                              >
+                                ৳{dist.deliveryFee} Delivery
+                              </span>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="p-3 text-xs text-text-muted text-center">
+                          <span>Custom location: <strong>&ldquo;{selectedDistrict}&rdquo;</strong></span>
+                          <p className="text-[10px] text-gold-deep mt-1 font-medium">
+                            {baseDistrictRate === 80 ? '৳80 Express Delivery (Dhaka/Gazipur)' : '৳130 Delivery'} applies
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
@@ -432,42 +615,92 @@ export default function CheckoutPage() {
               </h2>
 
               {/* Items List */}
-              <div className="divide-y divide-line max-h-72 overflow-y-auto pr-1">
-                {items.map((item, idx) => (
-                  <div key={idx} className="py-3 flex items-center justify-between gap-3 first:pt-0">
-                    <div className="flex items-center space-x-3 min-w-0">
-                      <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
-                        <Image
-                          src={item.product.featuredImage}
-                          alt={item.product.name}
-                          fill
-                          sizes="48px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-medium text-ink truncate block">
-                          {item.product.name}
-                        </h4>
-                        <div className="text-[10px] text-text-muted flex items-center gap-1.5 mt-0.5">
-                          <span
-                            className="w-2 h-2 rounded-full border border-black/20"
-                            style={{ backgroundColor: item.selectedColor.hex }}
+              <div className="divide-y divide-line max-h-80 overflow-y-auto pr-1">
+                {items.map((item, idx) => {
+                  const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
+                  const lineTotal = item.product.price * item.quantity;
+
+                  return (
+                    <div key={itemKey} className="py-3.5 flex items-start justify-between gap-3 first:pt-0">
+                      <div className="flex items-start space-x-3 min-w-0 flex-1">
+                        <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
+                          <Image
+                            src={item.product.featuredImage}
+                            alt={item.product.name}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
                           />
-                          <span>{item.selectedColor.name}</span>
-                          {item.selectedSize && <span>· Size {item.selectedSize}</span>}
-                          <span>· Qty {item.quantity}</span>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-medium text-ink truncate block">
+                            {item.product.name}
+                          </h4>
+                          <div className="text-[10px] text-text-muted flex items-center gap-1.5 mt-0.5">
+                            <span
+                              className="w-2 h-2 rounded-full border border-black/20 shrink-0"
+                              style={{ backgroundColor: item.selectedColor.hex }}
+                            />
+                            <span className="truncate">{item.selectedColor.name}</span>
+                            {item.selectedSize && <span>· Size {item.selectedSize}</span>}
+                          </div>
+
+                          {/* Quantity Stepper & Unit Price */}
+                          <div className="flex items-center space-x-2 mt-2">
+                            <div className="flex items-center border border-line rounded-[2px] bg-sand/40 h-6">
+                              <button
+                                type="button"
+                                onClick={() => handleDecreaseQuantity(item)}
+                                className="px-1.5 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center text-xs"
+                                aria-label={`Decrease quantity of ${item.product.name}`}
+                                title={item.quantity === 1 ? 'Remove item' : 'Decrease quantity'}
+                              >
+                                {item.quantity === 1 ? (
+                                  <Trash2 className="w-2.5 h-2.5 text-text-muted hover:text-red-700" />
+                                ) : (
+                                  <Minus className="w-2.5 h-2.5" />
+                                )}
+                              </button>
+                              <span className="px-2 text-xs font-semibold tabular-nums text-ink">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleIncreaseQuantity(item)}
+                                className="px-1.5 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center text-xs"
+                                aria-label={`Increase quantity of ${item.product.name}`}
+                                title="Increase quantity"
+                              >
+                                <Plus className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+
+                            <span className="text-[10px] text-text-muted tabular-nums">
+                              ৳{item.product.price.toLocaleString('en-US')} each
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-xs font-semibold text-ink tabular-nums">
-                        ৳{(item.product.price * item.quantity).toLocaleString('en-US')}
-                      </span>
+                      {/* Line Total & Trash Button */}
+                      <div className="flex flex-col items-end justify-between self-stretch shrink-0">
+                        <span className="text-xs font-semibold text-ink tabular-nums">
+                          ৳{lineTotal.toLocaleString('en-US')}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setItemToDelete(item)}
+                          className="text-text-muted hover:text-red-700 p-1 transition-colors rounded-xs hover:bg-red-50"
+                          aria-label={`Remove ${item.product.name} from order`}
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Promo / Voucher Code Section */}
@@ -617,7 +850,7 @@ export default function CheckoutPage() {
               <div className="pt-2 text-[11px] text-text-muted space-y-1.5 border-t border-line">
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                  <span><strong>Rajshahi Metro:</strong> 24 to 48 Hours Delivery</span>
+                  <span><strong>Dhaka & Gazipur:</strong> 24 to 48 Hours Delivery</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
@@ -628,6 +861,83 @@ export default function CheckoutPage() {
           </div>
         </form>
       </main>
+
+      {/* Delete Item Confirmation Popup Modal */}
+      {itemToDelete && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setItemToDelete(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-item-dialog-title"
+        >
+          <div 
+            className="bg-paper border border-gold/40 rounded-xs shadow-2xl max-w-sm w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start space-x-3">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 id="delete-item-dialog-title" className="font-serif text-lg font-medium text-ink">
+                  Remove from Order?
+                </h3>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Are you sure you want to remove this piece from your bag?
+                </p>
+              </div>
+            </div>
+
+            {/* Item Preview Card */}
+            <div className="p-3 bg-sand/40 border border-line rounded-xs flex items-center space-x-3">
+              <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
+                <Image
+                  src={itemToDelete.product.featuredImage}
+                  alt={itemToDelete.product.name}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs font-medium text-ink truncate">
+                  {itemToDelete.product.name}
+                </h4>
+                <div className="text-[10px] text-text-muted flex items-center gap-1.5 mt-0.5">
+                  <span
+                    className="w-2 h-2 rounded-full border border-black/20 shrink-0"
+                    style={{ backgroundColor: itemToDelete.selectedColor.hex }}
+                  />
+                  <span className="truncate">{itemToDelete.selectedColor.name}</span>
+                  {itemToDelete.selectedSize && <span>· Size {itemToDelete.selectedSize}</span>}
+                </div>
+                <div className="text-xs font-semibold text-ink mt-1 tabular-nums">
+                  Qty: {itemToDelete.quantity} · ৳{(itemToDelete.product.price * itemToDelete.quantity).toLocaleString('en-US')}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end space-x-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setItemToDelete(null)}
+                className="px-4 py-2 bg-paper hover:bg-sand border border-line text-ink text-xs font-medium uppercase tracking-wider rounded-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+              >
+                Remove Item
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

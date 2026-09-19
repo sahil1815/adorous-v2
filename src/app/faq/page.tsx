@@ -44,12 +44,12 @@ const FAQ_DATA: FaqCategory[] = [
       {
         question: 'What are the courier delivery charges?',
         answer:
-          'We offer flat-rate transparent delivery: ৳70 within Rajshahi Metro, and ৳130 for all other 63 districts across Bangladesh. Furthermore, all orders of ৳2,000 and above qualify for 100% Complimentary Free Delivery.',
+          'We offer flat-rate transparent delivery: ৳80 within Dhaka & Gazipur, and ৳130 for all other districts across Bangladesh. Furthermore, all orders of ৳2,000 and above qualify for 100% Complimentary Free Delivery.',
       },
       {
         question: 'How long does delivery take?',
         answer:
-          'Orders within Rajshahi Metro arrive in 24 to 48 hours. Deliveries to district sadars and upazilas across Bangladesh arrive within 48 to 72 hours via our logistics partners Steadfast, Pathao, or RedX.',
+          'Orders within Dhaka & Gazipur arrive in 24 to 48 hours. Deliveries to district sadars and upazilas across Bangladesh arrive within 48 to 72 hours via our express courier delivery partners.',
       },
       {
         question: 'Can I inspect the parcel before paying the courier rider?',
