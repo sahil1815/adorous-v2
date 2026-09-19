@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Product, Colorway } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -23,7 +23,8 @@ import {
   Share2,
   CheckCircle2,
   Box,
-  Heart
+  Heart,
+  Zap
 } from 'lucide-react';
 
 interface ProductDetailClientProps {
@@ -32,8 +33,9 @@ interface ProductDetailClientProps {
 }
 
 export default function ProductDetailClient({ product, pairsWellWith }: ProductDetailClientProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const { addItem } = useCart();
+  const { addItem, closeCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const isSaved = isInWishlist(product.id);
@@ -65,10 +67,19 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     window.history.replaceState({}, '', url.toString());
   };
 
+  const [isOrdering, setIsOrdering] = useState(false);
+
   const handleAddToCart = () => {
     addItem(product, selectedColor, selectedSize || undefined, quantity);
     setIsAddedAnimation(true);
     setTimeout(() => setIsAddedAnimation(false), 2000);
+  };
+
+  const handleOrderNow = () => {
+    setIsOrdering(true);
+    addItem(product, selectedColor, selectedSize || undefined, quantity);
+    closeCart();
+    router.push('/checkout');
   };
 
   // WhatsApp order link pre-filling
@@ -308,24 +319,24 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* 3. Quantity & CTAs */}
               <div className="mt-8 space-y-3.5">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   {/* Quantity Counter */}
-                  <div className="flex items-center border border-line rounded-[2px] bg-sand/50 h-12">
+                  <div className="flex items-center border border-line rounded-[2px] bg-sand/50 h-12 shrink-0">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center"
+                      className="px-2.5 sm:px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center font-medium"
                       aria-label="Decrease quantity"
                     >
                       -
                     </button>
-                    <span className="px-3 text-sm font-semibold tabular-nums text-ink">
+                    <span className="px-2 sm:px-3 text-sm font-semibold tabular-nums text-ink">
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
-                      className="px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center"
+                      className="px-2.5 sm:px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center font-medium"
                       aria-label="Increase quantity"
                     >
                       +
@@ -336,17 +347,28 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-2 shadow-sm"
+                    className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 active:scale-[0.99]"
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>{isAddedAnimation ? 'Added to Bag!' : 'Add to Bag'}</span>
+                    <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-gold-deep" />
+                    <span className="truncate">{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
+                  </button>
+
+                  {/* Order Now Button */}
+                  <button
+                    type="button"
+                    onClick={handleOrderNow}
+                    disabled={isOrdering}
+                    className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 shadow-sm active:scale-[0.99]"
+                  >
+                    <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-ink shrink-0" />
+                    <span className="truncate">{isOrdering ? 'Proceeding...' : 'Order Now'}</span>
                   </button>
 
                   {/* Wishlist Button */}
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product)}
-                    className={`h-12 w-12 border rounded-[2px] flex items-center justify-center transition-all shrink-0 ${
+                    className={`h-12 w-11 sm:w-12 border rounded-[2px] flex items-center justify-center transition-all shrink-0 ${
                       isSaved
                         ? 'bg-ink text-gold border-gold/40 shadow-sm'
                         : 'bg-paper border-line text-ink hover:border-gold hover:text-gold-deep'
