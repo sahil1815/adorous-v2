@@ -108,29 +108,29 @@ export default function HomePage() {
       {/* 2. TRUST STRIP */}
       <section className="bg-sand/70 border-b border-line py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
-            <div className="flex items-center justify-center space-x-2.5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 text-center">
+            <div className="flex items-center justify-center space-x-2 min-w-0">
               <ShieldCheck className="w-4 h-4 text-gold-deep shrink-0" />
-              <span className="text-xs font-medium text-ink uppercase tracking-wider">
+              <span className="text-[11px] sm:text-xs font-medium text-ink uppercase tracking-normal sm:tracking-wider">
                 COD in all 64 districts
               </span>
             </div>
-            <div className="flex items-center justify-center space-x-2.5">
+            <div className="flex items-center justify-center space-x-2 min-w-0">
               <Truck className="w-4 h-4 text-gold-deep shrink-0" />
-              <span className="text-xs font-medium text-ink uppercase tracking-wider">
+              <span className="text-[11px] sm:text-xs font-medium text-ink uppercase tracking-normal sm:tracking-wider">
                 Free Delivery over ৳2,000
               </span>
             </div>
-            <div className="flex items-center justify-center space-x-2.5">
+            <div className="flex items-center justify-center space-x-2 min-w-0">
               <MessageCircle className="w-4 h-4 text-whatsapp shrink-0" />
-              <span className="text-xs font-medium text-ink uppercase tracking-wider">
-                WhatsApp Order Verification
+              <span className="text-[11px] sm:text-xs font-medium text-ink uppercase tracking-normal sm:tracking-wider">
+                WhatsApp Verification
               </span>
             </div>
-            <div className="flex items-center justify-center space-x-2.5">
+            <div className="flex items-center justify-center space-x-2 min-w-0">
               <RotateCcw className="w-4 h-4 text-gold-deep shrink-0" />
-              <span className="text-xs font-medium text-ink uppercase tracking-wider">
-                7-Day Hassle-Free Exchange
+              <span className="text-[11px] sm:text-xs font-medium text-ink uppercase tracking-normal sm:tracking-wider">
+                7-Day Exchange
               </span>
             </div>
           </div>

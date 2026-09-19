@@ -180,7 +180,7 @@ export default function CategoryPageClient({
             </span>
 
             {/* Color Swatch Filters */}
-            <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+            <div className="flex items-center space-x-1.5 overflow-x-auto py-1 max-w-full min-w-0">
               <button
                 type="button"
                 onClick={() => setSelectedColor(null)}

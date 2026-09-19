@@ -178,7 +178,7 @@ export default function Footer() {
           <div>
             © {new Date().getFullYear()} Adorous Fashion Ltd. Rajshahi, Bangladesh.
           </div>
-          <div className="flex items-center space-x-6 text-[11px]">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-[11px]">
             <span>Cash on Delivery</span>
             <span>bKash</span>
             <span>Nagad</span>

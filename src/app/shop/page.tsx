@@ -106,7 +106,7 @@ export default function ShopPage() {
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="mt-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full min-w-0">
             <button
               type="button"
               onClick={() => setSelectedCategory('all')}

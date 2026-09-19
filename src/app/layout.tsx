@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
@@ -14,6 +14,13 @@ import { CouponsProvider } from "@/context/CouponsContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
 import { LandingPagesProvider } from "@/context/LandingPagesContext";
 import StorefrontLayoutWrapper from "@/components/layout/StorefrontLayoutWrapper";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#FAF8F4",
+};
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -75,7 +82,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
-      <body className="min-h-screen flex flex-col bg-paper text-ink selection:bg-gold-light selection:text-ink">
+      <body className="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden bg-paper text-ink selection:bg-gold-light selection:text-ink">
         <AdminAuthProvider>
           <OrdersProvider>
             <InventoryProvider>

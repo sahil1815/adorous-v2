@@ -110,7 +110,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     <div className="bg-paper min-h-screen py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
-        <nav className="flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap">
+        <nav className="flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap max-w-full min-w-0">
           <Link href="/" className="hover:text-ink transition-colors">Home</Link>
           <span>/</span>
           <Link href="/shop" className="hover:text-ink transition-colors">The Edit</Link>
