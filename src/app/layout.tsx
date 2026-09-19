@@ -12,6 +12,7 @@ import { OrdersProvider } from "@/context/OrdersContext";
 import { InventoryProvider } from "@/context/InventoryContext";
 import { CouponsProvider } from "@/context/CouponsContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
+import { LandingPagesProvider } from "@/context/LandingPagesContext";
 import StorefrontLayoutWrapper from "@/components/layout/StorefrontLayoutWrapper";
 
 const cormorant = Cormorant_Garamond({
@@ -72,13 +73,15 @@ export default function RootLayout({
             <InventoryProvider>
               <CouponsProvider>
                 <ReviewsProvider>
-                  <CartProvider>
-                    <WishlistProvider>
-                      <StorefrontLayoutWrapper>
-                        {children}
-                      </StorefrontLayoutWrapper>
-                    </WishlistProvider>
-                  </CartProvider>
+                  <LandingPagesProvider>
+                    <CartProvider>
+                      <WishlistProvider>
+                        <StorefrontLayoutWrapper>
+                          {children}
+                        </StorefrontLayoutWrapper>
+                      </WishlistProvider>
+                    </CartProvider>
+                  </LandingPagesProvider>
                 </ReviewsProvider>
               </CouponsProvider>
             </InventoryProvider>
