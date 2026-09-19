@@ -70,3 +70,100 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #9C7F45;
 }
+
+/* Luxury Loading & Shimmer Animations */
+@keyframes luxury-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.luxury-shimmer {
+  background: linear-gradient(
+    90deg,
+    #DDD6CB 0%,
+    #EFEBE4 35%,
+    #F7F5F0 50%,
+    #EFEBE4 65%,
+    #DDD6CB 100%
+  );
+  background-size: 250% 100%;
+  animation: luxury-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.luxury-shimmer-light {
+  background: linear-gradient(
+    90deg,
+    #F0EBE3 0%,
+    #FAF8F4 35%,
+    #FFFFFF 50%,
+    #FAF8F4 65%,
+    #F0EBE3 100%
+  );
+  background-size: 250% 100%;
+  animation: luxury-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes gold-monogram-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.92;
+    filter: drop-shadow(0 0 12px rgba(198, 169, 110, 0.35));
+  }
+  50% {
+    transform: scale(1.035);
+    opacity: 1;
+    filter: drop-shadow(0 0 24px rgba(198, 169, 110, 0.65));
+  }
+}
+
+.gold-monogram-pulse {
+  animation: gold-monogram-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes gold-ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gold-ring-spin {
+  animation: gold-ring-spin 16s linear infinite;
+}
+
+@keyframes gold-bar-indeterminate {
+  0% {
+    left: -40%;
+    width: 40%;
+  }
+  50% {
+    left: 30%;
+    width: 50%;
+  }
+  100% {
+    left: 100%;
+    width: 30%;
+  }
+}
+
+.gold-indeterminate-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-indeterminate-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #9C7F45 0%, #E4D2A8 50%, #C6A96E 100%);
+  box-shadow: 0 0 10px rgba(198, 169, 110, 0.8);
+  animation: gold-bar-indeterminate 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

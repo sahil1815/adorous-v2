@@ -42,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Image Container with Warm Stone Backdrop */}
       <Link
         href={productHref}
-        className="relative block aspect-[4/5] bg-stone overflow-hidden"
+        className="relative block aspect-[4/5] bg-stone overflow-hidden active:opacity-90 active:scale-[0.99] transition-all"
       >
         <Image
           src={product.featuredImage}
