@@ -58,6 +58,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: '/images/logo/logo-monogram.png' },
+      { url: '/favicon.ico' },
+    ],
+    shortcut: '/images/logo/logo-monogram.png',
+    apple: '/images/logo/logo-monogram.png',
+  },
 };
 
 export default function RootLayout({
