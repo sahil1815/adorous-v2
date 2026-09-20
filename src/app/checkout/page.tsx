@@ -273,21 +273,19 @@ export default function CheckoutPage() {
   return (
     <div className="bg-paper min-h-screen">
       {/* Header Bar */}
-      <section className="border-b border-line bg-[#F8F6F0] py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <nav className="flex items-center space-x-2 text-[11px] text-text-muted uppercase tracking-wider mb-1">
-              <Link href="/" className="hover:text-ink transition-colors">Home</Link>
-              <span>/</span>
-              <Link href="/shop" className="hover:text-ink transition-colors">Bag</Link>
-              <span>/</span>
-              <span className="text-ink font-medium">Checkout</span>
-            </nav>
-          </div>
+      <section className="border-b border-line bg-[#F8F6F0] py-4 sm:py-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
+          <nav className="flex items-center space-x-2 text-[10px] sm:text-[11px] text-text-muted uppercase tracking-wider shrink-0">
+            <Link href="/" className="hover:text-ink transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/shop" className="hover:text-ink transition-colors">Bag</Link>
+            <span>/</span>
+            <span className="text-ink font-medium">Checkout</span>
+          </nav>
 
-          <div className="flex items-center gap-2 text-xs text-text-muted">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Cash on Delivery (COD) · Inspect Before You Pay</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-emerald-200/60 shadow-sm shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+            <span className="font-medium">Cash on Delivery (COD) <span className="hidden sm:inline">· Inspect Before You Pay</span></span>
           </div>
         </div>
       </section>
