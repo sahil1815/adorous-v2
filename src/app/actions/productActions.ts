@@ -101,16 +101,20 @@ export async function getAllProducts() {
 
 export async function getProductById(id: string) {
   try {
-    if (!process.env.DATABASE_URL) return null;
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
-    });
-    return product ?? null;
+    if (process.env.DATABASE_URL) {
+      const product = await prisma.product.findUnique({
+        where: { id },
+        include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
+      });
+      if (product) return product;
+    }
   } catch (error) {
-    console.warn(`[getProductById] Error fetching product ${id}:`, error);
-    return null;
+    console.warn(`[getProductById] Error fetching product ${id} from DB:`, error);
   }
+
+  // Fallback to static catalogue
+  const staticProduct = PRODUCTS.find((p) => p.id === id);
+  return staticProduct ? toDbShape(staticProduct) : null;
 }
 
 export async function createProductAction(productData: Product) {
@@ -230,9 +234,43 @@ export async function updateProductAction(
       prisma.productPiece.deleteMany({ where: { productId: id } }),
       prisma.productColorway.deleteMany({ where: { productId: id } }),
       prisma.productGalleryImage.deleteMany({ where: { productId: id } }),
-      prisma.product.update({
+      prisma.product.upsert({
         where: { id },
-        data: {
+        create: {
+          id, // ensure we retain the catalogue ID if creating for the first time
+          slug: cleanSlug,
+          name: productData.name.trim(),
+          category: productData.category,
+          categoryLabel: productData.categoryLabel,
+          tagline: productData.tagline?.trim() || null,
+          price: Number(productData.price),
+          originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
+          description: productData.description?.trim() || null,
+          featuredImage: productData.featuredImage,
+          badge: productData.isNewDrop ? 'New Drop' : (productData.isBestseller ? 'Bestseller' : null),
+          inStock: productData.inStock,
+          isNewDrop: productData.isNewDrop,
+          isBestseller: productData.isBestseller,
+          isGiftPick: productData.isGiftPick,
+          seoKeywords: productData.seoKeywords.join(','),
+          details: { create: productData.details.map((text) => ({ text })) },
+          piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
+          colorways: {
+            create: productData.colorways.map((cw) => ({
+              colorId: cw.id,
+              name: cw.name,
+              hex: cw.hex,
+              inStock: cw.inStock,
+            })),
+          },
+          galleryImages: {
+            create: (productData.galleryImages.length > 0
+              ? productData.galleryImages
+              : [productData.featuredImage]
+            ).map((url) => ({ url })),
+          },
+        },
+        update: {
           slug: cleanSlug,
           name: productData.name.trim(),
           category: productData.category,

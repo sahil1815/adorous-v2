@@ -271,56 +271,14 @@ export default function AdminInventoryPage() {
 
                 {/* Middle: Edit / Badges / Price */}
                 <div className="flex flex-wrap items-center gap-3 text-xs w-full md:w-auto">
-                  {/* Edit Product button — only for custom (DB) products */}
-                  {customProducts.some((cp) => cp.id === prod.id) ? (
-                    <Link
-                      href={`/admin/inventory/edit/${prod.id}`}
-                      className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                      <span>Edit Product</span>
-                    </Link>
-                  ) : (
-                    /* Inline price-only edit for static catalogue products */
-                    isEditingPrice ? (
-                      <div className="flex items-center space-x-2 bg-black/40 p-2 rounded-xs border border-white/10">
-                        <div>
-                          <span className="text-[9px] text-paper/40 block">Price (৳)</span>
-                          <input
-                            type="number"
-                            value={priceInput}
-                            onChange={(e) => setPriceInput(Number(e.target.value))}
-                            className="w-20 h-7 px-1.5 bg-[#222222] border border-gold/30 rounded-xs text-xs font-mono text-paper"
-                          />
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-paper/40 block">Was (৳)</span>
-                          <input
-                            type="number"
-                            value={origPriceInput}
-                            onChange={(e) => setOrigPriceInput(Number(e.target.value))}
-                            className="w-20 h-7 px-1.5 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleSavePrice(prod.id)}
-                          className="self-end h-7 px-2.5 bg-gold text-ink font-semibold text-[10px] rounded-xs uppercase tracking-wider flex items-center space-x-1"
-                        >
-                          <Save className="w-3 h-3" /><span>Save</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleStartEditPrice(prod)}
-                        className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1"
-                      >
-                        <Edit3 className="w-3 h-3" /><span>Edit Price</span>
-                        {isSaved && <Check className="w-3 h-3 text-emerald-400" />}
-                      </button>
-                    )
-                  )}
+                  {/* Edit Product button for all products */}
+                  <Link
+                    href={`/admin/inventory/edit/${prod.id}`}
+                    className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>Edit Product</span>
+                  </Link>
 
                   {/* Ribbon Badges Toggles */}
                   <div className="flex items-center space-x-2 bg-[#222222] p-1.5 rounded-xs border border-white/10">
