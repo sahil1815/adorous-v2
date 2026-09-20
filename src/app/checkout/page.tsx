@@ -305,22 +305,8 @@ export default function CheckoutPage() {
             {/* Shipping Details Form Block */}
             <div className="bg-paper border border-line p-5 sm:p-7 rounded-[2px] shadow-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                
-                {/* 1. Email Address (Moved to Top) */}
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label className="block text-ink font-medium">
-                    Email Address <span className="text-text-muted text-[10px]">(Optional for receipt)</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. farhana@example.com"
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
-                  />
-                </div>
 
-                {/* 2. Full Name */}
+                {/* 1. Full Name */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Full Name <span className="text-red-500">*</span>
@@ -335,7 +321,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* 3. Phone Number */}
+                {/* 2. Phone Number */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Phone Number <span className="text-red-500">*</span>
@@ -355,11 +341,25 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
+                {/* 3. Email Address (Moved to Top) */}
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-ink font-medium">
+                    Email Address <span className="text-text-muted text-[10px]">(Optional)</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="e.g. farhana@example.com"
+                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
+                  />
+                </div>
+
                 {/* 4. Division / District */}
                 <div className="space-y-1.5 sm:col-span-2 relative" ref={districtContainerRef}>
                   <div className="flex items-center justify-between">
                     <label className="block text-ink font-medium">
-                      Division / District <span className="text-red-500">*</span>
+                      District <span className="text-red-500">*</span>
                     </label>
                   </div>
                   <div className="relative">
@@ -707,14 +707,14 @@ export default function CheckoutPage() {
               {/* 6. Gift Note Section */}
               <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs space-y-3">
                 <label className="block text-ink font-medium text-sm">
-                  Complimentary Handwritten Calligraphy Note
-                  <span className="text-text-muted text-[10px] block sm:inline sm:ml-1 mt-0.5 sm:mt-0">(Optional for gifts)</span>
+                  Special Instructions
+                  <span className="text-text-muted text-[10px] block sm:inline sm:ml-1 mt-0.5 sm:mt-0">(Optional)</span>
                 </label>
                 <textarea
                   rows={2}
                   value={giftNote}
                   onChange={(e) => setGiftNote(e.target.value)}
-                  placeholder="Write a message for the recipient..."
+                  placeholder="Write a message..."
                   className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink text-xs focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
                 />
               </div>
