@@ -54,6 +54,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const closeCart = () => setIsOpen(false);
 
   const addItem = (product: Product, selectedColor: Colorway, selectedSize?: string, quantity: number = 1) => {
+    // Guard: block add if product is explicitly out of stock
+    if (product.inStock === false || (product as any).stockQty === 0) return;
+
     setItems((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>

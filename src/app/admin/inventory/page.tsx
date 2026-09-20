@@ -6,22 +6,19 @@ import Link from 'next/link';
 import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
-import { deleteProductAction } from '@/app/actions/productActions';
+import { deleteProductAction, updateStockAction } from '@/app/actions/productActions';
 import {
   Search,
-  Filter,
-  Layers,
-  Sparkles,
   CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Tag,
   ExternalLink,
   Edit3,
   Save,
   Check,
   Plus,
-  Trash2
+  Trash2,
+  Package,
+  Infinity,
+  Loader2,
 } from 'lucide-react';
 
 export default function AdminInventoryPage() {
@@ -42,6 +39,32 @@ export default function AdminInventoryPage() {
   const [priceInput, setPriceInput] = useState<number>(0);
   const [origPriceInput, setOrigPriceInput] = useState<number>(0);
   const [savedSuccessId, setSavedSuccessId] = useState<string | null>(null);
+
+  // Stock qty per-product state (productId -> { qty: number | null, saving: boolean, saved: boolean })
+  const [stockInputs, setStockInputs] = useState<Record<string, { qty: number; mode: 'unlimited' | 'tracked'; saving: boolean; saved: boolean }>>({});
+
+  const getStockState = (prod: Product) => {
+    if (stockInputs[prod.id]) return stockInputs[prod.id];
+    // Default: unlimited for all products (DB products may override this via their stockQty field)
+    return { qty: 0, mode: 'unlimited' as const, saving: false, saved: false };
+  };
+
+  const handleStockModeChange = (productId: string, mode: 'unlimited' | 'tracked') => {
+    setStockInputs(prev => ({ ...prev, [productId]: { ...getStockState({ id: productId } as Product), mode, saved: false } }));
+  };
+
+  const handleStockQtyChange = (productId: string, qty: number) => {
+    setStockInputs(prev => ({ ...prev, [productId]: { ...getStockState({ id: productId } as Product), qty, saved: false } }));
+  };
+
+  const handleSaveStock = async (productId: string) => {
+    const s = getStockState({ id: productId } as Product);
+    setStockInputs(prev => ({ ...prev, [productId]: { ...s, saving: true } }));
+    const qty = s.mode === 'unlimited' ? null : Math.max(0, s.qty);
+    await updateStockAction(productId, qty);
+    setStockInputs(prev => ({ ...prev, [productId]: { ...s, saving: false, saved: true } }));
+    setTimeout(() => setStockInputs(prev => ({ ...prev, [productId]: { ...prev[productId], saved: false } })), 2000);
+  };
 
   // Filter products across all (custom + catalogue)
   const filteredProducts = allProducts.filter((prod) => {
@@ -246,125 +269,146 @@ export default function AdminInventoryPage() {
                   </div>
                 </div>
 
-                {/* Middle: Badges & Price Edit */}
-                <div className="flex flex-wrap items-center gap-4 text-xs w-full md:w-auto">
-                  {/* Price Controls */}
-                  {isEditingPrice ? (
-                    <div className="flex items-center space-x-2 bg-black/40 p-2 rounded-xs border border-white/10">
-                      <div>
-                        <span className="text-[9px] text-paper/40 block">Price (৳)</span>
-                        <input
-                          type="number"
-                          value={priceInput}
-                          onChange={(e) => setPriceInput(Number(e.target.value))}
-                          className="w-20 h-7 px-1.5 bg-[#222222] border border-gold/30 rounded-xs text-xs font-mono text-paper"
-                        />
-                      </div>
-                      <div>
-                        <span className="text-[9px] text-paper/40 block">Was (৳)</span>
-                        <input
-                          type="number"
-                          value={origPriceInput}
-                          onChange={(e) => setOrigPriceInput(Number(e.target.value))}
-                          className="w-20 h-7 px-1.5 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSavePrice(prod.id)}
-                        className="self-end h-7 px-2.5 bg-gold text-ink font-semibold text-[10px] rounded-xs uppercase tracking-wider flex items-center space-x-1"
-                      >
-                        <Save className="w-3 h-3" />
-                        <span>Save</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleStartEditPrice(prod)}
+                {/* Middle: Edit / Badges / Price */}
+                <div className="flex flex-wrap items-center gap-3 text-xs w-full md:w-auto">
+                  {/* Edit Product button — only for custom (DB) products */}
+                  {customProducts.some((cp) => cp.id === prod.id) ? (
+                    <Link
+                      href={`/admin/inventory/edit/${prod.id}`}
                       className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1"
                     >
                       <Edit3 className="w-3 h-3" />
-                      <span>Edit Price</span>
-                      {isSaved && <Check className="w-3 h-3 text-emerald-400" />}
-                    </button>
+                      <span>Edit Product</span>
+                    </Link>
+                  ) : (
+                    /* Inline price-only edit for static catalogue products */
+                    isEditingPrice ? (
+                      <div className="flex items-center space-x-2 bg-black/40 p-2 rounded-xs border border-white/10">
+                        <div>
+                          <span className="text-[9px] text-paper/40 block">Price (৳)</span>
+                          <input
+                            type="number"
+                            value={priceInput}
+                            onChange={(e) => setPriceInput(Number(e.target.value))}
+                            className="w-20 h-7 px-1.5 bg-[#222222] border border-gold/30 rounded-xs text-xs font-mono text-paper"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-paper/40 block">Was (৳)</span>
+                          <input
+                            type="number"
+                            value={origPriceInput}
+                            onChange={(e) => setOrigPriceInput(Number(e.target.value))}
+                            className="w-20 h-7 px-1.5 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleSavePrice(prod.id)}
+                          className="self-end h-7 px-2.5 bg-gold text-ink font-semibold text-[10px] rounded-xs uppercase tracking-wider flex items-center space-x-1"
+                        >
+                          <Save className="w-3 h-3" /><span>Save</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleStartEditPrice(prod)}
+                        className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1"
+                      >
+                        <Edit3 className="w-3 h-3" /><span>Edit Price</span>
+                        {isSaved && <Check className="w-3 h-3 text-emerald-400" />}
+                      </button>
+                    )
                   )}
 
                   {/* Ribbon Badges Toggles */}
                   <div className="flex items-center space-x-2 bg-[#222222] p-1.5 rounded-xs border border-white/10">
                     <button
                       type="button"
-                      onClick={() =>
-                        updateProductBadges(prod.id, {
-                          isNewDrop: !effective.isNewDrop,
-                        })
-                      }
-                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${
-                        effective.isNewDrop
-                          ? 'bg-ink text-gold-light border border-gold/40'
-                          : 'text-paper/40 hover:text-paper'
-                      }`}
+                      onClick={() => updateProductBadges(prod.id, { isNewDrop: !effective.isNewDrop })}
+                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${effective.isNewDrop ? 'bg-ink text-gold-light border border-gold/40' : 'text-paper/40 hover:text-paper'}`}
                     >
                       {effective.isNewDrop ? '✓ New Drop' : '+ New Drop'}
                     </button>
-
                     <button
                       type="button"
-                      onClick={() =>
-                        updateProductBadges(prod.id, {
-                          isBestseller: !effective.isBestseller,
-                        })
-                      }
-                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${
-                        effective.isBestseller
-                          ? 'bg-gold text-ink font-bold'
-                          : 'text-paper/40 hover:text-paper'
-                      }`}
+                      onClick={() => updateProductBadges(prod.id, { isBestseller: !effective.isBestseller })}
+                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${effective.isBestseller ? 'bg-gold text-ink font-bold' : 'text-paper/40 hover:text-paper'}`}
                     >
                       {effective.isBestseller ? '✓ Bestseller' : '+ Bestseller'}
                     </button>
                   </div>
                 </div>
 
-                {/* Right: Stock Status Selector */}
-                <div className="flex items-center space-x-2 shrink-0 w-full md:w-auto justify-between md:justify-start">
-                  <span className="text-[11px] text-paper/50 md:hidden">Stock:</span>
-                  <div className="flex items-center space-x-1 bg-[#222222] p-1 rounded-xs border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => updateProductStock(prod.id, 'in_stock')}
-                      className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${
-                        stockStatus === 'in_stock'
-                          ? 'bg-emerald-700 text-white shadow-xs'
-                          : 'text-paper/50 hover:text-paper'
-                      }`}
-                    >
-                      In Stock
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateProductStock(prod.id, 'low_stock')}
-                      className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${
-                        stockStatus === 'low_stock'
-                          ? 'bg-amber-600 text-ink shadow-xs'
-                          : 'text-paper/50 hover:text-paper'
-                      }`}
-                    >
-                      Low Stock
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateProductStock(prod.id, 'sold_out')}
-                      className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${
-                        stockStatus === 'sold_out'
-                          ? 'bg-red-700 text-white shadow-xs'
-                          : 'text-paper/50 hover:text-paper'
-                      }`}
-                    >
-                      Sold Out
-                    </button>
-                  </div>
+                {/* Right: Stock Controls */}
+                <div className="flex flex-col gap-2 shrink-0 w-full md:w-auto">
+                  {customProducts.some((cp) => cp.id === prod.id) ? (
+                    /* ── Numeric stock tracking for DB products ── */
+                    <div className="bg-[#1C1C1C] border border-white/10 rounded-xs p-2 space-y-2">
+                      <div className="flex items-center space-x-1 text-[10px]">
+                        <Package className="w-3 h-3 text-gold" />
+                        <span className="text-paper/60 uppercase tracking-wider font-semibold">Stock</span>
+                      </div>
 
+                      {/* Mode switcher */}
+                      <div className="flex items-center space-x-1 bg-[#141414] p-0.5 rounded-xs border border-white/10 text-[10px]">
+                        <button type="button"
+                          onClick={() => handleStockModeChange(prod.id, 'unlimited')}
+                          className={`px-2 py-0.5 rounded-xs flex items-center space-x-1 transition-colors ${getStockState(prod).mode === 'unlimited' ? 'bg-gold text-ink font-semibold' : 'text-paper/60 hover:text-paper'}`}>
+                          <Infinity className="w-3 h-3" /><span>Unlimited</span>
+                        </button>
+                        <button type="button"
+                          onClick={() => handleStockModeChange(prod.id, 'tracked')}
+                          className={`px-2 py-0.5 rounded-xs transition-colors ${getStockState(prod).mode === 'tracked' ? 'bg-gold text-ink font-semibold' : 'text-paper/60 hover:text-paper'}`}>
+                          Track
+                        </button>
+                      </div>
+
+                      {getStockState(prod).mode === 'tracked' && (
+                        <div className="flex items-center space-x-1">
+                          <button type="button"
+                            onClick={() => handleStockQtyChange(prod.id, Math.max(0, getStockState(prod).qty - 1))}
+                            className="w-6 h-6 bg-[#222222] border border-white/10 rounded-xs text-paper/60 hover:text-paper flex items-center justify-center text-sm leading-none">−</button>
+                          <input
+                            type="number" min="0"
+                            value={getStockState(prod).qty}
+                            onChange={(e) => handleStockQtyChange(prod.id, Math.max(0, Number(e.target.value)))}
+                            className="w-14 bg-[#141414] border border-white/15 focus:border-gold px-1.5 py-0.5 text-paper rounded-xs text-xs font-mono text-center focus:outline-none"
+                          />
+                          <button type="button"
+                            onClick={() => handleStockQtyChange(prod.id, getStockState(prod).qty + 1)}
+                            className="w-6 h-6 bg-[#222222] border border-white/10 rounded-xs text-paper/60 hover:text-paper flex items-center justify-center text-sm leading-none">+</button>
+                        </div>
+                      )}
+
+                      <button type="button" onClick={() => handleSaveStock(prod.id)}
+                        disabled={getStockState(prod).saving}
+                        className="w-full px-2 py-1 bg-[#252525] hover:bg-[#303030] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[10px] transition-colors flex items-center justify-center space-x-1">
+                        {getStockState(prod).saving ? <Loader2 className="w-3 h-3 animate-spin" /> :
+                          getStockState(prod).saved ? <><CheckCircle2 className="w-3 h-3 text-emerald-400" /><span className="text-emerald-400">Saved!</span></> :
+                            <><Package className="w-3 h-3" /><span>Save Stock</span></>}
+                      </button>
+                    </div>
+                  ) : (
+                    /* ── Status toggle for static catalogue products ── */
+                    <div className="flex items-center space-x-1 bg-[#222222] p-1 rounded-xs border border-white/10">
+                      <button type="button" onClick={() => updateProductStock(prod.id, 'in_stock')}
+                        className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${stockStatus === 'in_stock' ? 'bg-emerald-700 text-white shadow-xs' : 'text-paper/50 hover:text-paper'}`}>
+                        In Stock
+                      </button>
+                      <button type="button" onClick={() => updateProductStock(prod.id, 'low_stock')}
+                        className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${stockStatus === 'low_stock' ? 'bg-amber-600 text-ink shadow-xs' : 'text-paper/50 hover:text-paper'}`}>
+                        Low Stock
+                      </button>
+                      <button type="button" onClick={() => updateProductStock(prod.id, 'sold_out')}
+                        className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold transition-colors ${stockStatus === 'sold_out' ? 'bg-red-700 text-white shadow-xs' : 'text-paper/50 hover:text-paper'}`}>
+                        Sold Out
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Delete button — only for custom products */}
                   {customProducts.some((cp) => cp.id === prod.id) && (
                     <button
                       type="button"
@@ -374,10 +418,9 @@ export default function AdminInventoryPage() {
                           await deleteProductAction(prod.id);
                         }
                       }}
-                      className="p-1.5 bg-[#222222] hover:bg-red-950/50 border border-white/10 hover:border-red-600/40 text-paper/40 hover:text-red-400 rounded-xs transition-colors"
-                      title="Delete Custom Piece"
+                      className="w-full flex items-center justify-center space-x-1 p-1.5 bg-[#222222] hover:bg-red-950/50 border border-white/10 hover:border-red-600/40 text-paper/40 hover:text-red-400 rounded-xs transition-colors text-[10px]"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3.5 h-3.5" /><span>Delete</span>
                     </button>
                   )}
                 </div>

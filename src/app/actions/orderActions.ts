@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { deductStockAction } from './productActions';
 
 export async function createOrder(orderData: any) {
   try {
@@ -47,6 +48,14 @@ export async function createOrder(orderData: any) {
       },
     });
     
+    // Deduct stock for tracked products (atomic, safe for concurrent orders)
+    await deductStockAction(
+      order.items.map((item) => ({
+        productId: item.productId ?? null,
+        quantity: item.quantity,
+      }))
+    );
+
     revalidatePath('/admin');
     return { success: true, order };
   } catch (error) {

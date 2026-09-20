@@ -319,6 +319,13 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* 3. Quantity & CTAs */}
               <div className="mt-8 space-y-3.5">
+                {/* Low-stock warning */}
+                {typeof (product as any).stockQty === 'number' && (product as any).stockQty > 0 && (product as any).stockQty <= 3 && (
+                  <div className="flex items-center space-x-2 px-3 py-2 bg-amber-950/40 border border-amber-600/40 rounded-xs text-xs text-amber-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                    <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
+                  </div>
+                )}
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   {/* Quantity Counter */}
                   <div className="flex items-center border border-line rounded-[2px] bg-sand/50 h-12 shrink-0">
@@ -344,25 +351,43 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </div>
 
                   {/* Add to Bag Button */}
-                  <button
-                    type="button"
-                    onClick={handleAddToCart}
-                    className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 active:scale-[0.99]"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-gold-deep" />
-                    <span className="truncate">{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
-                  </button>
+                  {(product as any).stockQty === 0 || product.inStock === false ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-paper/40 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-paper/30" />
+                      <span>Out of Stock</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 active:scale-[0.99]"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-gold-deep" />
+                      <span className="truncate">{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
+                    </button>
+                  )}
 
                   {/* Order Now Button */}
-                  <button
-                    type="button"
-                    onClick={handleOrderNow}
-                    disabled={isOrdering}
-                    className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 shadow-sm active:scale-[0.99]"
-                  >
-                    <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-ink shrink-0" />
-                    <span className="truncate">{isOrdering ? 'Proceeding...' : 'Order Now'}</span>
-                  </button>
+                  {(product as any).stockQty === 0 || product.inStock === false ? (
+                    <div className="flex-1 h-12 bg-ink/10 border border-line text-paper/30 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed">
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <span className="truncate">Unavailable</span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleOrderNow}
+                      disabled={isOrdering}
+                      className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 shadow-sm active:scale-[0.99]"
+                    >
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-ink shrink-0" />
+                      <span className="truncate">{isOrdering ? 'Proceeding...' : 'Order Now'}</span>
+                    </button>
+                  )}
 
                   {/* Wishlist Button */}
                   <button

@@ -21,6 +21,7 @@ model Product {
   featuredImage  String
   badge          String?
   inStock        Boolean           @default(true)
+  stockQty       Int?              // null = unlimited (not tracked); 0 = sold out
   isNewDrop      Boolean           @default(false)
   isGiftPick     Boolean           @default(false)
   isBestseller   Boolean           @default(false)
