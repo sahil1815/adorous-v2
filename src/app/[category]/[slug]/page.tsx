@@ -70,8 +70,8 @@ export default async function ProductPage({ params }: PageProps) {
   const { category, slug } = await params;
   const productDb = await getProductBySlug(slug);
   
-  if (!productDb || productDb.category !== category) {
-    notFound();
+  if (!productDb || productDb.category.toLowerCase() !== category.toLowerCase()) {
+    return <ClientProductDetailResolver category={category} slug={slug} />;
   }
   
   const product = {

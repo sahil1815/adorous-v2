@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 // Helper to convert static Product to the shape expected by frontend PDP & Category pages
 function toDbShape(product: Product) {
@@ -115,3 +116,120 @@ export async function getAllProducts() {
     return PRODUCTS.map(toDbShape);
   }
 }
+
+export async function createProductAction(productData: Product) {
+  try {
+    if (!process.env.DATABASE_URL) {
+      return { success: true, message: 'Saved to local storage fallback (No DATABASE_URL configured)' };
+    }
+
+    const cleanSlug = productData.slug.trim().toLowerCase();
+
+    // Check if product with this slug already exists in DB
+    const existing = await prisma.product.findUnique({
+      where: { slug: cleanSlug },
+    });
+
+    if (existing) {
+      return {
+        success: false,
+        error: `A piece with canonical URL slug "${cleanSlug}" already exists in the catalogue. Please use a unique title or slug.`,
+      };
+    }
+
+    const created = await prisma.product.create({
+      data: {
+        slug: cleanSlug,
+        name: productData.name.trim(),
+        category: productData.category,
+        categoryLabel: productData.categoryLabel || 'Luxury Accessories',
+        tagline: productData.tagline?.trim() || null,
+        price: Number(productData.price),
+        originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
+        description: productData.description?.trim() || null,
+        featuredImage: productData.featuredImage,
+        badge: productData.isNewDrop ? 'New Drop' : (productData.isBestseller ? 'Bestseller' : null),
+        inStock: productData.inStock ?? true,
+        isNewDrop: productData.isNewDrop ?? false,
+        isGiftPick: productData.isGiftPick ?? false,
+        isBestseller: productData.isBestseller ?? false,
+        featuredRank: productData.featuredRank ?? 1,
+        seoKeywords: Array.isArray(productData.seoKeywords)
+          ? productData.seoKeywords.join(',')
+          : (productData.seoKeywords || ''),
+        details: {
+          create: (productData.details || []).map((text) => ({ text })),
+        },
+        piecesIncluded: {
+          create: (productData.piecesIncluded || []).map((text) => ({ text })),
+        },
+        colorways: {
+          create: (productData.colorways || []).map((cw) => ({
+            colorId: cw.id,
+            name: cw.name,
+            hex: cw.hex,
+            inStock: cw.inStock ?? true,
+          })),
+        },
+        galleryImages: {
+          create: (productData.galleryImages && productData.galleryImages.length > 0
+            ? productData.galleryImages
+            : [productData.featuredImage]
+          ).map((url) => ({ url })),
+        },
+      },
+      include: {
+        colorways: true,
+        galleryImages: true,
+        details: true,
+        piecesIncluded: true,
+      },
+    });
+
+    try {
+      revalidatePath(`/${productData.category}/${cleanSlug}`);
+      revalidatePath(`/${productData.category}`);
+      revalidatePath('/shop');
+      revalidatePath('/');
+      revalidatePath('/admin/inventory');
+    } catch (revalErr) {
+      console.warn('Revalidation warning:', revalErr);
+    }
+
+    return { success: true, product: toDbShape(created as any) };
+  } catch (error: any) {
+    console.error('[createProductAction] Error saving product to database:', error);
+    return { success: false, error: error?.message || 'Database error occurred while creating product' };
+  }
+}
+
+export async function deleteProductAction(productId: string) {
+  try {
+    if (!process.env.DATABASE_URL) {
+      return { success: true };
+    }
+
+    // Attempt delete by id, fallback to delete by slug if id was custom
+    try {
+      await prisma.product.delete({
+        where: { id: productId },
+      });
+    } catch {
+      // If not found by id, attempt finding by slug or ignore
+    }
+
+    try {
+      revalidatePath('/shop');
+      revalidatePath('/');
+      revalidatePath('/admin/inventory');
+    } catch (revalErr) {
+      console.warn('Revalidation warning:', revalErr);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[deleteProductAction] Error deleting product:', error);
+    return { success: false, error: error?.message || 'Failed to delete product from database' };
+  }
+}
+

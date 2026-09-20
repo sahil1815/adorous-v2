@@ -160,7 +160,15 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const allProducts: Product[] = [...customProducts, ...PRODUCTS];
 
   const getProductBySlug = (category: string, slug: string): Product | undefined => {
-    const found = allProducts.find((p) => p.category === category && p.slug === slug);
+    const cleanSlug = slug ? slug.toLowerCase().trim() : '';
+    const cleanCategory = category ? category.toLowerCase().trim() : '';
+
+    const found = allProducts.find((p) => {
+      const pSlug = p.slug.toLowerCase().trim();
+      const pCat = p.category.toLowerCase().trim();
+      return pSlug === cleanSlug && (!cleanCategory || pCat === cleanCategory);
+    });
+
     if (!found) return undefined;
     return getEffectiveProduct(found);
   };

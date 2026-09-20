@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Product, Colorway } from '@/types';
+import { createProductAction } from '@/app/actions/productActions';
 import {
   ArrowLeft,
   Sparkles,
@@ -219,7 +220,7 @@ export default function AddProductPage() {
   };
 
   // Submit Handler
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -244,12 +245,18 @@ export default function AddProductPage() {
     }
 
     const selectedCategoryOption = CATEGORY_OPTIONS.find((c) => c.slug === category);
+    const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    if (!cleanSlug) {
+      setErrorMsg('Please provide a valid URL slug using letters and numbers.');
+      return;
+    }
 
     setIsPublishing(true);
 
     const newProduct: Product = {
-      id: `prod-${slug}-${Date.now()}`,
-      slug: slug.trim(),
+      id: `prod-${cleanSlug}-${Date.now()}`,
+      slug: cleanSlug,
       name: name.trim(),
       category,
       categoryLabel: selectedCategoryOption ? selectedCategoryOption.label : 'Luxury Accessories',
@@ -278,14 +285,24 @@ export default function AddProductPage() {
     };
 
     try {
+      // 1. Persist directly to Neon PostgreSQL database via Server Action
+      const res = await createProductAction(newProduct);
+      if (!res.success) {
+        setIsPublishing(false);
+        setErrorMsg(res.error || 'Failed to save piece to database.');
+        return;
+      }
+
+      // 2. Synchronize with local client context for instant reactivity
       addProduct(newProduct);
+
       setTimeout(() => {
         router.push('/admin/inventory');
-      }, 600);
-    } catch (err) {
-      console.error(err);
+      }, 500);
+    } catch (err: any) {
+      console.error('[handleSubmit] Error publishing piece:', err);
       setIsPublishing(false);
-      setErrorMsg('An error occurred while saving the product. Please try again.');
+      setErrorMsg(err?.message || 'An error occurred while saving the product. Please try again.');
     }
   };
 

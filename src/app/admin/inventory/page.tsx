@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
+import { deleteProductAction } from '@/app/actions/productActions';
 import {
   Search,
   Filter,
@@ -381,9 +382,10 @@ export default function AdminInventoryPage() {
                   {customProducts.some((cp) => cp.id === prod.id) && (
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (confirm(`Permanently delete custom piece "${prod.name}" from catalogue?`)) {
                           deleteProduct(prod.id);
+                          await deleteProductAction(prod.id);
                         }
                       }}
                       className="p-1.5 bg-[#222222] hover:bg-red-950/50 border border-white/10 hover:border-red-600/40 text-paper/40 hover:text-red-400 rounded-xs transition-colors"
