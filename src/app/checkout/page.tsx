@@ -291,10 +291,10 @@ export default function CheckoutPage() {
       </section>
 
       {/* Main Checkout Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 lg:py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 lg:py-12">
         <form id="checkout-form" onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Left Column: Delivery Details & Mini Haul */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-5">
             {errorMsg && (
               <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xs flex items-start space-x-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
@@ -307,7 +307,7 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 
                 {/* 1. Full Name */}
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Full Name <span className="text-red-500">*</span>
                   </label>
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* 2. Phone Number */}
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
@@ -342,7 +342,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* 3. Email Address (Moved to Top) */}
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Email Address <span className="text-text-muted text-[10px]">(Optional)</span>
                   </label>
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* 4. Division / District */}
-                <div className="space-y-1.5 sm:col-span-2 relative" ref={districtContainerRef}>
+                <div className="space-y-1 sm:col-span-2 relative" ref={districtContainerRef}>
                   <div className="flex items-center justify-between">
                     <label className="block text-ink font-medium">
                       District <span className="text-red-500">*</span>
@@ -444,7 +444,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* 5. Address */}
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Address <span className="text-red-500">*</span>
                   </label>
