@@ -17,6 +17,7 @@ export default function StorefrontLayoutWrapper({
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isCheckoutRoute = pathname === '/checkout';
 
   if (isAdminRoute) {
     return <main className="flex-1 min-h-screen">{children}</main>;
@@ -30,8 +31,14 @@ export default function StorefrontLayoutWrapper({
       <AnnouncementBar />
       <Header />
       <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
-      <Footer />
-      <MobileStickyBar />
+      
+      {!isCheckoutRoute && (
+        <>
+          <Footer />
+          <MobileStickyBar />
+        </>
+      )}
+      
       <CartDrawer />
       <WishlistDrawer />
     </>
