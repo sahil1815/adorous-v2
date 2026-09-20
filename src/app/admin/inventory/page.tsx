@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   XCircle,
   Tag,
-  RotateCcw,
   ExternalLink,
   Edit3,
   Save,
@@ -34,7 +33,6 @@ export default function AdminInventoryPage() {
     updateProductStock,
     updateProductBadges,
     updateProductPrice,
-    resetInventoryOverrides,
     getEffectiveProduct,
   } = useInventory();
 
@@ -100,18 +98,6 @@ export default function AdminInventoryPage() {
         </div>
 
         <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm('Reset all inventory, custom products, price, and badge overrides to factory catalog defaults?')) {
-                resetInventoryOverrides();
-              }
-            }}
-            className="px-3.5 py-2 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 rounded-xs text-xs text-paper/70 hover:text-gold transition-colors flex items-center space-x-1.5"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset Defaults</span>
-          </button>
 
           <Link
             href="/admin/inventory/new"
