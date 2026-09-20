@@ -294,7 +294,7 @@ export default function CheckoutPage() {
 
       {/* Main Checkout Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 lg:py-12">
-        <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <form id="checkout-form" onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Left Column: Delivery Details & Mini Haul */}
           <div className="lg:col-span-7 space-y-8">
             {errorMsg && (
@@ -473,7 +473,21 @@ export default function CheckoutPage() {
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
                   />
                 </div>
-                
+
+                {/* WhatsApp Notification Checkbox (Kept at bottom of form block) */}
+                <div className="sm:col-span-2 pt-2">
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs select-none">
+                    <input
+                      type="checkbox"
+                      checked={whatsappUpdates}
+                      onChange={(e) => setWhatsappUpdates(e.target.checked)}
+                      className="mt-0.5 w-3.5 h-3.5 accent-gold cursor-pointer rounded-xs"
+                    />
+                    <span className="text-ink font-medium">
+                      Send me pre-dispatch verification photo and courier tracking link on WhatsApp.
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -560,7 +574,7 @@ export default function CheckoutPage() {
 
           {/* Right Column: Coupon, Payment, Summary, Place Order */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="space-y-6 sticky top-24">
+            <div className="space-y-6 lg:sticky lg:top-24">
               
               {/* Promo / Coupon Section */}
               <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs">
@@ -712,7 +726,8 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="hidden lg:flex border-t border-line/80 pt-4 justify-between items-center font-semibold text-sm">
+                {/* Total Payable (Always shown here on Desktop, also shown here on Mobile to preserve normal flow) */}
+                <div className="border-t border-line/80 pt-4 flex justify-between items-center font-semibold text-sm">
                   <span>Total Payable</span>
                   <span className="tabular-nums">
                     {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal">Pending address</span>}
@@ -720,33 +735,41 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Sticky Footer Mobile / Regular Button Desktop */}
-              <div className="fixed bottom-0 left-0 right-0 bg-paper px-4 py-3 sm:p-4 border-t border-line shadow-[0_-8px_16px_rgba(0,0,0,0.04)] z-50 lg:static lg:bg-transparent lg:p-0 lg:border-none lg:shadow-none space-y-3 lg:space-y-0">
-                {/* Mobile Total Payable */}
-                <div className="flex lg:hidden justify-between items-center font-semibold text-sm">
-                  <div className="flex items-center gap-1">
-                    <span>Total Payable</span>
-                  </div>
-                  <span className="tabular-nums">
-                    {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal text-text-muted">Pending address</span>}
-                  </span>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 shadow-md"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>
-                    {isSubmitting ? 'Processing Order...' : `Place Order (৳${grandTotal.toLocaleString('en-US')})`}
-                  </span>
-                </button>
-              </div>
+              {/* Desktop Submit Button (Hidden on Mobile) */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="hidden lg:flex w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all items-center justify-center space-x-2 shadow-md"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>
+                  {isSubmitting ? 'Processing Order...' : `Place Order (৳${grandTotal.toLocaleString('en-US')})`}
+                </span>
+              </button>
             </div>
           </div>
         </form>
+
+        {/* Mobile Sticky Footer (Hidden on Desktop) */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-paper px-4 py-3 sm:p-4 border-t border-line shadow-[0_-8px_16px_rgba(0,0,0,0.04)] z-[9999] space-y-3 pb-safe">
+          <div className="flex justify-between items-center font-semibold text-sm">
+            <span>Total Payable</span>
+            <span className="tabular-nums">
+              {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal text-text-muted">Pending address</span>}
+            </span>
+          </div>
+          <button
+            type="submit"
+            form="checkout-form"
+            disabled={isSubmitting}
+            className="w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 shadow-md"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>
+              {isSubmitting ? 'Processing Order...' : `Place Order (৳${grandTotal.toLocaleString('en-US')})`}
+            </span>
+          </button>
+        </div>
       </main>
 
       {/* Delete Item Confirmation Popup Modal */}
