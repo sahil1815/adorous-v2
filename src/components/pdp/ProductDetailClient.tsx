@@ -385,7 +385,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                       className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 shadow-sm active:scale-[0.99]"
                     >
                       <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-ink shrink-0" />
-                      <span className="truncate">{isOrdering ? 'Proceeding...' : 'Order Now'}</span>
+                      <span className="truncate">{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
                     </button>
                   )}
 
