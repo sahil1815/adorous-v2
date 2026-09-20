@@ -350,7 +350,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. farhana@example.com"
+                    placeholder="example@gmail.com"
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
                   />
                 </div>
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
                 <div className="space-y-1 sm:col-span-2 relative" ref={districtContainerRef}>
                   <div className="flex items-center justify-between">
                     <label className="block text-ink font-medium">
-                      District <span className="text-red-500">*</span>
+                      Division / District <span className="text-red-500">*</span>
                     </label>
                   </div>
                   <div className="relative">
@@ -507,7 +507,7 @@ export default function CheckoutPage() {
                             <span className="truncate">{item.selectedColor.name}</span>
                             {item.selectedSize && <span>· Size {item.selectedSize}</span>}
                           </div>
-                          
+
                           {/* Mobile Quantity/Price Display */}
                           <div className="sm:hidden flex items-center justify-between mt-2 w-full">
                             <span className="text-xs font-semibold text-ink tabular-nums">
@@ -544,7 +544,7 @@ export default function CheckoutPage() {
           {/* Right Column: Coupon, Payment, Summary, Place Order */}
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-6 lg:sticky lg:top-24">
-              
+
               {/* Promo / Coupon Section */}
               <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs">
                 {appliedCoupon ? (
@@ -619,11 +619,10 @@ export default function CheckoutPage() {
                 <div className="space-y-3 text-xs">
                   {/* Option A: bKash (Online Payment equivalent) */}
                   <label
-                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${
-                      paymentMethod === 'bkash'
+                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${paymentMethod === 'bkash'
                         ? 'border-gold bg-sand/30 shadow-xs'
                         : 'border-line hover:border-line/80'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
                       <input
@@ -639,11 +638,10 @@ export default function CheckoutPage() {
 
                   {/* Option B: Cash on Delivery */}
                   <label
-                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${
-                      paymentMethod === 'cod'
+                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${paymentMethod === 'cod'
                         ? 'border-gold bg-sand/30 shadow-xs'
                         : 'border-line hover:border-line/80'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
                       <input
@@ -664,7 +662,7 @@ export default function CheckoutPage() {
                 <h2 className="font-medium text-sm text-ink border-b border-line pb-3">
                   Summary
                 </h2>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between text-ink">
                     <span>Product Price</span>
@@ -705,10 +703,10 @@ export default function CheckoutPage() {
               </div>
 
               {/* 6. Gift Note Section */}
-              <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs space-y-3">
-                <label className="block text-ink font-medium text-sm">
+              <div className="bg-paper  border border-line p-5 rounded-[2px] shadow-xs space-y-3">
+                <label className="text-ink font-medium text-sm">
                   Special Instructions
-                  <span className="text-text-muted text-[10px] block sm:inline sm:ml-1 mt-0.5 sm:mt-0">(Optional)</span>
+                  <span className="text-text-muted text-[10px] ml-1 sm:inline mt-0.5 sm:mt-0">(Optional)</span>
                 </label>
                 <textarea
                   rows={2}
@@ -758,14 +756,14 @@ export default function CheckoutPage() {
 
       {/* Delete Item Confirmation Popup Modal */}
       {itemToDelete && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setItemToDelete(null)}
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-item-dialog-title"
         >
-          <div 
+          <div
             className="bg-paper border border-gold/40 rounded-xs shadow-2xl max-w-sm w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
