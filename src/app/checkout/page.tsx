@@ -457,35 +457,6 @@ export default function CheckoutPage() {
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
                   />
                 </div>
-
-                {/* 6. Gift Note (New Field) */}
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label className="block text-ink font-medium">
-                    Complimentary Handwritten Calligraphy Note <span className="text-text-muted text-[10px]">(Optional for gifts)</span>
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={giftNote}
-                    onChange={(e) => setGiftNote(e.target.value)}
-                    placeholder="Write a message for the recipient..."
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
-                  />
-                </div>
-
-                {/* WhatsApp Notification Checkbox (Kept at bottom of form block) */}
-                <div className="sm:col-span-2 pt-2">
-                  <label className="flex items-start gap-2.5 cursor-pointer text-xs select-none">
-                    <input
-                      type="checkbox"
-                      checked={whatsappUpdates}
-                      onChange={(e) => setWhatsappUpdates(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 accent-gold cursor-pointer rounded-xs"
-                    />
-                    <span className="text-ink font-medium">
-                      Send me pre-dispatch verification photo and courier tracking link on WhatsApp.
-                    </span>
-                  </label>
-                </div>
               </div>
             </div>
 
@@ -731,6 +702,21 @@ export default function CheckoutPage() {
                     {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal">Pending address</span>}
                   </span>
                 </div>
+              </div>
+
+              {/* 6. Gift Note Section */}
+              <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs space-y-3">
+                <label className="block text-ink font-medium text-sm">
+                  Complimentary Handwritten Calligraphy Note
+                  <span className="text-text-muted text-[10px] block sm:inline sm:ml-1 mt-0.5 sm:mt-0">(Optional for gifts)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={giftNote}
+                  onChange={(e) => setGiftNote(e.target.value)}
+                  placeholder="Write a message for the recipient..."
+                  className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink text-xs focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
+                />
               </div>
 
               {/* Desktop Submit Button (Hidden on Mobile) */}
