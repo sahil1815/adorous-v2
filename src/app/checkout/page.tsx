@@ -465,7 +465,7 @@ export default function CheckoutPage() {
               <div className="flex items-center gap-2 border-b border-line pb-3">
                 <ShoppingBag className="w-5 h-5 text-gold-dark shrink-0" />
                 <h2 className="font-serif text-lg text-ink font-medium">
-                  Mini Haul
+                  Order review
                 </h2>
               </div>
 
