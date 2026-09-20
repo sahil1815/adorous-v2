@@ -563,13 +563,28 @@ export default function AddProductPage() {
             <div className="sm:col-span-4">
               <div className="relative aspect-[4/5] bg-[#DDD6CB] rounded-xs overflow-hidden border-2 border-gold/40 shadow-lg flex items-center justify-center">
                 {featuredImage ? (
-                  <Image
-                    src={featuredImage}
-                    alt="Still Life Product Preview"
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
+                  /* data: URIs (local upload) and external http(s) URLs cannot go through
+                     next/image — use a plain <img> for those and keep <Image> only for
+                     the verified local preset paths that start with "/" */
+                  featuredImage.startsWith('data:') || featuredImage.startsWith('http') ? (
+                    <img
+                      src={featuredImage}
+                      alt="Still Life Product Preview"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        setErrorMsg('Could not load image from that URL. Please check the link and try again.');
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      src={featuredImage}
+                      alt="Still Life Product Preview"
+                      fill
+                      sizes="200px"
+                      className="object-cover"
+                    />
+                  )
                 ) : (
                   <div className="text-center p-4 text-[#4A4036]">
                     <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -631,6 +646,12 @@ export default function AddProductPage() {
                     onChange={handleFileUpload}
                     className="block w-full text-xs text-paper/70 file:mr-4 file:py-2 file:px-4 file:rounded-xs file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-ink hover:file:bg-gold-light cursor-pointer"
                   />
+                  {featuredImage.startsWith('data:') && (
+                    <div className="flex items-center space-x-1.5 text-[10px] text-emerald-400">
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Image loaded — preview updated on the left</span>
+                    </div>
+                  )}
                   <p className="text-[10px] text-paper/40 leading-relaxed">
                     Strict still-life requirement: Ensure your uploaded image captures the product staged on a warm stone plinth, velvet jewelry neckform, or flat-lay tray. No human faces, hands, or models.
                   </p>
@@ -641,14 +662,21 @@ export default function AddProductPage() {
               {imageMode === 'url' && (
                 <div className="space-y-3 p-4 bg-[#1C1C1C] border border-white/10 rounded-xs">
                   <span className="text-[11px] text-paper/80 font-semibold block">
-                    Direct Image URL:
+                    Direct Image URL (ImageKit, Cloudinary, etc.):
                   </span>
                   <div className="flex space-x-2">
                     <input
                       type="url"
-                      placeholder="https://.../product-still-life.jpg"
+                      placeholder="https://ik.imagekit.io/your-id/image.jpg"
                       value={customImageUrl}
-                      onChange={(e) => setCustomImageUrl(e.target.value)}
+                      onChange={(e) => {
+                        setCustomImageUrl(e.target.value);
+                        // Live preview — update as user types
+                        if (e.target.value.trim().startsWith('http')) {
+                          setFeaturedImage(e.target.value.trim());
+                          setErrorMsg(null);
+                        }
+                      }}
                       className="flex-1 bg-[#141414] border border-white/15 px-3 py-2 text-paper rounded-xs focus:border-gold focus:outline-none"
                     />
                     <button
@@ -656,13 +684,17 @@ export default function AddProductPage() {
                       onClick={() => {
                         if (customImageUrl.trim()) {
                           setFeaturedImage(customImageUrl.trim());
+                          setErrorMsg(null);
                         }
                       }}
-                      className="px-4 py-2 bg-gold text-ink font-semibold rounded-xs"
+                      className="px-4 py-2 bg-gold text-ink font-semibold rounded-xs whitespace-nowrap"
                     >
                       Apply
                     </button>
                   </div>
+                  <p className="text-[10px] text-paper/40 leading-relaxed">
+                    Supported CDNs: ImageKit, Cloudinary, Supabase, Imgur, Unsplash. The preview updates live as you type.
+                  </p>
                 </div>
               )}
             </div>
