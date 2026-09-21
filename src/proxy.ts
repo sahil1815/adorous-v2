@@ -28,7 +28,7 @@ export default async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Routes Middleware should not run on
+// Only run proxy middleware on admin routes; all storefront routes & prefetches bypass middleware for instant CDN delivery
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/admin', '/admin/:path*'],
 };

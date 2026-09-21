@@ -7,6 +7,7 @@ import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
 
 export const dynamicParams = true;
+export const revalidate = 3600; // Cache on Vercel CDN Edge for 1 hour, instant delivery
 
 interface PageProps {
   params: Promise<{

@@ -12,6 +12,8 @@ interface CategoryPageProps {
   }>;
 }
 
+export const revalidate = 3600; // Cache on Vercel CDN Edge for 1 hour, instant delivery
+
 export async function generateStaticParams() {
   return CATEGORIES.map((c) => ({
     category: c.slug,
