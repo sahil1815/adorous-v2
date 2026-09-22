@@ -48,7 +48,7 @@ export default function HomePage() {
                 href="/shop"
                 className="inline-flex items-center justify-center px-7 py-3.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-[0.16em] uppercase rounded-[2px] transition-all shadow-md group"
               >
-                <span>Shop The New Drop</span>
+                <span>Shop The New Arrival</span>
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
 
