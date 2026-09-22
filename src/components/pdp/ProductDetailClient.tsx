@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -35,8 +36,13 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, pairsWellWith }: ProductDetailClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addItem, closeCart } = useCart();
+  const { addItem, closeCart, openCart, totalItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isSaved = isInWishlist(product.id);
 
@@ -326,7 +332,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
                   </div>
                 )}
-                <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="flex flex-col lg:flex-row lg:items-center space-y-3 lg:space-y-0 lg:space-x-3">
+                  {/* Desktop Action Buttons wrapper added by script */}
+                  
                   {/* Quantity Counter */}
                   <div className="flex items-center border border-line rounded-[2px] bg-sand/50 h-12 shrink-0">
                     <button
@@ -350,6 +358,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     </button>
                   </div>
 
+                  <div className="hidden lg:flex items-center space-x-2 sm:space-x-3 w-full">
                   {/* Add to Bag Button */}
                   {(product as any).stockQty === 0 || product.inStock === false ? (
                     <button
@@ -403,6 +412,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   >
                     <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-gold text-gold' : ''}`} />
                   </button>
+                  </div>
                 </div>
 
                 {/* Direct WhatsApp Instant Checkout */}
@@ -410,7 +420,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   href={generateDirectWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full h-12 bg-gold hover:bg-gold-deep text-ink border border-gold/40 font-medium text-xs tracking-wider uppercase rounded-[2px] transition-colors flex items-center justify-center space-x-2"
+                  className="hidden lg:flex w-full h-12 bg-gold hover:bg-gold-deep text-ink border border-gold/40 font-medium text-xs tracking-wider uppercase rounded-[2px] transition-colors items-center justify-center space-x-2"
                 >
                   <MessageCircle className="w-4 h-4 text-whatsapp" />
                   <span>Order Directly on WhatsApp</span>
@@ -532,6 +542,70 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         isOpen={isSizingModalOpen}
         onClose={() => setIsSizingModalOpen(false)}
       />
+      {/* Mobile PDP Sticky Checkout Bar (Portaled to avoid overflow clipping) */}
+      {isMounted && createPortal(
+        <div className="fixed bottom-0 inset-x-0 z-[100] bg-paper/95 backdrop-blur-md border border-line rounded-sm lg:hidden p-2.5 shadow-xl pb-[calc(env(safe-area-inset-bottom)+0.625rem)]">
+          <div className="flex items-center gap-1.5 w-full">
+            {/* Cart Icon */}
+            <button
+              type="button"
+              onClick={openCart}
+              className="flex flex-col items-center justify-center shrink-0 w-[42px] relative text-ink hover:text-gold-deep transition-colors"
+            >
+              <div className="relative">
+                <ShoppingBag className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-gold-deep text-paper text-[9px] font-bold flex items-center justify-center tabular-nums shadow-sm">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-medium mt-1">Cart</span>
+            </button>
+
+            {/* Vertical Divider */}
+            <div className="w-px h-8 bg-line/80 mx-1 shrink-0" />
+
+            {/* WhatsApp / Chat Icon */}
+            <a
+              href={generateDirectWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center shrink-0 w-[42px] relative text-whatsapp hover:opacity-80 transition-opacity"
+            >
+              <div className="relative">
+                <MessageCircle className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-whatsapp animate-ping" />
+              </div>
+              <span className="text-[9px] tracking-wider uppercase font-medium mt-1 text-ink">Chat</span>
+            </a>
+
+            {/* Action Buttons */}
+            <div className="flex flex-1 items-center gap-2 pl-2">
+              {/* Buy Now */}
+              <button
+                type="button"
+                onClick={handleOrderNow}
+                disabled={isOrdering || (product as any).stockQty === 0 || product.inStock === false}
+                className="flex-1 h-11 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isOrdering ? 'Wait...' : 'Buy Now'}
+              </button>
+
+              {/* Add to Bag */}
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={(product as any).stockQty === 0 || product.inStock === false}
+                className="flex-1 h-11 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAddedAnimation ? 'Added!' : 'Add to Bag'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

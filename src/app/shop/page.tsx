@@ -91,7 +91,7 @@ export default function ShopPage() {
                 <span className="text-ink font-medium">Explore All</span>
               </nav>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-ink tracking-tight font-normal">
-                The Complete Edit
+                The Full Collection
               </h1>
               <p className="text-xs sm:text-sm text-text-muted max-w-xl">
                 Boutique South Asian jewelry, plush velvet bangles, architectural handbags, and curated lifestyle accessories on warm stone plinths.
@@ -110,11 +110,10 @@ export default function ShopPage() {
             <button
               type="button"
               onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${
-                selectedCategory === 'all'
+              className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${selectedCategory === 'all'
                   ? 'bg-sand text-gold-deep shadow-sm'
                   : 'bg-paper border border-line text-ink hover:border-gold'
-              }`}
+                }`}
             >
               All Items ({allProducts.length})
             </button>
@@ -125,11 +124,10 @@ export default function ShopPage() {
                   key={cat.slug}
                   type="button"
                   onClick={() => setSelectedCategory(cat.slug)}
-                  className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${
-                    selectedCategory === cat.slug
+                  className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${selectedCategory === cat.slug
                       ? 'bg-sand text-gold-deep shadow-sm'
                       : 'bg-paper border border-line text-ink hover:border-gold'
-                  }`}
+                    }`}
                 >
                   {cat.name} ({count})
                 </button>
@@ -170,11 +168,10 @@ export default function ShopPage() {
               <button
                 type="button"
                 onClick={() => setSelectedColor(null)}
-                className={`px-2 py-0.5 text-[10px] rounded-full border transition-all ${
-                  selectedColor === null
+                className={`px-2 py-0.5 text-[10px] rounded-full border transition-all ${selectedColor === null
                     ? 'border-ink bg-sand text-ink'
                     : 'border-line text-text-muted hover:border-ink/50'
-                }`}
+                  }`}
               >
                 All
               </button>
@@ -183,11 +180,10 @@ export default function ShopPage() {
                   key={c.id}
                   type="button"
                   onClick={() => setSelectedColor(selectedColor === c.hex ? null : c.hex)}
-                  className={`w-4 h-4 rounded-full border transition-all flex items-center justify-center ${
-                    selectedColor === c.hex
+                  className={`w-4 h-4 rounded-full border transition-all flex items-center justify-center ${selectedColor === c.hex
                       ? 'border-ink scale-125 shadow-sm'
                       : 'border-black/20 hover:scale-110'
-                  }`}
+                    }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
                   aria-label={c.name}

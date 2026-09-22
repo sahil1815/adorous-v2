@@ -3,12 +3,28 @@
 import React from 'react';
 import Link from 'next/link';
 import { Home, Grid, MessageCircle, ShoppingBag, Heart } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { CATEGORIES } from '@/data/catalogue';
 
 export default function MobileStickyBar() {
   const { openCart, totalItems } = useCart();
   const { openWishlist, totalWishlistItems } = useWishlist();
+  const pathname = usePathname();
+
+  // Check if current route is a Product Detail Page (PDP)
+  const isPDP = React.useMemo(() => {
+    if (!pathname) return false;
+    const segments = pathname.split('/').filter(Boolean);
+    // PDP paths are typically /[category]/[slug]
+    if (segments.length === 2) {
+      return CATEGORIES.some(cat => cat.slug === segments[0]);
+    }
+    return false;
+  }, [pathname]);
+
+  if (isPDP) return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-paper/95 backdrop-blur-md border-t border-line lg:hidden py-2 px-4 safe-area-pb shadow-lg">
