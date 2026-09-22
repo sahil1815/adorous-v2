@@ -50,7 +50,7 @@ export default function Header() {
                   href="/shop"
                   className="hover:text-gold-ink transition-colors py-1 relative group"
                 >
-                  The Edit
+                  Explore All
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gold transition-all duration-200 group-hover:w-full" />
                 </Link>
                 <Link

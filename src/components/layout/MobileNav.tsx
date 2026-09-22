@@ -82,7 +82,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
                 onClick={onClose}
                 className="flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-sand/40 transition-colors"
               >
-                <span>The Full Edit (All 15 Designs)</span>
+                <span>Explore All (All 15 Designs)</span>
                 <ChevronRight className="w-4 h-4 text-text-muted" />
               </Link>
               {CATEGORIES.map((cat) => (

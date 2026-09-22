@@ -92,7 +92,7 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-ink/80">
               <li>
                 <Link href="/shop" className="hover:text-gold transition-colors">
-                  The Full Edit (All 15 Designs)
+                  Explore All (All 15 Designs)
                 </Link>
               </li>
               {CATEGORIES.map((cat) => (

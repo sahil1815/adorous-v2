@@ -113,7 +113,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         <nav className="flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap max-w-full min-w-0">
           <Link href="/" className="hover:text-ink transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/shop" className="hover:text-ink transition-colors">The Edit</Link>
+          <Link href="/shop" className="hover:text-ink transition-colors">Explore All</Link>
           <span>/</span>
           <Link href={`/${product.category}`} className="hover:text-ink transition-colors">
             {product.categoryLabel}

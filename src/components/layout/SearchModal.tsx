@@ -183,7 +183,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   onClick={onClose}
                   className="text-xs text-gold-deep hover:underline font-medium inline-flex items-center gap-1"
                 >
-                  <span>Browse all 15 designs in The Edit</span>
+                  <span>Browse all 15 designs</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>

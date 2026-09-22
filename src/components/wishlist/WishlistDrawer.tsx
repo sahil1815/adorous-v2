@@ -105,7 +105,7 @@ export default function WishlistDrawer() {
                     onClick={closeWishlist}
                     className="inline-flex items-center space-x-2 px-6 py-3 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all shadow-sm"
                   >
-                    <span>Explore The Edit</span>
+                    <span>Explore All</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

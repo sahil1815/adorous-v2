@@ -26,7 +26,7 @@ export default function MobileStickyBar() {
           className="flex flex-col items-center justify-center text-ink hover:text-gold-ink transition-colors"
         >
           <Grid className="w-5 h-5" />
-          <span className="text-[10px] tracking-wider uppercase font-medium mt-1">The Edit</span>
+          <span className="text-[10px] tracking-wider uppercase font-medium mt-1">Explore All</span>
         </Link>
 
         <button

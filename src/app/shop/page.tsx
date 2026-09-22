@@ -88,7 +88,7 @@ export default function ShopPage() {
               <nav className="flex items-center space-x-2 text-xs text-text-muted mb-2 tracking-wider uppercase">
                 <Link href="/" className="hover:text-ink transition-colors">Home</Link>
                 <span>/</span>
-                <span className="text-ink font-medium">The Edit</span>
+                <span className="text-ink font-medium">Explore All</span>
               </nav>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-ink tracking-tight font-normal">
                 The Complete Edit

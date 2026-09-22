@@ -323,7 +323,7 @@ export default function OrderSuccessPage() {
             href="/shop"
             className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-3.5 bg-sand hover:bg-black text-gold-deep font-semibold text-xs tracking-wider uppercase rounded-xs transition-all shadow-sm"
           >
-            <span>Continue Exploring The Edit</span>
+            <span>Explore All</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
