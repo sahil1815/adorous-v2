@@ -51,7 +51,7 @@ export default function WishlistDrawer() {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
+        className="fixed inset-0 bg-sand/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
         onClick={closeWishlist}
         aria-hidden="true"
       />
@@ -177,7 +177,7 @@ export default function WishlistDrawer() {
                           <button
                             type="button"
                             onClick={() => handleMoveToBag(product)}
-                            className="px-3 py-1.5 bg-ink hover:bg-black text-gold-light text-[10px] font-semibold tracking-wider uppercase rounded-xs transition-colors flex items-center space-x-1.5 shadow-xs"
+                            className="px-3 py-1.5 bg-sand hover:bg-black text-gold-deep text-[10px] font-semibold tracking-wider uppercase rounded-xs transition-colors flex items-center space-x-1.5 shadow-xs"
                           >
                             {isAdded ? (
                               <>

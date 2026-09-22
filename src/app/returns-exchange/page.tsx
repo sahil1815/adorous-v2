@@ -80,7 +80,7 @@ export default function ReturnsExchangePage() {
 
           <div className="space-y-3 bg-[#FAF7F0] p-6 border border-line rounded-xs">
             <div className="flex items-start space-x-3">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                 1
               </span>
               <div>
@@ -92,7 +92,7 @@ export default function ReturnsExchangePage() {
             </div>
 
             <div className="flex items-start space-x-3">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                 2
               </span>
               <div>
@@ -104,7 +104,7 @@ export default function ReturnsExchangePage() {
             </div>
 
             <div className="flex items-start space-x-3">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                 3
               </span>
               <div>
@@ -174,7 +174,7 @@ export default function ReturnsExchangePage() {
             href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20would%20like%20to%20request%20an%20exchange%20for%20my%20order."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-ink hover:bg-black text-gold-light text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-sm"
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-sand hover:bg-black text-gold-deep text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-sm"
           >
             <MessageCircle className="w-4 h-4 text-whatsapp" />
             <span>Initiate Exchange via WhatsApp</span>

@@ -66,7 +66,7 @@ export default function MobileStickyBar() {
           <div className="relative">
             <ShoppingBag className="w-5 h-5" />
             {totalItems > 0 ? (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-ink text-gold-light text-[9px] font-bold flex items-center justify-center tabular-nums">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-gold text-ink text-[9px] font-bold flex items-center justify-center tabular-nums">
                 {totalItems}
               </span>
             ) : (

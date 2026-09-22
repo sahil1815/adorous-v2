@@ -34,7 +34,7 @@ export default function PromoPage({ params }: PromoPageProps) {
   return (
     <div className="min-h-screen bg-paper">
       {/* Hero Section */}
-      <section className="relative bg-ink text-paper overflow-hidden">
+      <section className="relative bg-sand text-ink overflow-hidden">
         {/* Decorative background */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(198,169,110,0.3),transparent_60%)]" />
@@ -48,12 +48,12 @@ export default function PromoPage({ params }: PromoPageProps) {
             <span className="text-[10px] uppercase tracking-[0.2em] text-gold font-medium">Adorous Exclusive</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-paper tracking-wide leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink tracking-wide leading-tight">
             {page.headline}
           </h1>
 
           {page.subtitle && (
-            <p className="mt-4 text-base sm:text-lg text-paper/60 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-4 text-base sm:text-lg text-ink/60 max-w-2xl mx-auto leading-relaxed">
               {page.subtitle}
             </p>
           )}
@@ -93,7 +93,7 @@ export default function PromoPage({ params }: PromoPageProps) {
         </p>
         <Link
           href="/shop"
-          className="inline-flex items-center space-x-2 px-8 py-3 bg-ink text-gold border border-gold/30 hover:bg-ink/90 hover:border-gold/50 transition-colors text-sm font-medium tracking-wider uppercase"
+          className="inline-flex items-center space-x-2 px-8 py-3 bg-sand text-gold border border-gold/30 hover:bg-sand/90 hover:border-gold/50 transition-colors text-sm font-medium tracking-wider uppercase"
         >
           <span>Visit Our Shop</span>
         </Link>

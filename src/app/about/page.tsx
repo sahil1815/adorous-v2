@@ -47,7 +47,7 @@ export default function AboutPage() {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-center"
               />
-              <div className="absolute bottom-3 left-3 bg-ink/80 backdrop-blur-sm text-gold-light text-[10px] tracking-widest uppercase px-3 py-1 font-semibold">
+              <div className="absolute bottom-3 left-3 bg-sand/80 backdrop-blur-sm text-gold-deep text-[10px] tracking-widest uppercase px-3 py-1 font-semibold">
                 Pure Still Life Photography
               </div>
             </div>
@@ -168,19 +168,19 @@ export default function AboutPage() {
 
       {/* The Rajshahi Dispatch & Courier Promise */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="bg-ink text-paper p-8 sm:p-14 rounded-[2px] border border-gold/30 relative overflow-hidden">
+        <div className="bg-sand text-ink p-8 sm:p-14 rounded-[2px] border border-gold/30 relative overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-4">
               <span className="text-[11px] font-semibold text-gold tracking-[0.2em] uppercase">
                 Adorous Fashion Studio
               </span>
-              <h2 className="text-2xl sm:text-4xl font-serif text-paper">
+              <h2 className="text-2xl sm:text-4xl font-serif text-ink">
                 Premium Curation. Doorstep Cash on Delivery.
               </h2>
-              <p className="text-xs sm:text-sm text-paper/75 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-ink/75 leading-relaxed max-w-2xl">
                 Every order placed with Adorous Fashion is picked, carefully inspected, and placed into our premium keepsake box with velvet dust pouches. We ship across all 64 districts with zero advance payment required.
               </p>
-              <div className="pt-2 flex flex-wrap gap-6 text-xs text-gold-light">
+              <div className="pt-2 flex flex-wrap gap-6 text-xs text-gold-deep">
                 <span>✓ 24-48h Delivery in Dhaka & Gazipur (৳80)</span>
                 <span>✓ 48-72h Delivery Nationwide (৳130)</span>
                 <span>✓ Free Delivery on ৳2,000+</span>
@@ -199,7 +199,7 @@ export default function AboutPage() {
                 href="https://wa.me/8801577731381?text=Hello%20Adorous%20Fashion,%20I%20would%20like%20to%20learn%20more%20about%20your%20pieces."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-3.5 bg-ink-soft hover:bg-ink-deep text-paper border border-white/20 font-medium text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-8 py-3.5 bg-sand-soft hover:bg-sand-deep text-ink border border-white/20 font-medium text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-whatsapp" />
                 <span>Message Our Stylist</span>

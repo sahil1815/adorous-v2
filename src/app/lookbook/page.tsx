@@ -149,18 +149,18 @@ export default function LookbookPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
 
                     {/* Bottom Floating Bar */}
-                    <div className="absolute bottom-4 left-4 right-4 text-paper flex items-end justify-between">
+                    <div className="absolute bottom-4 left-4 right-4 text-ink flex items-end justify-between">
                       <div>
-                        <span className="text-[10px] tracking-[0.2em] uppercase text-gold-light font-semibold">
+                        <span className="text-[10px] tracking-[0.2em] uppercase text-gold-deep font-semibold">
                           {look.numeral}
                         </span>
                         <h2 className="text-xl sm:text-2xl font-serif text-white">
                           {look.title}
                         </h2>
                       </div>
-                      <div className="bg-ink/80 backdrop-blur-sm px-3 py-1.5 rounded-xs border border-white/10 text-right">
-                        <div className="text-[9px] uppercase tracking-wider text-paper/70">Ensemble Total</div>
-                        <div className="text-sm font-semibold text-gold-light tabular-nums">
+                      <div className="bg-sand/80 backdrop-blur-sm px-3 py-1.5 rounded-xs border border-line text-right">
+                        <div className="text-[9px] uppercase tracking-wider text-ink/80">Ensemble Total</div>
+                        <div className="text-sm font-semibold text-gold-deep tabular-nums">
                           ৳{ensembleTotal.toLocaleString('en-US')}
                         </div>
                       </div>
@@ -283,18 +283,18 @@ export default function LookbookPage() {
       </main>
 
       {/* Still-Life Photography Promise */}
-      <section className="bg-ink text-paper py-14 sm:py-16 border-t border-line">
+      <section className="bg-sand text-ink py-14 sm:py-16 border-t border-line">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-4">
           <span className="text-[11px] font-semibold text-gold tracking-[0.25em] uppercase">
             The Adorous Aesthetic Philosophy
           </span>
-          <h3 className="text-2xl sm:text-3xl font-serif text-paper">
+          <h3 className="text-2xl sm:text-3xl font-serif text-ink">
             Purity of Craft: Pure Still Life Photography
           </h3>
-          <p className="text-xs sm:text-sm text-paper/70 leading-relaxed">
+          <p className="text-xs sm:text-sm text-ink/80 leading-relaxed">
             At Adorous Fashion, we celebrate the beauty of South Asian jewelry, velvet churi stacks, and curated leather accessories. By capturing every piece exclusively on warm limestone plinths, velvet neckforms, and display trays, we let the design details and textures speak with total clarity.
           </p>
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-gold-light">
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-gold-deep">
             <span>✓ Zero Human Distractions</span>
             <span>✓ True-to-Life Color Accuracy</span>
             <span>✓ 100% Still Life Product Detail</span>

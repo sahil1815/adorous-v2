@@ -94,7 +94,7 @@ export default function Header() {
             {/* Center: Brand Wordmark & Monogram */}
             <div className="flex flex-col items-center justify-center text-center">
               <Link href="/" className="group flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/40 shadow-sm shrink-0 bg-ink">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/40 shadow-sm shrink-0 bg-paper">
                   <Image
                     src="/images/logo/logo-monogram.png"
                     alt="AF"
@@ -162,7 +162,7 @@ export default function Header() {
               >
                 <ShoppingBag className="w-5 h-5" />
                 {totalItems > 0 ? (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-ink text-gold-light text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gold text-ink text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
                     {totalItems}
                   </span>
                 ) : (

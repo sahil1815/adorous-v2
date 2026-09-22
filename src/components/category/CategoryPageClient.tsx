@@ -186,7 +186,7 @@ export default function CategoryPageClient({
                 onClick={() => setSelectedColor(null)}
                 className={`px-2.5 py-1 text-[11px] rounded-full border transition-all ${
                   selectedColor === null
-                    ? 'border-ink bg-ink text-paper font-medium'
+                    ? 'border-ink bg-sand text-ink font-medium'
                     : 'border-line text-text-muted hover:border-ink/50'
                 }`}
               >
@@ -262,7 +262,7 @@ export default function CategoryPageClient({
                 setSelectedColor(null);
                 setFilterInStock(false);
               }}
-              className="mt-4 px-4 py-2 bg-ink text-gold-light text-xs font-semibold uppercase tracking-wider"
+              className="mt-4 px-4 py-2 bg-gold text-ink text-xs font-semibold uppercase tracking-wider"
             >
               Reset Filters
             </button>
@@ -308,7 +308,7 @@ export default function CategoryPageClient({
         </section>
 
         {/* WhatsApp Styling Assistance Banner */}
-        <section className="mt-12 bg-ink text-paper p-6 sm:p-10 rounded-[2px] relative overflow-hidden">
+        <section className="mt-12 bg-sand text-ink p-6 sm:p-10 rounded-[2px] relative overflow-hidden">
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center sm:text-left">
               <span className="text-[11px] text-gold-light font-semibold tracking-wider uppercase">

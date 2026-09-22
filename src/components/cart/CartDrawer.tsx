@@ -47,23 +47,23 @@ export default function CartDrawer() {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/75 backdrop-blur-sm transition-opacity duration-300"
+        className="fixed inset-0 bg-sand/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={closeCart}
       />
 
       {/* Drawer Panel */}
       <div className="fixed inset-y-0 right-0 max-w-md w-full bg-paper shadow-2xl flex flex-col z-50 border-l border-line">
         {/* Drawer Header */}
-        <div className="p-4 sm:p-5 bg-ink text-paper flex items-center justify-between border-b border-gold/30">
+        <div className="p-4 sm:p-5 bg-sand text-ink flex items-center justify-between border-b border-gold/30">
           <div className="flex items-center space-x-2.5">
             <ShoppingBag className="w-5 h-5 text-gold" />
-            <span className="font-serif text-lg tracking-wider uppercase text-gold-light font-semibold">
+            <span className="font-serif text-lg tracking-wider uppercase text-gold-deep font-semibold">
               Your Bag ({totalItems})
             </span>
           </div>
           <button
             onClick={closeCart}
-            className="p-1.5 text-paper/70 hover:text-gold transition-colors"
+            className="p-1.5 text-ink/70 hover:text-gold transition-colors"
             aria-label="Close cart"
           >
             <X className="w-5 h-5" />
@@ -112,7 +112,7 @@ export default function CartDrawer() {
               </div>
               <button
                 onClick={closeCart}
-                className="inline-flex items-center px-6 py-2.5 bg-ink text-gold-light text-xs uppercase tracking-wider font-semibold rounded-[2px] hover:bg-ink-soft transition-colors"
+                className="inline-flex items-center px-6 py-2.5 bg-gold hover:bg-gold-deep text-ink text-xs uppercase tracking-wider font-semibold rounded-[2px]  transition-colors"
               >
                 Continue Browsing
               </button>
@@ -225,7 +225,7 @@ export default function CartDrawer() {
                 href={generateWhatsAppOrderUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-ink text-gold-light hover:bg-ink-soft border border-gold/40 text-xs tracking-wider uppercase font-medium rounded-[2px] transition-colors"
+                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gold hover:bg-gold-deep text-ink  border border-gold/40 text-xs tracking-wider uppercase font-medium rounded-[2px] transition-colors"
               >
                 <MessageCircle className="w-4 h-4 text-whatsapp" />
                 <span>Instant Order via WhatsApp</span>

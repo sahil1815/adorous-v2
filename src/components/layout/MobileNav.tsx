@@ -26,7 +26,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
       <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-paper shadow-2xl z-50 flex flex-col justify-between overflow-y-auto border-r border-line">
         <div>
           {/* Header */}
-          <div className="p-4 bg-ink text-paper flex items-center justify-between border-b border-gold/30">
+          <div className="p-4 bg-sand text-ink flex items-center justify-between border-b border-line">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/50 shrink-0">
                 <Image
@@ -38,17 +38,17 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
                 />
               </div>
               <div>
-                <span className="font-serif text-lg tracking-widest text-gold font-semibold uppercase block leading-tight">
+                <span className="font-serif text-lg tracking-widest text-gold-deep font-semibold uppercase block leading-tight">
                   Adorous
                 </span>
-                <span className="font-sans text-[9px] tracking-[0.25em] text-gold-light/80 uppercase block">
+                <span className="font-sans text-[9px] tracking-[0.25em] text-gold-ink/80 uppercase block">
                   Fashion
                 </span>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="p-1.5 text-gold-light hover:text-gold transition-colors"
+              className="p-1.5 text-ink hover:text-gold-deep transition-colors"
               aria-label="Close menu"
             >
               <X className="w-5 h-5" />

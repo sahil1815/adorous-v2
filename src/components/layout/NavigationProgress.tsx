@@ -201,7 +201,7 @@ export default function NavigationProgress() {
             : 'opacity-0 translate-y-2 scale-95'
         }`}
       >
-        <div className="flex items-center gap-2.5 px-3.5 py-2 bg-ink/90 backdrop-blur-md border border-gold/40 shadow-2xl text-paper rounded-none">
+        <div className="flex items-center gap-2.5 px-3.5 py-2 bg-paper/90 backdrop-blur-md border border-gold/40 shadow-2xl text-ink rounded-none">
           {/* Spinning gold hairline ring */}
           <div className="relative w-3.5 h-3.5 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border border-gold/30 border-t-gold-light gold-ring-spin" />

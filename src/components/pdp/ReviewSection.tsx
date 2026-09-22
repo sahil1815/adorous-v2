@@ -93,7 +93,7 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
         {!isWriting && !submitted && (
           <button
             onClick={() => setIsWriting(true)}
-            className="h-11 px-6 bg-ink text-gold-light text-xs font-medium uppercase tracking-wider hover:bg-ink-soft transition-colors"
+            className="h-11 px-6 bg-gold hover:bg-gold-deep text-ink text-xs font-medium uppercase tracking-wider  transition-colors"
           >
             Write a Review
           </button>

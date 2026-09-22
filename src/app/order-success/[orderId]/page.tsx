@@ -112,7 +112,7 @@ export default function OrderSuccessPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold tracking-wider uppercase">
-                <Sparkles className="w-3.5 h-3.5 text-gold-light" />
+                <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
                 Priority Bangladesh Dispatch
               </div>
               <h2 className="text-xl sm:text-2xl font-serif text-white">
@@ -321,7 +321,7 @@ export default function OrderSuccessPage() {
           </Link>
           <Link
             href="/shop"
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-3.5 bg-ink hover:bg-black text-gold-light font-semibold text-xs tracking-wider uppercase rounded-xs transition-all shadow-sm"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-3.5 bg-sand hover:bg-black text-gold-deep font-semibold text-xs tracking-wider uppercase rounded-xs transition-all shadow-sm"
           >
             <span>Continue Exploring The Edit</span>
             <ArrowRight className="w-3.5 h-3.5" />

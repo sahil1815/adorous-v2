@@ -285,7 +285,7 @@ export default function AdminInventoryPage() {
                     <button
                       type="button"
                       onClick={() => updateProductBadges(prod.id, { isNewDrop: !effective.isNewDrop })}
-                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${effective.isNewDrop ? 'bg-ink text-gold-light border border-gold/40' : 'text-paper/40 hover:text-paper'}`}
+                      className={`px-2 py-1 rounded-xs text-[10px] uppercase font-semibold transition-colors ${effective.isNewDrop ? 'bg-gold text-ink border border-gold/40' : 'text-paper/40 hover:text-paper'}`}
                     >
                       {effective.isNewDrop ? '✓ New Drop' : '+ New Drop'}
                     </button>

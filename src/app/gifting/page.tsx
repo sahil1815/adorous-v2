@@ -202,7 +202,7 @@ export default function GiftingPage() {
                     sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover object-center hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 left-3 bg-ink text-gold-light text-[10px] tracking-wider uppercase px-2.5 py-1 font-semibold border border-gold/30">
+                  <div className="absolute top-3 left-3 bg-sand text-gold-deep text-[10px] tracking-wider uppercase px-2.5 py-1 font-semibold border border-gold/30">
                     Complimentary Luxury Packaging
                   </div>
                 </div>
@@ -274,19 +274,19 @@ export default function GiftingPage() {
         </div>
 
         {/* Custom Event & Bulk Favours Concierge */}
-        <section className="bg-ink text-paper p-8 sm:p-12 rounded-[2px] border border-gold/30">
+        <section className="bg-sand text-ink p-8 sm:p-12 rounded-[2px] border border-gold/30">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-3">
               <span className="text-[11px] font-semibold text-gold tracking-[0.2em] uppercase">
                 Custom Favours & Corporate Gifting
               </span>
-              <h3 className="text-2xl sm:text-3xl font-serif text-paper">
+              <h3 className="text-2xl sm:text-3xl font-serif text-ink">
                 Hosting a Holud, Sangeet, or Corporate Gala?
               </h3>
-              <p className="text-xs sm:text-sm text-paper/75 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-ink/75 leading-relaxed max-w-2xl">
                 We craft personalized bangle bundles, custom velvet trays, and monogrammed presentation boxes in quantities of 20 to 500+ sets. Delivered directly to your venue in Dhaka, Chittagong, Sylhet, or any district with advance coordination.
               </p>
-              <div className="pt-2 flex flex-wrap gap-4 text-xs text-gold-light">
+              <div className="pt-2 flex flex-wrap gap-4 text-xs text-gold-deep">
                 <span>✓ Custom velvet ribbon colors</span>
                 <span>✓ Custom wax seal monograms</span>
                 <span>✓ Bulk tiered pricing</span>

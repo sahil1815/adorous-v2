@@ -33,7 +33,7 @@ export default function ClientProductDetailResolver({
           <div className="pt-2">
             <Link
               href="/shop"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-ink text-gold-light text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-black transition-colors"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-gold text-ink text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-black transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Explore The Complete Edit</span>

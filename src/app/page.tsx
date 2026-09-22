@@ -26,20 +26,20 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. HERO SECTION */}
-      <section className="relative bg-ink text-paper overflow-hidden border-b border-gold/20">
+      <section className="relative bg-paper text-ink overflow-hidden border-b border-line">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[640px]">
           {/* Left Hero Content */}
           <div className="lg:col-span-6 px-6 py-12 sm:px-12 sm:py-16 lg:py-24 flex flex-col justify-center z-10">
-            <div className="inline-flex items-center space-x-2 bg-ink-soft/90 border border-gold/40 px-3 py-1 text-gold-light text-[11px] tracking-[0.2em] uppercase rounded-[2px] w-fit mb-6">
+            <div className="inline-flex items-center space-x-2 bg-sand/90 border border-gold px-3 py-1 text-gold-deep text-[11px] tracking-[0.2em] uppercase rounded-[2px] w-fit mb-6">
               <Sparkles className="w-3.5 h-3.5 text-gold" />
               <span>Curated Limited Drops</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.08] font-medium text-paper tracking-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.08] font-medium text-ink tracking-tight">
               Premium jewelry, bags & churi — <span className="gold-gradient-text italic font-normal">made to be worn together.</span>
             </h1>
 
-            <p className="mt-5 text-sm sm:text-base text-paper/80 max-w-lg leading-relaxed font-normal">
+            <p className="mt-5 text-sm sm:text-base text-ink/80 max-w-lg leading-relaxed font-normal">
               Curated boutique accessories crafted for timeless South Asian celebrations. Cash on Delivery across all 64 districts in Bangladesh with personal WhatsApp confirmation.
             </p>
 
@@ -54,14 +54,14 @@ export default function HomePage() {
 
               <Link
                 href="/churi"
-                className="inline-flex items-center justify-center px-7 py-3.5 bg-transparent hover:bg-ink-soft text-gold-light border border-gold/40 hover:border-gold font-medium text-xs tracking-[0.16em] uppercase rounded-[2px] transition-colors"
+                className="inline-flex items-center justify-center px-7 py-3.5 bg-transparent hover:bg-sand text-gold-deep border border-gold hover:border-gold font-medium text-xs tracking-[0.16em] uppercase rounded-[2px] transition-colors"
               >
                 <span>Explore Churi Stacks</span>
               </Link>
             </div>
 
             {/* Quick Micro Proof */}
-            <div className="mt-10 pt-6 border-t border-white/10 flex items-center space-x-6 text-xs text-paper/70">
+            <div className="mt-10 pt-6 border-t border-line flex items-center space-x-6 text-xs text-ink/70">
               <div className="flex items-center space-x-1 text-gold">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3.5 h-3.5 fill-gold" />
@@ -86,7 +86,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-transparent to-transparent hidden lg:block" />
 
             {/* Floating Editorial Badge */}
-            <div className="absolute bottom-6 right-6 bg-ink/90 backdrop-blur-md border border-gold/40 p-4 max-w-xs text-paper hidden sm:block shadow-2xl">
+            <div className="absolute bottom-6 right-6 bg-paper/90 backdrop-blur-md border border-gold p-4 max-w-xs text-ink hidden sm:block shadow-2xl">
               <div className="text-[10px] uppercase tracking-[0.2em] text-gold font-medium">
                 The Festive Ensemble
               </div>
@@ -95,7 +95,7 @@ export default function HomePage() {
               </div>
               <Link
                 href="/shop"
-                className="inline-flex items-center text-xs text-gold-light hover:text-gold mt-2 font-medium"
+                className="inline-flex items-center text-xs text-gold-deep hover:text-gold mt-2 font-medium"
               >
                 <span>View Full Styling</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-1" />
@@ -255,7 +255,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. CHARCOAL EDITORIAL LOOKBOOK BAND */}
-      <section className="bg-ink text-paper py-16 sm:py-24 border-y border-gold/20 my-6">
+      <section className="bg-paper text-ink py-16 sm:py-24 border-y border-line my-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 space-y-5">
@@ -266,7 +266,7 @@ export default function HomePage() {
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium leading-tight">
                 Designed to dialogue, <span className="gold-gradient-text italic font-normal">not compete.</span>
               </h2>
-              <p className="text-sm text-paper/80 leading-relaxed font-normal">
+              <p className="text-sm text-ink/80 leading-relaxed font-normal">
                 Every piece in the Adorous catalog is calibrated to harmonize. The warm antique gold finish of the Zari Choker mirrors the brass clasps on the Gulshan Bag and the peacock karas on the Meher Bangle stack.
               </p>
               <div className="pt-2">
@@ -281,26 +281,26 @@ export default function HomePage() {
             </div>
 
             <div className="lg:col-span-7 grid grid-cols-2 gap-4">
-              <div className="relative aspect-[4/5] bg-ink-soft border border-gold/30 overflow-hidden">
+              <div className="relative aspect-[4/5] bg-sand border border-line overflow-hidden">
                 <Image
                   src="/images/products/jewelry-zari-choker.jpg"
                   alt="Jewelry Artistry"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute bottom-3 left-3 bg-ink/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
+                <div className="absolute bottom-3 left-3 bg-paper/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
                   Zari Bridal Choker
                 </div>
               </div>
 
-              <div className="relative aspect-[4/5] bg-ink-soft border border-gold/30 overflow-hidden mt-6">
+              <div className="relative aspect-[4/5] bg-sand border border-line overflow-hidden mt-6">
                 <Image
                   src="/images/products/churi-meher-emerald.jpg"
                   alt="Churi Stack"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute bottom-3 left-3 bg-ink/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
+                <div className="absolute bottom-3 left-3 bg-paper/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
                   Meher Bangle Stack
                 </div>
               </div>
@@ -421,7 +421,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 text-left">
           <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-ink text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
+            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
               1
             </div>
             <h3 className="font-serif text-lg font-medium text-ink">
@@ -433,7 +433,7 @@ export default function HomePage() {
           </div>
 
           <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-ink text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
+            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
               2
             </div>
             <h3 className="font-serif text-lg font-medium text-ink">
@@ -445,7 +445,7 @@ export default function HomePage() {
           </div>
 
           <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-ink text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
+            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
               3
             </div>
             <h3 className="font-serif text-lg font-medium text-ink">

@@ -140,7 +140,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Scarcity / Drop Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {product.isNewDrop && (
-                  <span className="bg-ink text-gold-light text-xs tracking-wider uppercase px-3 py-1 font-medium border border-gold/30">
+                  <span className="bg-gold hover:bg-gold-deep text-ink text-xs tracking-wider uppercase px-3 py-1 font-medium border border-gold/30">
                     New Drop
                   </span>
                 )}
@@ -158,7 +158,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   onClick={() => toggleWishlist(product)}
                   className={`p-2.5 backdrop-blur-sm border transition-all rounded-[2px] ${
                     isSaved
-                      ? 'bg-ink text-gold border-gold/40 shadow-md'
+                      ? 'bg-gold text-ink border-gold/40 shadow-md'
                       : 'bg-paper/85 border-line hover:bg-paper text-ink hover:text-gold-deep'
                   }`}
                   title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
@@ -178,13 +178,13 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </button>
               </div>
               {copiedLink && (
-                <span className="absolute top-16 right-4 bg-ink text-gold-light text-[11px] px-2.5 py-1 rounded-[2px] shadow-md animate-fade-in z-20">
+                <span className="absolute top-16 right-4 bg-gold hover:bg-gold-deep text-ink text-[11px] px-2.5 py-1 rounded-[2px] shadow-md animate-fade-in z-20">
                   Link copied!
                 </span>
               )}
 
               {/* Backdrop Authenticity Watermark */}
-              <div className="absolute bottom-4 right-4 bg-ink/70 backdrop-blur-sm text-paper/80 text-[10px] tracking-widest uppercase px-2.5 py-1">
+              <div className="absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1">
                 Still Life · Warm Stone Plinth
               </div>
             </div>
@@ -303,7 +303,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                         onClick={() => setSelectedSize(s)}
                         className={`py-2 px-3 text-center border text-xs font-medium rounded-[2px] transition-all ${
                           selectedSize === s
-                            ? 'border-ink bg-ink text-gold-light'
+                            ? 'border-ink bg-gold hover:bg-gold-deep text-ink'
                             : 'border-line bg-sand/30 text-ink hover:border-ink/60'
                         }`}
                       >
@@ -355,9 +355,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <button
                       type="button"
                       disabled
-                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-paper/40 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
+                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-ink/50 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-paper/30" />
+                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-ink/40" />
                       <span>Out of Stock</span>
                     </button>
                   ) : (
@@ -373,7 +373,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
                   {/* Order Now Button */}
                   {(product as any).stockQty === 0 || product.inStock === false ? (
-                    <div className="flex-1 h-12 bg-ink/10 border border-line text-paper/30 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed">
+                    <div className="flex-1 h-12 bg-sand/10 border border-line text-ink/40 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed">
                       <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                       <span className="truncate">Unavailable</span>
                     </div>
@@ -395,7 +395,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     onClick={() => toggleWishlist(product)}
                     className={`h-12 w-11 sm:w-12 border rounded-[2px] flex items-center justify-center transition-all shrink-0 ${
                       isSaved
-                        ? 'bg-ink text-gold border-gold/40 shadow-sm'
+                        ? 'bg-gold text-ink border-gold/40 shadow-sm'
                         : 'bg-paper border-line text-ink hover:border-gold hover:text-gold-deep'
                     }`}
                     title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
@@ -410,7 +410,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   href={generateDirectWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full h-12 bg-ink hover:bg-ink-soft text-gold-light border border-gold/40 font-medium text-xs tracking-wider uppercase rounded-[2px] transition-colors flex items-center justify-center space-x-2"
+                  className="w-full h-12 bg-gold hover:bg-gold-deep text-ink border border-gold/40 font-medium text-xs tracking-wider uppercase rounded-[2px] transition-colors flex items-center justify-center space-x-2"
                 >
                   <MessageCircle className="w-4 h-4 text-whatsapp" />
                   <span>Order Directly on WhatsApp</span>

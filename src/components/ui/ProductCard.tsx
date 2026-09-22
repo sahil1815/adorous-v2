@@ -55,7 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
           {product.isNewDrop && (
-            <span className="bg-ink text-gold-light text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-medium border border-gold/30">
+            <span className="bg-gold hover:bg-gold-deep text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-medium border border-gold/30">
               New Drop
             </span>
           )}
@@ -72,7 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           onClick={handleToggleWishlist}
           className={`absolute top-2.5 right-2.5 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-md ${
             isSaved
-              ? 'bg-ink/90 text-gold shadow-md ring-1 ring-gold/40'
+              ? 'bg-sand/90 text-gold shadow-md ring-1 ring-gold/40'
               : 'bg-paper/85 text-ink/70 hover:text-gold-deep hover:bg-paper shadow-sm'
           }`}
           aria-label={isSaved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
@@ -87,7 +87,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Pieces Count or Quick Specs */}
         {product.piecesIncluded && (
-          <div className="absolute bottom-2.5 right-2.5 bg-ink/80 backdrop-blur-sm text-paper text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
+          <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
             {product.piecesIncluded.length} Pcs Set
           </div>
         )}
@@ -97,7 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             type="button"
             onClick={handleQuickAdd}
-            className="w-full py-2.5 bg-ink/90 hover:bg-ink text-gold-light hover:text-gold text-[11px] font-semibold tracking-wider uppercase backdrop-blur-sm transition-all flex items-center justify-center space-x-1.5 shadow-md"
+            className="w-full py-2.5 bg-sand/90 hover:bg-gold hover:bg-gold-deep text-ink hover:text-gold text-[11px] font-semibold tracking-wider uppercase backdrop-blur-sm transition-all flex items-center justify-center space-x-1.5 shadow-md"
           >
             {isAdded ? (
               <>

@@ -156,7 +156,7 @@ export default function DeliveryPaymentPage() {
             href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20have%20a%20question%20regarding%20delivery."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-ink hover:bg-black text-gold-light text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-sand hover:bg-black text-gold-deep text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
           >
             <MessageCircle className="w-4 h-4 text-emerald-400" />
             <span>Chat with Delivery Coordinator</span>

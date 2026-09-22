@@ -75,7 +75,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-start pt-16 sm:pt-24 px-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/70 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-sand/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />

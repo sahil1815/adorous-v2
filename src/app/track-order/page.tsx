@@ -558,21 +558,21 @@ function TrackOrderContent() {
         {searched && trackingData && (
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Status Summary Banner */}
-            <div className="bg-ink text-paper p-6 sm:p-8 rounded-[2px] border border-gold/30 shadow-md">
+            <div className="bg-sand text-ink p-6 sm:p-8 rounded-[2px] border border-gold/30 shadow-md">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span className="text-xs font-semibold tracking-wider uppercase text-gold-light">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-gold-deep">
                       Live Courier Dispatch Update
                     </span>
                   </div>
-                  <h2 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+                  <h2 className="font-serif text-2xl sm:text-3xl text-ink font-normal">
                     {trackingData.statusText}
                   </h2>
-                  <p className="text-xs text-paper/70">
-                    Order Ref: <strong className="text-gold-light">{trackingData.orderId}</strong> · Consignment:{' '}
-                    <strong className="text-paper">{trackingData.consignmentId}</strong>
+                  <p className="text-xs text-ink/80">
+                    Order Ref: <strong className="text-gold-deep">{trackingData.orderId}</strong> · Consignment:{' '}
+                    <strong className="text-ink">{trackingData.consignmentId}</strong>
                   </p>
                 </div>
 
@@ -581,7 +581,7 @@ function TrackOrderContent() {
                     href={trackingData.courierUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-paper/10 hover:bg-paper/20 border border-gold/40 text-gold-light text-xs font-medium rounded-xs transition-colors"
+                    className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-paper/10 hover:bg-paper/20 border border-gold/40 text-gold-deep text-xs font-medium rounded-xs transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5 text-gold" />
                     <span>View on Steadfast Portal</span>
@@ -600,22 +600,22 @@ function TrackOrderContent() {
               </div>
 
               {/* Delivery Meta Strip */}
-              <div className="mt-6 pt-6 border-t border-paper/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-paper/80">
+              <div className="mt-6 pt-6 border-t border-paper/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-ink/80">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-paper/50 block">Courier:</span>
-                  <span className="font-semibold text-paper mt-0.5 block">{trackingData.courierName}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Courier:</span>
+                  <span className="font-semibold text-ink mt-0.5 block">{trackingData.courierName}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-paper/50 block">Estimated Arrival:</span>
-                  <span className="font-semibold text-gold-light mt-0.5 block">{trackingData.estimatedDelivery}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Estimated Arrival:</span>
+                  <span className="font-semibold text-gold-deep mt-0.5 block">{trackingData.estimatedDelivery}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-paper/50 block">Payment Mode:</span>
-                  <span className="font-semibold text-paper mt-0.5 block">{trackingData.paymentMethod}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Payment Mode:</span>
+                  <span className="font-semibold text-ink mt-0.5 block">{trackingData.paymentMethod}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-paper/50 block">Amount Payable (COD):</span>
-                  <span className="font-semibold text-gold-light mt-0.5 block text-sm">৳{trackingData.codAmount.toLocaleString('en-US')}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Amount Payable (COD):</span>
+                  <span className="font-semibold text-gold-deep mt-0.5 block text-sm">৳{trackingData.codAmount.toLocaleString('en-US')}</span>
                 </div>
               </div>
             </div>
@@ -763,7 +763,7 @@ function TrackOrderContent() {
                 href={generateWhatsAppInquiry()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-ink hover:bg-black text-gold-light font-semibold text-xs tracking-wider uppercase rounded-xs transition-colors"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-sand hover:bg-black text-gold-deep font-semibold text-xs tracking-wider uppercase rounded-xs transition-colors"
               >
                 <MessageCircle className="w-4 h-4 text-whatsapp" />
                 <span>Contact Us on WhatsApp</span>

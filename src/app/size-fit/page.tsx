@@ -108,7 +108,7 @@ export default function SizeFitPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 bg-sand/30 border border-line rounded-xs space-y-2">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center">
                 1
               </span>
               <h3 className="font-serif text-base text-ink font-medium">Pinch Fingers</h3>
@@ -118,7 +118,7 @@ export default function SizeFitPage() {
             </div>
 
             <div className="p-5 bg-sand/30 border border-line rounded-xs space-y-2">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center">
                 2
               </span>
               <h3 className="font-serif text-base text-ink font-medium">Wrap String or Tape</h3>
@@ -128,7 +128,7 @@ export default function SizeFitPage() {
             </div>
 
             <div className="p-5 bg-sand/30 border border-line rounded-xs space-y-2">
-              <span className="w-6 h-6 rounded-full bg-ink text-gold-light text-xs font-bold flex items-center justify-center">
+              <span className="w-6 h-6 rounded-full bg-sand text-gold-deep text-xs font-bold flex items-center justify-center">
                 3
               </span>
               <h3 className="font-serif text-base text-ink font-medium">Measure Against Ruler</h3>
@@ -181,7 +181,7 @@ export default function SizeFitPage() {
 
           <Link
             href="/churi"
-            className="shrink-0 px-6 py-3 bg-ink hover:bg-black text-gold-light text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2"
+            className="shrink-0 px-6 py-3 bg-sand hover:bg-black text-gold-deep text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2"
           >
             <span>Shop Churi Stacks</span>
             <ArrowRight className="w-3.5 h-3.5" />

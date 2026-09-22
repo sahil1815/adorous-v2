@@ -15,7 +15,7 @@ export default function ChuriSizingModal({ isOpen, onClose }: ChuriSizingModalPr
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-ink/75 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-ink/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -92,19 +92,19 @@ export default function ChuriSizingModal({ isOpen, onClose }: ChuriSizingModalPr
             </h4>
             <div className="space-y-2 text-xs text-ink/80">
               <div className="flex items-start space-x-2.5">
-                <span className="w-5 h-5 rounded-full bg-ink text-gold font-bold flex items-center justify-center shrink-0 text-[10px]">
+                <span className="w-5 h-5 rounded-full bg-gold text-ink font-bold flex items-center justify-center shrink-0 text-[10px]">
                   1
                 </span>
                 <span>Bring your thumb and little finger together, as if slipping on a bangle.</span>
               </div>
               <div className="flex items-start space-x-2.5">
-                <span className="w-5 h-5 rounded-full bg-ink text-gold font-bold flex items-center justify-center shrink-0 text-[10px]">
+                <span className="w-5 h-5 rounded-full bg-gold text-ink font-bold flex items-center justify-center shrink-0 text-[10px]">
                   2
                 </span>
                 <span>Wrap a piece of string around the widest part of your hand across the knuckles.</span>
               </div>
               <div className="flex items-start space-x-2.5">
-                <span className="w-5 h-5 rounded-full bg-ink text-gold font-bold flex items-center justify-center shrink-0 text-[10px]">
+                <span className="w-5 h-5 rounded-full bg-gold text-ink font-bold flex items-center justify-center shrink-0 text-[10px]">
                   3
                 </span>
                 <span>Measure the string against a ruler. Match against the table above.</span>
@@ -120,7 +120,7 @@ export default function ChuriSizingModal({ isOpen, onClose }: ChuriSizingModalPr
 
           <button
             onClick={onClose}
-            className="w-full py-2.5 bg-ink text-gold-light text-xs font-semibold uppercase tracking-wider rounded-[2px] hover:bg-ink-soft transition-colors"
+            className="w-full py-2.5 bg-gold text-ink text-xs font-semibold uppercase tracking-wider rounded-[2px] hover:bg-ink-soft transition-colors"
           >
             Got It, Close Guide
           </button>

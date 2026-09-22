@@ -112,7 +112,7 @@ export default function ShopPage() {
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${
                 selectedCategory === 'all'
-                  ? 'bg-ink text-gold-light shadow-sm'
+                  ? 'bg-sand text-gold-deep shadow-sm'
                   : 'bg-paper border border-line text-ink hover:border-gold'
               }`}
             >
@@ -127,7 +127,7 @@ export default function ShopPage() {
                   onClick={() => setSelectedCategory(cat.slug)}
                   className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${
                     selectedCategory === cat.slug
-                      ? 'bg-ink text-gold-light shadow-sm'
+                      ? 'bg-sand text-gold-deep shadow-sm'
                       : 'bg-paper border border-line text-ink hover:border-gold'
                   }`}
                 >
@@ -172,7 +172,7 @@ export default function ShopPage() {
                 onClick={() => setSelectedColor(null)}
                 className={`px-2 py-0.5 text-[10px] rounded-full border transition-all ${
                   selectedColor === null
-                    ? 'border-ink bg-ink text-paper'
+                    ? 'border-ink bg-sand text-ink'
                     : 'border-line text-text-muted hover:border-ink/50'
                 }`}
               >
@@ -253,7 +253,7 @@ export default function ShopPage() {
             <p className="text-xs text-text-muted mt-2">Try clearing search terms or selecting a different tone.</p>
             <button
               onClick={resetFilters}
-              className="mt-4 px-4 py-2 bg-ink text-gold-light text-xs font-semibold uppercase tracking-wider"
+              className="mt-4 px-4 py-2 bg-sand text-gold-deep text-xs font-semibold uppercase tracking-wider"
             >
               Reset Filters
             </button>
@@ -284,7 +284,7 @@ export default function ShopPage() {
             href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20am%20browsing%20The%20Edit%20and%20would%20like%20assistance."
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-3.5 bg-ink hover:bg-black text-gold-light font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shrink-0 shadow-sm"
+            className="px-6 py-3.5 bg-sand hover:bg-black text-gold-deep font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shrink-0 shadow-sm"
           >
             <MessageCircle className="w-4 h-4 text-emerald-400" />
             <span>Chat on WhatsApp</span>

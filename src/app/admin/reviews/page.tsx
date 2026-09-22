@@ -131,7 +131,7 @@ export default function AdminReviewsPage() {
                 {activeTab !== 'approved' && (
                   <button
                     onClick={() => updateReviewStatus(review.id, 'approved')}
-                    className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider bg-ink text-gold-light hover:bg-ink-soft transition-colors px-4 py-2 rounded-[2px]"
+                    className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider bg-gold text-ink hover:bg-gold-deep transition-colors px-4 py-2 rounded-[2px]"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Approve to Store</span>

@@ -592,7 +592,7 @@ export default function CheckoutPage() {
                         <button
                           type="button"
                           onClick={handleApplyCoupon}
-                          className="px-4 py-2.5 bg-ink hover:bg-black text-paper text-xs font-medium uppercase tracking-wider rounded-xs transition-colors shrink-0"
+                          className="px-4 py-2.5 bg-sand hover:bg-black text-ink text-xs font-medium uppercase tracking-wider rounded-xs transition-colors shrink-0"
                         >
                           Apply
                         </button>
