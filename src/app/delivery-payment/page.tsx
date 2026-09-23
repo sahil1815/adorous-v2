@@ -41,7 +41,7 @@ export default function DeliveryPaymentPage() {
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold-deep mb-3">
               <Truck className="w-4 h-4" />
             </div>
-            <h3 className="font-serif text-base text-ink font-medium">Dhaka & Gazipur</h3>
+            <h3 className="font-serif text-base text-ink font-medium">Dhaka (Metro & Greater)</h3>
             <p className="text-xs leading-relaxed">
               <strong>৳80 Flat Rate</strong> · Delivered within 24–48 hours directly to your doorstep.
             </p>
@@ -51,7 +51,7 @@ export default function DeliveryPaymentPage() {
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold-deep mb-3">
               <MapPin className="w-4 h-4" />
             </div>
-            <h3 className="font-serif text-base text-ink font-medium">All Other Districts (62 Districts)</h3>
+            <h3 className="font-serif text-base text-ink font-medium">All Other Districts (63 Districts)</h3>
             <p className="text-xs leading-relaxed">
               <strong>৳130 Flat Rate</strong> · Delivered within 48–72 hours via Express Courier.
             </p>

@@ -181,7 +181,7 @@ export default function AboutPage() {
                 Every order placed with Adorous Fashion is picked, carefully inspected, and placed into our premium keepsake box with velvet dust pouches. We ship across all 64 districts with zero advance payment required.
               </p>
               <div className="pt-2 flex flex-wrap gap-6 text-xs text-gold-deep">
-                <span>✓ 24-48h Delivery in Dhaka & Gazipur (৳80)</span>
+                <span>✓ 24-48h Delivery in Dhaka (৳80)</span>
                 <span>✓ 48-72h Delivery Nationwide (৳130)</span>
                 <span>✓ Free Delivery on ৳2,000+</span>
               </div>

@@ -90,7 +90,7 @@ export default function CheckoutPage() {
     );
   }, [selectedDistrict]);
 
-  // Shipping Fee & Discount Calculation (৳80 for Dhaka & Gazipur, ৳130 for others)
+  // Shipping Fee & Discount Calculation (৳80 for Dhaka, ৳130 for others)
   const baseDistrictRate = getDistrictDeliveryFee(selectedDistrict);
   const isFreeDelivery = subtotal >= 2000;
   const baseShippingFee = isFreeDelivery ? 0 : baseDistrictRate;
@@ -435,7 +435,7 @@ export default function CheckoutPage() {
                         <div className="p-3 text-xs text-text-muted text-center">
                           <span>Custom location: <strong>&ldquo;{selectedDistrict}&rdquo;</strong></span>
                           <p className="text-[10px] text-gold-deep mt-1 font-medium">
-                            {baseDistrictRate === 80 ? '৳80 Express Delivery (Dhaka/Gazipur)' : '৳130 Delivery'} applies
+                            {baseDistrictRate === 80 ? '৳80 Express Delivery (Dhaka)' : '৳130 Delivery'} applies
                           </p>
                         </div>
                       )}

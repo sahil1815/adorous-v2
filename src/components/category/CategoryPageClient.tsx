@@ -308,30 +308,28 @@ export default function CategoryPageClient({
         </section>
 
         {/* WhatsApp Styling Assistance Banner */}
-        <section className="mt-12 bg-sand text-ink p-6 sm:p-10 rounded-[2px] relative overflow-hidden">
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center sm:text-left">
-              <span className="text-[11px] text-gold-light font-semibold tracking-wider uppercase">
-                Personal Style Consultation
-              </span>
-              <h3 className="text-xl sm:text-2xl font-serif text-paper">
-                Need help pairing {categoryName.toLowerCase()} with your saree or lehenga?
-              </h3>
-              <p className="text-xs text-paper/70 max-w-xl">
-                Send your fabric photos directly to our Adorous Fashion on WhatsApp. Our stylist will send live video swatches and custom matching recommendations.
-              </p>
-            </div>
-
-            <a
-              href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20would%20like%20styling%20advice%20for%20a%20bridal/festive%20outfit."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shrink-0 shadow-md"
-            >
-              <MessageCircle className="w-4 h-4 text-emerald-800" />
-              <span>Chat with Our Stylist</span>
-            </a>
+        <section className="mt-12 bg-[#FAF7F0] border border-line p-6 sm:p-10 rounded-[2px] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="text-[11px] font-semibold text-gold-ink tracking-wider uppercase">
+              Personal Style Consultation
+            </span>
+            <h3 className="text-xl sm:text-2xl font-serif text-ink">
+              Need help pairing {categoryName.toLowerCase()} with your saree or lehenga?
+            </h3>
+            <p className="text-xs text-text-muted max-w-xl">
+              Send your fabric photos directly to our Adorous Fashion on WhatsApp. Our stylist will send live video swatches and custom matching recommendations.
+            </p>
           </div>
+
+          <a
+            href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20would%20like%20styling%20advice%20for%20a%20bridal/festive%20outfit."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3.5 bg-sand hover:bg-black text-gold-deep font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shrink-0 shadow-sm"
+          >
+            <MessageCircle className="w-4 h-4 text-emerald-400" />
+            <span>Chat with Our Stylist</span>
+          </a>
         </section>
       </main>
     </div>

@@ -30,11 +30,6 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[640px]">
           {/* Left Hero Content */}
           <div className="lg:col-span-6 px-6 py-12 sm:px-12 sm:py-16 lg:py-24 flex flex-col justify-center z-10">
-            <div className="inline-flex items-center space-x-2 bg-sand/90 border border-gold px-3 py-1 text-gold-deep text-[11px] tracking-[0.2em] uppercase rounded-[2px] w-fit mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-gold" />
-              <span>Curated Limited Drops</span>
-            </div>
-
             <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.08] font-medium text-ink tracking-tight">
               Premium jewelry, bags & churi — <span className="gold-gradient-text italic font-normal">made to be worn together.</span>
             </h1>

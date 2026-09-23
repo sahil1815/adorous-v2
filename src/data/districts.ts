@@ -8,7 +8,7 @@ export interface District {
 export function getDistrictDeliveryFee(districtInput: string): number {
   if (!districtInput) return 130;
   const clean = districtInput.trim().toLowerCase();
-  if (clean.includes('dhaka') || clean.includes('gazipur')) {
+  if (clean.includes('dhaka')) {
     return 80;
   }
   return 130;
@@ -17,7 +17,7 @@ export function getDistrictDeliveryFee(districtInput: string): number {
 export const BANGLADESH_DISTRICTS: District[] = [
   // Dhaka Division
   { name: "Dhaka (Metro & Greater)", division: "Dhaka", isDhakaMetro: true, deliveryFee: 80 },
-  { name: "Gazipur", division: "Dhaka", isDhakaMetro: true, deliveryFee: 80 },
+  { name: "Gazipur", division: "Dhaka", isDhakaMetro: false, deliveryFee: 130 },
   { name: "Narayanganj", division: "Dhaka", isDhakaMetro: false, deliveryFee: 130 },
   { name: "Tangail", division: "Dhaka", isDhakaMetro: false, deliveryFee: 130 },
   { name: "Faridpur", division: "Dhaka", isDhakaMetro: false, deliveryFee: 130 },
