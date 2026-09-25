@@ -40,7 +40,9 @@ export default function CategoryPageClient({
   const dynamicCategoryProducts = allProducts
     .filter((p) => p.category === categorySlug)
     .map(getEffectiveProduct);
-  const products = dynamicCategoryProducts.length > 0 ? dynamicCategoryProducts : initialProducts;
+  const products = dynamicCategoryProducts.length > 0
+    ? dynamicCategoryProducts
+    : (initialProducts || []).map(getEffectiveProduct);
 
   // Extract unique colors available in this category
   const availableColors = useMemo(() => {

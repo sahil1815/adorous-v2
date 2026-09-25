@@ -53,10 +53,7 @@ export async function getProductsByCategory(category: string) {
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: { featuredRank: 'asc' },
     });
-    if (!products || products.length === 0) {
-      return PRODUCTS.filter((p) => p.category === category).map(toDbShape);
-    }
-    return products;
+    return products || [];
   } catch (error) {
     console.warn(`[getProductsByCategory] Falling back to static catalogue for category "${category}":`, error);
     return PRODUCTS.filter((p) => p.category === category).map(toDbShape);
@@ -73,11 +70,7 @@ export async function getProductBySlug(slug: string) {
       where: { slug },
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
     });
-    if (!product) {
-      const match = PRODUCTS.find((p) => p.slug === slug);
-      return match ? toDbShape(match) : null;
-    }
-    return product;
+    return product ? product : null;
   } catch (error) {
     console.warn(`[getProductBySlug] Falling back to static catalogue for slug "${slug}":`, error);
     const match = PRODUCTS.find((p) => p.slug === slug);
@@ -92,8 +85,7 @@ export async function getAllProducts() {
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: { featuredRank: 'asc' },
     });
-    if (!products || products.length === 0) return PRODUCTS.map(toDbShape);
-    return products;
+    return products || [];
   } catch (error) {
     console.warn('[getAllProducts] Database unavailable. Falling back to static catalogue:', error);
     return PRODUCTS.map(toDbShape);

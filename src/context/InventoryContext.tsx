@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS } from '@/data/catalogue';
-import { Product } from '@/types';
+import { Product, ProductCategory } from '@/types';
+import { getAllProducts } from '@/app/actions/productActions';
 
 export interface ProductOverride {
   stockStatus: 'in_stock' | 'low_stock' | 'sold_out';
@@ -16,6 +17,7 @@ interface InventoryContextType {
   overrides: Record<string, ProductOverride>;
   customProducts: Product[];
   allProducts: Product[];
+  refreshProducts: () => Promise<void>;
   addProduct: (product: Omit<Product, 'id'> & { id?: string }) => Product;
   updateProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
@@ -25,6 +27,47 @@ interface InventoryContextType {
   resetInventoryOverrides: () => void;
   getEffectiveProduct: (product: Product) => Product;
   getProductBySlug: (category: string, slug: string) => Product | undefined;
+}
+
+function fromDbProduct(p: any): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    category: p.category as ProductCategory,
+    categoryLabel: p.categoryLabel || 'Luxury Accessories',
+    tagline: p.tagline || '',
+    price: Number(p.price),
+    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    stockQty: p.stockQty ?? null,
+    inStock: p.inStock ?? true,
+    isNewDrop: p.isNewDrop ?? false,
+    isBestseller: p.isBestseller ?? false,
+    isGiftPick: p.isGiftPick ?? false,
+    featuredRank: p.featuredRank ?? 999,
+    description: p.description || '',
+    details: Array.isArray(p.details)
+      ? p.details.map((d: any) => (typeof d === 'string' ? d : d.text))
+      : [],
+    piecesIncluded: Array.isArray(p.piecesIncluded)
+      ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
+      : [],
+    colorways: (p.colorways || []).map((cw: any) => ({
+      id: cw.colorId || cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: cw.inStock ?? true,
+      image: cw.image || null,
+    })),
+    sizes: p.sizes,
+    featuredImage: p.featuredImage,
+    galleryImages: Array.isArray(p.galleryImages)
+      ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
+      : [p.featuredImage],
+    seoKeywords: Array.isArray(p.seoKeywords)
+      ? p.seoKeywords
+      : (p.seoKeywords ? p.seoKeywords.split(',') : []),
+  };
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -89,12 +132,18 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
     const updated = [product, ...customProducts];
     saveCustomProducts(updated);
+    setTimeout(() => {
+      refreshProducts();
+    }, 500);
     return product;
   };
 
   const updateProduct = (updatedProd: Product) => {
     const updated = customProducts.map((p) => (p.id === updatedProd.id ? updatedProd : p));
     saveCustomProducts(updated);
+    setTimeout(() => {
+      refreshProducts();
+    }, 500);
   };
 
   const deleteProduct = (productId: string) => {
@@ -116,6 +165,10 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       const { [productId]: _, ...rest } = overrides;
       saveOverrides(rest);
     }
+
+    setTimeout(() => {
+      refreshProducts();
+    }, 500);
   };
 
   const updateProductStock = (productId: string, stockStatus: ProductOverride['stockStatus']) => {
@@ -182,10 +235,48 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
-  // Combined list: custom products first, followed by catalogue products, minus deleted items
-  const allProducts: Product[] = [...customProducts, ...PRODUCTS].filter(
-    (p) => !deletedIds.includes(p.id) && !deletedIds.includes(p.slug)
-  );
+  const [dbProducts, setDbProducts] = useState<Product[] | null>(null);
+
+  const refreshProducts = async () => {
+    try {
+      const serverProducts = await getAllProducts();
+      if (serverProducts) {
+        setDbProducts(serverProducts.map(fromDbProduct));
+      }
+    } catch (e) {
+      console.warn('[InventoryContext] Could not load products from DB:', e);
+    }
+  };
+
+  useEffect(() => {
+    refreshProducts();
+  }, []);
+
+  // Combined list: if database has loaded, it is the primary source of truth!
+  // When dbProducts is still loading, start with empty list to prevent ghost dummy items from resurrecting
+  const baseProducts = dbProducts !== null ? dbProducts : [];
+
+  // Combine DB products and custom products, deduplicating by id and slug
+  const seen = new Set<string>();
+  const combined: Product[] = [];
+
+  for (const p of baseProducts) {
+    if (!deletedIds.includes(p.id) && !deletedIds.includes(p.slug)) {
+      seen.add(p.id);
+      seen.add(p.slug);
+      combined.push(p);
+    }
+  }
+
+  for (const p of customProducts) {
+    if (!seen.has(p.id) && !seen.has(p.slug) && !deletedIds.includes(p.id) && !deletedIds.includes(p.slug)) {
+      seen.add(p.id);
+      seen.add(p.slug);
+      combined.push(p);
+    }
+  }
+
+  const allProducts = combined;
 
   const getProductBySlug = (category: string, slug: string): Product | undefined => {
     const cleanSlug = slug ? slug.toLowerCase().trim() : '';
@@ -207,6 +298,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         overrides,
         customProducts,
         allProducts,
+        refreshProducts,
         addProduct,
         updateProduct,
         deleteProduct,

@@ -7,29 +7,16 @@ import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
 
 export const dynamicParams = true;
-export const revalidate = 3600; // Cache on Vercel CDN Edge for 1 hour, instant delivery
+export const dynamic = 'force-dynamic';
 
-interface PageProps {
+interface ProductPageProps {
   params: Promise<{
     category: string;
     slug: string;
   }>;
 }
 
-export async function generateStaticParams() {
-  try {
-    const products = await getAllProducts();
-    return products.map((product) => ({
-      category: product.category,
-      slug: product.slug,
-    }));
-  } catch (error) {
-    console.warn('Could not fetch products during generateStaticParams, dynamicParams will render them on demand:', error);
-    return [];
-  }
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { category, slug } = await params;
   const product = await getProductBySlug(slug);
 
@@ -67,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ProductPage({ params }: PageProps) {
+export default async function ProductPage({ params }: ProductPageProps) {
   const { category, slug } = await params;
   const productDb = await getProductBySlug(slug);
   

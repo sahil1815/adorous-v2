@@ -2,26 +2,81 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PRODUCTS, CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
+import { getAllProducts } from '@/app/actions/productActions';
+import { Product, ProductCategory } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
-import { 
-  ArrowRight, 
-  ShieldCheck, 
-  Truck, 
-  RotateCcw, 
-  MessageCircle, 
-  Sparkles, 
-  CheckCircle2, 
+import {
+  ArrowRight,
   Star,
   ChevronRight,
-  Layers
+  ShieldCheck,
+  Truck,
+  MessageCircle,
+  RotateCcw,
+  Layers,
+  CheckCircle2,
 } from 'lucide-react';
 
-export default function HomePage() {
-  // New drop: 4 distinct products from different categories
-  const newDropProducts = PRODUCTS.filter((p) => p.isNewDrop).slice(0, 4);
+export const dynamic = 'force-dynamic';
 
-  // Most gifted: 4 products that are gift picks
-  const giftedProducts = PRODUCTS.filter((p) => p.isGiftPick && !newDropProducts.some(nd => nd.id === p.id)).slice(0, 4);
+function toFrontendProduct(p: any): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    category: p.category as ProductCategory,
+    categoryLabel: p.categoryLabel || 'Luxury Accessories',
+    tagline: p.tagline || '',
+    price: Number(p.price),
+    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    stockQty: p.stockQty ?? null,
+    inStock: p.inStock ?? true,
+    isNewDrop: p.isNewDrop ?? false,
+    isBestseller: p.isBestseller ?? false,
+    isGiftPick: p.isGiftPick ?? false,
+    featuredRank: p.featuredRank ?? 999,
+    description: p.description || '',
+    details: Array.isArray(p.details)
+      ? p.details.map((d: any) => (typeof d === 'string' ? d : d.text))
+      : [],
+    piecesIncluded: Array.isArray(p.piecesIncluded)
+      ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
+      : [],
+    colorways: (p.colorways || []).map((cw: any) => ({
+      id: cw.colorId || cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: cw.inStock ?? true,
+      image: cw.image || null,
+    })),
+    sizes: p.sizes,
+    featuredImage: p.featuredImage,
+    galleryImages: Array.isArray(p.galleryImages)
+      ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
+      : [p.featuredImage],
+    seoKeywords: Array.isArray(p.seoKeywords)
+      ? p.seoKeywords
+      : (p.seoKeywords ? p.seoKeywords.split(',') : []),
+  };
+}
+
+export default async function HomePage() {
+  const dbProductsRaw = await getAllProducts();
+  const allAvailable: Product[] = (dbProductsRaw && dbProductsRaw.length > 0)
+    ? dbProductsRaw.map(toFrontendProduct)
+    : PRODUCTS;
+
+  // New drop: products marked as new drop, or fallback to the latest created pieces
+  let newDropProducts = allAvailable.filter((p) => p.isNewDrop).slice(0, 4);
+  if (newDropProducts.length === 0 && allAvailable.length > 0) {
+    newDropProducts = allAvailable.slice(0, 4);
+  }
+
+  // Most gifted: products marked as gift picks, or other pieces from the catalog
+  let giftedProducts = allAvailable.filter((p) => p.isGiftPick && !newDropProducts.some(nd => nd.id === p.id)).slice(0, 4);
+  if (giftedProducts.length === 0 && allAvailable.length > 0) {
+    giftedProducts = allAvailable.filter(p => !newDropProducts.some(nd => nd.id === p.id)).slice(0, 4);
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -150,16 +205,23 @@ export default function HomePage() {
             href="/shop"
             className="mt-4 md:mt-0 inline-flex items-center text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors group"
           >
-            <span>View All 15 Designs</span>
+            <span>View All Designs ({allAvailable.length})</span>
             <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
         {/* 4-Product Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {newDropProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {newDropProducts.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-line bg-sand/30 rounded-xs col-span-2 lg:col-span-4">
+              <p className="font-serif text-lg text-ink">New collection pieces being photographed</p>
+              <p className="text-xs text-text-muted mt-1">Check back shortly or browse our complete catalogue.</p>
+            </div>
+          ) : (
+            newDropProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
         </div>
       </section>
 
@@ -174,7 +236,7 @@ export default function HomePage() {
               Explore by Category
             </h2>
             <p className="text-xs sm:text-sm text-text-muted mt-2">
-              Every category is intentionally compact and considered — 15 signature silhouettes created to complement each other.
+              Every category is intentionally compact and considered — signature silhouettes created to complement each other.
             </p>
           </div>
 
@@ -328,9 +390,16 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {giftedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {giftedProducts.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-line bg-sand/30 rounded-xs col-span-2 lg:col-span-4">
+              <p className="font-serif text-lg text-ink">Celebratory suites being curated</p>
+              <p className="text-xs text-text-muted mt-1">Explore our jewelry sets and accessories in the shop.</p>
+            </div>
+          ) : (
+            giftedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
         </div>
       </section>
 

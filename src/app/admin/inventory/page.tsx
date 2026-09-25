@@ -123,7 +123,7 @@ export default function AdminInventoryPage() {
       try {
         setIsLoading(true);
         const serverProducts = await getAllProducts();
-        if (isMounted && serverProducts && serverProducts.length > 0) {
+        if (isMounted && serverProducts) {
           setDbProducts(serverProducts.map(fromDbProduct));
         }
       } catch (err) {
@@ -140,7 +140,7 @@ export default function AdminInventoryPage() {
 
   // Derive active product list (merging DB products with any local additions, avoiding duplicates)
   const activeProducts: Product[] = React.useMemo(() => {
-    if (!dbProducts || dbProducts.length === 0) {
+    if (dbProducts === null) {
       return contextProducts;
     }
 
