@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { adminLogin } from '@/app/actions/authActions';
 import { useAdminAuth } from '@/context/AdminAuthContext';
-import { Lock, Key, ShieldAlert, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldAlert, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAdminAuth();
 
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -43,10 +43,6 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleQuickDemo = () => {
-    setUsername('admin');
-    setPin('adorous2026');
-  };
 
   if (isLoading) {
     return (
@@ -117,7 +113,7 @@ export default function AdminLoginPage() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin"
+                  placeholder="Enter username"
                   className="w-full h-11 px-3.5 bg-[#222222] border border-gold/30 rounded-xs text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold text-xs transition-colors"
                 />
               </div>
@@ -163,18 +159,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Fill Chip */}
-          <div className="pt-3 border-t border-white/10 text-center">
-            <button
-              type="button"
-              onClick={handleQuickDemo}
-              className="text-[11px] text-gold-light/70 hover:text-gold hover:underline transition-colors flex items-center justify-center gap-1.5 mx-auto"
-            >
-              <Key className="w-3.5 h-3.5 text-gold" />
-              <span>Quick Demo Fill (admin / adorous2026)</span>
-            </button>
-          </div>
         </div>
       </div>
 
