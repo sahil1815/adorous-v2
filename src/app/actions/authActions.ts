@@ -4,8 +4,8 @@ import { cookies } from 'next/headers';
 import { encrypt } from '@/lib/session';
 
 export async function adminLogin(pin: string, username: string = 'admin') {
-  const MASTER_PIN = process.env.ADMIN_PIN || 'adorous2026';
-  const MASTER_USERNAME = process.env.ADMIN_USER || 'admin';
+  const MASTER_PIN = (process.env.ADMIN_PIN || 'adorous2026').trim();
+  const MASTER_USERNAME = (process.env.ADMIN_USER || 'admin').trim().toLowerCase();
   
   const cleanUser = username.trim().toLowerCase();
   const cleanPin = pin.trim();
