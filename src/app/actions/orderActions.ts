@@ -9,6 +9,7 @@ export async function createOrder(orderData: any) {
     const order = await prisma.order.create({
       data: {
         orderId: orderData.orderId,
+        customerUserId: orderData.customerUserId || null,
         status: orderData.status || 'pending',
         courierPartner: orderData.courierPartner,
         paymentMethod: orderData.paymentMethod,

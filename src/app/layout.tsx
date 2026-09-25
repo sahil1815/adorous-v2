@@ -13,6 +13,7 @@ import { InventoryProvider } from "@/context/InventoryContext";
 import { CouponsProvider } from "@/context/CouponsContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
 import { LandingPagesProvider } from "@/context/LandingPagesContext";
+import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import StorefrontLayoutWrapper from "@/components/layout/StorefrontLayoutWrapper";
 
 export const viewport: Viewport = {
@@ -91,9 +92,11 @@ export default function RootLayout({
                   <LandingPagesProvider>
                     <CartProvider>
                       <WishlistProvider>
-                        <StorefrontLayoutWrapper>
-                          {children}
-                        </StorefrontLayoutWrapper>
+                        <CustomerAuthProvider>
+                          <StorefrontLayoutWrapper>
+                            {children}
+                          </StorefrontLayoutWrapper>
+                        </CustomerAuthProvider>
                       </WishlistProvider>
                     </CartProvider>
                   </LandingPagesProvider>

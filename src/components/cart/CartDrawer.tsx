@@ -122,12 +122,23 @@ export default function CartDrawer() {
               <div key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize}`} className="py-4 first:pt-0 last:pb-0 flex space-x-4">
                 {/* Thumbnail */}
                 <div className="relative w-20 h-24 bg-stone shrink-0 border border-line overflow-hidden">
-                  <Image
-                    src={item.product.featuredImage}
-                    alt={item.product.name}
-                    fill
-                    className="object-cover object-center"
-                  />
+                  {(() => {
+                    const itemImg = item.selectedColor?.image || item.product.featuredImage;
+                    return itemImg.startsWith('data:') || itemImg.startsWith('http') ? (
+                      <img
+                        src={itemImg}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <Image
+                        src={itemImg}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover object-center"
+                      />
+                    );
+                  })()}
                 </div>
 
                 {/* Details */}

@@ -17,6 +17,7 @@ interface InventoryContextType {
   customProducts: Product[];
   allProducts: Product[];
   addProduct: (product: Omit<Product, 'id'> & { id?: string }) => Product;
+  updateProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
   updateProductStock: (productId: string, stockStatus: ProductOverride['stockStatus']) => void;
   updateProductBadges: (productId: string, badges: { isNewDrop?: boolean; isBestseller?: boolean }) => void;
@@ -30,10 +31,12 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 const INVENTORY_STORAGE_KEY = 'adorous_inventory_overrides';
 const CUSTOM_PRODUCTS_STORAGE_KEY = 'adorous_custom_products';
+const DELETED_PRODUCTS_STORAGE_KEY = 'adorous_deleted_products';
 
 export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, ProductOverride>>({});
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -46,6 +49,11 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       const storedCustom = localStorage.getItem(CUSTOM_PRODUCTS_STORAGE_KEY);
       if (storedCustom) {
         setCustomProducts(JSON.parse(storedCustom));
+      }
+
+      const storedDeleted = localStorage.getItem(DELETED_PRODUCTS_STORAGE_KEY);
+      if (storedDeleted) {
+        setDeletedIds(JSON.parse(storedDeleted));
       }
     } catch (e) {
       console.error('Failed to load inventory data from localStorage', e);
@@ -84,9 +92,25 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     return product;
   };
 
-  const deleteProduct = (productId: string) => {
-    const updated = customProducts.filter((p) => p.id !== productId);
+  const updateProduct = (updatedProd: Product) => {
+    const updated = customProducts.map((p) => (p.id === updatedProd.id ? updatedProd : p));
     saveCustomProducts(updated);
+  };
+
+  const deleteProduct = (productId: string) => {
+    setDeletedIds((prev) => {
+      const next = Array.from(new Set([...prev, productId]));
+      try {
+        localStorage.setItem(DELETED_PRODUCTS_STORAGE_KEY, JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
+    const updated = customProducts.filter((p) => p.id !== productId && p.slug !== productId);
+    saveCustomProducts(updated);
+
     // Remove override if present
     if (overrides[productId]) {
       const { [productId]: _, ...rest } = overrides;
@@ -134,9 +158,11 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const resetInventoryOverrides = () => {
     setOverrides({});
     setCustomProducts([]);
+    setDeletedIds([]);
     try {
       localStorage.removeItem(INVENTORY_STORAGE_KEY);
       localStorage.removeItem(CUSTOM_PRODUCTS_STORAGE_KEY);
+      localStorage.removeItem(DELETED_PRODUCTS_STORAGE_KEY);
     } catch (e) {
       console.error(e);
     }
@@ -156,8 +182,10 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
-  // Combined list: custom products first, followed by catalogue products
-  const allProducts: Product[] = [...customProducts, ...PRODUCTS];
+  // Combined list: custom products first, followed by catalogue products, minus deleted items
+  const allProducts: Product[] = [...customProducts, ...PRODUCTS].filter(
+    (p) => !deletedIds.includes(p.id) && !deletedIds.includes(p.slug)
+  );
 
   const getProductBySlug = (category: string, slug: string): Product | undefined => {
     const cleanSlug = slug ? slug.toLowerCase().trim() : '';
@@ -180,6 +208,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         customProducts,
         allProducts,
         addProduct,
+        updateProduct,
         deleteProduct,
         updateProductStock,
         updateProductBadges,

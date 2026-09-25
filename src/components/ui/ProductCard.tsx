@@ -37,6 +37,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const productHref = `/${product.category}/${product.slug}?colour=${activeColor.id}`;
 
+  const displayImage = activeColor?.image || product.featuredImage;
+
   return (
     <div className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300">
       {/* Image Container with Warm Stone Backdrop */}
@@ -44,13 +46,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         href={productHref}
         className="relative block aspect-[4/5] bg-stone overflow-hidden active:opacity-90 active:scale-[0.99] transition-all"
       >
-        <Image
-          src={product.featuredImage}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-        />
+        {displayImage.startsWith('data:') || displayImage.startsWith('http') ? (
+          <img
+            src={displayImage}
+            alt={product.name}
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <Image
+            src={displayImage}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+        )}
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">

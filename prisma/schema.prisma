@@ -57,6 +57,7 @@ model ProductColorway {
   name      String
   hex       String
   inStock   Boolean @default(true)
+  image     String?
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -85,6 +86,8 @@ model Order {
   updatedAt      DateTime    @updatedAt
 
   customer       Customer?
+  customerUserId String?
+  customerUser   CustomerUser? @relation(fields: [customerUserId], references: [id], onDelete: SetNull)
   items          OrderItem[]
 }
 
@@ -102,6 +105,37 @@ model Customer {
   order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
+model CustomerUser {
+  id              String         @id @default(uuid())
+  fullName        String
+  phone           String         @unique
+  email           String?        @unique
+  passwordHash    String
+  district        String?
+  address         String?
+  whatsappUpdates Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  orders          Order[]
+  savedAddresses  SavedAddress[]
+}
+
+model SavedAddress {
+  id             String       @id @default(uuid())
+  customerUserId String
+  label          String       @default("Home") // Home, Office, Studio
+  recipientName  String
+  phone          String
+  district       String
+  address        String
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  customerUser   CustomerUser @relation(fields: [customerUserId], references: [id], onDelete: Cascade)
+}
+
 model OrderItem {
   id             String  @id @default(uuid())
   orderId        String
@@ -117,3 +151,4 @@ model OrderItem {
   order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
+

@@ -57,10 +57,19 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     product.sizes ? product.sizes[1] || product.sizes[0] : ''
   );
   const [quantity, setQuantity] = useState<number>(1);
-  const [activeImage, setActiveImage] = useState<string>(product.featuredImage);
+  const [activeImage, setActiveImage] = useState<string>(matchedInitialColor?.image || product.featuredImage);
   const [isSizingModalOpen, setIsSizingModalOpen] = useState(false);
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // All unique photos across featured, gallery, and colorways
+  const allDisplayImages = Array.from(
+    new Set([
+      product.featuredImage,
+      ...(product.galleryImages || []),
+      ...(product.colorways || []).map((c) => c.image).filter(Boolean) as string[],
+    ])
+  );
 
   // Sync color selection with URL without reloading
   const handleColorChange = (colorway: Colorway) => {
@@ -71,6 +80,17 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     const url = new URL(window.location.href);
     url.searchParams.set('colour', colorway.id);
     window.history.replaceState({}, '', url.toString());
+  };
+
+  const handleThumbnailClick = (img: string) => {
+    setActiveImage(img);
+    const matchedColor = product.colorways.find((c) => c.image === img);
+    if (matchedColor && matchedColor.id !== selectedColor.id) {
+      setSelectedColor(matchedColor);
+      const url = new URL(window.location.href);
+      url.searchParams.set('colour', matchedColor.id);
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
   const [isOrdering, setIsOrdering] = useState(false);
@@ -134,14 +154,22 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
           <div className="lg:col-span-7 space-y-4">
             {/* Primary Visual */}
             <div className="relative aspect-[4/5] bg-stone border border-line overflow-hidden shadow-sm">
-              <Image
-                src={activeImage}
-                alt={product.name}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-cover object-center transition-all duration-300"
-              />
+              {activeImage.startsWith('data:') || activeImage.startsWith('http') ? (
+                <img
+                  src={activeImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover object-center transition-all duration-300"
+                />
+              ) : (
+                <Image
+                  src={activeImage}
+                  alt={product.name}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  className="object-cover object-center transition-all duration-300"
+                />
+              )}
 
               {/* Scarcity / Drop Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -196,23 +224,31 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
             </div>
 
             {/* Thumbnail Strip */}
-            {product.galleryImages.length > 1 && (
+            {allDisplayImages.length > 1 && (
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-                {product.galleryImages.map((img, idx) => (
+                {allDisplayImages.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setActiveImage(img)}
+                    onClick={() => handleThumbnailClick(img)}
                     className={`relative aspect-[4/5] bg-stone border transition-all overflow-hidden ${
                       activeImage === img ? 'border-ink ring-1 ring-ink' : 'border-line hover:border-gold'
                     }`}
                   >
-                    <Image
-                      src={img}
-                      alt={`${product.name} view ${idx + 1}`}
-                      fill
-                      className="object-cover object-center"
-                    />
+                    {img.startsWith('data:') || img.startsWith('http') ? (
+                      <img
+                        src={img}
+                        alt={`${product.name} view ${idx + 1}`}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <Image
+                        src={img}
+                        alt={`${product.name} view ${idx + 1}`}
+                        fill
+                        className="object-cover object-center"
+                      />
+                    )}
                   </button>
                 ))}
               </div>

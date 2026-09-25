@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, MessageCircle, ChevronRight, Phone, ShieldCheck, Truck } from 'lucide-react';
+import { X, MessageCircle, ChevronRight, Phone, ShieldCheck, Truck, User, Package, LogOut } from 'lucide-react';
 import { CATEGORIES } from '@/data/catalogue';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface MobileNavProps {
 }
 
 export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
+  const { customer, logout } = useCustomerAuth();
   if (!isOpen) return null;
 
   return (
@@ -53,6 +55,55 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
             >
               <X className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Customer Account Strip */}
+          <div className="p-3.5 bg-paper border-b border-line">
+            {customer ? (
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded-full bg-gold/20 text-gold-deep border border-gold/40 flex items-center justify-center text-xs font-semibold uppercase shrink-0">
+                    {customer.fullName.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink truncate">{customer.fullName}</p>
+                    <p className="text-[10px] text-text-muted font-mono truncate">{customer.phone || customer.email}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px]">
+                  <Link
+                    href="/account"
+                    onClick={onClose}
+                    className="px-2.5 py-1.5 bg-sand/60 hover:bg-sand rounded-[2px] text-ink font-medium flex items-center justify-center space-x-1"
+                  >
+                    <User className="w-3 h-3 text-gold-deep" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/account/orders"
+                    onClick={onClose}
+                    className="px-2.5 py-1.5 bg-sand/60 hover:bg-sand rounded-[2px] text-ink font-medium flex items-center justify-center space-x-1"
+                  >
+                    <Package className="w-3 h-3 text-gold-deep" />
+                    <span>My Orders</span>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-ink">Welcome to Adorous</p>
+                  <p className="text-[10px] text-text-muted">Sign in for saved orders & addresses</p>
+                </div>
+                <Link
+                  href="/account/login"
+                  onClick={onClose}
+                  className="px-3 py-1.5 bg-gold text-ink font-semibold rounded-[2px] text-xs hover:bg-gold-light transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick WhatsApp Support Callout */}

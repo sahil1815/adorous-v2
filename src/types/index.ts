@@ -5,7 +5,7 @@ export interface Colorway {
   name: string;
   hex: string;
   inStock: boolean;
-  image?: string;
+  image?: string | null;
 }
 
 export interface Product {
@@ -16,7 +16,8 @@ export interface Product {
   categoryLabel: string;
   tagline: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
+  stockQty?: number | null;
   description: string;
   details: string[];
   piecesIncluded?: string[];
@@ -50,4 +51,26 @@ export interface Review {
   photoUrl?: string; // Must adhere to NO HUMAN IMAGERY mandate (e.g., flat lays only)
   status: ReviewStatus;
   createdAt: string;
+}
+
+export interface SavedAddress {
+  id: string;
+  label: string;
+  recipientName: string;
+  phone: string;
+  district: string;
+  address: string;
+  isDefault: boolean;
+}
+
+export interface CustomerProfile {
+  id: string;
+  fullName: string;
+  phone: string;
+  email?: string | null;
+  district?: string | null;
+  address?: string | null;
+  whatsappUpdates: boolean;
+  createdAt: string;
+  savedAddresses?: SavedAddress[];
 }

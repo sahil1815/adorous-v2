@@ -38,6 +38,7 @@ export interface AdminOrderItem {
 
 export interface AdminOrder {
   orderId: string;
+  customerUserId?: string | null;
   createdAt: string;
   status: OrderStatus;
   courierPartner: 'Steadfast Courier' | 'Pathao Courier' | 'RedX' | 'Paperfly' | string | null;

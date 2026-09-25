@@ -34,6 +34,7 @@ function toDbShape(product: Product) {
       name: cw.name,
       hex: cw.hex,
       inStock: cw.inStock,
+      image: cw.image ?? null,
       productId: product.id,
     })),
     galleryImages: (product.galleryImages || []).map((url, idx) => ({ id: `img-${idx}`, url, productId: product.id })),
@@ -134,6 +135,7 @@ export async function createProductAction(productData: Product) {
 
     const created = await prisma.product.create({
       data: {
+        id: productData.id || undefined,
         slug: cleanSlug,
         name: productData.name.trim(),
         category: productData.category,
@@ -159,6 +161,7 @@ export async function createProductAction(productData: Product) {
             name: cw.name,
             hex: cw.hex,
             inStock: cw.inStock ?? true,
+            image: cw.image || null,
           })),
         },
         galleryImages: {
@@ -207,7 +210,7 @@ export async function updateProductAction(
     seoKeywords: string[];
     details: string[];
     piecesIncluded: string[];
-    colorways: { id: string; name: string; hex: string; inStock: boolean }[];
+    colorways: { id: string; name: string; hex: string; inStock: boolean; image?: string }[];
     galleryImages: string[];
   }
 ) {
@@ -261,6 +264,7 @@ export async function updateProductAction(
               name: cw.name,
               hex: cw.hex,
               inStock: cw.inStock,
+              image: cw.image || null,
             })),
           },
           galleryImages: {
@@ -294,6 +298,7 @@ export async function updateProductAction(
               name: cw.name,
               hex: cw.hex,
               inStock: cw.inStock,
+              image: cw.image || null,
             })),
           },
           galleryImages: {
@@ -323,13 +328,38 @@ export async function updateProductAction(
   }
 }
 
-export async function updateStockAction(id: string, stockQty: number | null) {
+export async function updateStockAction(productIdOrSlug: string, stockQty: number | null) {
   try {
     if (!process.env.DATABASE_URL) return { success: true };
     const inStock = stockQty === null || stockQty > 0;
-    await prisma.product.update({ where: { id }, data: { stockQty, inStock } });
-    try { revalidatePath('/admin/inventory'); } catch {}
-    return { success: true };
+
+    const existing = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+    });
+
+    if (!existing) {
+      return { success: false, error: `Product "${productIdOrSlug}" not found in database.` };
+    }
+
+    await prisma.product.update({
+      where: { id: existing.id },
+      data: { stockQty, inStock },
+    });
+
+    try {
+      revalidatePath('/admin/inventory');
+      revalidatePath('/shop');
+      revalidatePath(`/${existing.category}`);
+      revalidatePath(`/${existing.category}/${existing.slug}`);
+      revalidatePath('/');
+    } catch {}
+
+    return { success: true, inStock, stockQty };
   } catch (error: any) {
     console.error('[updateStockAction] Error:', error);
     return { success: false, error: error?.message || 'Failed to update stock' };
@@ -366,21 +396,126 @@ export async function deductStockAction(
   }
 }
 
-export async function deleteProductAction(productId: string) {
+export async function updateProductBadgesAction(
+  productIdOrSlug: string,
+  badges: { isNewDrop?: boolean; isBestseller?: boolean }
+) {
+  try {
+    if (!process.env.DATABASE_URL) return { success: true };
+    const existing = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+    });
+
+    if (!existing) return { success: false, error: 'Product not found' };
+
+    const isNewDrop = badges.isNewDrop !== undefined ? badges.isNewDrop : existing.isNewDrop;
+    const isBestseller = badges.isBestseller !== undefined ? badges.isBestseller : existing.isBestseller;
+    const badge = isNewDrop ? 'New Drop' : (isBestseller ? 'Bestseller' : null);
+
+    await prisma.product.update({
+      where: { id: existing.id },
+      data: { isNewDrop, isBestseller, badge },
+    });
+
+    try {
+      revalidatePath('/admin/inventory');
+      revalidatePath('/shop');
+      revalidatePath(`/${existing.category}`);
+      revalidatePath(`/${existing.category}/${existing.slug}`);
+    } catch {}
+
+    return { success: true, isNewDrop, isBestseller };
+  } catch (error: any) {
+    console.error('[updateProductBadgesAction] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update badges' };
+  }
+}
+
+export async function updateProductPriceAction(
+  productIdOrSlug: string,
+  price: number,
+  originalPrice?: number
+) {
+  try {
+    if (!process.env.DATABASE_URL) return { success: true };
+    const existing = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+    });
+
+    if (!existing) return { success: false, error: 'Product not found' };
+
+    await prisma.product.update({
+      where: { id: existing.id },
+      data: {
+        price: Number(price),
+        originalPrice: originalPrice ? Number(originalPrice) : null,
+      },
+    });
+
+    try {
+      revalidatePath('/admin/inventory');
+      revalidatePath('/shop');
+      revalidatePath(`/${existing.category}`);
+      revalidatePath(`/${existing.category}/${existing.slug}`);
+    } catch {}
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateProductPriceAction] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update price' };
+  }
+}
+
+export async function deleteProductAction(productIdOrSlug: string) {
   try {
     if (!process.env.DATABASE_URL) {
       return { success: true };
     }
 
-    try {
-      await prisma.product.delete({ where: { id: productId } });
-    } catch {
-      // If not found by id, ignore
+    const existing = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+    });
+
+    if (!existing) {
+      // Already non-existent in database
+      return { success: true };
     }
+
+    const realId = existing.id;
+
+    // Safely remove child records and unlink order items
+    await prisma.$transaction([
+      prisma.productDetail.deleteMany({ where: { productId: realId } }),
+      prisma.productPiece.deleteMany({ where: { productId: realId } }),
+      prisma.productColorway.deleteMany({ where: { productId: realId } }),
+      prisma.productGalleryImage.deleteMany({ where: { productId: realId } }),
+      prisma.orderItem.updateMany({
+        where: { productId: realId },
+        data: { productId: null },
+      }),
+      prisma.product.delete({ where: { id: realId } }),
+    ]);
 
     try {
       revalidatePath('/shop');
       revalidatePath('/');
+      revalidatePath(`/${existing.category}`);
+      revalidatePath(`/${existing.category}/${existing.slug}`);
       revalidatePath('/admin/inventory');
     } catch (revalErr) {
       console.warn('Revalidation warning:', revalErr);
@@ -392,3 +527,4 @@ export async function deleteProductAction(productId: string) {
     return { success: false, error: error?.message || 'Failed to delete product from database' };
   }
 }
+

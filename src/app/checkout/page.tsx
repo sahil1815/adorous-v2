@@ -9,6 +9,7 @@ import { useOrders } from '@/context/OrdersContext';
 import { useCoupons } from '@/context/CouponsContext';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { CartItem } from '@/types';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import {
   ShieldCheck,
   Truck,
@@ -35,6 +36,7 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart();
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
+  const { customer } = useCustomerAuth();
 
   // Deletion Confirmation Modal State
   const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
@@ -50,6 +52,30 @@ export default function CheckoutPage() {
   const [giftNote, setGiftNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
+
+  // Auto-fill from signed-in customer profile
+  useEffect(() => {
+    if (customer) {
+      if (customer.fullName) setFullName(customer.fullName);
+      if (customer.phone) {
+        let p = customer.phone;
+        if (p.startsWith('+880')) p = p.slice(4);
+        else if (p.startsWith('880')) p = p.slice(3);
+        else if (p.startsWith('0')) p = p.slice(1);
+        setPhone(p);
+      }
+      if (customer.email) setEmail(customer.email);
+
+      const defaultAddr = customer.savedAddresses?.find((a) => a.isDefault) || customer.savedAddresses?.[0];
+      if (defaultAddr) {
+        setAddress(defaultAddr.address || '');
+        setSelectedDistrict(defaultAddr.district || '');
+      } else {
+        if (customer.address) setAddress(customer.address);
+        if (customer.district) setSelectedDistrict(customer.district);
+      }
+    }
+  }, [customer]);
 
   // Coupon State
   const [couponInput, setCouponInput] = useState('');
@@ -208,6 +234,7 @@ export default function CheckoutPage() {
 
     const orderData = {
       orderId,
+      customerUserId: customer?.id || null,
       createdAt: new Date().toISOString(),
       customer: {
         fullName,
@@ -299,6 +326,31 @@ export default function CheckoutPage() {
               <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs rounded-xs flex items-start space-x-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
                 <div>{errorMsg}</div>
+              </div>
+            )}
+
+            {/* Customer Account / Fast Checkout Banner */}
+            {customer ? (
+              <div className="bg-gold/10 border border-gold/40 p-3.5 rounded-[2px] flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded-full bg-gold/20 text-gold-deep border border-gold/40 flex items-center justify-center text-xs font-semibold uppercase shrink-0">
+                    {customer.fullName.charAt(0)}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-ink">Welcome back, {customer.fullName}</span>
+                    <span className="text-[11px] text-text-muted block">1-Click Fast Checkout active with saved delivery details.</span>
+                  </div>
+                </div>
+                <Link href="/account/addresses" className="text-[11px] text-gold-deep hover:underline font-medium shrink-0 ml-2">
+                  Saved addresses
+                </Link>
+              </div>
+            ) : (
+              <div className="bg-sand/60 border border-line p-3 rounded-[2px] flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2 text-text-muted">
+                  <Lock className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                  <span>Already have an account? <Link href="/account/login?redirect=/checkout" className="text-gold-deep font-semibold hover:underline">Sign In</Link> to auto-fill delivery details.</span>
+                </div>
               </div>
             )}
 
@@ -487,13 +539,14 @@ export default function CheckoutPage() {
                       {/* Product Info */}
                       <div className="flex items-start space-x-3 min-w-0 flex-1">
                         <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
-                          <Image
-                            src={item.product.featuredImage}
-                            alt={item.product.name}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
+                          {(() => {
+                            const itemImg = item.selectedColor?.image || item.product.featuredImage;
+                            return itemImg.startsWith('data:') || itemImg.startsWith('http') ? (
+                              <img src={itemImg} alt={item.product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <Image src={itemImg} alt={item.product.name} fill sizes="48px" className="object-cover" />
+                            );
+                          })()}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="text-xs font-medium text-ink truncate block">
@@ -784,13 +837,14 @@ export default function CheckoutPage() {
             {/* Item Preview Card */}
             <div className="p-3 bg-sand/40 border border-line rounded-xs flex items-center space-x-3">
               <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
-                <Image
-                  src={itemToDelete.product.featuredImage}
-                  alt={itemToDelete.product.name}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
+                {(() => {
+                  const itemImg = itemToDelete.selectedColor?.image || itemToDelete.product.featuredImage;
+                  return itemImg.startsWith('data:') || itemImg.startsWith('http') ? (
+                    <img src={itemImg} alt={itemToDelete.product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Image src={itemImg} alt={itemToDelete.product.name} fill sizes="48px" className="object-cover" />
+                  );
+                })()}
               </div>
               <div className="min-w-0 flex-1">
                 <h4 className="text-xs font-medium text-ink truncate">
