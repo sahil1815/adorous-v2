@@ -19,7 +19,8 @@ import {
   Bell,
   RefreshCw,
   MessageSquare,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -161,6 +162,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {pendingCount}
               </span>
             )}
+          </Link>
+
+          <Link
+            href="/admin/customers"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/customers'
+                ? 'bg-gold text-ink font-semibold shadow-sm'
+                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customers</span>
           </Link>
 
           <Link
