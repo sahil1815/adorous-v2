@@ -24,13 +24,13 @@ export default function StorefrontLayoutWrapper({
   }
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col w-full max-w-full overflow-x-clip relative">
       <Suspense fallback={null}>
         <NavigationProgress />
       </Suspense>
       <AnnouncementBar />
       <Header />
-      <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
+      <main className="flex-1 w-full max-w-full min-w-0 overflow-x-clip">{children}</main>
       
       {!isCheckoutRoute && (
         <>
@@ -41,6 +41,6 @@ export default function StorefrontLayoutWrapper({
       
       <CartDrawer />
       <WishlistDrawer />
-    </>
+    </div>
   );
 }

@@ -39,11 +39,11 @@ export default function AnnouncementBar() {
   const Icon = current.icon;
 
   return (
-    <div className="bg-ink text-gold-light text-xs tracking-wider uppercase border-b border-gold/20 relative z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 py-2 sm:py-2.5 flex items-center justify-between">
-        <div className="flex-1 flex items-center justify-center space-x-2 text-center overflow-hidden">
+    <div className="w-full max-w-full overflow-hidden bg-ink text-gold-light text-xs tracking-wider uppercase border-b border-gold/20 relative z-50 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex items-center justify-between min-w-0">
+        <div className="flex-1 flex items-center justify-center space-x-2 text-center overflow-hidden min-w-0">
           <Icon className="w-3.5 h-3.5 text-gold shrink-0 animate-pulse" />
-          <span className="font-medium text-[11px] sm:text-xs truncate transition-opacity duration-300">
+          <span className="font-medium text-[10px] sm:text-xs truncate transition-opacity duration-300 min-w-0">
             {current.text}
           </span>
         </div>

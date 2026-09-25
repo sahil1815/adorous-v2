@@ -8,7 +8,7 @@ import { CATEGORIES } from '@/data/catalogue';
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-ink pt-16 pb-24 lg:pb-16 border-t border-line">
+    <footer className="w-full max-w-full overflow-hidden bg-white text-ink pt-16 pb-24 lg:pb-16 border-t border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Trust Pillars */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-12 border-b border-line text-center">
@@ -76,10 +76,10 @@ export default function Footer() {
                 href="https://wa.me/8801577731381?text=Hello%20Adorous%20Fashion"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2.5 bg-paper hover:bg-stone border border-line text-ink text-xs tracking-wider uppercase rounded-[2px] transition-colors"
+                className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-paper hover:bg-stone border border-line text-ink text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-colors max-w-full min-w-0"
               >
-                <MessageCircle className="w-4 h-4 text-whatsapp" />
-                <span className="font-medium">WhatsApp Concierge: 015-777-31381</span>
+                <MessageCircle className="w-4 h-4 text-whatsapp shrink-0" />
+                <span className="font-medium truncate">WhatsApp: 015-777-31381</span>
               </a>
             </div>
           </div>

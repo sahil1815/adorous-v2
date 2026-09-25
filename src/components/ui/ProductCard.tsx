@@ -40,7 +40,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const displayImage = activeColor?.image || product.featuredImage;
 
   return (
-    <div className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300">
+    <div className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300 w-full min-w-0 overflow-hidden">
       {/* Image Container with Warm Stone Backdrop */}
       <Link
         href={productHref}
@@ -125,39 +125,39 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Product Details */}
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between space-y-2.5">
-        <div>
+      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between space-y-2 min-w-0">
+        <div className="min-w-0">
           {/* Eyebrow / Category */}
-          <div className="text-[10px] tracking-[0.16em] uppercase text-text-muted font-medium">
+          <div className="text-[10px] tracking-[0.16em] uppercase text-text-muted font-medium truncate">
             {product.categoryLabel}
           </div>
 
           {/* Title */}
           <Link
             href={productHref}
-            className="block mt-1 font-medium text-sm text-ink group-hover:text-gold-deep transition-colors line-clamp-1"
+            className="block mt-1 font-medium text-xs sm:text-sm text-ink group-hover:text-gold-deep transition-colors line-clamp-1"
           >
             {product.name}
           </Link>
         </div>
 
         {/* Price, Swatches, and Mobile Quick Add */}
-        <div className="pt-1 flex items-center justify-between">
-          <div className="flex items-baseline space-x-2">
-            <span className="font-semibold text-base text-ink tabular-nums">
+        <div className="pt-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
+          <div className="flex items-baseline space-x-1.5 sm:space-x-2 shrink-0 min-w-0">
+            <span className="font-semibold text-sm sm:text-base text-ink tabular-nums">
               ৳{product.price.toLocaleString('en-US')}
             </span>
             {product.originalPrice && (
-              <span className="text-xs text-text-muted line-through tabular-nums">
+              <span className="text-[10px] sm:text-xs text-text-muted line-through tabular-nums">
                 ৳{product.originalPrice.toLocaleString('en-US')}
               </span>
             )}
           </div>
 
           {/* Right: Color Swatches & Mobile Add Icon */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 min-w-0">
             {/* Colour Swatch Dots */}
-            <div className="flex items-center space-x-1.5">
+            <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
               {product.colorways.slice(0, 3).map((c) => (
                 <button
                   key={c.id}
@@ -166,7 +166,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     e.preventDefault();
                     setActiveColor(c);
                   }}
-                  className={`w-3.5 h-3.5 rounded-full border transition-all ${
+                  className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border transition-all ${
                     activeColor.id === c.id
                       ? 'border-ink scale-125 shadow-sm'
                       : 'border-black/20 hover:scale-110'
@@ -177,7 +177,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 />
               ))}
               {product.colorways.length > 3 && (
-                <span className="text-[10px] text-text-muted font-medium">
+                <span className="text-[9px] sm:text-[10px] text-text-muted font-medium">
                   +{product.colorways.length - 3}
                 </span>
               )}
@@ -187,13 +187,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="sm:hidden p-1.5 rounded bg-sand hover:bg-stone text-ink transition-colors"
+              className="sm:hidden p-1 rounded bg-sand hover:bg-stone text-ink transition-colors shrink-0"
               aria-label={`Add ${product.name} to bag`}
             >
               {isAdded ? (
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <Check className="w-3 h-3 text-emerald-600" />
               ) : (
-                <ShoppingBag className="w-3.5 h-3.5" />
+                <ShoppingBag className="w-3 h-3" />
               )}
             </button>
           </div>

@@ -99,18 +99,18 @@ export default function ShopPage() {
             </div>
 
             {/* Quick Reassurance */}
-            <div className="flex items-center gap-4 text-xs font-medium text-ink/80 bg-paper/80 border border-line p-3 rounded-xs self-start md:self-auto">
+            <div className="flex items-center gap-3 sm:gap-4 text-xs font-medium text-ink/80 bg-paper/80 border border-line p-2.5 sm:p-3 rounded-xs self-start md:self-auto max-w-full min-w-0">
               <PackageCheck className="w-4 h-4 text-gold-ink shrink-0" />
-              <span>Cash on Delivery across all 64 districts of Bangladesh</span>
+              <span className="text-[11px] sm:text-xs">Cash on Delivery across all 64 districts of Bangladesh</span>
             </div>
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full min-w-0">
+          <div className="mt-6 sm:mt-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full min-w-0">
             <button
               type="button"
               onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${selectedCategory === 'all'
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${selectedCategory === 'all'
                   ? 'bg-sand text-gold-deep shadow-sm'
                   : 'bg-paper border border-line text-ink hover:border-gold'
                 }`}
@@ -124,7 +124,7 @@ export default function ShopPage() {
                   key={cat.slug}
                   type="button"
                   onClick={() => setSelectedCategory(cat.slug)}
-                  className={`px-4 py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs ${selectedCategory === cat.slug
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${selectedCategory === cat.slug
                       ? 'bg-sand text-gold-deep shadow-sm'
                       : 'bg-paper border border-line text-ink hover:border-gold'
                     }`}
@@ -138,8 +138,8 @@ export default function ShopPage() {
       </section>
 
       {/* Filter and Search Bar */}
-      <div className="sticky top-[73px] z-30 bg-paper/95 backdrop-blur-md border-b border-line py-3">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+      <div className="sticky top-[53px] sm:top-[73px] z-30 bg-paper/95 backdrop-blur-md border-b border-line py-2.5 sm:py-3 w-full max-w-full min-w-0">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs min-w-0">
           {/* Left: Search and Tones */}
           <div className="flex items-center flex-1 gap-3 flex-wrap sm:flex-nowrap">
             {/* Search Box */}
@@ -242,7 +242,7 @@ export default function ShopPage() {
       </div>
 
       {/* Main Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 w-full min-w-0">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-20 border border-dashed border-line bg-sand/30 rounded-xs">
             <h3 className="font-serif text-2xl text-ink">No accessories found</h3>
@@ -255,7 +255,7 @@ export default function ShopPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 w-full min-w-0">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

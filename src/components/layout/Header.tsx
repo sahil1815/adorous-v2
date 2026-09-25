@@ -50,13 +50,13 @@ export default function Header() {
             : 'bg-paper border-b border-line/80 py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3 lg:gap-4 xl:gap-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-1 sm:gap-3 lg:gap-4 xl:gap-6">
             {/* Left: Mobile hamburger & Desktop primary navigation */}
-            <div className="flex items-center space-x-4 shrink-0">
+            <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 -ml-2 text-ink hover:text-gold-ink transition-colors"
+                className="lg:hidden p-1.5 -ml-1 text-ink hover:text-gold-ink transition-colors"
                 aria-label="Open Navigation"
               >
                 <Menu className="w-6 h-6" />
@@ -109,9 +109,9 @@ export default function Header() {
             </div>
 
             {/* Center: Brand Wordmark & Monogram */}
-            <div className="flex flex-col items-center justify-center text-center shrink-0">
-              <Link href="/" className="group flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/40 shadow-sm shrink-0 bg-paper">
+            <div className="flex flex-col items-center justify-center text-center shrink-0 min-w-0">
+              <Link href="/" className="group flex items-center space-x-1.5 sm:space-x-2.5">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-gold/40 shadow-sm shrink-0 bg-paper">
                   <Image
                     src="/images/logo/logo-monogram.png"
                     alt="AF"
@@ -120,11 +120,11 @@ export default function Header() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
-                <div className="text-left">
-                  <span className="font-serif text-xl sm:text-2xl tracking-[0.18em] font-semibold text-ink uppercase block leading-none group-hover:text-gold-deep transition-colors">
+                <div className="text-left min-w-0">
+                  <span className="font-serif text-lg sm:text-2xl tracking-[0.15em] sm:tracking-[0.18em] font-semibold text-ink uppercase block leading-none group-hover:text-gold-deep transition-colors">
                     Adorous
                   </span>
-                  <span className="font-sans text-[8px] sm:text-[9px] tracking-[0.3em] text-text-muted uppercase block font-medium mt-0.5">
+                  <span className="font-sans text-[7px] sm:text-[9px] tracking-[0.25em] sm:tracking-[0.3em] text-text-muted uppercase block font-medium mt-0.5">
                     Fashion
                   </span>
                 </div>
@@ -132,7 +132,7 @@ export default function Header() {
             </div>
 
             {/* Right: Quick actions (WhatsApp Concierge, Search, Cart) */}
-            <div className="flex items-center space-x-2.5 sm:space-x-3.5 xl:space-x-5 shrink-0">
+            <div className="flex items-center space-x-1 sm:space-x-2.5 lg:space-x-3.5 xl:space-x-5 shrink-0">
               {/* WhatsApp direct concierge button */}
               <a
                 href="https://wa.me/8801577731381?text=Hello%20Adorous%20Fashion,%20I%20would%20like%20to%20order"
@@ -146,15 +146,15 @@ export default function Header() {
               </a>
 
               {/* Customer Account Trigger & Dropdown */}
-              <div id="customer-account-menu-container" className="relative">
+              <div id="customer-account-menu-container" className="relative shrink-0">
                 {customer ? (
                   <button
                     type="button"
                     onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                    className="flex items-center space-x-1.5 p-1.5 text-ink hover:text-gold-ink transition-colors rounded-[2px]"
+                    className="flex items-center space-x-1 sm:space-x-1.5 p-1 sm:p-1.5 text-ink hover:text-gold-ink transition-colors rounded-[2px]"
                     aria-label="My Account"
                   >
-                    <div className="w-6 h-6 rounded-full bg-gold/15 text-gold-deep border border-gold/40 flex items-center justify-center text-[10px] font-semibold uppercase">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gold/15 text-gold-deep border border-gold/40 flex items-center justify-center text-[9px] sm:text-[10px] font-semibold uppercase">
                       {customer.fullName.charAt(0)}
                     </div>
                     <span className="hidden md:inline-block text-[11px] font-medium tracking-wider uppercase max-w-[80px] truncate">
@@ -165,7 +165,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/account/login"
-                    className="p-2 text-ink hover:text-gold-ink transition-colors flex items-center"
+                    className="p-1.5 sm:p-2 text-ink hover:text-gold-ink transition-colors flex items-center"
                     aria-label="Sign In / Register"
                     title="Sign In / Register"
                   >
@@ -233,7 +233,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setSearchModalOpen(true)}
-                className="p-2 text-ink hover:text-gold-ink transition-colors"
+                className="p-1.5 sm:p-2 text-ink hover:text-gold-ink transition-colors"
                 aria-label="Search Collection"
               >
                 <Search className="w-5 h-5" />
@@ -243,12 +243,12 @@ export default function Header() {
               <button
                 type="button"
                 onClick={openWishlist}
-                className="p-2 text-ink hover:text-gold-ink transition-colors relative"
+                className="p-1.5 sm:p-2 text-ink hover:text-gold-ink transition-colors relative"
                 aria-label="Open Wishlist"
               >
                 <Heart className="w-5 h-5" />
                 {totalWishlistItems > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gold-deep text-paper text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 rounded-full bg-gold-deep text-paper text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
                     {totalWishlistItems}
                   </span>
                 )}
@@ -258,12 +258,12 @@ export default function Header() {
               <button
                 type="button"
                 onClick={openCart}
-                className="p-2 text-ink hover:text-gold-ink transition-colors relative"
+                className="p-1.5 sm:p-2 text-ink hover:text-gold-ink transition-colors relative"
                 aria-label="Open Shopping Bag"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {totalItems > 0 ? (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gold text-ink text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 rounded-full bg-gold text-ink text-[10px] font-bold flex items-center justify-center tabular-nums shadow-sm">
                     {totalItems}
                   </span>
                 ) : (
