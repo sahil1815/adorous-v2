@@ -144,8 +144,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   return (
-    <div className="bg-paper min-h-screen pt-2 pb-24 sm:py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-paper min-h-screen pt-1 pb-24 sm:py-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation (Hidden on mobile for clean hero matching Screenshot 1) */}
         <nav className="hidden sm:flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap max-w-full min-w-0">
           <Link href="/" className="hover:text-ink transition-colors">Home</Link>
@@ -160,7 +160,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         </nav>
 
         {/* Main PDP Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-6 lg:gap-14">
           {/* Left Column: Gallery with Vertical Thumbnails on Desktop (Reference Layout) */}
           <div className="lg:col-span-7 flex flex-col lg:flex-row gap-3.5 items-start">
             {/* Thumbnail Strip (Vertical on Desktop, Hidden on Mobile for Clean Hero) */}
@@ -331,85 +331,88 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
           </div>
 
           {/* Right Column: Purchasing & Specifications */}
-          <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-5 flex flex-col justify-between space-y-3 sm:space-y-6">
             <div>
               {/* Category & Title with Share Icon (Screenshot 1 matching) */}
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-2 sm:gap-3">
                 <div>
-                  <div className="text-[11px] font-semibold tracking-[0.2em] uppercase text-gold-ink">
+                  <div className="text-[10px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase text-gold-ink">
                     {product.categoryLabel} · Limited Edition
                   </div>
-                  <h1 className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-semibold mt-0.5 leading-snug">
+                  <h1 className="font-serif text-lg sm:text-2xl lg:text-3xl text-ink font-semibold mt-0.5 leading-snug">
                     {product.name}
                   </h1>
                 </div>
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="p-2 text-ink hover:text-gold-deep hover:bg-sand/60 transition-colors shrink-0 rounded-full"
+                  className="p-1.5 sm:p-2 text-ink hover:text-gold-deep hover:bg-sand/60 transition-colors shrink-0 rounded-full"
                   title="Share product"
                   aria-label="Share product"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
-              <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
-                {product.tagline}
-              </p>
+              {/* Tagline hidden on mobile for clean luxury look, visible on desktop */}
+              {product.tagline && (
+                <p className="hidden sm:block text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
+                  {product.tagline}
+                </p>
+              )}
 
               {/* Price & COD Badge with Discount Percentage (Screenshot 1 matching) */}
-              <div className="mt-3.5 pt-3 border-t border-line flex items-baseline justify-between flex-wrap gap-2">
-                <div className="flex items-baseline space-x-2.5">
-                  <span className="font-bold text-2xl sm:text-3xl text-ink tabular-nums">
+              <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line flex items-center justify-between flex-wrap gap-1.5">
+                <div className="flex items-baseline space-x-2 sm:space-x-2.5">
+                  <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
                     ৳{product.price.toLocaleString('en-US')}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
                     <>
-                      <span className="text-sm sm:text-base text-text-muted line-through tabular-nums">
+                      <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
                         ৳{product.originalPrice.toLocaleString('en-US')}
                       </span>
-                      <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-[2px] border border-amber-200/60">
+                      <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
                         ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
                       </span>
                     </>
                   )}
                 </div>
 
-                <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-sand/70 border border-line text-xs text-ink font-medium rounded-[2px]">
+                <span className="inline-flex items-center space-x-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-sand/70 border border-line text-[11px] sm:text-xs text-ink font-medium rounded-[2px]">
                   <ShieldCheck className="w-3.5 h-3.5 text-success" />
                   <span>Cash on Delivery</span>
                 </span>
               </div>
 
               {/* 1. Select Color (Screenshot 1 matching) */}
-              <div className="mt-5 space-y-2.5">
+              <div className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-ink text-sm">
+                  <span className="font-semibold text-ink text-xs sm:text-sm">
                     Select Color
                   </span>
-                  <span className="text-text-muted text-xs">
+                  <span className="text-text-muted text-[11px] sm:text-xs">
                     {selectedColor.name}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   {product.colorways.map((c) => (
                     <button
                       key={c.id}
                       type="button"
                       onClick={() => handleColorChange(c)}
-                      className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-[4px] text-xs transition-all ${
+                      className={`flex items-center space-x-1.5 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-[4px] text-xs transition-all ${
                         selectedColor.id === c.id
                           ? 'border-2 border-ink bg-paper font-semibold shadow-xs'
                           : 'border border-line hover:border-ink/50 bg-paper text-ink/80'
                       }`}
                     >
                       <span
-                        className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
+                        className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-black/20 shrink-0"
                         style={{ backgroundColor: c.hex }}
                       />
-                      <span>{c.name}</span>
+                      <span className="text-[11px] sm:text-xs">{c.name}</span>
                     </button>
                   ))}
                 </div>
@@ -417,27 +420,27 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* 2. Sizing Selector (For Churi / Bangles) */}
               {product.sizes && (
-                <div className="mt-6 space-y-3">
+                <div className="mt-2.5 sm:mt-5 space-y-1.5 sm:space-y-2.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-ink uppercase tracking-wider">
-                      Hand Size (Bangladesh Standard):
+                    <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
+                      Hand Size:
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsSizingModalOpen(true)}
-                      className="text-gold-ink font-medium hover:underline flex items-center gap-1"
+                      className="text-gold-ink font-medium hover:underline flex items-center gap-1 text-[11px] sm:text-xs"
                     >
-                      <Ruler className="w-3.5 h-3.5" /> Sizing Guide
+                      <Ruler className="w-3 h-3" /> Guide
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
                     {product.sizes.map((s) => (
                       <button
                         key={s}
                         type="button"
                         onClick={() => setSelectedSize(s)}
-                        className={`py-2 px-3 text-center border text-xs font-medium rounded-[2px] transition-all ${
+                        className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all ${
                           selectedSize === s
                             ? 'border-ink bg-gold hover:bg-gold-deep text-ink'
                             : 'border-line bg-sand/30 text-ink hover:border-ink/60'
@@ -447,33 +450,30 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                       </button>
                     ))}
                   </div>
-                  <p className="text-[11px] text-text-muted italic">
-                    Most customers order <strong>2-6</strong>. Sizing exchange is free within 7 days.
-                  </p>
                 </div>
               )}
 
               {/* 3. Dedicated Quantity Stepper Row (Screenshot 1 matching) */}
-              <div className="mt-5 flex items-center justify-between">
-                <span className="font-semibold text-ink text-sm">
+              <div className="mt-2 sm:mt-4 flex items-center justify-between">
+                <span className="font-semibold text-ink text-xs sm:text-sm">
                   Quantity
                 </span>
-                <div className="flex items-center border border-line rounded-[4px] bg-paper h-9 shrink-0 shadow-xs">
+                <div className="flex items-center border border-line rounded-[4px] bg-paper h-8 sm:h-9 shrink-0 shadow-xs">
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
+                    className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
                     aria-label="Decrease quantity"
                   >
                     -
                   </button>
-                  <span className="w-10 text-center text-xs font-semibold tabular-nums text-ink select-none">
+                  <span className="w-9 sm:w-10 text-center text-xs font-semibold tabular-nums text-ink select-none">
                     {quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
+                    className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
                     aria-label="Increase quantity"
                   >
                     +

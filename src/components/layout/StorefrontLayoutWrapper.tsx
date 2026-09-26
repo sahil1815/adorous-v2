@@ -19,6 +19,12 @@ export default function StorefrontLayoutWrapper({
   const isAdminRoute = pathname?.startsWith('/admin');
   const isCheckoutRoute = pathname === '/checkout';
 
+  // Identify product detail page (e.g. /earrings/traditional-filigree-bell-jhumka)
+  const segments = pathname ? pathname.split('/').filter(Boolean) : [];
+  const isProductRoute =
+    segments.length === 2 &&
+    !['account', 'admin', 'order-success', 'promo', 'api'].includes(segments[0]);
+
   if (isAdminRoute) {
     return <main className="flex-1 min-h-screen">{children}</main>;
   }
@@ -28,7 +34,7 @@ export default function StorefrontLayoutWrapper({
       <Suspense fallback={null}>
         <NavigationProgress />
       </Suspense>
-      <AnnouncementBar />
+      {!isProductRoute && <AnnouncementBar />}
       <Header />
       <main className="flex-1 w-full max-w-full min-w-0 overflow-x-clip">{children}</main>
       

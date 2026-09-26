@@ -46,8 +46,8 @@ export default function Header() {
       <header
         className={`sticky top-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-paper/95 backdrop-blur-md shadow-sm border-b border-line py-3'
-            : 'bg-paper border-b border-line/80 py-4'
+            ? 'bg-paper/95 backdrop-blur-md shadow-sm border-b border-line py-2 sm:py-3'
+            : 'bg-paper border-b border-line/80 py-2.5 sm:py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
