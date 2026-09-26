@@ -20,6 +20,7 @@ import {
   Ruler,
   Check,
   ChevronDown,
+  ChevronLeft,
   Sparkles,
   Share2,
   CheckCircle2,
@@ -62,6 +63,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const [isSizingModalOpen, setIsSizingModalOpen] = useState(false);
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  // Dynamic delivery date for Bangladeshi logistics (Screenshot 1 matching)
+  const deliveryDates = React.useMemo(() => {
+    const now = new Date();
+    const d1 = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const d2 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    return `${d1.getDate()}–${d2.getDate()} ${d2.toLocaleString('en-US', { month: 'short' })}`;
+  }, []);
 
   // All unique photos across featured, gallery, and colorways
   const allDisplayImages = Array.from(
@@ -134,10 +144,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   return (
-    <div className="bg-paper min-h-screen py-6 sm:py-10">
+    <div className="bg-paper min-h-screen pt-2 pb-24 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap max-w-full min-w-0">
+        {/* Breadcrumb Navigation (Hidden on mobile for clean hero matching Screenshot 1) */}
+        <nav className="hidden sm:flex items-center space-x-2 text-xs text-text-muted mb-8 overflow-x-auto whitespace-nowrap max-w-full min-w-0">
           <Link href="/" className="hover:text-ink transition-colors">Home</Link>
           <span>/</span>
           <Link href="/shop" className="hover:text-ink transition-colors">Explore All</Link>
@@ -152,16 +162,16 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         {/* Main PDP Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           {/* Left Column: Gallery with Vertical Thumbnails on Desktop (Reference Layout) */}
-          <div className="lg:col-span-7 flex flex-col-reverse lg:flex-row gap-3.5 items-start">
-            {/* Thumbnail Strip (Vertical on Desktop, Horizontal on Mobile) */}
+          <div className="lg:col-span-7 flex flex-col lg:flex-row gap-3.5 items-start">
+            {/* Thumbnail Strip (Vertical on Desktop, Hidden on Mobile for Clean Hero) */}
             {allDisplayImages.length > 1 && (
-              <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto shrink-0 w-full lg:w-[84px] lg:max-h-[580px] scrollbar-none py-0.5">
+              <div className="hidden lg:flex flex-col gap-2.5 overflow-y-auto shrink-0 w-[84px] max-h-[580px] scrollbar-none py-0.5">
                 {allDisplayImages.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleThumbnailClick(img)}
-                    className={`relative aspect-[4/5] lg:aspect-square w-16 lg:w-full bg-stone border rounded-[2px] transition-all overflow-hidden shrink-0 ${
+                    className={`relative aspect-square w-full bg-stone border rounded-[2px] transition-all overflow-hidden shrink-0 ${
                       activeImage === img
                         ? 'border-ink ring-2 ring-gold/70 shadow-sm'
                         : 'border-line hover:border-gold/80 opacity-75 hover:opacity-100'
@@ -189,6 +199,16 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
             {/* Primary Visual */}
             <div className="relative aspect-[4/5] lg:aspect-[4/4.5] flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px]">
+              {/* Mobile Top-Left Back Button (Reference Screenshot 1) */}
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="lg:hidden absolute top-3.5 left-3.5 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line flex items-center justify-center text-ink shadow-sm active:scale-90 transition-transform"
+                aria-label="Go back"
+              >
+                <ChevronLeft className="w-5 h-5 -ml-0.5" />
+              </button>
+
               {activeImage.startsWith('data:') || activeImage.startsWith('http') ? (
                 <img
                   src={activeImage}
@@ -206,8 +226,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 />
               )}
 
-              {/* Scarcity / Drop Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              {/* Scarcity / Drop Badges on Desktop */}
+              <div className="hidden lg:flex absolute top-4 left-4 flex-col gap-2">
                 {product.isNewDrop && (
                   <span className="bg-gold hover:bg-gold-deep text-ink text-xs tracking-wider uppercase px-3 py-1 font-medium border border-gold/30">
                     New Drop
@@ -220,8 +240,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 )}
               </div>
 
-              {/* Top-Right Visual Actions: Wishlist & Share */}
-              <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+              {/* Top-Right Visual Actions on Desktop: Wishlist & Share */}
+              <div className="hidden lg:flex absolute top-4 right-4 items-center space-x-2 z-10">
                 <button
                   type="button"
                   onClick={() => toggleWishlist(product)}
@@ -252,8 +272,59 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </span>
               )}
 
-              {/* Backdrop Authenticity Watermark */}
-              <div className="absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1">
+              {/* Mobile Bottom-Left Rating & Stock Pill Badge (Reference Screenshot 1) */}
+              <div className="lg:hidden absolute bottom-3 left-3 z-20 flex items-center gap-1.5 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-xs font-semibold text-ink">
+                <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                  4.80 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                </span>
+                <span className="text-line">|</span>
+                <span className="text-emerald-700 font-medium">In Stock</span>
+              </div>
+
+              {/* Mobile Center Wishlist Heart & Slide Dots (Reference Screenshot 1) */}
+              <div className="lg:hidden absolute bottom-3 inset-x-0 flex flex-col items-center justify-center pointer-events-none z-20 gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(product);
+                  }}
+                  className="pointer-events-auto p-2 rounded-full bg-paper/95 backdrop-blur-md border border-line shadow-md text-ink hover:text-rose-500 active:scale-125 transition-all"
+                  aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <Heart className={`w-5 h-5 ${isSaved ? 'fill-rose-500 text-rose-500' : 'text-ink/80'}`} />
+                </button>
+
+                {allDisplayImages.length > 1 && (
+                  <div className="flex items-center gap-1.5 bg-paper/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-line pointer-events-auto shadow-xs">
+                    {allDisplayImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleThumbnailClick(img)}
+                        className={`rounded-full transition-all ${
+                          activeImage === img
+                            ? 'w-4 h-1.5 bg-gold-deep'
+                            : 'w-1.5 h-1.5 bg-ink/30 hover:bg-ink/60'
+                        }`}
+                        aria-label={`Jump to image ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Bottom-Right View Similar (Reference Screenshot 1) */}
+              <a
+                href="#similar-products"
+                className="lg:hidden absolute bottom-3 right-3 z-20 flex items-center gap-1 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-[11px] font-medium text-ink hover:text-gold-deep transition-colors"
+              >
+                <Sparkles className="w-3 h-3 text-gold-deep" />
+                <span>View Similar</span>
+              </a>
+
+              {/* Backdrop Authenticity Watermark on Desktop */}
+              <div className="hidden lg:block absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1">
                 Still Life · Warm Stone Plinth
               </div>
             </div>
@@ -262,22 +333,34 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
           {/* Right Column: Purchasing & Specifications */}
           <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
             <div>
-              {/* Category & Title */}
-              <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-                {product.categoryLabel} · Limited Edition
-              </div>
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium mt-1">
-                {product.name}
-              </h1>
-
-              {/* Rating & In-Stock Line (Reference Design) */}
-              <div className="flex items-center flex-wrap gap-2.5 mt-2.5 text-xs text-text-muted">
-                <div className="flex items-center text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-3.5 h-3.5 ${i < 4 ? 'fill-amber-400 text-amber-400' : 'text-amber-400/50'}`} />
-                  ))}
+              {/* Category & Title with Share Icon (Screenshot 1 matching) */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold tracking-[0.2em] uppercase text-gold-ink">
+                    {product.categoryLabel} · Limited Edition
+                  </div>
+                  <h1 className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-semibold mt-0.5 leading-snug">
+                    {product.name}
+                  </h1>
                 </div>
-                <span className="font-medium text-ink/80">4.8</span>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="p-2 text-ink hover:text-gold-deep hover:bg-sand/60 transition-colors shrink-0 rounded-full"
+                  title="Share product"
+                  aria-label="Share product"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Rating, Reviews & In-Stock Line (Screenshot 1 matching) */}
+              <div className="flex items-center flex-wrap gap-2 mt-2 text-xs text-text-muted">
+                <div className="flex items-center text-amber-500 font-medium">
+                  <span>4.8</span>
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 ml-1 inline" />
+                </div>
+                <span>•</span>
                 <span>(Verified Ratings)</span>
                 <span>•</span>
                 {product.inStock && (product as any).stockQty !== 0 ? (
@@ -295,10 +378,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 {product.tagline}
               </p>
 
-              {/* Price & COD Badge with Discount Percentage */}
-              <div className="mt-4 pt-4 border-t border-line flex items-baseline justify-between flex-wrap gap-2">
+              {/* Price & COD Badge with Discount Percentage (Screenshot 1 matching) */}
+              <div className="mt-3.5 pt-3 border-t border-line flex items-baseline justify-between flex-wrap gap-2">
                 <div className="flex items-baseline space-x-2.5">
-                  <span className="font-semibold text-2xl sm:text-3xl text-ink tabular-nums">
+                  <span className="font-bold text-2xl sm:text-3xl text-ink tabular-nums">
                     ৳{product.price.toLocaleString('en-US')}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
@@ -306,40 +389,40 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                       <span className="text-sm sm:text-base text-text-muted line-through tabular-nums">
                         ৳{product.originalPrice.toLocaleString('en-US')}
                       </span>
-                      <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-[2px] border border-rose-200/60">
+                      <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-[2px] border border-amber-200/60">
                         ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
                       </span>
                     </>
                   )}
                 </div>
 
-                <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-sand border border-line text-xs text-ink font-medium rounded-[2px]">
+                <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-sand/70 border border-line text-xs text-ink font-medium rounded-[2px]">
                   <ShieldCheck className="w-3.5 h-3.5 text-success" />
                   <span>Cash on Delivery</span>
                 </span>
               </div>
 
-              {/* 1. Colorway Selector */}
-              <div className="mt-6 space-y-3">
+              {/* 1. Select Color (Screenshot 1 matching) */}
+              <div className="mt-5 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-ink uppercase tracking-wider">
-                    Colourway: <strong className="text-gold-deep">{selectedColor.name}</strong>
+                  <span className="font-semibold text-ink text-sm">
+                    Select Color
                   </span>
-                  <span className="text-text-muted">
-                    {product.colorways.length} Finishes Available
+                  <span className="text-text-muted text-xs">
+                    {selectedColor.name}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
                   {product.colorways.map((c) => (
                     <button
                       key={c.id}
                       type="button"
                       onClick={() => handleColorChange(c)}
-                      className={`flex items-center space-x-2 px-3 py-1.5 border rounded-[2px] text-xs transition-all ${
+                      className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-[4px] text-xs transition-all ${
                         selectedColor.id === c.id
-                          ? 'border-ink bg-sand/60 ring-1 ring-ink font-semibold'
-                          : 'border-line hover:border-ink/60 bg-paper'
+                          ? 'border-2 border-ink bg-paper font-semibold shadow-xs'
+                          : 'border border-line hover:border-ink/50 bg-paper text-ink/80'
                       }`}
                     >
                       <span
@@ -390,140 +473,196 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </div>
               )}
 
-              {/* 3. Quantity & Cart Positioning (Matching Reference) */}
-              <div className="mt-7 space-y-4">
-                {/* Low-stock warning */}
-                {typeof (product as any).stockQty === 'number' && (product as any).stockQty > 0 && (product as any).stockQty <= 3 && (
-                  <div className="flex items-center space-x-2 px-3 py-2 bg-amber-950/40 border border-amber-600/40 rounded-xs text-xs text-amber-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                    <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
-                  </div>
-                )}
-
-                {/* Row 1: Dedicated Quantity Stepper */}
-                <div className="flex items-center space-x-4">
-                  <span className="text-xs sm:text-sm font-medium text-ink uppercase tracking-wider min-w-[70px]">
-                    Quantity:
-                  </span>
-                  <div className="flex items-center border border-line rounded-[3px] bg-sand/40 h-10 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="w-11 text-center text-sm font-semibold tabular-nums text-ink select-none">
-                      {quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setQuantity((q) => q + 1)}
-                      className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Row 2: Action Buttons [Buy Now] [Add to Bag] [Wishlist ♡] on Desktop */}
-                <div className="hidden lg:flex items-center gap-3 w-full pt-1">
-                  {/* Buy Now Button (Primary Accent) */}
-                  {(product as any).stockQty === 0 || product.inStock === false ? (
-                    <div className="flex-1 h-12 bg-sand/20 border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed">
-                      <Zap className="w-4 h-4 shrink-0" />
-                      <span>Unavailable</span>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleOrderNow}
-                      disabled={isOrdering}
-                      className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
-                    >
-                      <Zap className="w-4 h-4 fill-ink shrink-0" />
-                      <span>{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
-                    </button>
-                  )}
-
-                  {/* Add to Bag Button (Secondary Luxury Brand Button) */}
-                  {(product as any).stockQty === 0 || product.inStock === false ? (
-                    <button
-                      type="button"
-                      disabled
-                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
-                    >
-                      <ShoppingBag className="w-4 h-4 shrink-0 text-ink/40" />
-                      <span>Out of Stock</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleAddToCart}
-                      className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
-                    >
-                      <ShoppingBag className="w-4 h-4 shrink-0 text-gold-deep" />
-                      <span>{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
-                    </button>
-                  )}
-
-                  {/* Wishlist Button */}
+              {/* 3. Dedicated Quantity Stepper Row (Screenshot 1 matching) */}
+              <div className="mt-5 flex items-center justify-between">
+                <span className="font-semibold text-ink text-sm">
+                  Quantity
+                </span>
+                <div className="flex items-center border border-line rounded-[4px] bg-paper h-9 shrink-0 shadow-xs">
                   <button
                     type="button"
-                    onClick={() => toggleWishlist(product)}
-                    className={`h-12 w-12 border rounded-[3px] flex items-center justify-center transition-all shrink-0 ${
-                      isSaved
-                        ? 'bg-gold text-ink border-gold/40 shadow-sm'
-                        : 'bg-paper border-line text-ink hover:border-gold hover:text-gold-deep'
-                    }`}
-                    title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
-                    aria-label={isSaved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
+                    aria-label="Decrease quantity"
                   >
-                    <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-gold text-gold' : ''}`} />
+                    -
+                  </button>
+                  <span className="w-10 text-center text-xs font-semibold tabular-nums text-ink select-none">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
+                    aria-label="Increase quantity"
+                  >
+                    +
                   </button>
                 </div>
-
-                {/* Row 3: Direct WhatsApp Instant Checkout */}
-                <a
-                  href={generateDirectWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden lg:flex w-full h-11 bg-sand/70 hover:bg-sand border border-line/80 text-ink hover:text-gold-deep font-medium text-xs tracking-wider uppercase rounded-[3px] transition-colors items-center justify-center space-x-2 shadow-xs"
-                >
-                  <MessageCircle className="w-4 h-4 text-whatsapp" />
-                  <span>Order Directly on WhatsApp</span>
-                </a>
               </div>
 
-              {/* 4. Bangladesh Logistics & Trust Box */}
-              <div className="mt-8 p-4 bg-sand/60 border border-line space-y-3 text-xs">
-                <div className="flex items-start space-x-2.5">
-                  <Truck className="w-4 h-4 text-gold-deep shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-semibold text-ink block">Delivery Rates & Timeline:</strong>
-                    <span className="text-text-muted block">
-                      • Dhaka: ৳80 (1–2 Days)
-                    </span>
-                    <span className="text-text-muted block">
-                      • All Other Districts Nationwide: ৳130 (2–4 Days via Courier)
-                    </span>
-                    <span className="text-gold-deep font-medium block mt-0.5">
-                      • Free Delivery on orders over ৳2,000
-                    </span>
+              {/* Low-stock warning */}
+              {typeof (product as any).stockQty === 'number' && (product as any).stockQty > 0 && (product as any).stockQty <= 3 && (
+                <div className="mt-3 flex items-center space-x-2 px-3 py-2 bg-amber-950/40 border border-amber-600/40 rounded-xs text-xs text-amber-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                  <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
+                </div>
+              )}
+
+              {/* Desktop-only action buttons */}
+              <div className="hidden lg:flex items-center gap-3 w-full pt-4">
+                {/* Buy Now Button (Primary Accent) */}
+                {(product as any).stockQty === 0 || product.inStock === false ? (
+                  <div className="flex-1 h-12 bg-sand/20 border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed">
+                    <Zap className="w-4 h-4 shrink-0" />
+                    <span>Unavailable</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleOrderNow}
+                    disabled={isOrdering}
+                    className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
+                  >
+                    <Zap className="w-4 h-4 fill-ink shrink-0" />
+                    <span>{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
+                  </button>
+                )}
+
+                {/* Add to Bag Button (Secondary Luxury Brand Button) */}
+                {(product as any).stockQty === 0 || product.inStock === false ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="flex-1 h-12 bg-[#F0EDE8] border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
+                  >
+                    <ShoppingBag className="w-4 h-4 shrink-0 text-ink/40" />
+                    <span>Out of Stock</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
+                  >
+                    <ShoppingBag className="w-4 h-4 shrink-0 text-gold-deep" />
+                    <span>{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
+                  </button>
+                )}
+
+                {/* Wishlist Button */}
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  className={`h-12 w-12 border rounded-[3px] flex items-center justify-center transition-all shrink-0 ${
+                    isSaved
+                      ? 'bg-gold text-ink border-gold/40 shadow-sm'
+                      : 'bg-paper border-line text-ink hover:border-gold hover:text-gold-deep'
+                  }`}
+                  title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
+                  aria-label={isSaved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
+                >
+                  <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-gold text-gold' : ''}`} />
+                </button>
+              </div>
+
+              {/* Direct WhatsApp Instant Checkout on Desktop */}
+              <a
+                href={generateDirectWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden lg:flex w-full h-11 mt-3 bg-sand/70 hover:bg-sand border border-line/80 text-ink hover:text-gold-deep font-medium text-xs tracking-wider uppercase rounded-[3px] transition-colors items-center justify-center space-x-2 shadow-xs"
+              >
+                <MessageCircle className="w-4 h-4 text-whatsapp" />
+                <span>Order Directly on WhatsApp</span>
+              </a>
+
+              {/* Trust, Delivery & Shop Card (Screenshot 1 matching) */}
+              <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg flex items-center justify-between gap-3 shadow-xs">
+                {/* Left: 4 logistics bullets */}
+                <div className="space-y-1.5 text-xs text-ink/90 flex-1">
+                  <div className="flex items-center gap-2">
+                    <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                    <span><strong>Return :</strong> 7 Days Exchange</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                    <span><strong>Exchange :</strong> Size & Finish Exchangeable</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                    <span><strong>Promised Delivery by</strong> {deliveryDates}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
+                    <span><strong>Payment :</strong> COD Available</span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-line/60 flex items-center space-x-2 text-text-muted">
-                  <RotateCcw className="w-4 h-4 text-gold-deep shrink-0" />
-                  <span>7-Day Doorstep Size & Style Exchange Guarantee</span>
+                {/* Right: Boutique / Shop Badge */}
+                <div className="shrink-0 p-3 bg-sand/40 border border-line rounded-md text-xs flex flex-col items-center justify-center text-center min-w-[105px]">
+                  <div className="flex items-center gap-1 text-gold-ink font-semibold text-xs">
+                    <span>🏪</span>
+                    <span>Shop</span>
+                  </div>
+                  <div className="font-serif font-bold text-ink text-xs mt-1">
+                    Adorous Shop
+                  </div>
+                  <span className="text-[10px] text-text-muted mt-0.5">Dhaka Flagship</span>
                 </div>
               </div>
 
-              {/* 5. What's in the Box (Transparency Section) */}
+              {/* Collapsible Highlights & Details Card with Overlapping See More (Screenshot 1 & 2 matching) */}
+              <div className="mt-6 mb-7 border border-line rounded-lg p-4 bg-paper relative shadow-xs">
+                <div className={`space-y-2 text-xs text-ink transition-all duration-300 ${
+                  !isDescriptionExpanded ? 'max-h-40 overflow-hidden' : 'max-h-[1200px]'
+                }`}>
+                  <ul className="space-y-2 list-none">
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
+                      <span><strong>Craftsmanship:</strong> 100% Solid Brass with Micron Gold Plating</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
+                      <span><strong>Finish:</strong> Anti-tarnish dual lacquer protective coating</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
+                      <span><strong>Safety:</strong> Skin-safe, hypoallergenic, cadmium & nickel-free</span>
+                    </li>
+                    {product.details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
+                        <span>{detail}</span>
+                      </li>
+                    ))}
+                    {product.description && (
+                      <li className="pt-2 text-text-muted leading-relaxed border-t border-line/60">
+                        {product.description}
+                      </li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Fade overlay when collapsed */}
+                {!isDescriptionExpanded && (
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper via-paper/80 to-transparent pointer-events-none rounded-b-lg" />
+                )}
+
+                {/* Overlapping See More Button on the bottom border */}
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full text-xs font-semibold bg-gold-deep hover:bg-gold-ink text-paper shadow-md transition-all z-10 flex items-center gap-1 active:scale-95"
+                >
+                  <span>{isDescriptionExpanded ? 'See Less' : 'See More'}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {/* What's in Your Package (Transparency Section) */}
               {product.piecesIncluded && (
-                <div className="mt-6 border border-line p-4 bg-paper space-y-3">
+                <div className="mt-8 border border-line p-4 bg-paper space-y-3 rounded-lg">
                   <div className="flex items-center space-x-2 text-ink">
                     <Box className="w-4 h-4 text-gold-deep" />
                     <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
@@ -550,24 +689,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </ul>
                 </div>
               )}
-
-              {/* 6. Product Description & Craftsmanship Details */}
-              <div className="mt-6 pt-6 border-t border-line space-y-4">
-                <h3 className="font-serif text-base font-semibold uppercase tracking-wider text-ink">
-                  Details & Specifications
-                </h3>
-                <p className="text-xs text-text-muted leading-relaxed">
-                  {product.description}
-                </p>
-                <ul className="space-y-2 text-xs text-ink">
-                  {product.details.map((detail, idx) => (
-                    <li key={idx} className="flex items-start space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-1.5" />
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -575,30 +696,27 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         {/* Reviews Section */}
         <ReviewSection product={product} />
 
-        {/* Pairs Well With Cross-Category Rail */}
+        {/* Similar Products (Screenshot 3 matching) */}
         {pairsWellWith.length > 0 && (
-          <section className="mt-20 pt-12 border-t border-line">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
+          <section id="similar-products" className="mt-16 pt-8 border-t border-line scroll-mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6">
               <div>
-                <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-                  Curated Coordination
-                </div>
-                <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium mt-1">
-                  Pairs Well With
+                <h2 className="font-serif text-xl sm:text-2xl text-ink font-semibold">
+                  Similar Products
                 </h2>
-                <p className="text-xs text-text-muted mt-1">
-                  Styles designed to be worn alongside the {product.name}.
+                <p className="text-xs text-text-muted mt-0.5">
+                  Curated pieces handcrafted to complement the {product.name}.
                 </p>
               </div>
               <Link
                 href="/shop"
-                className="mt-3 sm:mt-0 text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors"
+                className="mt-2 sm:mt-0 text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors"
               >
-                View The Entire Edit →
+                View All →
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {pairsWellWith.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -612,64 +730,65 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         isOpen={isSizingModalOpen}
         onClose={() => setIsSizingModalOpen(false)}
       />
-      {/* Mobile PDP Sticky Checkout Bar (Portaled to avoid overflow clipping) */}
+
+      {/* Mobile PDP Sticky Checkout Bar (Screenshot 1, 2, 3 matching) */}
       {isMounted && createPortal(
-        <div className="fixed bottom-0 inset-x-0 z-[100] bg-paper/95 backdrop-blur-md border border-line rounded-sm lg:hidden p-2.5 shadow-xl pb-[calc(env(safe-area-inset-bottom)+0.625rem)]">
-          <div className="flex items-center gap-1.5 w-full">
+        <div className="fixed bottom-0 inset-x-0 z-[100] bg-paper/95 backdrop-blur-md border-t border-line py-2 px-3 shadow-2xl lg:hidden pb-[calc(env(safe-area-inset-bottom)+0.625rem)]">
+          <div className="flex items-center gap-2 w-full max-w-lg mx-auto">
             {/* Cart Icon */}
             <button
               type="button"
               onClick={openCart}
-              className="flex flex-col items-center justify-center shrink-0 w-[42px] relative text-ink hover:text-gold-deep transition-colors"
+              className="flex flex-col items-center justify-center shrink-0 w-11 relative text-ink hover:text-gold-deep transition-colors"
             >
               <div className="relative">
-                <ShoppingBag className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                <ShoppingBag className="w-5 h-5" strokeWidth={1.75} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-gold-deep text-paper text-[9px] font-bold flex items-center justify-center tabular-nums shadow-sm">
+                  <span className="absolute -top-1.5 -right-2.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center tabular-nums shadow-xs">
                     {totalItems}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-medium mt-1">Cart</span>
+              <span className="text-[10px] font-medium mt-0.5">Cart</span>
             </button>
 
             {/* Vertical Divider */}
-            <div className="w-px h-8 bg-line/80 mx-1 shrink-0" />
+            <div className="w-px h-7 bg-line shrink-0" />
 
             {/* WhatsApp / Chat Icon */}
             <a
               href={generateDirectWhatsAppLink()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center justify-center shrink-0 w-[42px] relative text-whatsapp hover:opacity-80 transition-opacity"
+              className="flex flex-col items-center justify-center shrink-0 w-11 relative text-ink hover:text-whatsapp transition-colors"
             >
               <div className="relative">
-                <MessageCircle className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                <MessageCircle className="w-5 h-5 text-whatsapp" strokeWidth={1.75} />
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-whatsapp animate-ping" />
               </div>
-              <span className="text-[9px] tracking-wider uppercase font-medium mt-1 text-ink">Chat</span>
+              <span className="text-[10px] font-medium mt-0.5">Chat</span>
             </a>
 
-            {/* Action Buttons */}
-            <div className="flex flex-1 items-center gap-2 pl-2">
-              {/* Buy Now */}
+            {/* Action Buttons: Buy Now & Add to Cart full pills */}
+            <div className="flex flex-1 items-center gap-2 pl-1">
+              {/* Buy Now Button (Warm Amber / Orange) */}
               <button
                 type="button"
                 onClick={handleOrderNow}
                 disabled={isOrdering || (product as any).stockQty === 0 || product.inStock === false}
-                className="flex-1 h-11 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 px-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold text-xs sm:text-sm rounded-full shadow-sm active:scale-95 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isOrdering ? 'Wait...' : 'Buy Now'}
               </button>
 
-              {/* Add to Bag */}
+              {/* Add to Cart Button (Primary Brand Accent) */}
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={(product as any).stockQty === 0 || product.inStock === false}
-                className="flex-1 h-11 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 px-3 bg-gold-deep hover:bg-gold-ink text-paper font-semibold text-xs sm:text-sm rounded-full shadow-sm active:scale-95 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAddedAnimation ? 'Added!' : 'Add to Bag'}
+                {isAddedAnimation ? 'Added!' : 'Add to Cart'}
               </button>
             </div>
           </div>

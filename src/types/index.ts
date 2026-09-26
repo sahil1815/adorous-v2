@@ -48,6 +48,7 @@ export interface Review {
   customerName: string;
   rating: number;
   comment: string;
+  colorwayName?: string;
   photoUrl?: string; // Must adhere to NO HUMAN IMAGERY mandate (e.g., flat lays only)
   status: ReviewStatus;
   createdAt: string;
