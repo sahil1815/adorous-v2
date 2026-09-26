@@ -14,7 +14,7 @@ export interface AdminCustomerOrderSummary {
 export interface AdminRegisteredCustomer {
   id: string;
   fullName: string;
-  phone: string;
+  phone: string | null;
   email: string | null;
   district: string | null;
   address: string | null;
@@ -203,10 +203,15 @@ export async function getCustomersOverviewStatsAction(): Promise<CustomersOvervi
     const repeatGuestCount = guests.filter((g) => g.orderCount > 1).length;
 
     // Check unique phone overlap between registered and guests
-    const regPhones = new Set(registered.map((r) => r.phone.replace(/[^\d+]/g, '')));
+    const regPhones = new Set(
+      registered
+        .filter((r) => r.phone)
+        .map((r) => (r.phone as string).replace(/[^\d+]/g, ''))
+    );
     let uniqueGuestOnlyCount = 0;
     guests.forEach((g) => {
-      if (!regPhones.has(g.phone.replace(/[^\d+]/g, ''))) {
+      const cleanPhone = g.phone ? g.phone.replace(/[^\d+]/g, '') : '';
+      if (!cleanPhone || !regPhones.has(cleanPhone)) {
         uniqueGuestOnlyCount++;
       }
     });

@@ -8,7 +8,7 @@ const encodedKey = new TextEncoder().encode(CUSTOMER_SECRET);
 
 export interface CustomerTokenPayload {
   sub: string; // CustomerUser ID
-  phone: string;
+  phone?: string | null;
   name: string;
   email?: string | null;
 }

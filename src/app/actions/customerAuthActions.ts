@@ -27,7 +27,7 @@ function sanitizeProfile(user: any): CustomerProfile {
   return {
     id: user.id,
     fullName: user.fullName,
-    phone: user.phone,
+    phone: user.phone ?? null,
     email: user.email ?? null,
     district: user.district ?? null,
     address: user.address ?? null,
@@ -152,7 +152,7 @@ export async function customerRegisterAction(data: {
     // Generate JWT and set secure cookie
     const token = await signCustomerToken({
       sub: user.id,
-      phone: user.phone,
+      phone: user.phone || null,
       name: user.fullName,
       email: user.email,
     });
@@ -212,7 +212,7 @@ export async function customerLoginAction(data: {
     // Issue session token
     const token = await signCustomerToken({
       sub: user.id,
-      phone: user.phone,
+      phone: user.phone || null,
       name: user.fullName,
       email: user.email,
     });
@@ -317,7 +317,7 @@ export async function updateCustomerProfileAction(data: {
     // Refresh token with updated details
     const newToken = await signCustomerToken({
       sub: updated.id,
-      phone: updated.phone,
+      phone: updated.phone || null,
       name: updated.fullName,
       email: updated.email,
     });
@@ -343,7 +343,7 @@ export async function getCustomerOrdersAction() {
       where: {
         OR: [
           { customerUserId: session.sub },
-          { customer: { phone: session.phone } },
+          ...(session.phone ? [{ customer: { phone: session.phone } }] : []),
         ],
       },
       include: {

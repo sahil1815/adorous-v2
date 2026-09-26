@@ -99,7 +99,7 @@ export default function AdminCustomersPage() {
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
           const matchName = u.fullName.toLowerCase().includes(q);
-          const matchPhone = u.phone.includes(q);
+          const matchPhone = u.phone ? u.phone.includes(q) : false;
           const matchEmail = u.email ? u.email.toLowerCase().includes(q) : false;
           const matchDistrict = u.district ? u.district.toLowerCase().includes(q) : false;
           const matchOrder = u.orders.some((o) => o.orderId.toLowerCase().includes(q));
@@ -490,7 +490,7 @@ export default function AdminCustomersPage() {
                         <div className="space-y-1">
                           <div className="flex items-center space-x-1.5 font-mono text-paper/90">
                             <Phone className="w-3 h-3 text-gold/70 shrink-0" />
-                            <span>{user.phone}</span>
+                            <span>{user.phone || 'No phone on file'}</span>
                           </div>
                           {user.email && (
                             <div className="flex items-center space-x-1.5 text-[11px] text-paper/60">
@@ -546,23 +546,35 @@ export default function AdminCustomersPage() {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end space-x-2">
-                          <a
-                            href={getWhatsAppLink(user.phone, user.fullName)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-700/50 text-emerald-400 rounded-xs transition-colors"
-                            title="Open WhatsApp chat"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                          </a>
+                          {user.phone ? (
+                            <>
+                              <a
+                                href={getWhatsAppLink(user.phone, user.fullName)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-700/50 text-emerald-400 rounded-xs transition-colors"
+                                title="Open WhatsApp chat"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                              </a>
 
-                          <a
-                            href={`tel:${user.phone}`}
-                            className="p-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-paper rounded-xs transition-colors"
-                            title="Call patron"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                          </a>
+                              <a
+                                href={`tel:${user.phone}`}
+                                className="p-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-paper rounded-xs transition-colors"
+                                title="Call patron"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                            </>
+                          ) : user.email ? (
+                            <a
+                              href={`mailto:${user.email}`}
+                              className="p-1.5 bg-gold/10 hover:bg-gold/20 border border-gold/30 text-gold rounded-xs transition-colors"
+                              title="Send Email"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                            </a>
+                          ) : null}
 
                           <button
                             type="button"
@@ -761,7 +773,7 @@ export default function AdminCustomersPage() {
                     )}
                   </div>
                   <span className="text-xs text-paper/50 block mt-0.5 font-mono">
-                    Phone: {selectedCustomer.data.phone}
+                    Phone: {selectedCustomer.data.phone || 'No phone provided'}
                   </span>
                 </div>
               </div>
@@ -779,25 +791,37 @@ export default function AdminCustomersPage() {
             {/* Drawer Body */}
             <div className="p-5 overflow-y-auto space-y-6 text-xs flex-1">
               {/* Communication Bar */}
-              <div className="flex items-center gap-3">
-                <a
-                  href={getWhatsAppLink(selectedCustomer.data.phone, selectedCustomer.data.fullName)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-2.5 px-3 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/60 text-emerald-300 rounded-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Send WhatsApp Message</span>
-                </a>
+              {selectedCustomer.data.phone ? (
+                <div className="flex items-center gap-3">
+                  <a
+                    href={getWhatsAppLink(selectedCustomer.data.phone, selectedCustomer.data.fullName)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 px-3 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/60 text-emerald-300 rounded-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Send WhatsApp Message</span>
+                  </a>
 
-                <a
-                  href={`tel:${selectedCustomer.data.phone}`}
-                  className="flex-1 py-2.5 px-3 bg-[#222222] hover:bg-[#2C2C2C] border border-white/15 text-paper rounded-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
-                >
-                  <Phone className="w-4 h-4 text-gold" />
-                  <span>Call Phone Number</span>
-                </a>
-              </div>
+                  <a
+                    href={`tel:${selectedCustomer.data.phone}`}
+                    className="flex-1 py-2.5 px-3 bg-[#222222] hover:bg-[#2C2C2C] border border-white/15 text-paper rounded-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
+                  >
+                    <Phone className="w-4 h-4 text-gold" />
+                    <span>Call Phone Number</span>
+                  </a>
+                </div>
+              ) : selectedCustomer.data.email ? (
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`mailto:${selectedCustomer.data.email}`}
+                    className="flex-1 py-2.5 px-3 bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold rounded-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Send Email ({selectedCustomer.data.email})</span>
+                  </a>
+                </div>
+              ) : null}
 
               {/* Profile Summary Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#1B1B1B] p-4 rounded-xs border border-white/5">

@@ -108,7 +108,7 @@ model Customer {
 model CustomerUser {
   id              String         @id @default(uuid())
   fullName        String
-  phone           String         @unique
+  phone           String?        @unique
   email           String?        @unique
   passwordHash    String
   district        String?

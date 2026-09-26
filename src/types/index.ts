@@ -66,7 +66,7 @@ export interface SavedAddress {
 export interface CustomerProfile {
   id: string;
   fullName: string;
-  phone: string;
+  phone?: string | null;
   email?: string | null;
   district?: string | null;
   address?: string | null;
