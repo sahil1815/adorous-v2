@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
@@ -105,6 +106,7 @@ export default function RootLayout({
             </InventoryProvider>
           </OrdersProvider>
         </AdminAuthProvider>
+        <Analytics />
       </body>
     </html>
   );
