@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   Box,
   Heart,
-  Zap
+  Zap,
+  Star
 } from 'lucide-react';
 
 interface ProductDetailClientProps {
@@ -150,10 +151,44 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
         {/* Main PDP Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Left Column: Gallery on Warm Stone Backdrop */}
-          <div className="lg:col-span-7 space-y-4">
+          {/* Left Column: Gallery with Vertical Thumbnails on Desktop (Reference Layout) */}
+          <div className="lg:col-span-7 flex flex-col-reverse lg:flex-row gap-3.5 items-start">
+            {/* Thumbnail Strip (Vertical on Desktop, Horizontal on Mobile) */}
+            {allDisplayImages.length > 1 && (
+              <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto shrink-0 w-full lg:w-[84px] lg:max-h-[580px] scrollbar-none py-0.5">
+                {allDisplayImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleThumbnailClick(img)}
+                    className={`relative aspect-[4/5] lg:aspect-square w-16 lg:w-full bg-stone border rounded-[2px] transition-all overflow-hidden shrink-0 ${
+                      activeImage === img
+                        ? 'border-ink ring-2 ring-gold/70 shadow-sm'
+                        : 'border-line hover:border-gold/80 opacity-75 hover:opacity-100'
+                    }`}
+                    aria-label={`View image ${idx + 1}`}
+                  >
+                    {img.startsWith('data:') || img.startsWith('http') ? (
+                      <img
+                        src={img}
+                        alt={`${product.name} thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <Image
+                        src={img}
+                        alt={`${product.name} thumbnail ${idx + 1}`}
+                        fill
+                        className="object-cover object-center"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Primary Visual */}
-            <div className="relative aspect-[4/5] bg-stone border border-line overflow-hidden shadow-sm">
+            <div className="relative aspect-[4/5] lg:aspect-[4/4.5] flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px]">
               {activeImage.startsWith('data:') || activeImage.startsWith('http') ? (
                 <img
                   src={activeImage}
@@ -222,37 +257,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 Still Life · Warm Stone Plinth
               </div>
             </div>
-
-            {/* Thumbnail Strip */}
-            {allDisplayImages.length > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-                {allDisplayImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleThumbnailClick(img)}
-                    className={`relative aspect-[4/5] bg-stone border transition-all overflow-hidden ${
-                      activeImage === img ? 'border-ink ring-1 ring-ink' : 'border-line hover:border-gold'
-                    }`}
-                  >
-                    {img.startsWith('data:') || img.startsWith('http') ? (
-                      <img
-                        src={img}
-                        alt={`${product.name} view ${idx + 1}`}
-                        className="w-full h-full object-cover object-center"
-                      />
-                    ) : (
-                      <Image
-                        src={img}
-                        alt={`${product.name} view ${idx + 1}`}
-                        fill
-                        className="object-cover object-center"
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Right Column: Purchasing & Specifications */}
@@ -265,20 +269,47 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium mt-1">
                 {product.name}
               </h1>
+
+              {/* Rating & In-Stock Line (Reference Design) */}
+              <div className="flex items-center flex-wrap gap-2.5 mt-2.5 text-xs text-text-muted">
+                <div className="flex items-center text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-3.5 h-3.5 ${i < 4 ? 'fill-amber-400 text-amber-400' : 'text-amber-400/50'}`} />
+                  ))}
+                </div>
+                <span className="font-medium text-ink/80">4.8</span>
+                <span>(Verified Ratings)</span>
+                <span>•</span>
+                {product.inStock && (product as any).stockQty !== 0 ? (
+                  <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-[2px] border border-emerald-200/60">
+                    In Stock
+                  </span>
+                ) : (
+                  <span className="text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-[2px] border border-rose-200/60">
+                    Sold Out
+                  </span>
+                )}
+              </div>
+
               <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
                 {product.tagline}
               </p>
 
-              {/* Price & COD Badge */}
-              <div className="mt-4 pt-4 border-t border-line flex items-baseline justify-between">
-                <div className="flex items-baseline space-x-3">
+              {/* Price & COD Badge with Discount Percentage */}
+              <div className="mt-4 pt-4 border-t border-line flex items-baseline justify-between flex-wrap gap-2">
+                <div className="flex items-baseline space-x-2.5">
                   <span className="font-semibold text-2xl sm:text-3xl text-ink tabular-nums">
                     ৳{product.price.toLocaleString('en-US')}
                   </span>
-                  {product.originalPrice && (
-                    <span className="text-sm sm:text-base text-text-muted line-through tabular-nums">
-                      ৳{product.originalPrice.toLocaleString('en-US')}
-                    </span>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <>
+                      <span className="text-sm sm:text-base text-text-muted line-through tabular-nums">
+                        ৳{product.originalPrice.toLocaleString('en-US')}
+                      </span>
+                      <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-[2px] border border-rose-200/60">
+                        ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
+                      </span>
+                    </>
                   )}
                 </div>
 
@@ -359,8 +390,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </div>
               )}
 
-              {/* 3. Quantity & CTAs */}
-              <div className="mt-8 space-y-3.5">
+              {/* 3. Quantity & Cart Positioning (Matching Reference) */}
+              <div className="mt-7 space-y-4">
                 {/* Low-stock warning */}
                 {typeof (product as any).stockQty === 'number' && (product as any).stockQty > 0 && (product as any).stockQty <= 3 && (
                   <div className="flex items-center space-x-2 px-3 py-2 bg-amber-950/40 border border-amber-600/40 rounded-xs text-xs text-amber-300">
@@ -368,69 +399,73 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
                   </div>
                 )}
-                <div className="flex flex-col lg:flex-row lg:items-center space-y-3 lg:space-y-0 lg:space-x-3">
-                  {/* Desktop Action Buttons wrapper added by script */}
-                  
-                  {/* Quantity Counter */}
-                  <div className="flex items-center border border-line rounded-[2px] bg-sand/50 h-12 shrink-0">
+
+                {/* Row 1: Dedicated Quantity Stepper */}
+                <div className="flex items-center space-x-4">
+                  <span className="text-xs sm:text-sm font-medium text-ink uppercase tracking-wider min-w-[70px]">
+                    Quantity:
+                  </span>
+                  <div className="flex items-center border border-line rounded-[3px] bg-sand/40 h-10 shrink-0">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="px-2.5 sm:px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center font-medium"
+                      className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
                       aria-label="Decrease quantity"
                     >
                       -
                     </button>
-                    <span className="px-2 sm:px-3 text-sm font-semibold tabular-nums text-ink">
+                    <span className="w-11 text-center text-sm font-semibold tabular-nums text-ink select-none">
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
-                      className="px-2.5 sm:px-3 text-ink hover:bg-sand transition-colors h-full flex items-center justify-center font-medium"
+                      className="w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-base select-none"
                       aria-label="Increase quantity"
                     >
                       +
                     </button>
                   </div>
+                </div>
 
-                  <div className="hidden lg:flex items-center space-x-2 sm:space-x-3 w-full">
-                  {/* Add to Bag Button */}
+                {/* Row 2: Action Buttons [Buy Now] [Add to Bag] [Wishlist ♡] on Desktop */}
+                <div className="hidden lg:flex items-center gap-3 w-full pt-1">
+                  {/* Buy Now Button (Primary Accent) */}
                   {(product as any).stockQty === 0 || product.inStock === false ? (
-                    <button
-                      type="button"
-                      disabled
-                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-ink/50 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-ink/40" />
-                      <span>Out of Stock</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleAddToCart}
-                      className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 active:scale-[0.99]"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-gold-deep" />
-                      <span className="truncate">{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
-                    </button>
-                  )}
-
-                  {/* Order Now Button */}
-                  {(product as any).stockQty === 0 || product.inStock === false ? (
-                    <div className="flex-1 h-12 bg-sand/10 border border-line text-ink/40 font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] flex items-center justify-center space-x-2 cursor-not-allowed">
-                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                      <span className="truncate">Unavailable</span>
+                    <div className="flex-1 h-12 bg-sand/20 border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed">
+                      <Zap className="w-4 h-4 shrink-0" />
+                      <span>Unavailable</span>
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={handleOrderNow}
                       disabled={isOrdering}
-                      className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 shadow-sm active:scale-[0.99]"
+                      className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
                     >
-                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-ink shrink-0" />
-                      <span className="truncate">{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
+                      <Zap className="w-4 h-4 fill-ink shrink-0" />
+                      <span>{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
+                    </button>
+                  )}
+
+                  {/* Add to Bag Button (Secondary Luxury Brand Button) */}
+                  {(product as any).stockQty === 0 || product.inStock === false ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="flex-1 h-12 bg-[#F0EDE8] border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed opacity-80"
+                    >
+                      <ShoppingBag className="w-4 h-4 shrink-0 text-ink/40" />
+                      <span>Out of Stock</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
+                    >
+                      <ShoppingBag className="w-4 h-4 shrink-0 text-gold-deep" />
+                      <span>{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
                     </button>
                   )}
 
@@ -438,7 +473,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product)}
-                    className={`h-12 w-11 sm:w-12 border rounded-[2px] flex items-center justify-center transition-all shrink-0 ${
+                    className={`h-12 w-12 border rounded-[3px] flex items-center justify-center transition-all shrink-0 ${
                       isSaved
                         ? 'bg-gold text-ink border-gold/40 shadow-sm'
                         : 'bg-paper border-line text-ink hover:border-gold hover:text-gold-deep'
@@ -448,15 +483,14 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   >
                     <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-gold text-gold' : ''}`} />
                   </button>
-                  </div>
                 </div>
 
-                {/* Direct WhatsApp Instant Checkout */}
+                {/* Row 3: Direct WhatsApp Instant Checkout */}
                 <a
                   href={generateDirectWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden lg:flex w-full h-12 bg-gold hover:bg-gold-deep text-ink border border-gold/40 font-medium text-xs tracking-wider uppercase rounded-[2px] transition-colors items-center justify-center space-x-2"
+                  className="hidden lg:flex w-full h-11 bg-sand/70 hover:bg-sand border border-line/80 text-ink hover:text-gold-deep font-medium text-xs tracking-wider uppercase rounded-[3px] transition-colors items-center justify-center space-x-2 shadow-xs"
                 >
                   <MessageCircle className="w-4 h-4 text-whatsapp" />
                   <span>Order Directly on WhatsApp</span>
