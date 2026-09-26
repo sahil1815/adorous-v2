@@ -160,7 +160,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         </nav>
 
         {/* Main PDP Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-14">
           {/* Left Column: Gallery with Vertical Thumbnails on Desktop (Reference Layout) */}
           <div className="lg:col-span-7 flex flex-col lg:flex-row gap-3.5 items-start">
             {/* Thumbnail Strip (Vertical on Desktop, Hidden on Mobile for Clean Hero) */}
@@ -352,26 +352,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 >
                   <Share2 className="w-5 h-5" />
                 </button>
-              </div>
-
-              {/* Rating, Reviews & In-Stock Line (Screenshot 1 matching) */}
-              <div className="flex items-center flex-wrap gap-2 mt-2 text-xs text-text-muted">
-                <div className="flex items-center text-amber-500 font-medium">
-                  <span>4.8</span>
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 ml-1 inline" />
-                </div>
-                <span>•</span>
-                <span>(Verified Ratings)</span>
-                <span>•</span>
-                {product.inStock && (product as any).stockQty !== 0 ? (
-                  <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-[2px] border border-emerald-200/60">
-                    In Stock
-                  </span>
-                ) : (
-                  <span className="text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-[2px] border border-rose-200/60">
-                    Sold Out
-                  </span>
-                )}
               </div>
 
               <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
