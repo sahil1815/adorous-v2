@@ -70,10 +70,10 @@ export default function OrderSuccessPage() {
     }
   }, [orderId]);
 
-  // Construct WhatsApp confirmation text
+  // Construct WhatsApp chat text
   const waMessage = order
-    ? `Hello Adorous Fashion! I just placed Order ${order.orderId} for ৳${order.grandTotal.toLocaleString('en-US')}. Recipient: ${order.customer.fullName} (${order.customer.district}). Please confirm my order details for dispatch.`
-    : `Hello Adorous Fashion! I just placed Order ${orderId}. Please confirm my order details.`;
+    ? `Hello Adorous Fashion! I have a question or note regarding Order ${order.orderId} (Recipient: ${order.customer.fullName}, ${order.customer.district}).`
+    : `Hello Adorous Fashion! I have a question or note regarding Order ${orderId}.`;
 
   const waUrl = `https://wa.me/8801577731381?text=${encodeURIComponent(waMessage)}`;
 
@@ -107,19 +107,19 @@ export default function OrderSuccessPage() {
 
       {/* Main Container */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
-        {/* HIGH PRIORITY: WhatsApp Instant Confirmation Action */}
+        {/* WhatsApp Chat Action */}
         <section className="bg-emerald-950 text-white p-6 sm:p-8 rounded-[2px] border border-emerald-700/50 shadow-md">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold tracking-wider uppercase">
                 <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
-                Priority Bangladesh Dispatch
+                LET'S CHAT
               </div>
               <h2 className="text-xl sm:text-2xl font-serif text-white">
-                Confirm on WhatsApp for Same-Day Handover
+                Got Something to Say? WhatsApp Us Anytime
               </h2>
               <p className="text-xs text-emerald-100/80 max-w-lg leading-relaxed">
-                In Bangladesh, orders verified directly via WhatsApp are fast-tracked into our packaging queue and prioritized for next-morning courier pickup.
+                Questions, special instructions, or just a quick message — our WhatsApp is always open.
               </p>
             </div>
 
@@ -130,18 +130,18 @@ export default function OrderSuccessPage() {
               className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shrink-0 shadow-lg"
             >
               <MessageCircle className="w-4 h-4 text-ink" />
-              <span>Confirm on WhatsApp Now</span>
+              <span>CHAT ON WHATSAPP</span>
             </a>
           </div>
         </section>
 
-        {/* 4-Step Dispatch Progress Tracker */}
+        {/* 3-Step Dispatch Progress Tracker */}
         <section className="bg-paper border border-line p-6 rounded-[2px] shadow-xs">
           <h3 className="font-serif text-base text-ink mb-6 pb-2 border-b border-line">
             Fulfillment Journey
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
             {/* Step 1 */}
             <div className="space-y-1.5 relative">
               <div className="flex items-center gap-2">
@@ -161,10 +161,10 @@ export default function OrderSuccessPage() {
                 <div className="w-6 h-6 rounded-full bg-gold text-ink flex items-center justify-center font-bold text-[10px]">
                   2
                 </div>
-                <span className="font-semibold text-ink">2. WhatsApp Verification</span>
+                <span className="font-semibold text-ink">2. Keepsake Packaging</span>
               </div>
               <p className="text-[11px] text-text-muted pl-8">
-                Our team confirms dispatch address.
+                Micro-inspected and sealed in box.
               </p>
             </div>
 
@@ -174,20 +174,7 @@ export default function OrderSuccessPage() {
                 <div className="w-6 h-6 rounded-full bg-sand text-text-muted flex items-center justify-center font-bold text-[10px]">
                   3
                 </div>
-                <span className="font-medium text-text-muted">3. Keepsake Packaging</span>
-              </div>
-              <p className="text-[11px] text-text-muted pl-8">
-                Micro-inspected and sealed in box.
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="space-y-1.5 relative">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-sand text-text-muted flex items-center justify-center font-bold text-[10px]">
-                  4
-                </div>
-                <span className="font-medium text-text-muted">4. Doorstep Delivery</span>
+                <span className="font-medium text-text-muted">3. Doorstep Delivery</span>
               </div>
               <p className="text-[11px] text-text-muted pl-8">
                 24-48h Dhaka / 48-72h outside.
