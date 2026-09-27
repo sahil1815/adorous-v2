@@ -139,7 +139,14 @@ export default function CheckoutPage() {
 
   // --- New Visitor Offer vs Coupon: better one wins (not stacked) ---
   const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const nvoDiscount = calculateDiscount(subtotal);
+  // NVO discount is based on compare prices (originalPrice), not selling prices
+  const compareSubtotal = items.reduce((sum, item) => {
+    const comparePrice = item.product.originalPrice && item.product.originalPrice > item.product.price
+      ? item.product.originalPrice
+      : item.product.price;
+    return sum + comparePrice * item.quantity;
+  }, 0);
+  const nvoDiscount = calculateDiscount(compareSubtotal);
   const useNvo = nvoDiscount > 0 && nvoDiscount >= couponDiscount;
   const discountAmount = useNvo ? nvoDiscount : couponDiscount;
   const discountLabel = useNvo

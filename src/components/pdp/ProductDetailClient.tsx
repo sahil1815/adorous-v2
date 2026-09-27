@@ -718,10 +718,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Category & Title with Share Icon (Screenshot 1 matching) */}
               <div className="flex items-start justify-between gap-2 sm:gap-3">
                 <div>
-                  <div className="text-[10px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase text-gold-ink">
-                    {product.categoryLabel} · Limited Edition
-                  </div>
-                  <h1 className="font-serif text-lg sm:text-2xl lg:text-3xl text-ink font-semibold mt-0.5 leading-snug">
+                  <h1 className="font-serif text-lg sm:text-2xl lg:text-3xl text-ink font-semibold leading-snug">
                     {product.name}
                   </h1>
                 </div>
@@ -746,20 +743,33 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Price & COD Badge with Discount Percentage (Screenshot 1 matching) */}
               <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line flex items-center justify-between flex-wrap gap-1.5">
                 <div className="flex items-baseline space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
-                  {isOfferActive ? (
-                    <>
-                      <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                        ৳{Math.round(product.price * (1 - discountPercent / 100)).toLocaleString('en-US')}
-                      </span>
-                      <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                        ৳{product.price.toLocaleString('en-US')}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
-                        <Sparkles className="w-3 h-3" />
-                        {discountPercent}% OFF · New Visitor
-                      </span>
-                    </>
-                  ) : (
+                  {isOfferActive ? (() => {
+                    // Compare price is the baseline for all discounts
+                    const comparePrice = product.originalPrice && product.originalPrice > product.price
+                      ? product.originalPrice
+                      : product.price;
+                    // Existing discount % baked into the selling price
+                    const existingDiscountPct = comparePrice > product.price
+                      ? Math.round(((comparePrice - product.price) / comparePrice) * 100)
+                      : 0;
+                    // Total discount = existing + NVO (both off the compare price)
+                    const totalDiscountPct = existingDiscountPct + discountPercent;
+                    const nvoFinalPrice = Math.round(comparePrice * (1 - totalDiscountPct / 100));
+                    return (
+                      <>
+                        <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
+                          ৳{nvoFinalPrice.toLocaleString('en-US')}
+                        </span>
+                        <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
+                          ৳{comparePrice.toLocaleString('en-US')}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                          <Sparkles className="w-3 h-3" />
+                          {totalDiscountPct}% OFF · New Visitor
+                        </span>
+                      </>
+                    );
+                  })() : (
                     <>
                       <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
                         ৳{product.price.toLocaleString('en-US')}
