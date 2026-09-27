@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
+import { saveDraftSignInAction, markDraftSignInConvertedAction } from '@/app/actions/draftActions';
 import {
   Lock,
   Phone,
@@ -45,6 +46,62 @@ function LoginFormContent() {
   const [regAddress, setRegAddress] = useState('');
   const [regWhatsapp, setRegWhatsapp] = useState(true);
 
+  // Persistent session ID for abandoned sign-in / registration recovery
+  const [draftSessionId, setDraftSessionId] = useState('');
+  useEffect(() => {
+    let sid = sessionStorage.getItem('adorous_draft_signin_session');
+    if (!sid) {
+      sid = 'sgn_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+      sessionStorage.setItem('adorous_draft_signin_session', sid);
+    }
+    setDraftSessionId(sid);
+  }, []);
+
+  const triggerDraftSave = useCallback(() => {
+    const sid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_signin_session') : null);
+    if (!sid) return;
+
+    if (mode === 'signin') {
+      if (!signInIdentifier || signInIdentifier.trim().length < 3) return;
+      const isEmail = signInIdentifier.includes('@');
+      saveDraftSignInAction({
+        sessionId: sid,
+        type: 'signin',
+        phone: !isEmail ? signInIdentifier.trim() : undefined,
+        email: isEmail ? signInIdentifier.trim() : undefined,
+      });
+    } else {
+      if (
+        (!regFullName || regFullName.trim().length < 2) &&
+        (!regPhone || regPhone.trim().length < 3) &&
+        (!regEmail || regEmail.trim().length < 3)
+      ) {
+        return;
+      }
+      saveDraftSignInAction({
+        sessionId: sid,
+        type: 'register',
+        fullName: regFullName,
+        phone: regPhone,
+        email: regEmail,
+        district: regDistrict,
+        address: regAddress,
+      });
+    }
+  }, [draftSessionId, mode, signInIdentifier, regFullName, regPhone, regEmail, regDistrict, regAddress]);
+
+  // Auto-save draft sign-in / registration attempt (debounced 600ms)
+  useEffect(() => {
+    const sid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_signin_session') : null);
+    if (!sid) return;
+
+    const timer = setTimeout(() => {
+      triggerDraftSave();
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [triggerDraftSave, draftSessionId]);
+
   // If already logged in, redirect immediately
   useEffect(() => {
     if (customer && !isLoading) {
@@ -70,6 +127,11 @@ function LoginFormContent() {
     setIsSubmitting(false);
 
     if (res.success) {
+      const activeSid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_signin_session') : null);
+      if (activeSid) {
+        markDraftSignInConvertedAction(activeSid);
+        sessionStorage.removeItem('adorous_draft_signin_session');
+      }
       router.push(redirectPath);
     } else {
       setErrorMsg(res.error || 'Invalid credentials. Please try again.');
@@ -106,6 +168,11 @@ function LoginFormContent() {
     setIsSubmitting(false);
 
     if (res.success) {
+      const activeSid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_signin_session') : null);
+      if (activeSid) {
+        markDraftSignInConvertedAction(activeSid);
+        sessionStorage.removeItem('adorous_draft_signin_session');
+      }
       router.push(redirectPath);
     } else {
       setErrorMsg(res.error || 'Failed to create your account.');
@@ -194,6 +261,7 @@ function LoginFormContent() {
                   type="text"
                   value={signInIdentifier}
                   onChange={(e) => setSignInIdentifier(e.target.value)}
+                  onBlur={triggerDraftSave}
                   placeholder="01712345678 or email@example.com"
                   autoComplete="username"
                   required
@@ -278,6 +346,7 @@ function LoginFormContent() {
                   type="text"
                   value={regFullName}
                   onChange={(e) => setRegFullName(e.target.value)}
+                  onBlur={triggerDraftSave}
                   placeholder="e.g. Nusrat Jahan"
                   autoComplete="name"
                   required
@@ -296,6 +365,7 @@ function LoginFormContent() {
                   type="tel"
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
+                  onBlur={triggerDraftSave}
                   placeholder="017XXXXXXXX"
                   autoComplete="tel"
                   required
@@ -317,6 +387,7 @@ function LoginFormContent() {
                   type="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
+                  onBlur={triggerDraftSave}
                   placeholder="nusrat@example.com"
                   autoComplete="email"
                   className="w-full h-11 pl-3.5 pr-10 bg-paper border border-line rounded-[2px] text-xs text-ink placeholder:text-text-muted focus:outline-none focus:border-gold transition-colors"

@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL_POOLED")
+  url       = env("DATABASE_URL")
   directUrl = env("DATABASE_URL")
 }
 
@@ -151,5 +151,42 @@ model OrderItem {
 
   order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+model DraftCheckout {
+  id               String   @id @default(uuid())
+  sessionId        String   @unique
+  customerUserId   String?
+  fullName         String?
+  phone            String?
+  email            String?
+  address          String?
+  district         String?
+  giftNote         String?
+  paymentMethod    String?  @default("Cash on Delivery")
+  cartItemsJson    String   @default("[]") // JSON string of cart items
+  subtotal         Float    @default(0)
+  shippingFee      Float    @default(0)
+  discountAmount   Float?
+  couponCode       String?
+  grandTotal       Float    @default(0)
+  status           String   @default("abandoned") // abandoned, converted
+  convertedOrderId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model DraftSignIn {
+  id        String   @id @default(uuid())
+  sessionId String   @unique
+  type      String   @default("register") // register, signin
+  fullName  String?
+  phone     String?
+  email     String?
+  district  String?
+  address   String?
+  status    String   @default("abandoned") // abandoned, converted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 

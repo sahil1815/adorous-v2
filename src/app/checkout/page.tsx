@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ import { useCoupons } from '@/context/CouponsContext';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { CartItem } from '@/types';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
+import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
 import {
   ShieldCheck,
   Truck,
@@ -33,10 +34,21 @@ import {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart();
+  const { items, subtotal, clearCart, updateQuantity, removeItem, addItem, updateItemColor } = useCart();
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
+
+  // Persistent session ID for abandoned checkout recovery
+  const [draftSessionId, setDraftSessionId] = useState('');
+  useEffect(() => {
+    let sid = sessionStorage.getItem('adorous_draft_checkout_session');
+    if (!sid) {
+      sid = 'chk_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+      sessionStorage.setItem('adorous_draft_checkout_session', sid);
+    }
+    setDraftSessionId(sid);
+  }, []);
 
   // Deletion Confirmation Modal State
   const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
@@ -123,6 +135,68 @@ export default function CheckoutPage() {
   const shippingFee = appliedCoupon?.freeShipping ? 0 : baseShippingFee;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+
+  // Manual and onBlur save trigger
+  const triggerDraftSave = useCallback(() => {
+    const sid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_checkout_session') : null);
+    if (!sid) return;
+    saveDraftCheckoutAction({
+      sessionId: sid,
+      customerUserId: customer?.id || null,
+      fullName,
+      phone,
+      email,
+      address,
+      district: selectedDistrict,
+      giftNote,
+      paymentMethod,
+      cartItems: (items || []).map((i) => ({
+        product: {
+          id: i.product.id,
+          name: i.product.name,
+          category: i.product.category,
+          slug: i.product.slug,
+          price: i.product.price,
+          featuredImage: i.product.featuredImage,
+        },
+        selectedColor: i.selectedColor,
+        selectedSize: i.selectedSize,
+        quantity: i.quantity,
+      })),
+      subtotal,
+      shippingFee,
+      discountAmount: appliedCoupon ? appliedCoupon.discountAmount : undefined,
+      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      grandTotal,
+    });
+  }, [
+    draftSessionId,
+    customer,
+    fullName,
+    phone,
+    email,
+    address,
+    selectedDistrict,
+    giftNote,
+    paymentMethod,
+    items,
+    subtotal,
+    shippingFee,
+    appliedCoupon,
+    grandTotal,
+  ]);
+
+  // Auto-save draft checkout when user inputs info (debounced 600ms)
+  useEffect(() => {
+    const sid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_checkout_session') : null);
+    if (!sid) return;
+
+    const timer = setTimeout(() => {
+      triggerDraftSave();
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [triggerDraftSave, draftSessionId]);
 
   // Quantity and Item Removal Handlers
   const handleIncreaseQuantity = (item: CartItem) => {
@@ -259,6 +333,11 @@ export default function CheckoutPage() {
         recordCouponUsage(appliedCoupon.code);
       }
       addOrder(orderData);
+      const activeSid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_checkout_session') : null);
+      if (activeSid) {
+        markDraftCheckoutConvertedAction(activeSid, orderId);
+        sessionStorage.removeItem('adorous_draft_checkout_session');
+      }
       localStorage.setItem('adorous_last_order', JSON.stringify(orderData));
       // Clear cart
       clearCart();
@@ -368,6 +447,7 @@ export default function CheckoutPage() {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
+                    onBlur={triggerDraftSave}
                     placeholder="Enter your full name"
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
                   />
@@ -387,6 +467,7 @@ export default function CheckoutPage() {
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      onBlur={triggerDraftSave}
                       placeholder="Enter your phone number"
                       className="w-full pl-16 pr-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted font-mono"
                     />
@@ -402,6 +483,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={triggerDraftSave}
                     placeholder="example@gmail.com"
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
                   />
@@ -505,6 +587,7 @@ export default function CheckoutPage() {
                     rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
+                    onBlur={triggerDraftSave}
                     placeholder="House, road and other address details"
                     className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
                   />
@@ -552,13 +635,68 @@ export default function CheckoutPage() {
                           <h4 className="text-xs font-medium text-ink truncate block">
                             {item.product.name}
                           </h4>
-                          <div className="text-[10px] text-text-muted flex items-center gap-1.5 mt-0.5">
-                            <span
-                              className="w-2 h-2 rounded-full border border-black/20 shrink-0"
-                              style={{ backgroundColor: item.selectedColor.hex }}
-                            />
-                            <span className="truncate">{item.selectedColor.name}</span>
+                          <div className="text-[10px] text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+                            {item.product.colorways && item.product.colorways.length > 1 ? (
+                              <div className="relative inline-flex items-center">
+                                <label htmlFor={`chk-color-select-${itemKey}`} className="sr-only">
+                                  Change color
+                                </label>
+                                <div className="flex items-center gap-1 bg-sand/60 px-1.5 py-0.5 rounded border border-line/60 hover:border-gold/60 transition-colors">
+                                  <span
+                                    className="w-2 h-2 rounded-full border border-black/20 shrink-0"
+                                    style={{ backgroundColor: item.selectedColor.hex }}
+                                  />
+                                  <select
+                                    id={`chk-color-select-${itemKey}`}
+                                    value={item.selectedColor.id}
+                                    onChange={(e) => {
+                                      const newC = item.product.colorways.find((c) => c.id === e.target.value);
+                                      if (newC) {
+                                        updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize);
+                                      }
+                                    }}
+                                    className="bg-transparent text-[10px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
+                                  >
+                                    {item.product.colorways.map((c) => (
+                                      <option key={c.id} value={c.id}>
+                                        {c.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <ChevronDown className="w-2.5 h-2.5 text-text-muted pointer-events-none -ml-2.5" />
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="flex items-center gap-1">
+                                <span
+                                  className="w-2 h-2 rounded-full border border-black/20 shrink-0"
+                                  style={{ backgroundColor: item.selectedColor.hex }}
+                                />
+                                <span className="truncate">{item.selectedColor.name}</span>
+                              </span>
+                            )}
+
                             {item.selectedSize && <span>· Size {item.selectedSize}</span>}
+
+                            {/* + Add another color */}
+                            {(() => {
+                              const otherColors = (item.product.colorways || []).filter(
+                                (c) => c.id !== item.selectedColor.id
+                              );
+                              if (otherColors.length === 0) return null;
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    addItem(item.product, otherColors[0], item.selectedSize, 1);
+                                  }}
+                                  className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline flex items-center gap-0.5 ml-1"
+                                  title={`Add ${otherColors[0].name} to order`}
+                                >
+                                  <span>+ Add {otherColors[0].name}</span>
+                                </button>
+                              );
+                            })()}
                           </div>
 
                           {/* Mobile Quantity/Price Display */}

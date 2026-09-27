@@ -39,7 +39,7 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, pairsWellWith }: ProductDetailClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addItem, closeCart, openCart, totalItems } = useCart();
+  const { addItem, addMultipleItems, closeCart, openCart, totalItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -60,6 +60,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     product.sizes ? product.sizes[1] || product.sizes[0] : ''
   );
   const [quantity, setQuantity] = useState<number>(1);
+  const [purchaseMode, setPurchaseMode] = useState<'single' | 'mix'>('single');
+  const [colorQuantities, setColorQuantities] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    (product.colorways || []).forEach((c) => {
+      initial[c.id] = c.id === matchedInitialColor.id ? 1 : 0;
+    });
+    return initial;
+  });
+  const [mixErrorMessage, setMixErrorMessage] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<string>(matchedInitialColor?.image || product.featuredImage);
   const [isSizingModalOpen, setIsSizingModalOpen] = useState(false);
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
@@ -275,17 +284,64 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
   const [isOrdering, setIsOrdering] = useState(false);
 
+  const totalMixItems = React.useMemo(() => {
+    return Object.values(colorQuantities).reduce((sum, q) => sum + (q || 0), 0);
+  }, [colorQuantities]);
+
+  const updateColorQuantity = (colorId: string, delta: number) => {
+    setMixErrorMessage(null);
+    setColorQuantities((prev) => {
+      const current = prev[colorId] || 0;
+      const next = Math.max(0, current + delta);
+      return { ...prev, [colorId]: next };
+    });
+  };
+
+  const getMixItemsToAdd = () => {
+    return (product.colorways || [])
+      .filter((c) => (colorQuantities[c.id] || 0) > 0)
+      .map((c) => ({
+        product,
+        selectedColor: c,
+        selectedSize: selectedSize || undefined,
+        quantity: colorQuantities[c.id],
+      }));
+  };
+
   const handleAddToCart = () => {
-    addItem(product, selectedColor, selectedSize || undefined, quantity);
+    if (purchaseMode === 'mix') {
+      const itemsToAdd = getMixItemsToAdd();
+      if (itemsToAdd.length === 0) {
+        setMixErrorMessage('Please select at least 1 color quantity.');
+        return;
+      }
+      setMixErrorMessage(null);
+      addMultipleItems(itemsToAdd, true);
+    } else {
+      addItem(product, selectedColor, selectedSize || undefined, quantity);
+    }
     setIsAddedAnimation(true);
     setTimeout(() => setIsAddedAnimation(false), 2000);
   };
 
   const handleOrderNow = () => {
-    setIsOrdering(true);
-    addItem(product, selectedColor, selectedSize || undefined, quantity);
-    closeCart();
-    router.push('/checkout');
+    if (purchaseMode === 'mix') {
+      const itemsToAdd = getMixItemsToAdd();
+      if (itemsToAdd.length === 0) {
+        setMixErrorMessage('Please select at least 1 color quantity.');
+        return;
+      }
+      setMixErrorMessage(null);
+      setIsOrdering(true);
+      addMultipleItems(itemsToAdd, false);
+      closeCart();
+      router.push('/checkout');
+    } else {
+      setIsOrdering(true);
+      addItem(product, selectedColor, selectedSize || undefined, quantity);
+      closeCart();
+      router.push('/checkout');
+    }
   };
 
   // WhatsApp order link pre-filling
@@ -293,12 +349,34 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     let message = `Hello Adorous Fashion,\n\nI would like to place an order for:\n`;
     message += `Product: ${product.name}\n`;
     message += `Category: ${product.categoryLabel}\n`;
-    message += `Selected Colour: ${selectedColor.name}\n`;
-    if (selectedSize) {
-      message += `Size: ${selectedSize}\n`;
+
+    if (purchaseMode === 'mix') {
+      const activeColorItems = (product.colorways || []).filter(
+        (c) => (colorQuantities[c.id] || 0) > 0
+      );
+      if (activeColorItems.length > 0) {
+        message += `Colours & Quantities (Mix Order):\n`;
+        activeColorItems.forEach((c) => {
+          message += ` - ${c.name}: ${colorQuantities[c.id]} pc(s)\n`;
+        });
+      } else {
+        message += `Selected Colour: ${selectedColor.name}\n`;
+      }
+      if (selectedSize) {
+        message += `Size: ${selectedSize}\n`;
+      }
+      const effectiveQty = totalMixItems > 0 ? totalMixItems : 1;
+      message += `Total Pieces: ${effectiveQty}\n`;
+      message += `Total: ৳${(product.price * effectiveQty).toLocaleString('en-US')}\n\n`;
+    } else {
+      message += `Selected Colour: ${selectedColor.name}\n`;
+      if (selectedSize) {
+        message += `Size: ${selectedSize}\n`;
+      }
+      message += `Quantity: ${quantity}\n`;
+      message += `Total: ৳${(product.price * quantity).toLocaleString('en-US')}\n\n`;
     }
-    message += `Quantity: ${quantity}\n`;
-    message += `Total: ৳${(product.price * quantity).toLocaleString('en-US')}\n\n`;
+
     message += `Payment: Cash on Delivery (COD)\n`;
     message += `Please confirm my delivery details.`;
     return `https://wa.me/8801577731381?text=${encodeURIComponent(message)}`;
@@ -633,100 +711,345 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </span>
               </div>
 
-              {/* 1. Select Color (Screenshot 1 matching) */}
-              <div className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2.5">
+              {/* 1. Color Selection & Purchase Mode (Single vs Mix Colors) */}
+              <div className="mt-2 sm:mt-4 space-y-2 sm:space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-ink text-xs sm:text-sm">
-                    Select Color
-                  </span>
-                  <span className="text-text-muted text-[11px] sm:text-xs">
-                    {selectedColor.name}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  {product.colorways.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => handleColorChange(c)}
-                      className={`flex items-center space-x-1.5 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-[4px] text-xs transition-all ${
-                        selectedColor.id === c.id
-                          ? 'border-2 border-ink bg-paper font-semibold shadow-xs'
-                          : 'border border-line hover:border-ink/50 bg-paper text-ink/80'
-                      }`}
-                    >
-                      <span
-                        className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-black/20 shrink-0"
-                        style={{ backgroundColor: c.hex }}
-                      />
-                      <span className="text-[11px] sm:text-xs">{c.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 2. Sizing Selector (For Churi / Bangles) */}
-              {product.sizes && (
-                <div className="mt-2.5 sm:mt-5 space-y-1.5 sm:space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
-                      Hand Size:
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-ink text-xs sm:text-sm">
+                      {purchaseMode === 'mix' ? 'Select Mix Colors & Quantities' : 'Select Color'}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsSizingModalOpen(true)}
-                      className="text-gold-ink font-medium hover:underline flex items-center gap-1 text-[11px] sm:text-xs"
-                    >
-                      <Ruler className="w-3 h-3" /> Guide
-                    </button>
+                    {product.colorways && product.colorways.length > 1 && (
+                      <span className="text-[10px] text-text-muted">
+                        ({product.colorways.length} colors)
+                      </span>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
-                    {product.sizes.map((s) => (
+                  {/* Mode Toggle: Single vs Mix Colors */}
+                  {product.colorways && product.colorways.length > 1 && (
+                    <div className="inline-flex p-0.5 bg-sand/70 rounded-full border border-line text-[11px]">
                       <button
-                        key={s}
                         type="button"
-                        onClick={() => setSelectedSize(s)}
-                        className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all ${
-                          selectedSize === s
-                            ? 'border-ink bg-gold hover:bg-gold-deep text-ink'
-                            : 'border-line bg-sand/30 text-ink hover:border-ink/60'
+                        onClick={() => {
+                          setPurchaseMode('single');
+                          setMixErrorMessage(null);
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full font-medium transition-all ${
+                          purchaseMode === 'single'
+                            ? 'bg-paper text-ink shadow-xs font-semibold'
+                            : 'text-text-muted hover:text-ink'
                         }`}
                       >
-                        {s}
+                        Single Color
                       </button>
-                    ))}
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPurchaseMode('mix');
+                          setMixErrorMessage(null);
+                          // Initialize color quantities if none are set
+                          setColorQuantities((prev) => {
+                            const hasAny = Object.values(prev).some((v) => v > 0);
+                            if (hasAny) return prev;
+                            const updated: Record<string, number> = {};
+                            (product.colorways || []).forEach((c) => {
+                              updated[c.id] = c.id === selectedColor.id ? 1 : 0;
+                            });
+                            // If user had quantity > 1, distribute to a second color
+                            if (quantity > 1) {
+                              const other = (product.colorways || []).find((c) => c.id !== selectedColor.id);
+                              if (other) {
+                                updated[other.id] = 1;
+                              }
+                            }
+                            return updated;
+                          });
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full font-medium transition-all flex items-center gap-1 ${
+                          purchaseMode === 'mix'
+                            ? 'bg-gold-deep text-paper shadow-xs font-semibold'
+                            : 'text-gold-ink hover:text-ink'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3 text-gold-light" />
+                        <span>Mix Colors</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {/* 3. Dedicated Quantity Stepper Row (Screenshot 1 matching) */}
-              <div className="mt-2 sm:mt-4 flex items-center justify-between">
-                <span className="font-semibold text-ink text-xs sm:text-sm">
-                  Quantity
-                </span>
-                <div className="flex items-center border border-line rounded-[4px] bg-paper h-8 sm:h-9 shrink-0 shadow-xs">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
-                  <span className="w-9 sm:w-10 text-center text-xs font-semibold tabular-nums text-ink select-none">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                </div>
+                {/* SINGLE COLOR MODE VIEW */}
+                {purchaseMode === 'single' ? (
+                  <>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      {product.colorways.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => handleColorChange(c)}
+                          className={`flex items-center space-x-1.5 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-[4px] text-xs transition-all ${
+                            selectedColor.id === c.id
+                              ? 'border-2 border-ink bg-paper font-semibold shadow-xs'
+                              : 'border border-line hover:border-ink/50 bg-paper text-ink/80'
+                          }`}
+                        >
+                          <span
+                            className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: c.hex }}
+                          />
+                          <span className="text-[11px] sm:text-xs">{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Sizing Selector (For Churi / Bangles) */}
+                    {product.sizes && (
+                      <div className="mt-2.5 sm:mt-5 space-y-1.5 sm:space-y-2.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
+                            Hand Size:
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsSizingModalOpen(true)}
+                            className="text-gold-ink font-medium hover:underline flex items-center gap-1 text-[11px] sm:text-xs"
+                          >
+                            <Ruler className="w-3 h-3" /> Guide
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
+                          {product.sizes.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setSelectedSize(s)}
+                              className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all ${
+                                selectedSize === s
+                                  ? 'border-ink bg-gold hover:bg-gold-deep text-ink'
+                                  : 'border-line bg-sand/30 text-ink hover:border-ink/60'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Single Color Quantity Stepper */}
+                    <div className="mt-2 sm:mt-4 flex items-center justify-between">
+                      <span className="font-semibold text-ink text-xs sm:text-sm">
+                        Quantity
+                      </span>
+                      <div className="flex items-center border border-line rounded-[4px] bg-paper h-8 sm:h-9 shrink-0 shadow-xs">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
+                          aria-label="Decrease quantity"
+                        >
+                          -
+                        </button>
+                        <span className="w-9 sm:w-10 text-center text-xs font-semibold tabular-nums text-ink select-none">
+                          {quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((q) => q + 1)}
+                          className="w-8 sm:w-9 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-sm sm:text-base select-none"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Helpful prompt when quantity > 1 */}
+                    {quantity > 1 && product.colorways && product.colorways.length > 1 && (
+                      <div className="mt-2.5 p-2 sm:p-2.5 bg-sand/50 border border-gold/40 rounded-sm flex items-center justify-between gap-2 text-xs">
+                        <span className="text-text-muted text-[11px] flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                          <span>Buying {quantity} pieces? Want each in a different color?</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPurchaseMode('mix');
+                            setMixErrorMessage(null);
+                            setColorQuantities(() => {
+                              const updated: Record<string, number> = {};
+                              (product.colorways || []).forEach((c) => { updated[c.id] = 0; });
+                              updated[selectedColor.id] = 1;
+                              const others = (product.colorways || []).filter((c) => c.id !== selectedColor.id);
+                              for (let i = 0; i < quantity - 1; i++) {
+                                const target = others[i % others.length];
+                                if (target) {
+                                  updated[target.id] = (updated[target.id] || 0) + 1;
+                                }
+                              }
+                              return updated;
+                            });
+                          }}
+                          className="text-gold-ink hover:text-gold-deep font-semibold underline text-[11px] whitespace-nowrap"
+                        >
+                          Mix Colors →
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* MIX COLORS MODE VIEW */
+                  <div className="space-y-3 pt-1">
+                    {/* Sizing Selector in Mix Mode */}
+                    {product.sizes && (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-ink uppercase tracking-wider text-[11px]">
+                            Hand Size (Applies to all):
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsSizingModalOpen(true)}
+                            className="text-gold-ink font-medium hover:underline flex items-center gap-1 text-[11px]"
+                          >
+                            <Ruler className="w-3 h-3" /> Guide
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {product.sizes.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setSelectedSize(s)}
+                              className={`py-1 px-2 text-center border text-xs font-medium rounded-[2px] transition-all ${
+                                selectedSize === s
+                                  ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold'
+                                  : 'border-line bg-sand/30 text-ink hover:border-ink/60'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Colorwise Quantity Selector Grid */}
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] text-text-muted flex items-center justify-between">
+                        <span>Set quantity for each desired color:</span>
+                        <span className="font-semibold text-ink">
+                          Total: {totalMixItems} {totalMixItems === 1 ? 'pc' : 'pcs'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                        {product.colorways.map((c) => {
+                          const count = colorQuantities[c.id] || 0;
+                          const isPicked = count > 0;
+                          return (
+                            <div
+                              key={c.id}
+                              className={`flex items-center justify-between p-2 rounded-sm border transition-all ${
+                                isPicked
+                                  ? 'border-gold-deep/80 bg-sand/50 shadow-2xs'
+                                  : 'border-line bg-paper hover:border-line/90'
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => handleColorChange(c)}
+                                className="flex items-center gap-2 text-left min-w-0 flex-1 pr-2"
+                                title={`Click to preview ${c.name} image`}
+                              >
+                                <span
+                                  className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
+                                  style={{ backgroundColor: c.hex }}
+                                />
+                                <div className="min-w-0">
+                                  <div className={`text-xs truncate ${isPicked ? 'font-semibold text-ink' : 'text-ink/80'}`}>
+                                    {c.name}
+                                  </div>
+                                  {isPicked && (
+                                    <div className="text-[10px] text-gold-ink font-medium tabular-nums">
+                                      ৳{(product.price * count).toLocaleString('en-US')}
+                                    </div>
+                                  )}
+                                </div>
+                              </button>
+
+                              {/* Stepper */}
+                              <div className="flex items-center border border-line rounded-sm bg-paper h-7 shrink-0 shadow-2xs">
+                                <button
+                                  type="button"
+                                  onClick={() => updateColorQuantity(c.id, -1)}
+                                  disabled={count === 0}
+                                  className="w-6 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-xs select-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                  aria-label={`Decrease ${c.name}`}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center text-xs font-semibold tabular-nums text-ink select-none">
+                                  {count}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateColorQuantity(c.id, 1);
+                                    handleColorChange(c);
+                                  }}
+                                  className="w-6 h-full text-ink hover:bg-sand transition-colors flex items-center justify-center font-medium text-xs select-none"
+                                  aria-label={`Increase ${c.name}`}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Live Mix Summary */}
+                    {totalMixItems > 0 && (
+                      <div className="p-2.5 bg-sand/70 border border-gold/40 rounded-sm flex items-center justify-between text-xs mt-1">
+                        <div className="space-y-1 min-w-0 flex-1 pr-2">
+                          <div className="text-[11px] font-semibold text-ink flex items-center gap-1.5 flex-wrap">
+                            <span>Colors selected ({totalMixItems}):</span>
+                            {product.colorways
+                              .filter((c) => (colorQuantities[c.id] || 0) > 0)
+                              .map((c) => (
+                                <span
+                                  key={c.id}
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-paper border border-line text-[10px]"
+                                >
+                                  <span
+                                    className="w-2 h-2 rounded-full border border-black/20"
+                                    style={{ backgroundColor: c.hex }}
+                                  />
+                                  <span>
+                                    {colorQuantities[c.id]}× {c.name}
+                                  </span>
+                                </span>
+                              ))}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-xs font-bold text-ink tabular-nums">
+                            ৳{(product.price * totalMixItems).toLocaleString('en-US')}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {mixErrorMessage && (
+                      <div className="p-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-sm">
+                        {mixErrorMessage}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Low-stock warning */}
@@ -753,7 +1076,13 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     className="flex-1 h-12 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
                   >
                     <Zap className="w-4 h-4 fill-ink shrink-0" />
-                    <span>{isOrdering ? 'Proceeding...' : 'Buy Now'}</span>
+                    <span>
+                      {isOrdering
+                        ? 'Proceeding...'
+                        : purchaseMode === 'mix' && totalMixItems > 0
+                        ? `Buy Now (${totalMixItems} ${totalMixItems === 1 ? 'Item' : 'Items'})`
+                        : 'Buy Now'}
+                    </span>
                   </button>
                 )}
 
@@ -774,7 +1103,13 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     className="flex-1 h-12 bg-sand/80 hover:bg-sand border border-gold/60 hover:border-gold text-ink font-semibold text-xs tracking-wider uppercase rounded-[3px] transition-all flex items-center justify-center space-x-2 px-4 shadow-sm active:scale-[0.99]"
                   >
                     <ShoppingBag className="w-4 h-4 shrink-0 text-gold-deep" />
-                    <span>{isAddedAnimation ? 'Added!' : 'Add to Bag'}</span>
+                    <span>
+                      {isAddedAnimation
+                        ? 'Added!'
+                        : purchaseMode === 'mix' && totalMixItems > 0
+                        ? `Add to Bag (${totalMixItems})`
+                        : 'Add to Bag'}
+                    </span>
                   </button>
                 )}
 
@@ -1008,7 +1343,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 disabled={isOrdering || (product as any).stockQty === 0 || product.inStock === false}
                 className="flex-1 py-2.5 px-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold text-xs sm:text-sm rounded-full shadow-sm active:scale-95 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isOrdering ? 'Wait...' : 'Buy Now'}
+                {isOrdering
+                  ? 'Wait...'
+                  : purchaseMode === 'mix' && totalMixItems > 0
+                  ? `Buy Now (${totalMixItems})`
+                  : 'Buy Now'}
               </button>
 
               {/* Add to Cart Button (Primary Brand Accent) */}
@@ -1018,7 +1357,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 disabled={(product as any).stockQty === 0 || product.inStock === false}
                 className="flex-1 py-2.5 px-3 bg-gold-deep hover:bg-gold-ink text-paper font-semibold text-xs sm:text-sm rounded-full shadow-sm active:scale-95 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAddedAnimation ? 'Added!' : 'Add to Cart'}
+                {isAddedAnimation
+                  ? 'Added!'
+                  : purchaseMode === 'mix' && totalMixItems > 0
+                  ? `Add to Cart (${totalMixItems})`
+                  : 'Add to Cart'}
               </button>
             </div>
           </div>

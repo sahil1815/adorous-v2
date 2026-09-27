@@ -9,9 +9,14 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   addItem: (product: Product, selectedColor: Colorway, selectedSize?: string, quantity?: number) => void;
+  addMultipleItems: (
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number }[],
+    openDrawer?: boolean
+  ) => void;
   addToCart: (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity?: number) => void;
   removeItem: (productId: string, colorId: string, size?: string) => void;
   updateQuantity: (productId: string, colorId: string, quantity: number, size?: string) => void;
+  updateItemColor: (productId: string, oldColorId: string, newColor: Colorway, size?: string) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -76,6 +81,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(true);
   };
 
+  const addMultipleItems = (
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number }[],
+    openDrawer: boolean = true
+  ) => {
+    const validItems = itemsToAdd.filter(
+      (entry) =>
+        entry.quantity > 0 &&
+        entry.product.inStock !== false &&
+        (entry.product as any).stockQty !== 0
+    );
+
+    if (validItems.length === 0) return;
+
+    setItems((prev) => {
+      const updated = [...prev];
+      for (const entry of validItems) {
+        const existingIndex = updated.findIndex(
+          (item) =>
+            item.product.id === entry.product.id &&
+            item.selectedColor.id === entry.selectedColor.id &&
+            item.selectedSize === entry.selectedSize
+        );
+
+        if (existingIndex > -1) {
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            quantity: updated[existingIndex].quantity + entry.quantity,
+          };
+        } else {
+          updated.push({
+            product: entry.product,
+            selectedColor: entry.selectedColor,
+            selectedSize: entry.selectedSize,
+            quantity: entry.quantity,
+          });
+        }
+      }
+      return updated;
+    });
+
+    if (openDrawer) {
+      setIsOpen(true);
+    }
+  };
+
   const addToCart = (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity: number = 1) => {
     const color = selectedColor || product.colorways[0];
     addItem(product, color, selectedSize, quantity);
@@ -105,6 +155,52 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const updateItemColor = (
+    productId: string,
+    oldColorId: string,
+    newColor: Colorway,
+    size?: string
+  ) => {
+    setItems((prev) => {
+      const targetIndex = prev.findIndex(
+        (item) =>
+          item.product.id === productId &&
+          item.selectedColor.id === oldColorId &&
+          item.selectedSize === size
+      );
+      if (targetIndex === -1) return prev;
+
+      const itemToUpdate = prev[targetIndex];
+      // Check if item with target new colorway already exists in cart for this product & size
+      const existingNewColorIndex = prev.findIndex(
+        (item, idx) =>
+          idx !== targetIndex &&
+          item.product.id === productId &&
+          item.selectedColor.id === newColor.id &&
+          item.selectedSize === size
+      );
+
+      if (existingNewColorIndex > -1) {
+        // Merge quantities and remove the old item
+        const updated = [...prev];
+        updated[existingNewColorIndex] = {
+          ...updated[existingNewColorIndex],
+          quantity: updated[existingNewColorIndex].quantity + itemToUpdate.quantity,
+        };
+        updated.splice(targetIndex, 1);
+        return updated;
+      } else {
+        // Just update selectedColor
+        const updated = [...prev];
+        updated[targetIndex] = {
+          ...itemToUpdate,
+          selectedColor: newColor,
+        };
+        return updated;
+      }
+    });
+  };
+
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -119,9 +215,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         openCart,
         closeCart,
         addItem,
+        addMultipleItems,
         addToCart,
         removeItem,
         updateQuantity,
+        updateItemColor,
         clearCart,
         totalItems,
         subtotal,

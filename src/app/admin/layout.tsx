@@ -20,7 +20,8 @@ import {
   RefreshCw,
   MessageSquare,
   FileText,
-  Users
+  Users,
+  ShoppingBag
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -174,6 +175,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Users className="w-3.5 h-3.5" />
             <span>Customers</span>
+          </Link>
+
+          <Link
+            href="/admin/drafts"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/drafts'
+                ? 'bg-gold text-ink font-semibold shadow-sm'
+                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+            }`}
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Drafts & Leads</span>
           </Link>
 
           <Link

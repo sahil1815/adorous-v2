@@ -4,15 +4,17 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react';
 
 export default function CartDrawer() {
   const {
     items,
     isOpen,
     closeCart,
+    addItem,
     removeItem,
     updateQuantity,
+    updateItemColor,
     totalItems,
     subtotal,
     freeShippingThreshold,
@@ -158,20 +160,73 @@ export default function CartDrawer() {
                     </div>
 
                     {/* Color & Size Info */}
-                    <div className="mt-1 flex items-center space-x-2 text-xs text-text-muted">
-                      <span className="flex items-center space-x-1">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full border border-black/20"
-                          style={{ backgroundColor: item.selectedColor.hex }}
-                        />
-                        <span>{item.selectedColor.name}</span>
-                      </span>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-muted">
+                      {item.product.colorways && item.product.colorways.length > 1 ? (
+                        <div className="relative inline-flex items-center">
+                          <label htmlFor={`color-select-${item.product.id}-${item.selectedColor.id}`} className="sr-only">
+                            Change color
+                          </label>
+                          <div className="flex items-center gap-1 bg-sand/60 px-1.5 py-0.5 rounded border border-line/60 hover:border-gold/60 transition-colors">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                              style={{ backgroundColor: item.selectedColor.hex }}
+                            />
+                            <select
+                              id={`color-select-${item.product.id}-${item.selectedColor.id}`}
+                              value={item.selectedColor.id}
+                              onChange={(e) => {
+                                const newC = item.product.colorways.find((c) => c.id === e.target.value);
+                                if (newC) {
+                                  updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize);
+                                }
+                              }}
+                              className="bg-transparent text-[11px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
+                            >
+                              {item.product.colorways.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="w-2.5 h-2.5 text-text-muted pointer-events-none -ml-2.5" />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="flex items-center space-x-1">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: item.selectedColor.hex }}
+                          />
+                          <span>{item.selectedColor.name}</span>
+                        </span>
+                      )}
+
                       {item.selectedSize && (
                         <>
                           <span>•</span>
                           <span>Size: {item.selectedSize}</span>
                         </>
                       )}
+
+                      {/* Quick "+ Add another color" action if there are other colors */}
+                      {(() => {
+                        const otherColors = (item.product.colorways || []).filter(
+                          (c) => c.id !== item.selectedColor.id
+                        );
+                        if (otherColors.length === 0) return null;
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              addItem(item.product, otherColors[0], item.selectedSize, 1);
+                            }}
+                            className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline ml-auto flex items-center gap-0.5"
+                            title={`Add ${otherColors[0].name} to bag`}
+                          >
+                            <span>+ Add {otherColors[0].name}</span>
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
 
