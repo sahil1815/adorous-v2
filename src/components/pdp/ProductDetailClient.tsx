@@ -106,6 +106,20 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number>(0);
   const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
+  const mobileThumbnailsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll mobile thumbnail into view when currentIndex changes
+  useEffect(() => {
+    if (!mobileThumbnailsRef.current) return;
+    const activeEl = mobileThumbnailsRef.current.children[currentIndex] as HTMLElement | undefined;
+    if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+      activeEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  }, [currentIndex]);
 
   // Sync index when activeImage changes externally
   useEffect(() => {
@@ -411,7 +425,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
         {/* Main PDP Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-6 lg:gap-14">
           {/* Left Column: Gallery with Vertical Thumbnails on Desktop (Reference Layout) */}
-          <div className="lg:col-span-7 flex flex-col lg:flex-row gap-3.5 items-start">
+          <div className="lg:col-span-7 flex flex-col lg:flex-row gap-2 lg:gap-3.5 items-start">
             {/* Thumbnail Strip (Vertical on Desktop, Hidden on Mobile for Clean Hero) */}
             {allDisplayImages.length > 1 && (
               <div className="hidden lg:flex flex-col gap-2.5 overflow-y-auto shrink-0 w-[84px] max-h-[580px] scrollbar-none py-0.5">
@@ -656,6 +670,46 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 Still Life · Warm Stone Plinth
               </div>
             </div>
+
+            {/* Mobile Horizontal Thumbnail Strip (Visible below lg) */}
+            {allDisplayImages.length > 1 && (
+              <div
+                ref={mobileThumbnailsRef}
+                className="lg:hidden w-full overflow-x-auto scrollbar-none py-1.5 flex items-center gap-2 select-none touch-pan-x"
+                aria-label="Product image thumbnails"
+              >
+                {allDisplayImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleThumbnailClick(img)}
+                    className={`relative aspect-square w-12 h-12 bg-stone border rounded-[2px] transition-all overflow-hidden shrink-0 ${
+                      currentIndex === idx
+                        ? 'border-ink ring-2 ring-gold/90 shadow-sm scale-[1.02]'
+                        : 'border-line/80 hover:border-gold/80 opacity-70 hover:opacity-100'
+                    }`}
+                    aria-label={`View image ${idx + 1}`}
+                    aria-current={currentIndex === idx ? 'true' : undefined}
+                  >
+                    {img.startsWith('data:') || img.startsWith('http') ? (
+                      <img
+                        src={img}
+                        alt={`${product.name} thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover object-center pointer-events-none"
+                      />
+                    ) : (
+                      <Image
+                        src={img}
+                        alt={`${product.name} thumbnail ${idx + 1}`}
+                        fill
+                        sizes="48px"
+                        className="object-cover object-center pointer-events-none"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Purchasing & Specifications */}
