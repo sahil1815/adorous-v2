@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  ChevronRight,
   Sparkles,
   Share2,
   CheckCircle2,
@@ -82,11 +83,175 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     ])
   );
 
+  // Swipe & Touch Carousel State
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const initialImg = matchedInitialColor?.image || product.featuredImage;
+    const idx = allDisplayImages.indexOf(initialImg);
+    return idx >= 0 ? idx : 0;
+  });
+  const [dragOffset, setDragOffset] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
+
+  // Sync index when activeImage changes externally
+  useEffect(() => {
+    const idx = allDisplayImages.indexOf(activeImage);
+    if (idx !== -1 && idx !== currentIndex) {
+      setCurrentIndex(idx);
+    }
+  }, [activeImage, allDisplayImages]);
+
+  const goToIndex = (newIdx: number) => {
+    const boundedIdx = Math.max(0, Math.min(newIdx, allDisplayImages.length - 1));
+    setCurrentIndex(boundedIdx);
+    const newImg = allDisplayImages[boundedIdx];
+    if (newImg) {
+      setActiveImage(newImg);
+      const matchedColor = product.colorways.find((c) => c.image === newImg);
+      if (matchedColor && matchedColor.id !== selectedColor.id) {
+        setSelectedColor(matchedColor);
+        const url = new URL(window.location.href);
+        url.searchParams.set('colour', matchedColor.id);
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  };
+
+  const goToNext = () => {
+    if (currentIndex < allDisplayImages.length - 1) {
+      goToIndex(currentIndex + 1);
+    }
+  };
+
+  const goToPrev = () => {
+    if (currentIndex > 0) {
+      goToIndex(currentIndex - 1);
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (allDisplayImages.length <= 1) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+    swipeDirection.current = null;
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null || allDisplayImages.length <= 1) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const deltaX = currentX - touchStartX.current;
+    const deltaY = currentY - touchStartY.current;
+
+    // Detect direction on first noticeable movement (> 8px)
+    if (swipeDirection.current === null) {
+      if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          swipeDirection.current = 'horizontal';
+        } else {
+          swipeDirection.current = 'vertical';
+          setIsDragging(false);
+          setDragOffset(0);
+          return;
+        }
+      }
+    }
+
+    if (swipeDirection.current === 'vertical') {
+      return;
+    }
+
+    if (swipeDirection.current === 'horizontal') {
+      let effectiveDelta = deltaX;
+      // Rubber-band resistance at boundaries
+      if (
+        (currentIndex === 0 && deltaX > 0) ||
+        (currentIndex === allDisplayImages.length - 1 && deltaX < 0)
+      ) {
+        effectiveDelta = deltaX * 0.25;
+      }
+      setDragOffset(effectiveDelta);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeDirection.current === 'horizontal' && isDragging) {
+      const elapsed = Date.now() - touchStartTime.current;
+      const isFlick = elapsed < 250;
+      const threshold = isFlick ? 20 : 40;
+
+      if (dragOffset < -threshold && currentIndex < allDisplayImages.length - 1) {
+        goToNext();
+      } else if (dragOffset > threshold && currentIndex > 0) {
+        goToPrev();
+      }
+    }
+    setIsDragging(false);
+    setDragOffset(0);
+    swipeDirection.current = null;
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (allDisplayImages.length <= 1) return;
+    touchStartX.current = e.clientX;
+    touchStartY.current = e.clientY;
+    touchStartTime.current = Date.now();
+    swipeDirection.current = 'horizontal';
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || touchStartX.current === null || allDisplayImages.length <= 1) return;
+    const deltaX = e.clientX - touchStartX.current;
+    let effectiveDelta = deltaX;
+    if (
+      (currentIndex === 0 && deltaX > 0) ||
+      (currentIndex === allDisplayImages.length - 1 && deltaX < 0)
+    ) {
+      effectiveDelta = deltaX * 0.25;
+    }
+    setDragOffset(effectiveDelta);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      const elapsed = Date.now() - touchStartTime.current;
+      const isFlick = elapsed < 250;
+      const threshold = isFlick ? 20 : 40;
+
+      if (dragOffset < -threshold && currentIndex < allDisplayImages.length - 1) {
+        goToNext();
+      } else if (dragOffset > threshold && currentIndex > 0) {
+        goToPrev();
+      }
+      setIsDragging(false);
+      setDragOffset(0);
+      swipeDirection.current = null;
+      touchStartX.current = null;
+      touchStartY.current = null;
+    }
+  };
+
+  const handleMouseLeave = handleMouseUp;
+
   // Sync color selection with URL without reloading
   const handleColorChange = (colorway: Colorway) => {
     setSelectedColor(colorway);
     if (colorway.image) {
       setActiveImage(colorway.image);
+      const idx = allDisplayImages.indexOf(colorway.image);
+      if (idx !== -1) {
+        setCurrentIndex(idx);
+      }
     }
     const url = new URL(window.location.href);
     url.searchParams.set('colour', colorway.id);
@@ -95,6 +260,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
   const handleThumbnailClick = (img: string) => {
     setActiveImage(img);
+    const idx = allDisplayImages.indexOf(img);
+    if (idx !== -1) {
+      setCurrentIndex(idx);
+    }
     const matchedColor = product.colorways.find((c) => c.image === img);
     if (matchedColor && matchedColor.id !== selectedColor.id) {
       setSelectedColor(matchedColor);
@@ -172,7 +341,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     type="button"
                     onClick={() => handleThumbnailClick(img)}
                     className={`relative aspect-square w-full bg-stone border rounded-[2px] transition-all overflow-hidden shrink-0 ${
-                      activeImage === img
+                      currentIndex === idx
                         ? 'border-ink ring-2 ring-gold/70 shadow-sm'
                         : 'border-line hover:border-gold/80 opacity-75 hover:opacity-100'
                     }`}
@@ -198,36 +367,66 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
             )}
 
             {/* Primary Visual */}
-            <div className="relative aspect-[4/5] lg:aspect-[4/4.5] flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px]">
+            <div
+              className="relative aspect-[4/5] lg:aspect-[4/4.5] flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px] select-none touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+            >
               {/* Mobile Top-Left Back Button (Reference Screenshot 1) */}
               <button
                 type="button"
                 onClick={() => router.back()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
                 className="lg:hidden absolute top-3.5 left-3.5 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line flex items-center justify-center text-ink shadow-sm active:scale-90 transition-transform"
                 aria-label="Go back"
               >
                 <ChevronLeft className="w-5 h-5 -ml-0.5" />
               </button>
 
-              {activeImage.startsWith('data:') || activeImage.startsWith('http') ? (
-                <img
-                  src={activeImage}
-                  alt={product.name}
-                  className="w-full h-full object-cover object-center transition-all duration-300"
-                />
-              ) : (
-                <Image
-                  src={activeImage}
-                  alt={product.name}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 55vw"
-                  className="object-cover object-center transition-all duration-300"
-                />
-              )}
+              {/* Sliding Image Track */}
+              <div
+                className="flex w-full h-full will-change-transform"
+                style={{
+                  transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))`,
+                  transition: isDragging ? 'none' : 'transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1)',
+                }}
+              >
+                {allDisplayImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-full h-full shrink-0 select-none overflow-hidden"
+                  >
+                    {img.startsWith('data:') || img.startsWith('http') ? (
+                      <img
+                        src={img}
+                        alt={`${product.name} - View ${idx + 1}`}
+                        className="w-full h-full object-cover object-center pointer-events-none select-none"
+                        draggable={false}
+                      />
+                    ) : (
+                      <Image
+                        src={img}
+                        alt={`${product.name} - View ${idx + 1}`}
+                        fill
+                        priority={idx === 0 || idx === currentIndex}
+                        sizes="(max-width: 1024px) 100vw, 55vw"
+                        className="object-cover object-center pointer-events-none select-none"
+                        draggable={false}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
 
               {/* Scarcity / Drop Badges on Desktop */}
-              <div className="hidden lg:flex absolute top-4 left-4 flex-col gap-2">
+              <div className="hidden lg:flex absolute top-4 left-4 flex-col gap-2 pointer-events-none z-10">
                 {product.isNewDrop && (
                   <span className="bg-gold hover:bg-gold-deep text-ink text-xs tracking-wider uppercase px-3 py-1 font-medium border border-gold/30">
                     New Drop
@@ -240,11 +439,47 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 )}
               </div>
 
+              {/* Desktop Nav Arrows (Prev/Next on Hover/Click) */}
+              {allDisplayImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToPrev();
+                    }}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    disabled={currentIndex === 0}
+                    className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line items-center justify-center text-ink hover:text-gold-deep hover:bg-paper transition-all disabled:opacity-0 disabled:pointer-events-none shadow-md group"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToNext();
+                    }}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    disabled={currentIndex === allDisplayImages.length - 1}
+                    className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line items-center justify-center text-ink hover:text-gold-deep hover:bg-paper transition-all disabled:opacity-0 disabled:pointer-events-none shadow-md group"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </>
+              )}
+
               {/* Top-Right Visual Actions on Desktop: Wishlist & Share */}
               <div className="hidden lg:flex absolute top-4 right-4 items-center space-x-2 z-10">
                 <button
                   type="button"
                   onClick={() => toggleWishlist(product)}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                   className={`p-2.5 backdrop-blur-sm border transition-all rounded-[2px] ${
                     isSaved
                       ? 'bg-gold text-ink border-gold/40 shadow-md'
@@ -259,6 +494,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <button
                   type="button"
                   onClick={handleShare}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                   className="p-2.5 bg-paper/85 backdrop-blur-sm border border-line hover:bg-paper text-ink transition-colors rounded-[2px]"
                   title="Share link"
                   aria-label="Share link"
@@ -273,7 +510,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               )}
 
               {/* Mobile Bottom-Left Rating & Stock Pill Badge (Reference Screenshot 1) */}
-              <div className="lg:hidden absolute bottom-3 left-3 z-20 flex items-center gap-1.5 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-xs font-semibold text-ink">
+              <div className="lg:hidden absolute bottom-3 left-3 z-20 flex items-center gap-1.5 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-xs font-semibold text-ink pointer-events-none">
                 <span className="flex items-center gap-0.5 text-amber-500 font-bold">
                   4.80 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                 </span>
@@ -289,6 +526,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     e.stopPropagation();
                     toggleWishlist(product);
                   }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                   className="pointer-events-auto p-2 rounded-full bg-paper/95 backdrop-blur-md border border-line shadow-md text-ink hover:text-rose-500 active:scale-125 transition-all"
                   aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
                 >
@@ -296,14 +535,21 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 </button>
 
                 {allDisplayImages.length > 1 && (
-                  <div className="flex items-center gap-1.5 bg-paper/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-line pointer-events-auto shadow-xs">
+                  <div
+                    className="flex items-center gap-1.5 bg-paper/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-line pointer-events-auto shadow-xs"
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
                     {allDisplayImages.map((img, idx) => (
                       <button
                         key={idx}
                         type="button"
-                        onClick={() => handleThumbnailClick(img)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToIndex(idx);
+                        }}
                         className={`rounded-full transition-all ${
-                          activeImage === img
+                          currentIndex === idx
                             ? 'w-4 h-1.5 bg-gold-deep'
                             : 'w-1.5 h-1.5 bg-ink/30 hover:bg-ink/60'
                         }`}
@@ -317,6 +563,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Mobile Bottom-Right View Similar (Reference Screenshot 1) */}
               <a
                 href="#similar-products"
+                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
                 className="lg:hidden absolute bottom-3 right-3 z-20 flex items-center gap-1 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-[11px] font-medium text-ink hover:text-gold-deep transition-colors"
               >
                 <Sparkles className="w-3 h-3 text-gold-deep" />
@@ -324,7 +572,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               </a>
 
               {/* Backdrop Authenticity Watermark on Desktop */}
-              <div className="hidden lg:block absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1">
+              <div className="hidden lg:block absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1 pointer-events-none">
                 Still Life · Warm Stone Plinth
               </div>
             </div>
@@ -641,7 +889,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               </div>
 
               {/* What's in Your Package (Transparency Section) */}
-              {product.piecesIncluded && (
+              {((product.piecesIncluded && product.piecesIncluded.length > 0) || product.complimentaryItem) && (
                 <div className="mt-8 border border-line p-4 bg-paper space-y-3 rounded-lg">
                   <div className="flex items-center space-x-2 text-ink">
                     <Box className="w-4 h-4 text-gold-deep" />
@@ -650,7 +898,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     </h3>
                   </div>
                   <ul className="space-y-1.5 text-xs text-ink/90 divide-y divide-line/40">
-                    {product.piecesIncluded.map((piece, i) => (
+                    {product.piecesIncluded?.map((piece, i) => (
                       <li key={i} className="pt-1.5 flex items-center justify-between">
                         <span className="flex items-center space-x-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
@@ -659,13 +907,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                         <span className="text-text-muted text-[11px]">Included</span>
                       </li>
                     ))}
-                    <li className="pt-1.5 flex items-center justify-between text-gold-ink font-medium">
-                      <span className="flex items-center space-x-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                        <span>Adorous Signature Keepsake Box & Velvet Pouch</span>
-                      </span>
-                      <span className="text-[11px]">Complimentary</span>
-                    </li>
+                    {product.complimentaryItem && (
+                      <li className="pt-1.5 flex items-center justify-between text-gold-ink font-medium">
+                        <span className="flex items-center space-x-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                          <span>{product.complimentaryItem}</span>
+                        </span>
+                        <span className="text-[11px]">Complimentary</span>
+                      </li>
+                    )}
                   </ul>
                 </div>
               )}

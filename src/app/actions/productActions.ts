@@ -17,6 +17,7 @@ function toDbShape(product: Product) {
     price: product.price,
     originalPrice: product.originalPrice ?? null,
     description: product.description ?? null,
+    complimentaryItem: product.complimentaryItem ?? null,
     badge: null,
     inStock: product.inStock ?? true,
     stockQty: null as number | null,
@@ -136,6 +137,7 @@ export async function createProductAction(productData: Product) {
         price: Number(productData.price),
         originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
         description: productData.description?.trim() || null,
+        complimentaryItem: productData.complimentaryItem?.trim() || null,
         featuredImage: productData.featuredImage,
         badge: productData.isNewDrop ? 'New Drop' : (productData.isBestseller ? 'Bestseller' : null),
         inStock: productData.inStock ?? true,
@@ -194,6 +196,7 @@ export async function updateProductAction(
     price: number;
     originalPrice?: number;
     description?: string;
+    complimentaryItem?: string | null;
     featuredImage: string;
     isNewDrop: boolean;
     isBestseller: boolean;
@@ -241,6 +244,7 @@ export async function updateProductAction(
           price: Number(productData.price),
           originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
           description: productData.description?.trim() || null,
+          complimentaryItem: productData.complimentaryItem?.trim() || null,
           featuredImage: productData.featuredImage,
           badge: productData.isNewDrop ? 'New Drop' : (productData.isBestseller ? 'Bestseller' : null),
           inStock: productData.inStock,
@@ -275,6 +279,7 @@ export async function updateProductAction(
           price: Number(productData.price),
           originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
           description: productData.description?.trim() || null,
+          complimentaryItem: productData.complimentaryItem?.trim() || null,
           featuredImage: productData.featuredImage,
           badge: productData.isNewDrop ? 'New Drop' : (productData.isBestseller ? 'Bestseller' : null),
           inStock: productData.inStock,

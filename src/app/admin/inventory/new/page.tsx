@@ -131,6 +131,10 @@ export default function AddProductPage() {
   ]);
   const [newPieceText, setNewPieceText] = useState('');
 
+  // Complimentary Packaging / Gift Item
+  const [hasComplimentaryItem, setHasComplimentaryItem] = useState(true);
+  const [complimentaryItemText, setComplimentaryItemText] = useState('Adorous Signature Keepsake Box & Velvet Pouch');
+
   // Colorways
   const [colorways, setColorways] = useState<Colorway[]>([
     { id: 'antique-gold', name: 'Antique Gold', hex: '#D4AF37', inStock: true, image: STILL_LIFE_PRESETS[0].url },
@@ -365,6 +369,7 @@ export default function AddProductPage() {
       description: description.trim() || 'A premium curated piece designed for timeless elegance and luxury styling across Bangladesh.',
       details,
       piecesIncluded: piecesIncluded.length > 0 ? piecesIncluded : undefined,
+      complimentaryItem: hasComplimentaryItem && complimentaryItemText.trim() ? complimentaryItemText.trim() : null,
       colorways,
       sizes: includeSizes ? ['2-4 (57mm)', '2-6 (60mm)', '2-8 (64mm)'] : undefined,
       featuredImage,
@@ -480,7 +485,16 @@ export default function AddProductPage() {
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as ProductCategory)}
+                onChange={(e) => {
+                  const newCat = e.target.value as ProductCategory;
+                  setCategory(newCat);
+                  if (['jewelry', 'earrings', 'churi'].includes(newCat)) {
+                    setHasComplimentaryItem(true);
+                    setComplimentaryItemText('Adorous Signature Keepsake Box & Velvet Pouch');
+                  } else {
+                    setHasComplimentaryItem(false);
+                  }
+                }}
                 className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold px-3 py-2 text-paper rounded-xs text-xs focus:outline-none"
               >
                 {CATEGORY_OPTIONS.map((cat) => (
@@ -1226,6 +1240,79 @@ export default function AddProductPage() {
                 Add
               </button>
             </div>
+          </div>
+
+          {/* Complimentary Packaging / Gift Item */}
+          <div className="space-y-3 pt-3 border-t border-white/5">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-paper/90 uppercase tracking-widest text-[10px] font-semibold">
+                  Complimentary Packaging / Gift
+                </label>
+                <p className="text-[11px] text-paper/40">
+                  Highlighted as a &quot;Complimentary&quot; item in the &quot;What&apos;s in Your Package&quot; box on PDP
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHasComplimentaryItem(!hasComplimentaryItem)}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  hasComplimentaryItem ? 'bg-gold' : 'bg-white/10'
+                }`}
+                aria-label="Toggle complimentary item"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-ink shadow ring-0 transition duration-200 ease-in-out ${
+                    hasComplimentaryItem ? 'translate-x-4' : 'translate-x-0 bg-paper/60'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {hasComplimentaryItem && (
+              <div className="space-y-2 bg-[#1C1C1C] p-3 rounded-xs border border-white/10">
+                <input
+                  type="text"
+                  placeholder="e.g. Adorous Signature Keepsake Box & Velvet Pouch"
+                  value={complimentaryItemText}
+                  onChange={(e) => setComplimentaryItemText(e.target.value)}
+                  className="w-full bg-[#141414] border border-white/15 px-3 py-1.5 text-paper text-xs rounded-xs focus:border-gold focus:outline-none"
+                />
+
+                {/* Preset Shortcut Chips */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-paper/40">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setComplimentaryItemText('Adorous Signature Keepsake Box & Velvet Pouch')}
+                    className="text-[10px] px-2 py-0.5 rounded-xs bg-white/5 hover:bg-white/10 text-paper/70 hover:text-gold transition-colors border border-white/5"
+                  >
+                    Keepsake Box & Velvet Pouch
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setComplimentaryItemText('Adorous Signature Dust Bag & Care Card')}
+                    className="text-[10px] px-2 py-0.5 rounded-xs bg-white/5 hover:bg-white/10 text-paper/70 hover:text-gold transition-colors border border-white/5"
+                  >
+                    Dust Bag & Care Card
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setComplimentaryItemText('Protective Travel Wrap Sleeve')}
+                    className="text-[10px] px-2 py-0.5 rounded-xs bg-white/5 hover:bg-white/10 text-paper/70 hover:text-gold transition-colors border border-white/5"
+                  >
+                    Travel Wrap Sleeve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setComplimentaryItemText('')}
+                    className="text-[10px] px-2 py-0.5 rounded-xs bg-white/5 hover:bg-red-500/10 text-paper/40 hover:text-red-400 transition-colors border border-white/5"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

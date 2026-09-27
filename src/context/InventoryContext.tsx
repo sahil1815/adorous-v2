@@ -52,6 +52,7 @@ function fromDbProduct(p: any): Product {
     piecesIncluded: Array.isArray(p.piecesIncluded)
       ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
       : [],
+    complimentaryItem: p.complimentaryItem ?? null,
     colorways: (p.colorways || []).map((cw: any) => ({
       id: cw.colorId || cw.id,
       name: cw.name,

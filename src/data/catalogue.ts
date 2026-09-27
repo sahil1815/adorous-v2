@@ -13,6 +13,7 @@ export const PRODUCTS: Product[] = (catalogueJson as any[]).map((p) => ({
   description: p.description,
   details: p.details,
   piecesIncluded: p.piecesIncluded,
+  complimentaryItem: p.complimentaryItem ?? null,
   colorways: p.colorways,
   featuredImage: p.featuredImage,
   galleryImages: p.galleryImages.map((g: any) => g.url),

@@ -21,6 +21,7 @@ export interface Product {
   description: string;
   details: string[];
   piecesIncluded?: string[];
+  complimentaryItem?: string | null;
   colorways: Colorway[];
   sizes?: string[]; // Sizing for churi (e.g. 2-4, 2-6, 2-8)
   featuredImage: string;
