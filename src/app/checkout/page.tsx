@@ -10,6 +10,8 @@ import { useCoupons } from '@/context/CouponsContext';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { CartItem } from '@/types';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
+import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
 import {
   ShieldCheck,
@@ -38,6 +40,7 @@ export default function CheckoutPage() {
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
+  const { isOfferActive, discountPercent, calculateDiscount, markUsed } = useNewVisitorOffer();
 
   // Persistent session ID for abandoned checkout recovery
   const [draftSessionId, setDraftSessionId] = useState('');
@@ -133,7 +136,17 @@ export default function CheckoutPage() {
   const isFreeDelivery = subtotal >= 2000;
   const baseShippingFee = isFreeDelivery ? 0 : baseDistrictRate;
   const shippingFee = appliedCoupon?.freeShipping ? 0 : baseShippingFee;
-  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+
+  // --- New Visitor Offer vs Coupon: better one wins (not stacked) ---
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const nvoDiscount = calculateDiscount(subtotal);
+  const useNvo = nvoDiscount > 0 && nvoDiscount >= couponDiscount;
+  const discountAmount = useNvo ? nvoDiscount : couponDiscount;
+  const discountLabel = useNvo
+    ? `New Visitor ${discountPercent}% Off`
+    : appliedCoupon
+      ? `Promo Discount (${appliedCoupon.code})`
+      : '';
   const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
 
   // Manual and onBlur save trigger
@@ -323,14 +336,17 @@ export default function CheckoutPage() {
       items,
       subtotal,
       shippingFee,
-      discountAmount: appliedCoupon ? appliedCoupon.discountAmount : undefined,
-      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
+      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
       grandTotal,
     };
 
     try {
-      if (appliedCoupon) {
+      if (appliedCoupon && !useNvo) {
         recordCouponUsage(appliedCoupon.code);
+      }
+      if (useNvo) {
+        markUsed();
       }
       addOrder(orderData);
       const activeSid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_checkout_session') : null);
@@ -860,11 +876,27 @@ export default function CheckoutPage() {
                     <span className="tabular-nums">৳{subtotal.toLocaleString('en-US')}</span>
                   </div>
 
-                  {discountAmount > 0 && appliedCoupon && (
+                  {discountAmount > 0 && (
                     <div className="flex justify-between items-center text-emerald-700 font-medium">
-                      <span>Promo Discount ({appliedCoupon.code})</span>
+                      <span className="flex items-center gap-1">
+                        {useNvo && <Sparkles className="w-3 h-3" />}
+                        {discountLabel}
+                      </span>
                       <span className="tabular-nums">-৳{discountAmount.toLocaleString('en-US')}</span>
                     </div>
+                  )}
+
+                  {/* Hint when both NVO and coupon exist but NVO wins */}
+                  {useNvo && couponDiscount > 0 && couponDiscount < nvoDiscount && appliedCoupon && (
+                    <p className="text-[10px] text-text-muted italic">
+                      Your new visitor offer gives a better deal than coupon "{appliedCoupon.code}" (৳{couponDiscount} off)
+                    </p>
+                  )}
+                  {/* Hint when coupon is better than NVO */}
+                  {!useNvo && nvoDiscount > 0 && couponDiscount > nvoDiscount && (
+                    <p className="text-[10px] text-text-muted italic">
+                      Your coupon gives a better deal than the visitor offer (৳{nvoDiscount} off)
+                    </p>
                   )}
 
                   <div className="flex justify-between items-center text-ink">

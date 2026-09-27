@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react';
+import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles, Gift } from 'lucide-react';
 
 export default function CartDrawer() {
   const {
@@ -20,6 +21,8 @@ export default function CartDrawer() {
     freeShippingThreshold,
     remainingForFreeShipping,
   } = useCart();
+  const { isOfferActive, discountPercent, calculateDiscount } = useNewVisitorOffer();
+  const nvoDiscount = calculateDiscount(subtotal);
 
   if (!isOpen) return null;
 
@@ -267,10 +270,30 @@ export default function CartDrawer() {
           <div className="p-4 sm:p-5 bg-sand/80 border-t border-line space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-muted font-medium">Estimated Subtotal</span>
-              <span className="font-semibold text-lg text-ink tabular-nums">
+              <span className={`font-semibold text-lg tabular-nums ${nvoDiscount > 0 ? 'text-text-muted line-through text-base' : 'text-ink'}`}>
                 ৳{subtotal.toLocaleString('en-US')}
               </span>
             </div>
+
+            {nvoDiscount > 0 && (
+              <>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="inline-flex items-center gap-1 text-amber-700">
+                    <Gift className="w-3.5 h-3.5" />
+                    <span className="font-medium text-xs">New Visitor {discountPercent}% Off</span>
+                  </span>
+                  <span className="font-semibold text-sm text-success tabular-nums">
+                    -৳{nvoDiscount.toLocaleString('en-US')}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-ink font-semibold">You Pay</span>
+                  <span className="font-bold text-lg text-ink tabular-nums">
+                    ৳{(subtotal - nvoDiscount).toLocaleString('en-US')}
+                  </span>
+                </div>
+              </>
+            )}
 
             <p className="text-[11px] text-text-muted flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />

@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Product, Colorway } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import ChuriSizingModal from './ChuriSizingModal';
 import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
@@ -41,6 +42,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const searchParams = useSearchParams();
   const { addItem, addMultipleItems, closeCart, openCart, totalItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isOfferActive, discountPercent, calculateDiscount } = useNewVisitorOffer();
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -689,18 +691,35 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* Price & COD Badge with Discount Percentage (Screenshot 1 matching) */}
               <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line flex items-center justify-between flex-wrap gap-1.5">
-                <div className="flex items-baseline space-x-2 sm:space-x-2.5">
-                  <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                    ৳{product.price.toLocaleString('en-US')}
-                  </span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                <div className="flex items-baseline space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
+                  {isOfferActive ? (
                     <>
+                      <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
+                        ৳{Math.round(product.price * (1 - discountPercent / 100)).toLocaleString('en-US')}
+                      </span>
                       <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                        ৳{product.originalPrice.toLocaleString('en-US')}
+                        ৳{product.price.toLocaleString('en-US')}
                       </span>
-                      <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
-                        ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
+                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                        <Sparkles className="w-3 h-3" />
+                        {discountPercent}% OFF · New Visitor
                       </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
+                        ৳{product.price.toLocaleString('en-US')}
+                      </span>
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <>
+                          <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
+                            ৳{product.originalPrice.toLocaleString('en-US')}
+                          </span>
+                          <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                            ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
+                          </span>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

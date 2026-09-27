@@ -9,6 +9,8 @@ import MobileStickyBar from '@/components/layout/MobileStickyBar';
 import CartDrawer from '@/components/cart/CartDrawer';
 import WishlistDrawer from '@/components/wishlist/WishlistDrawer';
 import NavigationProgress from '@/components/layout/NavigationProgress';
+import WelcomeOfferModal from '@/components/layout/WelcomeOfferModal';
+import OfferCountdownBadge from '@/components/layout/OfferCountdownBadge';
 
 export default function StorefrontLayoutWrapper({
   children,
@@ -47,6 +49,8 @@ export default function StorefrontLayoutWrapper({
       
       <CartDrawer />
       <WishlistDrawer />
+      <WelcomeOfferModal />
+      <OfferCountdownBadge />
     </div>
   );
 }
