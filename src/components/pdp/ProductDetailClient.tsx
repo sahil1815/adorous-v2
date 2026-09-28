@@ -12,6 +12,7 @@ import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import ChuriSizingModal from './ChuriSizingModal';
 import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
+import { renderFormattedText } from '@/lib/formatText';
 import {
   ShoppingBag,
   MessageCircle,
@@ -1264,22 +1265,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   !isDescriptionExpanded ? 'max-h-40 overflow-hidden' : 'max-h-[1200px]'
                 }`}>
                   <ul className="space-y-2 list-none">
-                    <li className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
-                      <span><strong>Craftsmanship:</strong> 100% Solid Brass with Micron Gold Plating</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
-                      <span><strong>Finish:</strong> Anti-tarnish dual lacquer protective coating</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
-                      <span><strong>Safety:</strong> Skin-safe, hypoallergenic, cadmium & nickel-free</span>
-                    </li>
                     {product.details.map((detail, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
-                        <span>{detail}</span>
+                        <span>{renderFormattedText(detail, 'font-bold text-ink')}</span>
                       </li>
                     ))}
                     {product.description && (

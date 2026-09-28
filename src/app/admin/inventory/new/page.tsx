@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Product, Colorway } from '@/types';
 import { createProductAction } from '@/app/actions/productActions';
+import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import {
   ArrowLeft,
   Sparkles,
@@ -121,7 +122,6 @@ export default function AddProductPage() {
     'Lined with soft silk thread cord and adjustable tassel closure',
     'Presented inside our signature rigid 1200gsm stone keepsake box',
   ]);
-  const [newDetailText, setNewDetailText] = useState('');
 
   // Pieces Included
   const [piecesIncluded, setPiecesIncluded] = useState<string[]>([
@@ -255,17 +255,6 @@ export default function AddProductPage() {
     setColorways((prev) =>
       prev.map((cw) => (cw.image === urlToRemove ? { ...cw, image: undefined } : cw))
     );
-  };
-
-  // Add detail item
-  const handleAddDetail = () => {
-    if (!newDetailText.trim()) return;
-    setDetails([...details, newDetailText.trim()]);
-    setNewDetailText('');
-  };
-
-  const handleRemoveDetail = (index: number) => {
-    setDetails(details.filter((_, i) => i !== index));
   };
 
   // Add piece item
@@ -1155,48 +1144,7 @@ export default function AddProductPage() {
           </div>
 
           {/* Specifications */}
-          <div className="space-y-2">
-            <label className="block text-paper/70 uppercase tracking-widest text-[10px] font-semibold">
-              Craft Specifications ({details.length} points)
-            </label>
-            <div className="space-y-1.5">
-              {details.map((d, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-[#1C1C1C] p-2 rounded-xs border border-white/5">
-                  <span className="text-paper/80 flex-1">{d}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveDetail(idx)}
-                    className="text-paper/40 hover:text-red-400 transition-colors ml-2"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex space-x-2 pt-1">
-              <input
-                type="text"
-                placeholder="e.g. Dimensions: 14cm x 22cm, weight 120g"
-                value={newDetailText}
-                onChange={(e) => setNewDetailText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddDetail();
-                  }
-                }}
-                className="flex-1 bg-[#1C1C1C] border border-white/15 px-3 py-1.5 text-paper rounded-xs focus:border-gold focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleAddDetail}
-                className="px-3 py-1.5 bg-[#252525] hover:bg-[#303030] text-gold rounded-xs border border-white/10"
-              >
-                Add
-              </button>
-            </div>
-          </div>
+          <CraftSpecificationsEditor details={details} onChange={setDetails} />
 
           {/* Pieces Included */}
           <div className="space-y-2 pt-2 border-t border-white/5">
