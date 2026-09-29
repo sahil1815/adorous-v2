@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { CATEGORIES } from '@/data/catalogue';
 import { getProductsByCategory } from '@/app/actions/productActions';
 import { ProductCategory } from '@/types';
@@ -54,6 +54,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = await params;
+  if (category.toLowerCase() === 'umbrellas') {
+    redirect('/more');
+  }
   const cat = CATEGORIES.find((c) => c.slug === category);
 
   if (!cat) {

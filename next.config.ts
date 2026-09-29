@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/umbrellas',
+        destination: '/more',
+        permanent: true,
+      },
+      {
+        source: '/umbrellas/:slug*',
+        destination: '/more/:slug*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -38,7 +38,7 @@ export default function CategoryPageClient({
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const dynamicCategoryProducts = allProducts
-    .filter((p) => p.category === categorySlug)
+    .filter((p) => p.category === categorySlug || (categorySlug === 'more' && p.category === 'umbrellas'))
     .map(getEffectiveProduct);
   const products = dynamicCategoryProducts.length > 0
     ? dynamicCategoryProducts

@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getAllProducts, getProductBySlug } from '@/app/actions/productActions';
 import { ProductCategory } from '@/types';
 import ProductDetailClient from '@/components/pdp/ProductDetailClient';
@@ -56,9 +56,18 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { category, slug } = await params;
+  if (category.toLowerCase() === 'umbrellas') {
+    redirect(`/more/${slug}`);
+  }
   const productDb = await getProductBySlug(slug);
   
-  if (!productDb || productDb.category.toLowerCase() !== category.toLowerCase()) {
+  const categoryMatches =
+    productDb &&
+    (productDb.category.toLowerCase() === category.toLowerCase() ||
+      (category.toLowerCase() === 'more' && productDb.category.toLowerCase() === 'umbrellas') ||
+      (category.toLowerCase() === 'umbrellas' && productDb.category.toLowerCase() === 'more'));
+
+  if (!productDb || !categoryMatches) {
     return <ClientProductDetailResolver category={category} slug={slug} />;
   }
   

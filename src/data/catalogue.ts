@@ -56,11 +56,11 @@ export const CATEGORIES = [
     blurb: "Kashmiri heritage lotus and peacock jhumkas, and multi-stone filigree bell earrings.",
   },
   {
-    slug: "umbrellas",
-    name: "Designer Umbrellas",
+    slug: "more",
+    name: "More",
     count: "1 Design",
     image: "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-CART.png?v=1784728682",
-    blurb: "Horizon compact UV-blocking umbrellas with reinforced windproof frames and travel wrap sleeves.",
+    blurb: "Curated lifestyle essentials, UV-blocking designer umbrellas, and artisanal keepsakes.",
   },
 ];
 

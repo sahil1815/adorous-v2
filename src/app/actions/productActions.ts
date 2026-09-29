@@ -46,18 +46,20 @@ function toDbShape(product: Product) {
 
 export async function getProductsByCategory(category: string) {
   try {
+    const isMoreCategory = category.toLowerCase() === 'more';
     if (!process.env.DATABASE_URL) {
-      return PRODUCTS.filter((p) => p.category === category).map(toDbShape);
+      return PRODUCTS.filter((p) => p.category === category || (isMoreCategory && p.category === 'umbrellas')).map(toDbShape);
     }
     const products = await prisma.product.findMany({
-      where: { category },
+      where: isMoreCategory ? { category: { in: ['more', 'umbrellas'] } } : { category },
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: { featuredRank: 'asc' },
     });
     return products || [];
   } catch (error) {
     console.warn(`[getProductsByCategory] Falling back to static catalogue for category "${category}":`, error);
-    return PRODUCTS.filter((p) => p.category === category).map(toDbShape);
+    const isMoreCategory = category.toLowerCase() === 'more';
+    return PRODUCTS.filter((p) => p.category === category || (isMoreCategory && p.category === 'umbrellas')).map(toDbShape);
   }
 }
 

@@ -286,7 +286,12 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     const found = allProducts.find((p) => {
       const pSlug = p.slug.toLowerCase().trim();
       const pCat = p.category.toLowerCase().trim();
-      return pSlug === cleanSlug && (!cleanCategory || pCat === cleanCategory);
+      const catMatches =
+        !cleanCategory ||
+        pCat === cleanCategory ||
+        (cleanCategory === 'more' && pCat === 'umbrellas') ||
+        (cleanCategory === 'umbrellas' && pCat === 'more');
+      return pSlug === cleanSlug && catMatches;
     });
 
     if (!found) return undefined;
