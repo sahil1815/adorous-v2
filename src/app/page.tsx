@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { PRODUCTS, CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
+import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 import { getAllProducts } from '@/app/actions/productActions';
 import { Product, ProductCategory } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
@@ -14,7 +14,6 @@ import {
   MessageCircle,
   RotateCcw,
   Layers,
-  CheckCircle2,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -66,16 +65,10 @@ export default async function HomePage() {
     ? dbProductsRaw.map(toFrontendProduct)
     : PRODUCTS;
 
-  // New drop: products marked as new drop, or fallback to the latest created pieces
-  let newDropProducts = allAvailable.filter((p) => p.isNewDrop).slice(0, 4);
-  if (newDropProducts.length === 0 && allAvailable.length > 0) {
-    newDropProducts = allAvailable.slice(0, 4);
-  }
-
-  // Most gifted: products marked as gift picks, or other pieces from the catalog
-  let giftedProducts = allAvailable.filter((p) => p.isGiftPick && !newDropProducts.some(nd => nd.id === p.id)).slice(0, 4);
-  if (giftedProducts.length === 0 && allAvailable.length > 0) {
-    giftedProducts = allAvailable.filter(p => !newDropProducts.some(nd => nd.id === p.id)).slice(0, 4);
+  // Best Sellers: products marked as bestseller, or fallback to top catalogue pieces
+  let bestsellerProducts = allAvailable.filter((p) => p.isBestseller).slice(0, 4);
+  if (bestsellerProducts.length === 0 && allAvailable.length > 0) {
+    bestsellerProducts = allAvailable.slice(0, 4);
   }
 
   return (
@@ -187,18 +180,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3. THE NEW DROP (4-UP SHOWCASE) */}
+      {/* 3. BEST SELLERS (4-UP SHOWCASE) */}
       <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
           <div>
             <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-              Fresh From Studio
+              Most Coveted
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium mt-1">
-              The New Drop
+              Best Sellers
             </h2>
             <p className="text-xs sm:text-sm text-text-muted mt-2 max-w-xl">
-              Limited pieces curated in small batches. Once sold out, archived until the next seasonal release.
+              Our most coveted boutique pieces, adored for timeless celebrations, exceptional detailing, and heirloom craftsmanship.
             </p>
           </div>
           <Link
@@ -212,13 +205,13 @@ export default async function HomePage() {
 
         {/* 4-Product Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {newDropProducts.length === 0 ? (
+          {bestsellerProducts.length === 0 ? (
             <div className="text-center py-12 border border-dashed border-line bg-sand/30 rounded-xs col-span-2 lg:col-span-4">
-              <p className="font-serif text-lg text-ink">New collection pieces being photographed</p>
+              <p className="font-serif text-lg text-ink">Bestseller pieces being curated</p>
               <p className="text-xs text-text-muted mt-1">Check back shortly or browse our complete catalogue.</p>
             </div>
           ) : (
-            newDropProducts.map((product) => (
+            bestsellerProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))
           )}
@@ -277,42 +270,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5. SHOP BY COLOUR SWATCH RAIL */}
-      <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-8">
-          <div>
-            <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-              Browsing Palette
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium mt-1">
-              Shop by Colourway
-            </h2>
-            <p className="text-xs sm:text-sm text-text-muted mt-1">
-              Filter across jewelry, bags, and bangles by your celebratory dress colour.
-            </p>
-          </div>
-
-          {/* Color swatch buttons */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            {COLOR_FILTER_SWATCHES.map((swatch) => (
-              <Link
-                key={swatch.id}
-                href={`/shop?colour=${swatch.id}`}
-                className="group flex items-center space-x-2 px-3.5 py-1.5 bg-paper border border-line hover:border-ink rounded-[2px] transition-all"
-              >
-                <span
-                  className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
-                  style={{ backgroundColor: swatch.hex }}
-                />
-                <span className="text-xs font-medium text-ink">{swatch.name}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. CHARCOAL EDITORIAL LOOKBOOK BAND */}
-      <section className="bg-paper text-ink py-16 sm:py-24 border-y border-line my-6">
+      {/* 5. CHARCOAL EDITORIAL LOOKBOOK BAND */}
+      <section className="bg-paper text-ink py-16 sm:py-24 border-b border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 space-y-5">
@@ -362,162 +321,6 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. MOST GIFTED SETS */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-          <div>
-            <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-              Celebratory Gifting
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium mt-1">
-              Most Gifted Suites
-            </h2>
-            <p className="text-xs sm:text-sm text-text-muted mt-2 max-w-xl">
-              Complete sets packaged in our signature charcoal keepsake boxes. Ideal for brides, anniversaries, and Eid celebrations.
-            </p>
-          </div>
-          <Link
-            href="/gifting"
-            className="mt-4 md:mt-0 inline-flex items-center text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors group"
-          >
-            <span>View Gifting Edit</span>
-            <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {giftedProducts.length === 0 ? (
-            <div className="text-center py-12 border border-dashed border-line bg-sand/30 rounded-xs col-span-2 lg:col-span-4">
-              <p className="font-serif text-lg text-ink">Celebratory suites being curated</p>
-              <p className="text-xs text-text-muted mt-1">Explore our jewelry sets and accessories in the shop.</p>
-            </div>
-          ) : (
-            giftedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          )}
-        </div>
-      </section>
-
-      {/* 8. WHAT'S IN A SET (TRANSPARENCY SECTION) */}
-      <section className="py-16 bg-sand/30 border-y border-line">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            <div className="space-y-4">
-              <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-                No Hidden Surprises
-              </div>
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium">
-                Every piece in the photograph is included in the price.
-              </h2>
-              <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-                Many online pages advertise sets using photos that include items sold separately. At Adorous Fashion, our product cards and sets explicitly detail every component. When you purchase the 4-piece Zari Choker or the 24-piece Meher Bangle stack, every single piece listed is in your parcel.
-              </p>
-
-              <div className="space-y-2.5 pt-2">
-                <div className="flex items-center space-x-3 text-xs text-ink">
-                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                  <span>Exact piece counts verified prior to packaging</span>
-                </div>
-                <div className="flex items-center space-x-3 text-xs text-ink">
-                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                  <span>Protective velvet jewellery pouches included complimentary</span>
-                </div>
-                <div className="flex items-center space-x-3 text-xs text-ink">
-                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                  <span>Video proof of package packing shared upon request on WhatsApp</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Visual Box */}
-            <div className="bg-paper p-6 border border-line shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-line pb-3">
-                <span className="font-serif text-base text-ink font-semibold">
-                  Sample Set Contents Breakdown
-                </span>
-                <span className="text-[11px] uppercase tracking-wider text-gold-ink font-medium">
-                  Zari Bridal Suite
-                </span>
-              </div>
-              <ul className="space-y-3 text-xs text-ink">
-                <li className="flex justify-between items-center py-1 border-b border-line/50">
-                  <span>1x Regal Filigree Choker (Adjustable Zari Dori)</span>
-                  <span className="text-text-muted">Included</span>
-                </li>
-                <li className="flex justify-between items-center py-1 border-b border-line/50">
-                  <span>1x Pair Matching Chandbali Jhumkas (6.5cm drop)</span>
-                  <span className="text-text-muted">Included</span>
-                </li>
-                <li className="flex justify-between items-center py-1 border-b border-line/50">
-                  <span>1x Floral Statement Maang Tikka</span>
-                  <span className="text-text-muted">Included</span>
-                </li>
-                <li className="flex justify-between items-center py-1 border-b border-line/50">
-                  <span>1x Adjustable Polki Cocktail Ring</span>
-                  <span className="text-text-muted">Included</span>
-                </li>
-                <li className="flex justify-between items-center py-1 text-gold-ink font-medium">
-                  <span>Adorous Signature Charcoal Gift Box & Velvet Pouch</span>
-                  <span>Complimentary</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. HOW ORDERING WORKS (COD CONFIDENCE) */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
-          Seamless & Safe
-        </div>
-        <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium mt-1">
-          How Ordering Works
-        </h2>
-        <p className="text-xs sm:text-sm text-text-muted mt-2 max-w-lg mx-auto">
-          We designed our ordering process around local trust and personal concierge service.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 text-left">
-          <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
-              1
-            </div>
-            <h3 className="font-serif text-lg font-medium text-ink">
-              Select Your Pieces & Choose COD
-            </h3>
-            <p className="text-xs text-text-muted mt-2 leading-relaxed">
-              Add your favourites to the bag. Choose Cash on Delivery at checkout — zero advance payment required for regular orders.
-            </p>
-          </div>
-
-          <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
-              2
-            </div>
-            <h3 className="font-serif text-lg font-medium text-ink">
-              WhatsApp Verification
-            </h3>
-            <p className="text-xs text-text-muted mt-2 leading-relaxed">
-              Our concierge team contacts you directly on WhatsApp to confirm sizing, address, and delivery slot before dispatching.
-            </p>
-          </div>
-
-          <div className="bg-sand/40 border border-line p-6 relative">
-            <div className="w-8 h-8 rounded-full bg-paper text-gold font-serif text-sm font-semibold flex items-center justify-center mb-4">
-              3
-            </div>
-            <h3 className="font-serif text-lg font-medium text-ink">
-              Doorstep Delivery & Payment
-            </h3>
-            <p className="text-xs text-text-muted mt-2 leading-relaxed">
-              Receive your sealed parcel via Pathao or Steadfast courier. Inspect the parcel and pay cash or bKash directly to the delivery rider.
-            </p>
           </div>
         </div>
       </section>
