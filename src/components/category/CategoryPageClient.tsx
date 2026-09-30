@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
+import { useProductOrdering } from '@/context/ProductOrderingContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
@@ -18,8 +19,6 @@ import {
   Sparkles,
   HelpCircle
 } from 'lucide-react';
-
-type SortOption = 'featured' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating' | 'price-asc' | 'price-desc';
 
 interface CategoryPageClientProps {
   categorySlug: string;
@@ -37,9 +36,10 @@ export default function CategoryPageClient({
   products: initialProducts,
 }: CategoryPageClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
+  const { getOrdering } = useProductOrdering();
   const { orders } = useOrders();
   const { reviews } = useReviews();
-  const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'newest'>('featured');
   const [filterInStock, setFilterInStock] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
@@ -50,44 +50,29 @@ export default function CategoryPageClient({
     ? dynamicCategoryProducts
     : (initialProducts || []).map(getEffectiveProduct);
 
-  // Extract unique colors available in this category
-  const availableColors = useMemo(() => {
-    const colorMap = new Map<string, { id: string; name: string; hex: string }>();
-    products.forEach((p) => {
-      p.colorways.forEach((c) => {
-        if (!colorMap.has(c.hex)) {
-          colorMap.set(c.hex, c);
-        }
-      });
-    });
-    return Array.from(colorMap.values());
-  }, [products]);
+  // Get admin-configured ordering for this category
+  const pageKey = `category-${categorySlug}`;
+  const adminOrdering = getOrdering(pageKey);
 
-  // Build purchase count map from orders
+  // Build purchase count map from orders (for admin sort)
   const purchaseCountMap = useMemo(() => {
     const counts = new Map<string, number>();
     orders.forEach((order) => {
       if (order.status === 'cancelled') return;
       order.items.forEach((item) => {
-        const pid = item.product.id;
-        counts.set(pid, (counts.get(pid) || 0) + item.quantity);
+        counts.set(item.product.id, (counts.get(item.product.id) || 0) + item.quantity);
       });
     });
     return counts;
   }, [orders]);
 
-  // Build average rating map from reviews
+  // Build average rating map from reviews (for admin sort)
   const avgRatingMap = useMemo(() => {
     const ratings = new Map<string, number>();
     products.forEach((p) => {
-      const productReviews = reviews.filter(
-        (r) => r.productId === p.id && r.status === 'approved'
-      );
-      if (productReviews.length > 0) {
-        const avg =
-          productReviews.reduce((sum, r) => sum + r.rating, 0) /
-          productReviews.length;
-        ratings.set(p.id, avg);
+      const approved = reviews.filter((r) => r.productId === p.id && r.status === 'approved');
+      if (approved.length > 0) {
+        ratings.set(p.id, approved.reduce((sum, r) => sum + r.rating, 0) / approved.length);
       } else {
         ratings.set(p.id, 0);
       }
@@ -95,31 +80,25 @@ export default function CategoryPageClient({
     return ratings;
   }, [products, reviews]);
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    let list = [...products];
-
-    if (filterInStock) {
-      list = list.filter((p) => p.colorways.some((c) => c.inStock));
-    }
-
-    if (selectedColor) {
-      list = list.filter((p) => p.colorways.some((c) => c.hex === selectedColor));
-    }
-
-    switch (sortBy) {
-      case 'price-asc':
-        list.sort((a, b) => a.price - b.price);
+  // Apply admin ordering to get the "featured" base order
+  const adminSortedProducts = useMemo(() => {
+    const list = [...products];
+    switch (adminOrdering.sortOrder) {
+      case 'manual': {
+        if (adminOrdering.manualOrder.length > 0) {
+          const orderMap = new Map(adminOrdering.manualOrder.map((id, idx) => [id, idx]));
+          list.sort((a, b) => {
+            const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+            const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+            return aIdx - bIdx;
+          });
+        } else {
+          list.sort((a, b) => a.featuredRank - b.featuredRank);
+        }
         break;
-      case 'price-desc':
-        list.sort((a, b) => b.price - a.price);
-        break;
+      }
       case 'most-purchased':
-        list.sort(
-          (a, b) =>
-            (purchaseCountMap.get(b.id) || 0) -
-            (purchaseCountMap.get(a.id) || 0)
-        );
+        list.sort((a, b) => (purchaseCountMap.get(b.id) || 0) - (purchaseCountMap.get(a.id) || 0));
         break;
       case 'newest':
         list.sort((a, b) => {
@@ -136,19 +115,51 @@ export default function CategoryPageClient({
         });
         break;
       case 'best-rating':
-        list.sort(
-          (a, b) =>
-            (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0)
-        );
+        list.sort((a, b) => (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0));
         break;
-      case 'featured':
       default:
         list.sort((a, b) => a.featuredRank - b.featuredRank);
-        break;
+    }
+    return list;
+  }, [products, adminOrdering, purchaseCountMap, avgRatingMap]);
+
+  // Extract unique colors available in this category
+  const availableColors = useMemo(() => {
+    const colorMap = new Map<string, { id: string; name: string; hex: string }>();
+    products.forEach((p) => {
+      p.colorways.forEach((c) => {
+        if (!colorMap.has(c.hex)) {
+          colorMap.set(c.hex, c);
+        }
+      });
+    });
+    return Array.from(colorMap.values());
+  }, [products]);
+
+  // Filter and apply user-facing sort (customer sort overrides admin order for price/newest)
+  const filteredProducts = useMemo(() => {
+    let list = [...adminSortedProducts];
+
+    if (filterInStock) {
+      list = list.filter((p) => p.colorways.some((c) => c.inStock));
     }
 
+    if (selectedColor) {
+      list = list.filter((p) => p.colorways.some((c) => c.hex === selectedColor));
+    }
+
+    // User-facing sort: "featured" uses the admin order (already applied above)
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'newest') {
+      list.sort((a, b) => (b.isNewDrop ? 1 : 0) - (a.isNewDrop ? 1 : 0));
+    }
+    // 'featured' → keep admin order
+
     return list;
-  }, [products, sortBy, filterInStock, selectedColor, purchaseCountMap, avgRatingMap]);
+  }, [adminSortedProducts, sortBy, filterInStock, selectedColor]);
 
   // Category specific trust note
   const categoryHighlights = useMemo(() => {
@@ -306,17 +317,14 @@ export default function CategoryPageClient({
             <div className="relative inline-flex items-center">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                onChange={(e) => setSortBy(e.target.value as any)}
                 className="appearance-none bg-paper border border-line pl-3 pr-8 py-1.5 text-xs text-ink font-medium focus:outline-none focus:border-gold cursor-pointer rounded-xs"
                 aria-label="Sort products"
               >
                 <option value="featured">Sort: Featured</option>
-                <option value="most-purchased">Sort: Most Purchased</option>
-                <option value="newest">Sort: New to Old</option>
-                <option value="oldest">Sort: Old to New</option>
-                <option value="best-rating">Sort: Best Rated</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
+                <option value="newest">New Drops First</option>
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-text-muted absolute right-2.5 pointer-events-none" />
             </div>

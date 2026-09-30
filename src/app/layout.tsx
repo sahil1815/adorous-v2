@@ -12,6 +12,7 @@ import { OrdersProvider } from "@/context/OrdersContext";
 import { InventoryProvider } from "@/context/InventoryContext";
 import { CouponsProvider } from "@/context/CouponsContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
+import { ProductOrderingProvider } from "@/context/ProductOrderingContext";
 import { LandingPagesProvider } from "@/context/LandingPagesContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { NewVisitorOfferProvider } from "@/context/NewVisitorOfferContext";
@@ -84,19 +85,21 @@ export default function RootLayout({
             <InventoryProvider>
               <CouponsProvider>
                 <ReviewsProvider>
-                  <LandingPagesProvider>
-                    <CartProvider>
-                      <WishlistProvider>
-                        <CustomerAuthProvider>
-                          <NewVisitorOfferProvider>
-                            <StorefrontLayoutWrapper>
-                              {children}
-                            </StorefrontLayoutWrapper>
-                          </NewVisitorOfferProvider>
-                        </CustomerAuthProvider>
-                      </WishlistProvider>
-                    </CartProvider>
-                  </LandingPagesProvider>
+                  <ProductOrderingProvider>
+                    <LandingPagesProvider>
+                      <CartProvider>
+                        <WishlistProvider>
+                          <CustomerAuthProvider>
+                            <NewVisitorOfferProvider>
+                              <StorefrontLayoutWrapper>
+                                {children}
+                              </StorefrontLayoutWrapper>
+                            </NewVisitorOfferProvider>
+                          </CustomerAuthProvider>
+                        </WishlistProvider>
+                      </CartProvider>
+                    </LandingPagesProvider>
+                  </ProductOrderingProvider>
                 </ReviewsProvider>
               </CouponsProvider>
             </InventoryProvider>

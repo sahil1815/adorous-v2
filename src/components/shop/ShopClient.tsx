@@ -6,6 +6,7 @@ import { CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
 import { useInventory } from '@/context/InventoryContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
+import { useProductOrdering } from '@/context/ProductOrderingContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import {
@@ -16,7 +17,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 
-type SortOption = 'featured' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating' | 'price-asc' | 'price-desc';
+type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 interface ShopClientProps {
   initialProducts: Product[];
@@ -24,6 +25,7 @@ interface ShopClientProps {
 
 export default function ShopClient({ initialProducts }: ShopClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
+  const { getOrdering } = useProductOrdering();
   const { orders } = useOrders();
   const { reviews } = useReviews();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -35,7 +37,10 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
   // Base products: prioritize live InventoryContext if loaded, fallback to server-rendered initialProducts
   const activeProducts = allProducts.length > 0 ? allProducts : initialProducts;
 
-  // Build purchase count map from orders
+  // Get admin-configured ordering for Shop All
+  const adminOrdering = getOrdering('shop-all');
+
+  // Build purchase count map from orders (for admin sort)
   const purchaseCountMap = useMemo(() => {
     const counts = new Map<string, number>();
     orders.forEach((order) => {
@@ -48,7 +53,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
     return counts;
   }, [orders]);
 
-  // Build average rating map from reviews
+  // Build average rating map from reviews (for admin sort)
   const avgRatingMap = useMemo(() => {
     const ratings = new Map<string, number>();
     activeProducts.forEach((p) => {
@@ -67,9 +72,52 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
     return ratings;
   }, [activeProducts, reviews]);
 
-  // Filter and sort products
+  // Apply admin ordering to get the "featured" base order
+  const adminSortedProducts = useMemo(() => {
+    const list = [...activeProducts];
+    switch (adminOrdering.sortOrder) {
+      case 'manual': {
+        if (adminOrdering.manualOrder.length > 0) {
+          const orderMap = new Map(adminOrdering.manualOrder.map((id, idx) => [id, idx]));
+          list.sort((a, b) => {
+            const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+            const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+            return aIdx - bIdx;
+          });
+        } else {
+          list.sort((a, b) => a.featuredRank - b.featuredRank);
+        }
+        break;
+      }
+      case 'most-purchased':
+        list.sort((a, b) => (purchaseCountMap.get(b.id) || 0) - (purchaseCountMap.get(a.id) || 0));
+        break;
+      case 'newest':
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return -1;
+          if (!a.isNewDrop && b.isNewDrop) return 1;
+          return a.featuredRank - b.featuredRank;
+        });
+        break;
+      case 'oldest':
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return 1;
+          if (!a.isNewDrop && b.isNewDrop) return -1;
+          return b.featuredRank - a.featuredRank;
+        });
+        break;
+      case 'best-rating':
+        list.sort((a, b) => (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0));
+        break;
+      default:
+        list.sort((a, b) => a.featuredRank - b.featuredRank);
+    }
+    return list;
+  }, [activeProducts, adminOrdering, purchaseCountMap, avgRatingMap]);
+
+  // Filter and sort products (customer sort overrides admin order for price/newest)
   const filteredProducts = useMemo(() => {
-    return activeProducts.map(getEffectiveProduct).filter((product) => {
+    let list = adminSortedProducts.map(getEffectiveProduct).filter((product) => {
       // Category filter
       if (selectedCategory !== 'all' && product.category !== selectedCategory) {
         return false;
@@ -97,32 +145,19 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
       }
 
       return true;
-    }).sort((a, b) => {
-      switch (sortBy) {
-        case 'price-asc':
-          return a.price - b.price;
-        case 'price-desc':
-          return b.price - a.price;
-        case 'most-purchased':
-          return (purchaseCountMap.get(b.id) || 0) - (purchaseCountMap.get(a.id) || 0);
-        case 'newest': {
-          if (a.isNewDrop && !b.isNewDrop) return -1;
-          if (!a.isNewDrop && b.isNewDrop) return 1;
-          return a.featuredRank - b.featuredRank;
-        }
-        case 'oldest': {
-          if (a.isNewDrop && !b.isNewDrop) return 1;
-          if (!a.isNewDrop && b.isNewDrop) return -1;
-          return b.featuredRank - a.featuredRank;
-        }
-        case 'best-rating':
-          return (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0);
-        case 'featured':
-        default:
-          return a.featuredRank - b.featuredRank;
-      }
     });
-  }, [activeProducts, getEffectiveProduct, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy, purchaseCountMap, avgRatingMap]);
+
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'newest') {
+      list.sort((a, b) => (b.isNewDrop ? 1 : 0) - (a.isNewDrop ? 1 : 0));
+    }
+    // 'featured' keeps adminSortedProducts order
+
+    return list;
+  }, [adminSortedProducts, getEffectiveProduct, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy]);
 
   const activeFiltersCount =
     (selectedCategory !== 'all' ? 1 : 0) +
@@ -295,12 +330,9 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                 aria-label="Sort products"
               >
                 <option value="featured">Sort: Featured</option>
-                <option value="most-purchased">Sort: Most Purchased</option>
-                <option value="newest">Sort: New to Old</option>
-                <option value="oldest">Sort: Old to New</option>
-                <option value="best-rating">Sort: Best Rated</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
+                <option value="newest">New Drops First</option>
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-text-muted absolute right-2.5 pointer-events-none" />
             </div>

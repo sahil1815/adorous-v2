@@ -21,7 +21,8 @@ import {
   MessageSquare,
   FileText,
   Users,
-  ShoppingBag
+  ShoppingBag,
+  ArrowUpDown
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -199,6 +200,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Layers className="w-3.5 h-3.5" />
             <span>Inventory & Stock</span>
+          </Link>
+
+          <Link
+            href="/admin/product-ordering"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/product-ordering'
+                ? 'bg-gold text-ink font-semibold shadow-sm'
+                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+            }`}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            <span>Product Ordering</span>
           </Link>
 
           <Link
