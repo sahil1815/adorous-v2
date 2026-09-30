@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Review, ReviewStatus } from '@/types';
 
 interface ReviewsContextType {
@@ -100,11 +100,11 @@ export const ReviewsProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const getReviewsForProduct = (productId: string) => {
+  const getReviewsForProduct = useCallback((productId: string) => {
     // Both storefront and admin might need reviews, but storefront only needs 'approved'
     // This context returns all for a product, let components filter as needed
     return reviews.filter((r) => r.productId === productId);
-  };
+  }, [reviews]);
 
   return (
     <ReviewsContext.Provider

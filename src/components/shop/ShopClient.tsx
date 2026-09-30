@@ -4,6 +4,8 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
 import { useInventory } from '@/context/InventoryContext';
+import { useOrders } from '@/context/OrdersContext';
+import { useReviews } from '@/context/ReviewsContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import {
@@ -14,20 +16,56 @@ import {
   MessageCircle,
 } from 'lucide-react';
 
+type SortOption = 'featured' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating' | 'price-asc' | 'price-desc';
+
 interface ShopClientProps {
   initialProducts: Product[];
 }
 
 export default function ShopClient({ initialProducts }: ShopClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
+  const { orders } = useOrders();
+  const { reviews } = useReviews();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterInStock, setFilterInStock] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'newest'>('featured');
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
 
   // Base products: prioritize live InventoryContext if loaded, fallback to server-rendered initialProducts
   const activeProducts = allProducts.length > 0 ? allProducts : initialProducts;
+
+  // Build purchase count map from orders
+  const purchaseCountMap = useMemo(() => {
+    const counts = new Map<string, number>();
+    orders.forEach((order) => {
+      if (order.status === 'cancelled') return;
+      order.items.forEach((item) => {
+        const pid = item.product.id;
+        counts.set(pid, (counts.get(pid) || 0) + item.quantity);
+      });
+    });
+    return counts;
+  }, [orders]);
+
+  // Build average rating map from reviews
+  const avgRatingMap = useMemo(() => {
+    const ratings = new Map<string, number>();
+    activeProducts.forEach((p) => {
+      const productReviews = reviews.filter(
+        (r) => r.productId === p.id && r.status === 'approved'
+      );
+      if (productReviews.length > 0) {
+        const avg =
+          productReviews.reduce((sum, r) => sum + r.rating, 0) /
+          productReviews.length;
+        ratings.set(p.id, avg);
+      } else {
+        ratings.set(p.id, 0);
+      }
+    });
+    return ratings;
+  }, [activeProducts, reviews]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -60,12 +98,31 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
 
       return true;
     }).sort((a, b) => {
-      if (sortBy === 'price-asc') return a.price - b.price;
-      if (sortBy === 'price-desc') return b.price - a.price;
-      if (sortBy === 'newest') return (b.isNewDrop ? 1 : 0) - (a.isNewDrop ? 1 : 0);
-      return a.featuredRank - b.featuredRank;
+      switch (sortBy) {
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'most-purchased':
+          return (purchaseCountMap.get(b.id) || 0) - (purchaseCountMap.get(a.id) || 0);
+        case 'newest': {
+          if (a.isNewDrop && !b.isNewDrop) return -1;
+          if (!a.isNewDrop && b.isNewDrop) return 1;
+          return a.featuredRank - b.featuredRank;
+        }
+        case 'oldest': {
+          if (a.isNewDrop && !b.isNewDrop) return 1;
+          if (!a.isNewDrop && b.isNewDrop) return -1;
+          return b.featuredRank - a.featuredRank;
+        }
+        case 'best-rating':
+          return (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0);
+        case 'featured':
+        default:
+          return a.featuredRank - b.featuredRank;
+      }
     });
-  }, [activeProducts, getEffectiveProduct, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy]);
+  }, [activeProducts, getEffectiveProduct, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy, purchaseCountMap, avgRatingMap]);
 
   const activeFiltersCount =
     (selectedCategory !== 'all' ? 1 : 0) +
@@ -233,14 +290,17 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
             <div className="relative inline-flex items-center">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="appearance-none bg-paper border border-line pl-3 pr-8 py-1.5 text-xs text-ink font-medium focus:outline-none focus:border-gold cursor-pointer rounded-xs"
                 aria-label="Sort products"
               >
                 <option value="featured">Sort: Featured</option>
+                <option value="most-purchased">Sort: Most Purchased</option>
+                <option value="newest">Sort: New to Old</option>
+                <option value="oldest">Sort: Old to New</option>
+                <option value="best-rating">Sort: Best Rated</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
-                <option value="newest">New Drops First</option>
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-text-muted absolute right-2.5 pointer-events-none" />
             </div>

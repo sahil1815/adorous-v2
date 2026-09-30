@@ -24,24 +24,28 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
   const { getPageBySlug } = useLandingPages();
   const { allProducts, getEffectiveProduct } = useInventory();
   const { orders } = useOrders();
-  const { getReviewsForProduct } = useReviews();
+  const { reviews } = useReviews();
   const page = getPageBySlug(slug);
 
   if (!page || !page.isActive) {
     notFound();
   }
 
+  // Extract stable values from the page to avoid reference instability
+  const sortOrder = page.sortOrder || 'manual';
+  const productIds = page.productIds;
+
   const pool = allProducts.length > 0 ? allProducts : PRODUCTS;
 
   // Resolve the selected products from inventory
   const resolvedProducts: Product[] = useMemo(() => {
-    return page.productIds
+    return productIds
       .map((id) => {
         const match = pool.find((p) => p.id === id || p.slug === id);
         return match ? getEffectiveProduct(match) : undefined;
       })
       .filter((p): p is Product => p !== undefined);
-  }, [page.productIds, pool, getEffectiveProduct]);
+  }, [productIds, pool, getEffectiveProduct]);
 
   // Build purchase count map from orders
   const purchaseCountMap = useMemo(() => {
@@ -60,8 +64,8 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
   const avgRatingMap = useMemo(() => {
     const ratings = new Map<string, number>();
     resolvedProducts.forEach((p) => {
-      const productReviews = getReviewsForProduct(p.id).filter(
-        (r) => r.status === 'approved'
+      const productReviews = reviews.filter(
+        (r) => r.productId === p.id && r.status === 'approved'
       );
       if (productReviews.length > 0) {
         const avg =
@@ -73,10 +77,9 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
       }
     });
     return ratings;
-  }, [resolvedProducts, getReviewsForProduct]);
+  }, [resolvedProducts, reviews]);
 
   // Apply sort order
-  const sortOrder = page.sortOrder || 'manual';
   const products = useMemo(() => {
     const list = [...resolvedProducts];
 
@@ -89,8 +92,6 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
         );
         break;
       case 'newest':
-        // Sort by featuredRank ascending (lower = newer) as a proxy,
-        // or by isNewDrop flag, with new-drops first
         list.sort((a, b) => {
           if (a.isNewDrop && !b.isNewDrop) return -1;
           if (!a.isNewDrop && b.isNewDrop) return 1;

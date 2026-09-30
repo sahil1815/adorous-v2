@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
+import { useOrders } from '@/context/OrdersContext';
+import { useReviews } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
 import {
   SlidersHorizontal,
@@ -16,6 +18,8 @@ import {
   Sparkles,
   HelpCircle
 } from 'lucide-react';
+
+type SortOption = 'featured' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating' | 'price-asc' | 'price-desc';
 
 interface CategoryPageClientProps {
   categorySlug: string;
@@ -33,7 +37,9 @@ export default function CategoryPageClient({
   products: initialProducts,
 }: CategoryPageClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'newest'>('featured');
+  const { orders } = useOrders();
+  const { reviews } = useReviews();
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [filterInStock, setFilterInStock] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
@@ -57,6 +63,38 @@ export default function CategoryPageClient({
     return Array.from(colorMap.values());
   }, [products]);
 
+  // Build purchase count map from orders
+  const purchaseCountMap = useMemo(() => {
+    const counts = new Map<string, number>();
+    orders.forEach((order) => {
+      if (order.status === 'cancelled') return;
+      order.items.forEach((item) => {
+        const pid = item.product.id;
+        counts.set(pid, (counts.get(pid) || 0) + item.quantity);
+      });
+    });
+    return counts;
+  }, [orders]);
+
+  // Build average rating map from reviews
+  const avgRatingMap = useMemo(() => {
+    const ratings = new Map<string, number>();
+    products.forEach((p) => {
+      const productReviews = reviews.filter(
+        (r) => r.productId === p.id && r.status === 'approved'
+      );
+      if (productReviews.length > 0) {
+        const avg =
+          productReviews.reduce((sum, r) => sum + r.rating, 0) /
+          productReviews.length;
+        ratings.set(p.id, avg);
+      } else {
+        ratings.set(p.id, 0);
+      }
+    });
+    return ratings;
+  }, [products, reviews]);
+
   // Filter and sort products
   const filteredProducts = useMemo(() => {
     let list = [...products];
@@ -69,18 +107,48 @@ export default function CategoryPageClient({
       list = list.filter((p) => p.colorways.some((c) => c.hex === selectedColor));
     }
 
-    if (sortBy === 'price-asc') {
-      list.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      list.sort((a, b) => b.price - a.price);
-    } else if (sortBy === 'newest') {
-      list.sort((a, b) => (b.isNewDrop ? 1 : 0) - (a.isNewDrop ? 1 : 0));
-    } else {
-      list.sort((a, b) => a.featuredRank - b.featuredRank);
+    switch (sortBy) {
+      case 'price-asc':
+        list.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        list.sort((a, b) => b.price - a.price);
+        break;
+      case 'most-purchased':
+        list.sort(
+          (a, b) =>
+            (purchaseCountMap.get(b.id) || 0) -
+            (purchaseCountMap.get(a.id) || 0)
+        );
+        break;
+      case 'newest':
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return -1;
+          if (!a.isNewDrop && b.isNewDrop) return 1;
+          return a.featuredRank - b.featuredRank;
+        });
+        break;
+      case 'oldest':
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return 1;
+          if (!a.isNewDrop && b.isNewDrop) return -1;
+          return b.featuredRank - a.featuredRank;
+        });
+        break;
+      case 'best-rating':
+        list.sort(
+          (a, b) =>
+            (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0)
+        );
+        break;
+      case 'featured':
+      default:
+        list.sort((a, b) => a.featuredRank - b.featuredRank);
+        break;
     }
 
     return list;
-  }, [products, sortBy, filterInStock, selectedColor]);
+  }, [products, sortBy, filterInStock, selectedColor, purchaseCountMap, avgRatingMap]);
 
   // Category specific trust note
   const categoryHighlights = useMemo(() => {
@@ -238,14 +306,17 @@ export default function CategoryPageClient({
             <div className="relative inline-flex items-center">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="appearance-none bg-paper border border-line pl-3 pr-8 py-1.5 text-xs text-ink font-medium focus:outline-none focus:border-gold cursor-pointer rounded-xs"
                 aria-label="Sort products"
               >
                 <option value="featured">Sort: Featured</option>
+                <option value="most-purchased">Sort: Most Purchased</option>
+                <option value="newest">Sort: New to Old</option>
+                <option value="oldest">Sort: Old to New</option>
+                <option value="best-rating">Sort: Best Rated</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
-                <option value="newest">New Drops First</option>
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-text-muted absolute right-2.5 pointer-events-none" />
             </div>
