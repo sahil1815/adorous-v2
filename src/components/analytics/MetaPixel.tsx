@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect, Suspense } from 'react';
-import { FB_PIXEL_ID, pageview } from '@/lib/fpixel';
+import { setPixelId, pageview } from '@/lib/fpixel';
 
 function MetaPixelTracker() {
   const pathname = usePathname();
@@ -18,8 +18,25 @@ function MetaPixelTracker() {
   return null;
 }
 
-export default function MetaPixel() {
-  if (!FB_PIXEL_ID) {
+interface MetaPixelProps {
+  pixelId?: string;
+}
+
+export default function MetaPixel({ pixelId }: MetaPixelProps) {
+  const activePixelId =
+    pixelId ||
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID ||
+    process.env.FACEBOOK_PIXEL_ID ||
+    process.env.NEXT_PUBLIC_META_PIXEL_ID ||
+    process.env.META_PIXEL_ID;
+
+  useEffect(() => {
+    if (activePixelId) {
+      setPixelId(activePixelId);
+    }
+  }, [activePixelId]);
+
+  if (!activePixelId) {
     return null;
   }
 
@@ -38,7 +55,7 @@ export default function MetaPixel() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${FB_PIXEL_ID}');
+            fbq('init', '${activePixelId}');
             fbq('track', 'PageView');
           `,
         }}

@@ -70,6 +70,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const fbPixelId =
+    process.env.FACEBOOK_PIXEL_ID ||
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID ||
+    process.env.META_PIXEL_ID ||
+    process.env.NEXT_PUBLIC_META_PIXEL_ID;
+
   return (
     <html lang="en">
       <head>
@@ -107,7 +113,7 @@ export default function RootLayout({
           </OrdersProvider>
         </AdminAuthProvider>
         <Analytics />
-        <MetaPixel />
+        <MetaPixel pixelId={fbPixelId} />
       </body>
     </html>
   );
