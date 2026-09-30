@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+export type SortOrder = 'manual' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating';
+
 export interface LandingPage {
   id: string;
   slug: string;
@@ -9,6 +11,7 @@ export interface LandingPage {
   headline: string;
   subtitle?: string;
   productIds: string[];
+  sortOrder: SortOrder;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -44,7 +47,13 @@ export function LandingPagesProvider({ children }: { children: React.ReactNode }
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setPages(JSON.parse(stored));
+        const parsed: LandingPage[] = JSON.parse(stored);
+        // Migrate legacy pages that lack sortOrder
+        const migrated = parsed.map((p) => ({
+          ...p,
+          sortOrder: p.sortOrder || ('manual' as SortOrder),
+        }));
+        setPages(migrated);
       }
     } catch {
       console.warn('[LandingPagesContext] Failed to read from localStorage');

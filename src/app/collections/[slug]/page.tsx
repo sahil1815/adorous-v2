@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { notFound } from 'next/navigation';
 import { use } from 'react';
 import Link from 'next/link';
 import { useLandingPages } from '@/context/LandingPagesContext';
 import { useInventory } from '@/context/InventoryContext';
+import { useOrders } from '@/context/OrdersContext';
+import { useReviews } from '@/context/ReviewsContext';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
@@ -21,6 +23,8 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
   const { slug } = use(params);
   const { getPageBySlug } = useLandingPages();
   const { allProducts, getEffectiveProduct } = useInventory();
+  const { orders } = useOrders();
+  const { getReviewsForProduct } = useReviews();
   const page = getPageBySlug(slug);
 
   if (!page || !page.isActive) {
@@ -29,13 +33,91 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
 
   const pool = allProducts.length > 0 ? allProducts : PRODUCTS;
 
-  // Resolve the selected products from inventory, preserving selection order
-  const products: Product[] = page.productIds
-    .map((id) => {
-      const match = pool.find((p) => p.id === id || p.slug === id);
-      return match ? getEffectiveProduct(match) : undefined;
-    })
-    .filter((p): p is Product => p !== undefined);
+  // Resolve the selected products from inventory
+  const resolvedProducts: Product[] = useMemo(() => {
+    return page.productIds
+      .map((id) => {
+        const match = pool.find((p) => p.id === id || p.slug === id);
+        return match ? getEffectiveProduct(match) : undefined;
+      })
+      .filter((p): p is Product => p !== undefined);
+  }, [page.productIds, pool, getEffectiveProduct]);
+
+  // Build purchase count map from orders
+  const purchaseCountMap = useMemo(() => {
+    const counts = new Map<string, number>();
+    orders.forEach((order) => {
+      if (order.status === 'cancelled') return;
+      order.items.forEach((item) => {
+        const pid = item.product.id;
+        counts.set(pid, (counts.get(pid) || 0) + item.quantity);
+      });
+    });
+    return counts;
+  }, [orders]);
+
+  // Build average rating map from reviews
+  const avgRatingMap = useMemo(() => {
+    const ratings = new Map<string, number>();
+    resolvedProducts.forEach((p) => {
+      const productReviews = getReviewsForProduct(p.id).filter(
+        (r) => r.status === 'approved'
+      );
+      if (productReviews.length > 0) {
+        const avg =
+          productReviews.reduce((sum, r) => sum + r.rating, 0) /
+          productReviews.length;
+        ratings.set(p.id, avg);
+      } else {
+        ratings.set(p.id, 0);
+      }
+    });
+    return ratings;
+  }, [resolvedProducts, getReviewsForProduct]);
+
+  // Apply sort order
+  const sortOrder = page.sortOrder || 'manual';
+  const products = useMemo(() => {
+    const list = [...resolvedProducts];
+
+    switch (sortOrder) {
+      case 'most-purchased':
+        list.sort(
+          (a, b) =>
+            (purchaseCountMap.get(b.id) || 0) -
+            (purchaseCountMap.get(a.id) || 0)
+        );
+        break;
+      case 'newest':
+        // Sort by featuredRank ascending (lower = newer) as a proxy,
+        // or by isNewDrop flag, with new-drops first
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return -1;
+          if (!a.isNewDrop && b.isNewDrop) return 1;
+          return a.featuredRank - b.featuredRank;
+        });
+        break;
+      case 'oldest':
+        list.sort((a, b) => {
+          if (a.isNewDrop && !b.isNewDrop) return 1;
+          if (!a.isNewDrop && b.isNewDrop) return -1;
+          return b.featuredRank - a.featuredRank;
+        });
+        break;
+      case 'best-rating':
+        list.sort(
+          (a, b) =>
+            (avgRatingMap.get(b.id) || 0) - (avgRatingMap.get(a.id) || 0)
+        );
+        break;
+      case 'manual':
+      default:
+        // Keep the order from productIds (already resolved in order)
+        break;
+    }
+
+    return list;
+  }, [resolvedProducts, sortOrder, purchaseCountMap, avgRatingMap]);
 
   return (
     <div className="min-h-screen bg-paper">

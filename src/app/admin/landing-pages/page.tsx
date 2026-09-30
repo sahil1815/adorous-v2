@@ -6,6 +6,7 @@ import {
   useLandingPages,
   LandingPage,
   LandingPageCreateInput,
+  SortOrder,
 } from '@/context/LandingPagesContext';
 import { useInventory } from '@/context/InventoryContext';
 import { getAllProducts } from '@/app/actions/productActions';
@@ -29,6 +30,7 @@ import {
   Sparkles,
   CheckCircle2,
   GripVertical,
+  ArrowUpDown,
 } from 'lucide-react';
 
 function fromDbProduct(p: any): Product {
@@ -149,6 +151,7 @@ export default function AdminLandingPagesPage() {
   const [headline, setHeadline] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('manual');
   const [isActive, setIsActive] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
   const [productSearch, setProductSearch] = useState('');
@@ -185,6 +188,7 @@ export default function AdminLandingPagesPage() {
     setHeadline('');
     setSubtitle('');
     setSelectedProductIds([]);
+    setSortOrder('manual');
     setIsActive(true);
     setFormError(null);
     setProductSearch('');
@@ -208,6 +212,7 @@ export default function AdminLandingPagesPage() {
     setHeadline(page.headline);
     setSubtitle(page.subtitle || '');
     setSelectedProductIds([...page.productIds]);
+    setSortOrder(page.sortOrder || 'manual');
     setIsActive(page.isActive);
     setFormError(null);
     setProductSearch('');
@@ -284,6 +289,7 @@ export default function AdminLandingPagesPage() {
         headline: headline.trim(),
         subtitle: subtitle.trim() || undefined,
         productIds: selectedProductIds,
+        sortOrder,
         isActive,
       });
       showSuccess(`"${title.trim()}" updated successfully.`);
@@ -294,6 +300,7 @@ export default function AdminLandingPagesPage() {
         headline: headline.trim(),
         subtitle: subtitle.trim() || undefined,
         productIds: selectedProductIds,
+        sortOrder,
         isActive,
       };
       createPage(input);
@@ -431,7 +438,7 @@ export default function AdminLandingPagesPage() {
                           {page.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-2 text-xs text-paper/40">
+                      <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs text-paper/40">
                         <Link2 className="w-3 h-3" />
                         <span className="font-mono">/collections/{page.slug}</span>
                         <span className="text-paper/20">·</span>
@@ -443,6 +450,21 @@ export default function AdminLandingPagesPage() {
                             month: 'short',
                             year: 'numeric',
                           })}
+                        </span>
+                        <span className="text-paper/20">·</span>
+                        <span className="inline-flex items-center space-x-1">
+                          <ArrowUpDown className="w-2.5 h-2.5" />
+                          <span>
+                            {(page.sortOrder || 'manual') === 'manual'
+                              ? 'Manual'
+                              : page.sortOrder === 'most-purchased'
+                              ? 'Most Purchased'
+                              : page.sortOrder === 'newest'
+                              ? 'Newest First'
+                              : page.sortOrder === 'oldest'
+                              ? 'Oldest First'
+                              : 'Best Rating'}
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -664,6 +686,39 @@ export default function AdminLandingPagesPage() {
                   placeholder="e.g. Up to 30% off on selected pieces"
                   className="w-full px-3 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xs text-sm text-paper placeholder:text-paper/25 focus:outline-none focus:border-gold/40 transition-colors"
                 />
+              </div>
+
+              {/* Sort Order */}
+              <div>
+                <label className="block text-xs font-semibold text-paper/70 uppercase tracking-wider mb-1.5">
+                  <span className="flex items-center space-x-1.5">
+                    <ArrowUpDown className="w-3.5 h-3.5" />
+                    <span>Product Sort Order</span>
+                  </span>
+                </label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                  className="w-full px-3 py-2.5 bg-[#0E0E0E] border border-white/10 rounded-xs text-sm text-paper focus:outline-none focus:border-gold/40 transition-colors appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
+                >
+                  <option value="manual">Manual — Use drag order above</option>
+                  <option value="most-purchased">Auto — Most Purchased First</option>
+                  <option value="newest">Auto — Newest to Oldest</option>
+                  <option value="oldest">Auto — Oldest to Newest</option>
+                  <option value="best-rating">Auto — Best Seller by Rating</option>
+                </select>
+                <p className="text-[10px] text-paper/30 mt-1">
+                  {sortOrder === 'manual'
+                    ? 'Products appear in the order you selected them.'
+                    : sortOrder === 'most-purchased'
+                    ? 'Products are sorted by total purchase count (highest first).'
+                    : sortOrder === 'newest'
+                    ? 'Products are sorted by creation date (newest first).'
+                    : sortOrder === 'oldest'
+                    ? 'Products are sorted by creation date (oldest first).'
+                    : 'Products are sorted by average customer rating (highest first).'}
+                </p>
               </div>
 
               {/* Status Toggle */}
