@@ -17,6 +17,7 @@ import { LandingPagesProvider } from "@/context/LandingPagesContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { NewVisitorOfferProvider } from "@/context/NewVisitorOfferContext";
 import StorefrontLayoutWrapper from "@/components/layout/StorefrontLayoutWrapper";
+import MetaPixel from "@/components/analytics/MetaPixel";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -106,6 +107,7 @@ export default function RootLayout({
           </OrdersProvider>
         </AdminAuthProvider>
         <Analytics />
+        <MetaPixel />
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ import ChuriSizingModal from './ChuriSizingModal';
 import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
 import { renderFormattedText } from '@/lib/formatText';
+import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShoppingBag,
   MessageCircle,
@@ -48,7 +49,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    trackFbEvent('ViewContent', {
+      content_name: product.name,
+      content_category: product.categoryLabel || product.category,
+      content_ids: [product.id],
+      content_type: 'product',
+      value: product.price,
+      currency: 'BDT',
+    });
+  }, [product.id, product.name, product.categoryLabel, product.category, product.price]);
 
   const isSaved = isInWishlist(product.id);
 

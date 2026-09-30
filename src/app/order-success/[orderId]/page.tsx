@@ -16,6 +16,7 @@ import {
   Package,
   PhoneCall
 } from 'lucide-react';
+import { event as trackFbEvent } from '@/lib/fpixel';
 
 interface OrderData {
   orderId: string;
@@ -63,6 +64,19 @@ export default function OrderSuccessPage() {
         const parsed = JSON.parse(saved);
         if (parsed.orderId === orderId) {
           setOrder(parsed);
+
+          // Track Meta Pixel Purchase event once
+          const trackedKey = `adorous_fb_tracked_${orderId}`;
+          if (!sessionStorage.getItem(trackedKey)) {
+            sessionStorage.setItem(trackedKey, 'true');
+            trackFbEvent('Purchase', {
+              content_type: 'product',
+              content_ids: (parsed.items || []).map((i: any) => i.product.id),
+              value: parsed.grandTotal,
+              currency: 'BDT',
+              num_items: (parsed.items || []).reduce((sum: number, i: any) => sum + (i.quantity || 1), 0),
+            });
+          }
         }
       }
     } catch (e) {

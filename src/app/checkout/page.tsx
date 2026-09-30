@@ -13,6 +13,7 @@ import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
+import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShieldCheck,
   Truck,
@@ -51,6 +52,18 @@ export default function CheckoutPage() {
       sessionStorage.setItem('adorous_draft_checkout_session', sid);
     }
     setDraftSessionId(sid);
+  }, []);
+
+  // Track Meta Pixel InitiateCheckout
+  useEffect(() => {
+    if (items.length > 0) {
+      trackFbEvent('InitiateCheckout', {
+        num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+        content_ids: items.map((item) => item.product.id),
+        value: subtotal,
+        currency: 'BDT',
+      });
+    }
   }, []);
 
   // Deletion Confirmation Modal State
