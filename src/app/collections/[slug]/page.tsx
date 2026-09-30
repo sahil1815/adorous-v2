@@ -173,22 +173,20 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
       </section>
 
       {/* Bottom CTA */}
-      <section className="bg-stone border-t border-line/50 py-12 text-center">
-        <p className="text-xs uppercase tracking-[0.2em] text-text-muted mb-4">
+      <section className="bg-[#F4F1EA] border-t border-line py-8 sm:py-10 text-center px-4">
+        <h2 className="font-serif text-base sm:text-lg font-medium text-ink tracking-wide mb-3">
           Explore The Full Collection
-        </p>
+        </h2>
         <Link
           href="/shop"
-          className="inline-flex items-center space-x-2 px-8 py-3 bg-sand text-gold border border-gold/30 hover:bg-sand/90 hover:border-gold/50 transition-colors text-sm font-medium tracking-wider uppercase"
+          className="inline-flex items-center justify-center space-x-2 px-7 py-2.5 bg-ink text-paper hover:bg-gold hover:text-ink border border-ink text-xs font-semibold tracking-[0.16em] uppercase rounded-xs transition-all shadow-xs"
         >
           <span>Visit Our Shop</span>
         </Link>
 
-        <div className="mt-8 flex flex-col items-center space-y-2">
-          <p className="text-[11px] text-text-muted">
-            Free delivery on orders above ৳2,000 · Cash on Delivery across Bangladesh
-          </p>
-        </div>
+        <p className="text-xs text-ink/65 font-medium mt-3.5 tracking-normal">
+          Free delivery on orders above ৳2,000 · Cash on Delivery across Bangladesh
+        </p>
       </section>
     </div>
   );
