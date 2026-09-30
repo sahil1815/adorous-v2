@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
   useLandingPages,
   LandingPage,
   LandingPageCreateInput,
 } from '@/context/LandingPagesContext';
+import { useInventory } from '@/context/InventoryContext';
+import { getAllProducts } from '@/app/actions/productActions';
 import { PRODUCTS } from '@/data/catalogue';
+import { Product, ProductCategory } from '@/types';
 import {
   Plus,
   Copy,
@@ -27,6 +30,50 @@ import {
   CheckCircle2,
   GripVertical,
 } from 'lucide-react';
+
+function fromDbProduct(p: any): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    category: p.category as ProductCategory,
+    categoryLabel: p.categoryLabel || 'Luxury Accessories',
+    tagline: p.tagline || '',
+    price: Number(p.price),
+    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    stockQty: p.stockQty ?? null,
+    inStock: p.inStock ?? true,
+    description: p.description || '',
+    details: Array.isArray(p.details)
+      ? p.details.map((d: any) => (typeof d === 'string' ? d : d.text))
+      : [],
+    piecesIncluded: Array.isArray(p.piecesIncluded)
+      ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
+      : [],
+    colorways: (p.colorways || []).map((cw: any) => ({
+      id: cw.colorId || cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: cw.inStock ?? true,
+      image: cw.image || null,
+    })),
+    sizes: p.sizes,
+    featuredImage: p.featuredImage,
+    galleryImages: Array.isArray(p.galleryImages)
+      ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
+      : [p.featuredImage],
+    isNewDrop: Boolean(p.isNewDrop),
+    isGiftPick: Boolean(p.isGiftPick),
+    isBestseller: Boolean(p.isBestseller),
+    featuredRank: p.featuredRank ?? 999,
+    seoKeywords:
+      typeof p.seoKeywords === 'string'
+        ? p.seoKeywords.split(',')
+        : Array.isArray(p.seoKeywords)
+        ? p.seoKeywords
+        : [],
+  };
+}
 
 /* ─── Slug helper ────────────────────────── */
 function slugify(text: string): string {
@@ -48,6 +95,44 @@ export default function AdminLandingPagesPage() {
     togglePageStatus,
     isSlugAvailable,
   } = useLandingPages();
+
+  const { allProducts: contextProducts, getEffectiveProduct, refreshProducts } = useInventory();
+  const [dbProducts, setDbProducts] = useState<Product[] | null>(null);
+
+  const fetchDbProducts = useCallback(async () => {
+    try {
+      const serverProducts = await getAllProducts();
+      if (serverProducts) {
+        setDbProducts(serverProducts.map(fromDbProduct));
+      }
+    } catch (e) {
+      console.warn('[AdminLandingPages] Failed to load DB products:', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDbProducts();
+    refreshProducts();
+  }, [fetchDbProducts, refreshProducts]);
+
+  // Merge DB products, context products, and static fallback
+  const activeProducts = useMemo(() => {
+    const base = dbProducts !== null ? dbProducts : contextProducts.length > 0 ? contextProducts : PRODUCTS;
+    const map = new Map<string, Product>();
+    base.forEach((p) => {
+      map.set(p.id, p);
+      map.set(p.slug, p);
+    });
+
+    const merged = [...base];
+    contextProducts.forEach((cp) => {
+      if (!map.has(cp.id) && !map.has(cp.slug)) {
+        merged.unshift(cp);
+      }
+    });
+
+    return merged.map(getEffectiveProduct);
+  }, [dbProducts, contextProducts, getEffectiveProduct]);
 
   /* ─── Local UI state ─────────────────── */
   const [showModal, setShowModal] = useState(false);
@@ -82,14 +167,15 @@ export default function AdminLandingPagesPage() {
 
   /* ─── Filtered products for picker ───── */
   const filteredProducts = useMemo(() => {
-    if (!productSearch.trim()) return PRODUCTS;
+    if (!productSearch.trim()) return activeProducts;
     const q = productSearch.toLowerCase();
-    return PRODUCTS.filter(
+    return activeProducts.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
-        p.categoryLabel.toLowerCase().includes(q)
+        p.categoryLabel.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q)
     );
-  }, [productSearch]);
+  }, [activeProducts, productSearch]);
 
   /* ─── Helpers ────────────────────────── */
   const resetForm = () => {
@@ -106,11 +192,15 @@ export default function AdminLandingPagesPage() {
   };
 
   const openCreateModal = () => {
+    fetchDbProducts();
+    refreshProducts();
     resetForm();
     setShowModal(true);
   };
 
   const openEditModal = (page: LandingPage) => {
+    fetchDbProducts();
+    refreshProducts();
     setEditingPage(page);
     setTitle(page.title);
     setSlug(page.slug);
@@ -149,11 +239,15 @@ export default function AdminLandingPagesPage() {
   };
 
   const toggleProduct = (productId: string) => {
-    setSelectedProductIds((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
+    setSelectedProductIds((prev) => {
+      const prod = activeProducts.find((p) => p.id === productId || p.slug === productId);
+      const isCurrentlySelected = prev.some((id) => id === productId || (prod && (id === prod.slug || id === prod.id)));
+      if (isCurrentlySelected) {
+        return prev.filter((id) => id !== productId && (!prod || (id !== prod.slug && id !== prod.id)));
+      } else {
+        return [...prev, productId];
+      }
+    });
   };
 
   /* ─── Form submission ────────────────── */
@@ -307,8 +401,8 @@ export default function AdminLandingPagesPage() {
       ) : (
         <div className="space-y-3">
           {filteredPages.map((page) => {
-            const pageProducts = PRODUCTS.filter((p) =>
-              page.productIds.includes(p.id)
+            const pageProducts = activeProducts.filter((p) =>
+              page.productIds.includes(p.id) || page.productIds.includes(p.slug)
             );
             return (
               <div
@@ -619,7 +713,7 @@ export default function AdminLandingPagesPage() {
                 {/* Product grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
                   {filteredProducts.map((product) => {
-                    const isSelected = selectedProductIds.includes(product.id);
+                    const isSelected = selectedProductIds.includes(product.id) || selectedProductIds.includes(product.slug);
                     return (
                       <button
                         key={product.id}
@@ -666,7 +760,7 @@ export default function AdminLandingPagesPage() {
                 {selectedProductIds.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {selectedProductIds.map((id) => {
-                      const product = PRODUCTS.find((p) => p.id === id);
+                      const product = activeProducts.find((p) => p.id === id || p.slug === id);
                       if (!product) return null;
                       return (
                         <span

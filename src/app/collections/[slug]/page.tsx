@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { use } from 'react';
 import Link from 'next/link';
 import { useLandingPages } from '@/context/LandingPagesContext';
+import { useInventory } from '@/context/InventoryContext';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
@@ -19,15 +20,21 @@ interface CollectionLandingPageProps {
 export default function CollectionLandingPage({ params }: CollectionLandingPageProps) {
   const { slug } = use(params);
   const { getPageBySlug } = useLandingPages();
+  const { allProducts, getEffectiveProduct } = useInventory();
   const page = getPageBySlug(slug);
 
   if (!page || !page.isActive) {
     notFound();
   }
 
-  // Resolve the selected products from the catalogue, preserving selection order
+  const pool = allProducts.length > 0 ? allProducts : PRODUCTS;
+
+  // Resolve the selected products from inventory, preserving selection order
   const products: Product[] = page.productIds
-    .map((id) => PRODUCTS.find((p) => p.id === id))
+    .map((id) => {
+      const match = pool.find((p) => p.id === id || p.slug === id);
+      return match ? getEffectiveProduct(match) : undefined;
+    })
     .filter((p): p is Product => p !== undefined);
 
   return (
