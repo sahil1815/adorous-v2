@@ -123,44 +123,41 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
   return (
     <div className="min-h-screen bg-paper">
       {/* Hero Section */}
-      <section className="relative bg-sand text-ink overflow-hidden">
+      <section className="relative bg-sand text-ink overflow-hidden border-b border-line">
         {/* Decorative background */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(198,169,110,0.3),transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(198,169,110,0.15),transparent_50%)]" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 text-center">
           {/* Small brand chip */}
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-gold/10 border border-gold/25 rounded-full mb-6">
-            <Sparkles className="w-3 h-3 text-gold" />
-            <span className="text-[10px] uppercase tracking-[0.2em] text-gold font-medium">Adorous Exclusive</span>
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 bg-gold/10 border border-gold/25 rounded-full mb-2 sm:mb-3">
+            <Sparkles className="w-2.5 h-2.5 text-gold" />
+            <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-gold font-medium">Adorous Exclusive</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink tracking-wide leading-tight">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-wide leading-tight">
             {page.headline}
           </h1>
 
           {page.subtitle && (
-            <p className="mt-4 text-base sm:text-lg text-ink/60 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm text-ink/70 max-w-xl mx-auto leading-relaxed">
               {page.subtitle}
             </p>
           )}
-
-          {/* Decorative line */}
-          <div className="mt-8 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
         </div>
       </section>
 
       {/* Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {products.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16">
             <p className="text-sm text-text-muted">This collection is being updated. Please check back soon.</p>
           </div>
         ) : (
           <>
-            <div className="text-center mb-10">
+            <div className="text-center mb-6 sm:mb-8">
               <p className="text-xs uppercase tracking-[0.2em] text-text-muted">
                 {products.length} curated piece{products.length !== 1 ? 's' : ''}
               </p>
