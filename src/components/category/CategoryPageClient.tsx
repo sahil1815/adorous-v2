@@ -172,8 +172,8 @@ export default function CategoryPageClient({
         </div>
       </section>
 
-      {/* Filter & Sort Sticky Toolbar */}
-      <div className="sticky top-[73px] z-30 bg-paper/95 backdrop-blur-md border-b border-line py-3">
+      {/* Filter & Sort Toolbar */}
+      <div className="bg-paper border-b border-line py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           {/* Left: Swatches & In-Stock filter */}
           <div className="flex items-center flex-wrap gap-2 sm:gap-4">

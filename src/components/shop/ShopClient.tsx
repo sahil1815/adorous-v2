@@ -143,7 +143,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
       </section>
 
       {/* Filter and Search Bar */}
-      <div className="sticky top-[53px] sm:top-[73px] z-30 bg-paper/95 backdrop-blur-md border-b border-line py-2.5 sm:py-3 w-full max-w-full min-w-0">
+      <div className="bg-paper border-b border-line py-2.5 sm:py-3 w-full max-w-full min-w-0">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs min-w-0">
           {/* Left: Search and Tones */}
           <div className="flex items-center flex-1 gap-3 flex-wrap sm:flex-nowrap">
