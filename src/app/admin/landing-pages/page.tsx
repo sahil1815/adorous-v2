@@ -136,7 +136,7 @@ export default function AdminLandingPagesPage() {
 
   const handleCopyUrl = (pageSlug: string) => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    navigator.clipboard.writeText(`${baseUrl}/promo/${pageSlug}`);
+    navigator.clipboard.writeText(`${baseUrl}/collections/${pageSlug}`);
     setCopiedSlug(pageSlug);
     setTimeout(() => setCopiedSlug(null), 2000);
   };
@@ -203,7 +203,7 @@ export default function AdminLandingPagesPage() {
         isActive,
       };
       createPage(input);
-      showSuccess(`"${title.trim()}" created! URL: /promo/${cleanSlug}`);
+      showSuccess(`"${title.trim()}" created! URL: /collections/${cleanSlug}`);
     }
 
     closeModal();
@@ -238,7 +238,7 @@ export default function AdminLandingPagesPage() {
             <span>Landing Pages</span>
           </h1>
           <p className="text-xs text-paper/50 mt-1 tracking-wide">
-            Create unlisted promo pages for Facebook ads &amp; external campaigns
+            Create unlisted collection pages for Facebook ads &amp; external campaigns
           </p>
         </div>
         <button
@@ -290,7 +290,7 @@ export default function AdminLandingPagesPage() {
           </h3>
           <p className="text-xs text-paper/40 mb-6">
             {pages.length === 0
-              ? 'Create your first promo page for Facebook ad campaigns.'
+              ? 'Create your first collection page for Facebook ad campaigns.'
               : 'Try a different search term.'}
           </p>
           {pages.length === 0 && (
@@ -339,7 +339,7 @@ export default function AdminLandingPagesPage() {
                       </div>
                       <div className="flex items-center space-x-2 text-xs text-paper/40">
                         <Link2 className="w-3 h-3" />
-                        <span className="font-mono">/promo/{page.slug}</span>
+                        <span className="font-mono">/collections/{page.slug}</span>
                         <span className="text-paper/20">·</span>
                         <span>{pageProducts.length} product{pageProducts.length !== 1 ? 's' : ''}</span>
                         <span className="text-paper/20">·</span>
@@ -368,7 +368,7 @@ export default function AdminLandingPagesPage() {
                         )}
                       </button>
                       <a
-                        href={`/promo/${page.slug}`}
+                        href={`/collections/${page.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 rounded-xs text-paper/60 hover:text-gold transition-colors"
@@ -483,7 +483,7 @@ export default function AdminLandingPagesPage() {
                 <p className="text-[11px] text-paper/40 mt-0.5">
                   {editingPage
                     ? 'Update page settings and products'
-                    : 'Build an unlisted promo page for external campaigns'}
+                    : 'Build an unlisted collection page for external campaigns'}
                 </p>
               </div>
               <button
@@ -525,7 +525,7 @@ export default function AdminLandingPagesPage() {
                 </label>
                 <div className="flex items-center">
                   <span className="px-3 py-2.5 bg-[#0A0A0A] border border-white/10 border-r-0 rounded-l-xs text-xs text-paper/40 font-mono shrink-0">
-                    /promo/
+                    /collections/
                   </span>
                   <input
                     type="text"

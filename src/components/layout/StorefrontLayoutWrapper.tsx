@@ -25,7 +25,7 @@ export default function StorefrontLayoutWrapper({
   const segments = pathname ? pathname.split('/').filter(Boolean) : [];
   const isProductRoute =
     segments.length === 2 &&
-    !['account', 'admin', 'order-success', 'promo', 'api'].includes(segments[0]);
+    !['account', 'admin', 'order-success', 'promo', 'collections', 'api'].includes(segments[0]);
 
   if (isAdminRoute) {
     return <main className="flex-1 min-h-screen">{children}</main>;
