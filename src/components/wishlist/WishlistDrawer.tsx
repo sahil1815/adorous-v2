@@ -149,14 +149,19 @@ export default function WishlistDrawer() {
                           {product.name}
                         </Link>
 
-                        <div className="flex items-baseline space-x-2">
+                        <div className="flex items-baseline space-x-2 flex-wrap">
                           <span className="font-semibold text-xs sm:text-sm text-ink tabular-nums">
                             ৳{product.price.toLocaleString('en-US')}
                           </span>
-                          {product.originalPrice && (
-                            <span className="text-[11px] text-text-muted line-through tabular-nums">
-                              ৳{product.originalPrice.toLocaleString('en-US')}
-                            </span>
+                          {product.originalPrice && product.originalPrice > product.price && (
+                            <>
+                              <span className="text-[11px] text-text-muted line-through tabular-nums">
+                                ৳{product.originalPrice.toLocaleString('en-US')}
+                              </span>
+                              <span className="text-[10px] font-bold text-[#9E2A2B]">
+                                ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off)
+                              </span>
+                            </>
                           )}
                         </div>
 

@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { ShoppingBag, Check, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,28 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isOfferActive, discountPercent } = useNewVisitorOffer();
+
+  // Price & Discount calculations (synchronized with ProductDetailClient)
+  const comparePrice = product.originalPrice && product.originalPrice > product.price
+    ? product.originalPrice
+    : (isOfferActive ? product.price : null);
+
+  const existingDiscountPct = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
+
+  const totalDiscountPct = isOfferActive
+    ? existingDiscountPct + discountPercent
+    : existingDiscountPct;
+
+  const sellingPrice = isOfferActive && comparePrice
+    ? Math.round(comparePrice * (1 - totalDiscountPct / 100))
+    : product.price;
+
+  const strikethroughPrice = isOfferActive
+    ? comparePrice
+    : (product.originalPrice && product.originalPrice > product.price ? product.originalPrice : null);
 
   const isSaved = isInWishlist(product.id);
 
@@ -63,7 +86,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
+        <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5 z-10 pointer-events-none">
           {product.isNewDrop && (
             <span className="bg-gold hover:bg-gold-deep text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-medium border border-gold/30">
               New Drop
@@ -72,6 +95,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.isBestseller && (
             <span className="bg-gold text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-semibold">
               Bestseller
+            </span>
+          )}
+          {totalDiscountPct > 0 && (
+            <span className="bg-[#9E2A2B] text-white text-[9px] sm:text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 font-semibold shadow-xs">
+              {totalDiscountPct}% OFF
             </span>
           )}
         </div>
@@ -143,14 +171,19 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Price, Swatches, and Mobile Quick Add */}
         <div className="pt-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
-          <div className="flex items-baseline space-x-1.5 sm:space-x-2 shrink-0 min-w-0">
+          <div className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 shrink-0 min-w-0">
             <span className="font-semibold text-sm sm:text-base text-ink tabular-nums">
-              ৳{product.price.toLocaleString('en-US')}
+              ৳{sellingPrice.toLocaleString('en-US')}
             </span>
-            {product.originalPrice && (
-              <span className="text-[10px] sm:text-xs text-text-muted line-through tabular-nums">
-                ৳{product.originalPrice.toLocaleString('en-US')}
-              </span>
+            {strikethroughPrice && strikethroughPrice > sellingPrice && (
+              <>
+                <span className="text-[10px] sm:text-xs text-text-muted line-through tabular-nums">
+                  ৳{strikethroughPrice.toLocaleString('en-US')}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-bold text-[#9E2A2B] tracking-tight">
+                  ({totalDiscountPct}% off)
+                </span>
+              </>
             )}
           </div>
 
