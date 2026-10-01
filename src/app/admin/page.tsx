@@ -24,6 +24,7 @@ import {
   Save,
   Tag
 } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 const STATUS_CONFIG: Record<
   OrderStatus,
@@ -136,7 +137,7 @@ export default function AdminOrdersPage() {
     let msg = `Hello ${order.customer.fullName}! Greetings from Adorous Fashion Dhaka.\n\n`;
     msg += `We have received your Cash on Delivery order: ${order.orderId}\n`;
     msg += `Items: ${order.items.map((i) => `${i.product.name} (${i.selectedColor.name})`).join(', ')}\n`;
-    msg += `Total Amount: ৳${order.grandTotal.toLocaleString('en-US')}\n`;
+    msg += `Total Amount: ৳${formatPrice(order.grandTotal)}\n`;
     msg += `Delivery Address: ${order.customer.address}, ${order.customer.district}\n\n`;
     msg += `Please confirm if this address is correct so we can package and dispatch your order today.`;
 
@@ -388,7 +389,7 @@ export default function AdminOrdersPage() {
                             </div>
                           </div>
                           <span className="font-semibold text-gold-light tabular-nums shrink-0">
-                            ৳{(item.product.price * item.quantity).toLocaleString('en-US')}
+                            ৳{formatPrice(item.product.price * item.quantity)}
                           </span>
                         </div>
                       ))}
@@ -401,13 +402,13 @@ export default function AdminOrdersPage() {
                             <Tag className="w-3 h-3" />
                             <span>Voucher ({order.couponCode}):</span>
                           </span>
-                          <span>-৳{(order.discountAmount || 0).toLocaleString('en-US')}</span>
+                          <span>-৳{formatPrice(order.discountAmount || 0)}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-paper/50">Total COD Collection:</span>
                         <strong className="text-sm font-semibold text-gold tabular-nums">
-                          ৳{order.grandTotal.toLocaleString('en-US')}
+                          ৳{formatPrice(order.grandTotal)}
                         </strong>
                       </div>
                     </div>

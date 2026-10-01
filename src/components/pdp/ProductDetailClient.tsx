@@ -13,6 +13,7 @@ import ChuriSizingModal from './ChuriSizingModal';
 import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
 import { renderFormattedText } from '@/lib/formatText';
+import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShoppingBag,
@@ -393,14 +394,14 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       }
       const effectiveQty = totalMixItems > 0 ? totalMixItems : 1;
       message += `Total Pieces: ${effectiveQty}\n`;
-      message += `Total: ৳${(product.price * effectiveQty).toLocaleString('en-US')}\n\n`;
+      message += `Total: ৳${formatPrice(product.price * effectiveQty)}\n\n`;
     } else {
       message += `Selected Colour: ${selectedColor.name}\n`;
       if (selectedSize) {
         message += `Size: ${selectedSize}\n`;
       }
       message += `Quantity: ${quantity}\n`;
-      message += `Total: ৳${(product.price * quantity).toLocaleString('en-US')}\n\n`;
+      message += `Total: ৳${formatPrice(product.price * quantity)}\n\n`;
     }
 
     message += `Payment: Cash on Delivery (COD)\n`;
@@ -767,18 +768,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     // otherwise, make it flat X% discount.
                     const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
                     const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
-                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
+                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100) * 100) / 100;
                     const nvoFinalPrice = hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice);
                     const showStrikethrough = comparePrice > nvoFinalPrice;
 
                     return (
                       <>
                         <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                          ৳{nvoFinalPrice.toLocaleString('en-US')}
+                          ৳{formatPrice(nvoFinalPrice)}
                         </span>
                         {showStrikethrough && (
                           <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                            ৳{comparePrice.toLocaleString('en-US')}
+                            ৳{formatPrice(comparePrice)}
                           </span>
                         )}
                         <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
@@ -790,12 +791,12 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   })() : (
                     <>
                       <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                        ৳{product.price.toLocaleString('en-US')}
+                        ৳{formatPrice(product.price)}
                       </span>
                       {product.originalPrice && product.originalPrice > product.price && (
                         <>
                           <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                            ৳{product.originalPrice.toLocaleString('en-US')}
+                            ৳{formatPrice(product.originalPrice)}
                           </span>
                           <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
                             ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF)
@@ -1074,7 +1075,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                                   </div>
                                   {isPicked && (
                                     <div className="text-[10px] text-gold-ink font-medium tabular-nums">
-                                      ৳{(product.price * count).toLocaleString('en-US')}
+                                      ৳{formatPrice(product.price * count)}
                                     </div>
                                   )}
                                 </div>
@@ -1138,7 +1139,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                         </div>
                         <div className="text-right shrink-0">
                           <div className="text-xs font-bold text-ink tabular-nums">
-                            ৳{(product.price * totalMixItems).toLocaleString('en-US')}
+                            ৳{formatPrice(product.price * totalMixItems)}
                           </div>
                         </div>
                       </div>

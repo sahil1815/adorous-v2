@@ -8,6 +8,7 @@ import { ShoppingBag, Check, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface ProductCardProps {
   product: Product;
@@ -37,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? (hasHigherExistingDiscount ? existingDiscountPct : discountPercent)
     : existingDiscountPct;
 
-  const targetPrice = Math.round(baseOriginalPrice * (1 - discountPercent / 100));
+  const targetPrice = Math.round(baseOriginalPrice * (1 - discountPercent / 100) * 100) / 100;
   const sellingPrice = isOfferActive
     ? (hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice))
     : product.price;
@@ -176,12 +177,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="pt-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           <div className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 shrink-0 min-w-0">
             <span className="font-semibold text-sm sm:text-base text-ink tabular-nums">
-              ৳{sellingPrice.toLocaleString('en-US')}
+              ৳{formatPrice(sellingPrice)}
             </span>
             {strikethroughPrice && strikethroughPrice > sellingPrice && (
               <>
                 <span className="text-[10px] sm:text-xs text-text-muted line-through tabular-nums">
-                  ৳{strikethroughPrice.toLocaleString('en-US')}
+                  ৳{formatPrice(strikethroughPrice)}
                 </span>
                 <span className="text-[10px] sm:text-[11px] font-bold text-[#9E2A2B] tracking-tight">
                   ({displayDiscountPct}% off)

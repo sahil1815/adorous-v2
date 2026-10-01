@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { X, Trash2, ShoppingBag, ArrowRight, Heart, Sparkles, Check } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCart } from '@/context/CartContext';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function WishlistDrawer() {
   const { wishlist, isWishlistOpen, closeWishlist, removeFromWishlist, clearWishlist } = useWishlist();
@@ -151,12 +152,12 @@ export default function WishlistDrawer() {
 
                         <div className="flex items-baseline space-x-2 flex-wrap">
                           <span className="font-semibold text-xs sm:text-sm text-ink tabular-nums">
-                            ৳{product.price.toLocaleString('en-US')}
+                            ৳{formatPrice(product.price)}
                           </span>
                           {product.originalPrice && product.originalPrice > product.price && (
                             <>
                               <span className="text-[11px] text-text-muted line-through tabular-nums">
-                                ৳{product.originalPrice.toLocaleString('en-US')}
+                                ৳{formatPrice(product.originalPrice)}
                               </span>
                               <span className="text-[10px] font-bold text-[#9E2A2B]">
                                 ({Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off)

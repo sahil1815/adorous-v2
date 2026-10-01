@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { PRODUCTS } from '@/data/catalogue';
 import { useOrders } from '@/context/OrdersContext';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface TrackingStep {
   title: string;
@@ -615,7 +616,7 @@ function TrackOrderContent() {
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Amount Payable (COD):</span>
-                  <span className="font-semibold text-gold-deep mt-0.5 block text-sm">৳{trackingData.codAmount.toLocaleString('en-US')}</span>
+                  <span className="font-semibold text-gold-deep mt-0.5 block text-sm">৳{formatPrice(trackingData.codAmount)}</span>
                 </div>
               </div>
             </div>
@@ -729,7 +730,7 @@ function TrackOrderContent() {
                         </div>
                       </div>
                       <span className="text-xs font-semibold text-ink tabular-nums shrink-0">
-                        ৳{(item.price * item.quantity).toLocaleString('en-US')}
+                        ৳{formatPrice(item.price * item.quantity)}
                       </span>
                     </div>
                   ))}
@@ -738,7 +739,7 @@ function TrackOrderContent() {
                 <div className="border-t border-line pt-2.5 flex items-center justify-between text-xs">
                   <span className="text-text-muted">Total Payable to Courier Rider:</span>
                   <span className="font-semibold text-ink text-sm tabular-nums">
-                    ৳{trackingData.codAmount.toLocaleString('en-US')}
+                    ৳{formatPrice(trackingData.codAmount)}
                   </span>
                 </div>
               </div>

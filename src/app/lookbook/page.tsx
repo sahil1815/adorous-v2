@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { PRODUCTS } from '@/data/catalogue';
 import { useCart } from '@/context/CartContext';
 import { Sparkles, ShoppingBag, ArrowRight, Check, ShieldCheck, Heart } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface LookbookLook {
   id: string;
@@ -161,7 +162,7 @@ export default function LookbookPage() {
                       <div className="bg-sand/80 backdrop-blur-sm px-3 py-1.5 rounded-xs border border-line text-right">
                         <div className="text-[9px] uppercase tracking-wider text-ink/80">Ensemble Total</div>
                         <div className="text-sm font-semibold text-gold-deep tabular-nums">
-                          ৳{ensembleTotal.toLocaleString('en-US')}
+                          ৳{formatPrice(ensembleTotal)}
                         </div>
                       </div>
                     </div>
@@ -240,7 +241,7 @@ export default function LookbookPage() {
 
                           <div className="text-right shrink-0">
                             <div className="text-xs font-semibold text-ink tabular-nums">
-                              ৳{prod.price.toLocaleString('en-US')}
+                              ৳{formatPrice(prod.price)}
                             </div>
                             <Link
                               href={`/${prod.category}/${prod.slug}`}
@@ -270,7 +271,7 @@ export default function LookbookPage() {
                       ) : (
                         <>
                           <ShoppingBag className="w-4 h-4" />
-                          <span>Add Entire Look to Bag (৳{ensembleTotal.toLocaleString('en-US')})</span>
+                          <span>Add Entire Look to Bag (৳{formatPrice(ensembleTotal)})</span>
                         </>
                       )}
                     </button>

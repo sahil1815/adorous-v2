@@ -13,6 +13,7 @@ import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
+import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShieldCheck,
@@ -161,7 +162,7 @@ export default function CheckoutPage() {
     : appliedCoupon
       ? `Promo Discount (${appliedCoupon.code})`
       : '';
-  const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+  const grandTotal = Math.max(0, Math.round((subtotal - discountAmount + shippingFee) * 100) / 100);
 
   // Manual and onBlur save trigger
   const triggerDraftSave = useCallback(() => {
@@ -732,7 +733,7 @@ export default function CheckoutPage() {
                           {/* Mobile Quantity/Price Display */}
                           <div className="sm:hidden flex items-center justify-between mt-2 w-full">
                             <span className="text-xs font-semibold text-ink tabular-nums">
-                              ৳{lineTotal.toLocaleString('en-US')}
+                              ৳{formatPrice(lineTotal)}
                             </span>
                             <div className="flex items-center space-x-2 text-xs">
                               <button onClick={() => handleDecreaseQuantity(item)} className="p-1 hover:bg-sand rounded-xs"><Minus className="w-3 h-3" /></button>
@@ -746,7 +747,7 @@ export default function CheckoutPage() {
                       {/* Desktop Price */}
                       <div className="hidden sm:flex w-24 justify-center shrink-0">
                         <span className="text-xs font-semibold text-ink tabular-nums">
-                          ৳{lineTotal.toLocaleString('en-US')}
+                          ৳{formatPrice(lineTotal)}
                         </span>
                       </div>
 
@@ -887,7 +888,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between text-ink">
                     <span>Product Price</span>
-                    <span className="tabular-nums">৳{subtotal.toLocaleString('en-US')}</span>
+                    <span className="tabular-nums">৳{formatPrice(subtotal)}</span>
                   </div>
 
                   {discountAmount > 0 && (
@@ -896,20 +897,20 @@ export default function CheckoutPage() {
                         {useNvo && <Sparkles className="w-3 h-3" />}
                         {discountLabel}
                       </span>
-                      <span className="tabular-nums">-৳{discountAmount.toLocaleString('en-US')}</span>
+                      <span className="tabular-nums">-৳{formatPrice(discountAmount)}</span>
                     </div>
                   )}
 
                   {/* Hint when both NVO and coupon exist but NVO wins */}
                   {useNvo && couponDiscount > 0 && couponDiscount < nvoDiscount && appliedCoupon && (
                     <p className="text-[10px] text-text-muted italic">
-                      Your new visitor offer gives a better deal than coupon "{appliedCoupon.code}" (৳{couponDiscount} off)
+                      Your new visitor offer gives a better deal than coupon "{appliedCoupon.code}" (৳{formatPrice(couponDiscount)} off)
                     </p>
                   )}
                   {/* Hint when coupon is better than NVO */}
                   {!useNvo && nvoDiscount > 0 && couponDiscount > nvoDiscount && (
                     <p className="text-[10px] text-text-muted italic">
-                      Your coupon gives a better deal than the visitor offer (৳{nvoDiscount} off)
+                      Your coupon gives a better deal than the visitor offer (৳{formatPrice(nvoDiscount)} off)
                     </p>
                   )}
 
@@ -934,7 +935,7 @@ export default function CheckoutPage() {
                 <div className="border-t border-line/80 pt-4 flex justify-between items-center font-semibold text-sm">
                   <span>Total Payable</span>
                   <span className="tabular-nums">
-                    {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal">Pending address</span>}
+                    {selectedDistrict ? `৳${formatPrice(grandTotal)}` : <span className="text-xs font-normal">Pending address</span>}
                   </span>
                 </div>
               </div>
@@ -962,7 +963,7 @@ export default function CheckoutPage() {
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>
-                  {isSubmitting ? 'Processing Order...' : `Place Order (৳${grandTotal.toLocaleString('en-US')})`}
+                  {isSubmitting ? 'Processing Order...' : `Place Order (৳${formatPrice(grandTotal)})`}
                 </span>
               </button>
             </div>
@@ -974,7 +975,7 @@ export default function CheckoutPage() {
           <div className="flex justify-between items-center font-semibold text-sm">
             <span>Total Payable</span>
             <span className="tabular-nums">
-              {selectedDistrict ? `৳${grandTotal.toLocaleString('en-US')}` : <span className="text-xs font-normal text-text-muted">Pending address</span>}
+              {selectedDistrict ? `৳${formatPrice(grandTotal)}` : <span className="text-xs font-normal text-text-muted">Pending address</span>}
             </span>
           </div>
           <button
@@ -985,7 +986,7 @@ export default function CheckoutPage() {
           >
             <Lock className="w-3.5 h-3.5" />
             <span>
-              {isSubmitting ? 'Processing Order...' : `Place Order (৳${grandTotal.toLocaleString('en-US')})`}
+              {isSubmitting ? 'Processing Order...' : `Place Order (৳${formatPrice(grandTotal)})`}
             </span>
           </button>
         </div>
@@ -1043,7 +1044,7 @@ export default function CheckoutPage() {
                   {itemToDelete.selectedSize && <span>· Size {itemToDelete.selectedSize}</span>}
                 </div>
                 <div className="text-xs font-semibold text-ink mt-1 tabular-nums">
-                  Qty: {itemToDelete.quantity} · ৳{(itemToDelete.product.price * itemToDelete.quantity).toLocaleString('en-US')}
+                  Qty: {itemToDelete.quantity} · ৳{formatPrice(itemToDelete.product.price * itemToDelete.quantity)}
                 </div>
               </div>
             </div>

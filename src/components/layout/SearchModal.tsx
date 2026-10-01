@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Search, X, ArrowRight, Sparkles, Tag } from 'lucide-react';
 import { useInventory } from '@/context/InventoryContext';
 import { Product } from '@/types';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -235,11 +236,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                     <div className="text-right shrink-0 pl-3">
                       <span className="text-xs font-semibold text-ink tabular-nums block">
-                        ৳{p.price.toLocaleString('en-US')}
+                        ৳{formatPrice(p.price)}
                       </span>
                       {p.originalPrice && (
                         <span className="text-[10px] text-text-muted line-through tabular-nums block">
-                          ৳{p.originalPrice.toLocaleString('en-US')}
+                          ৳{formatPrice(p.originalPrice)}
                         </span>
                       )}
                     </div>

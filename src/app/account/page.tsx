@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   ShoppingBag,
 } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function CustomerDashboardPage() {
   const router = useRouter();
@@ -252,7 +253,7 @@ export default function CustomerDashboardPage() {
 
                     <div className="flex items-center justify-between pt-2 border-t border-line/50 text-xs">
                       <span className="font-semibold text-ink tabular-nums">
-                        ৳{order.grandTotal.toLocaleString('en-US')}
+                        ৳{formatPrice(order.grandTotal)}
                         <span className="text-[10px] font-normal text-text-muted ml-1">
                           ({order.paymentMethod})
                         </span>

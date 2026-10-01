@@ -18,6 +18,7 @@ import {
   RotateCcw,
   ShoppingBag,
 } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function CustomerOrdersPage() {
   const router = useRouter();
@@ -251,7 +252,7 @@ export default function CustomerOrdersPage() {
                           <span>• Qty: {item.quantity}</span>
                         </div>
                         <p className="text-xs font-semibold text-ink tabular-nums">
-                          ৳{item.price.toLocaleString('en-US')}
+                          ৳{formatPrice(item.price)}
                         </p>
                       </div>
                     </div>
@@ -270,7 +271,7 @@ export default function CustomerOrdersPage() {
                   <div className="flex items-center space-x-4 text-sm font-semibold text-ink">
                     <span>Grand Total:</span>
                     <span className="text-base text-gold-deep font-mono">
-                      ৳{order.grandTotal.toLocaleString('en-US')}
+                      ৳{formatPrice(order.grandTotal)}
                     </span>
                   </div>
                 </div>

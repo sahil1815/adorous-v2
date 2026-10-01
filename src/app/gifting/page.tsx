@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { PRODUCTS } from '@/data/catalogue';
 import { useCart } from '@/context/CartContext';
 import { Gift, Sparkles, Check, ShoppingBag, MessageCircle, Heart, ShieldCheck, Box, Package } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface GiftBundle {
   id: string;
@@ -223,13 +224,13 @@ export default function GiftingPage() {
                     {/* Price */}
                     <div className="pt-2 flex items-baseline space-x-2">
                       <span className="text-xl font-semibold text-ink tabular-nums">
-                        ৳{bundle.price.toLocaleString('en-US')}
+                        ৳{formatPrice(bundle.price)}
                       </span>
                       <span className="text-xs text-text-muted line-through tabular-nums">
-                        ৳{bundle.originalPrice.toLocaleString('en-US')}
+                        ৳{formatPrice(bundle.originalPrice)}
                       </span>
                       <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 font-semibold">
-                        Save ৳{(bundle.originalPrice - bundle.price).toLocaleString('en-US')}
+                        Save ৳{formatPrice(bundle.originalPrice - bundle.price)}
                       </span>
                     </div>
 
@@ -262,7 +263,7 @@ export default function GiftingPage() {
                       ) : (
                         <>
                           <ShoppingBag className="w-4 h-4" />
-                          <span>Order Gift Suite (৳{bundle.price.toLocaleString('en-US')})</span>
+                          <span>Order Gift Suite (৳{formatPrice(bundle.price)})</span>
                         </>
                       )}
                     </button>

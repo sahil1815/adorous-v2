@@ -17,6 +17,7 @@ import {
   PhoneCall
 } from 'lucide-react';
 import { event as trackFbEvent } from '@/lib/fpixel';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface OrderData {
   orderId: string;
@@ -237,7 +238,7 @@ export default function OrderSuccessPage() {
 
                     <div className="text-right shrink-0">
                       <span className="text-xs font-semibold text-ink tabular-nums">
-                        ৳{(item.product.price * item.quantity).toLocaleString('en-US')}
+                        ৳{formatPrice(item.product.price * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -247,7 +248,7 @@ export default function OrderSuccessPage() {
               <div className="border-t border-line pt-3 space-y-1.5 text-xs text-text-muted">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="text-ink tabular-nums">৳{order.subtotal.toLocaleString('en-US')}</span>
+                  <span className="text-ink tabular-nums">৳{formatPrice(order.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery ({order.customer.district})</span>
@@ -257,7 +258,7 @@ export default function OrderSuccessPage() {
                 </div>
                 <div className="flex justify-between font-semibold text-ink text-sm pt-2 border-t border-line">
                   <span>Payable upon Delivery (COD)</span>
-                  <span className="tabular-nums">৳{order.grandTotal.toLocaleString('en-US')}</span>
+                  <span className="tabular-nums">৳{formatPrice(order.grandTotal)}</span>
                 </div>
               </div>
             </div>

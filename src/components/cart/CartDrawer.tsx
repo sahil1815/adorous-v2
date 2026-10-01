@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { formatPrice } from '@/lib/formatPrice';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles, Gift } from 'lucide-react';
 
 export default function CartDrawer() {
@@ -35,9 +36,9 @@ export default function CartDrawer() {
       if (item.selectedSize) {
         text += `   Size: ${item.selectedSize}\n`;
       }
-      text += `   Qty: ${item.quantity} × ৳${item.product.price} = ৳${item.product.price * item.quantity}\n\n`;
+      text += `   Qty: ${item.quantity} × ৳${formatPrice(item.product.price)} = ৳${formatPrice(item.product.price * item.quantity)}\n\n`;
     });
-    text += `Subtotal: ৳${subtotal.toLocaleString('en-US')}\n`;
+    text += `Subtotal: ৳${formatPrice(subtotal)}\n`;
     if (remainingForFreeShipping === 0) {
       text += `Delivery: Free (Order > ৳2,000)\n`;
     } else {
@@ -83,7 +84,7 @@ export default function CartDrawer() {
               <Truck className="w-4 h-4 text-gold-deep" />
               {remainingForFreeShipping > 0 ? (
                 <span>
-                  Add <strong className="text-gold-deep tabular-nums">৳{remainingForFreeShipping.toLocaleString('en-US')}</strong> more for <strong className="text-gold-deep">FREE Delivery</strong>
+                  Add <strong className="text-gold-deep tabular-nums">৳{formatPrice(remainingForFreeShipping)}</strong> more for <strong className="text-gold-deep">FREE Delivery</strong>
                 </span>
               ) : (
                 <span className="text-success font-semibold">
@@ -257,7 +258,7 @@ export default function CartDrawer() {
                     </div>
 
                     <div className="text-sm font-semibold text-ink tabular-nums">
-                      ৳{(item.product.price * item.quantity).toLocaleString('en-US')}
+                      ৳{formatPrice(item.product.price * item.quantity)}
                     </div>
                   </div>
                 </div>
@@ -272,7 +273,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-muted font-medium">Estimated Subtotal</span>
               <span className={`font-semibold text-lg tabular-nums ${nvoDiscount > 0 ? 'text-text-muted line-through text-base' : 'text-ink'}`}>
-                ৳{subtotal.toLocaleString('en-US')}
+                ৳{formatPrice(subtotal)}
               </span>
             </div>
 
@@ -284,13 +285,13 @@ export default function CartDrawer() {
                     <span className="font-medium text-xs">New Visitor {discountPercent}% Off</span>
                   </span>
                   <span className="font-semibold text-sm text-success tabular-nums">
-                    -৳{nvoDiscount.toLocaleString('en-US')}
+                    -৳{formatPrice(nvoDiscount)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-ink font-semibold">You Pay</span>
                   <span className="font-bold text-lg text-ink tabular-nums">
-                    ৳{(subtotal - nvoDiscount).toLocaleString('en-US')}
+                    ৳{formatPrice(subtotal - nvoDiscount)}
                   </span>
                 </div>
               </>

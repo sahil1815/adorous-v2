@@ -348,8 +348,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           const qty = Number(item.quantity) || 1;
           cartSubtotal += price * qty;
 
-          // Target price at flat X% discount from originalPrice
-          const targetPrice = Math.round(originalPrice * (1 - pct / 100));
+          // Target price at flat X% discount from originalPrice (preserving exact decimals p.q if fractional)
+          const targetPrice = Math.round(originalPrice * (1 - pct / 100) * 100) / 100;
 
           // If current selling price is higher than targetPrice, discount down to flat X%
           if (price > targetPrice) {
@@ -358,6 +358,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           // Exception: If current price <= targetPrice (product already has >= X% discount),
           // keep it as is (additional discount = 0).
         }
+
+        totalDiscount = Math.round(totalDiscount * 100) / 100;
 
         if (settings.minOrderAmount && cartSubtotal < settings.minOrderAmount) {
           return 0;
@@ -371,7 +373,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
       // Fallback for number subtotal
       const subtotal = Number(itemsOrSubtotal) || 0;
       if (settings.minOrderAmount && subtotal < settings.minOrderAmount) return 0;
-      const raw = Math.round((subtotal * pct) / 100);
+      const raw = Math.round((subtotal * pct) / 100 * 100) / 100;
       return settings.maxDiscountAmount ? Math.min(raw, settings.maxDiscountAmount) : raw;
     },
     [isOfferActive, remainingSeconds, settings.discountPercent, settings.minOrderAmount, settings.maxDiscountAmount]

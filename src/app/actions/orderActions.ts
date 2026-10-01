@@ -42,8 +42,8 @@ export async function createOrder(orderData: any) {
             const qty = Number(item.quantity) || 1;
             serverSubtotal += price * qty;
 
-            // Flat target price at X% discount from baseOriginalPrice
-            const targetPrice = Math.round(baseOriginalPrice * (1 - pct / 100));
+            // Flat target price at X% discount from baseOriginalPrice (preserving exact decimals p.q if fractional)
+            const targetPrice = Math.round(baseOriginalPrice * (1 - pct / 100) * 100) / 100;
 
             // If current selling price is higher than targetPrice, discount down to flat X%
             if (price > targetPrice) {
@@ -52,6 +52,8 @@ export async function createOrder(orderData: any) {
             // Exception: If current price <= targetPrice (product already has >= X% discount),
             // keep it as is (additional discount = 0).
           }
+
+          serverFlatDiscount = Math.round(serverFlatDiscount * 100) / 100;
 
           // Check minOrderAmount threshold
           if (settings.minOrderAmount && serverSubtotal < settings.minOrderAmount) {
@@ -75,7 +77,7 @@ export async function createOrder(orderData: any) {
         const sub = Number(orderData.subtotal) || 0;
         const ship = Number(orderData.shippingFee) || 0;
         const disc = Number(validatedDiscountAmount) || 0;
-        validatedGrandTotal = Math.max(0, sub - disc + ship);
+        validatedGrandTotal = Math.max(0, Math.round((sub - disc + ship) * 100) / 100);
       } catch (err) {
         console.error('[createOrder] Error validating NEW_VISITOR discount on server:', err);
       }
