@@ -285,7 +285,7 @@ export default function CustomerAddressesPage() {
               >
                 {DISTRICT_OPTIONS.map((d) => (
                   <option key={d} value={d}>
-                    {d} {d === 'Dhaka' ? '(Inside Dhaka ৳70)' : '(৳130)'}
+                    {d} {d === 'Dhaka' ? '(Inside Dhaka ৳80)' : '(৳130)'}
                   </option>
                 ))}
               </select>

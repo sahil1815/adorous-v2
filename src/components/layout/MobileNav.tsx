@@ -1,10 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, MessageCircle, ChevronRight, Phone, ShieldCheck, Truck, User, Package, LogOut } from 'lucide-react';
-import { CATEGORIES } from '@/data/catalogue';
+import {
+  X,
+  MessageCircle,
+  ChevronDown,
+  ChevronRight,
+  ShieldCheck,
+  Truck,
+  User,
+  Package,
+  Sparkles,
+  Flame,
+} from 'lucide-react';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
 
 interface MobileNavProps {
@@ -12,8 +22,27 @@ interface MobileNavProps {
   onClose: () => void;
 }
 
+const EXPLORE_ALL_LINKS = [
+  { name: 'Full Collection', href: '/shop' },
+  { name: 'Jewelry Sets', href: '/jewelry' },
+  { name: "Ladies' Bags", href: '/bags' },
+  { name: 'Churi (Bangles)', href: '/churi' },
+  { name: 'Earrings', href: '/earrings' },
+  { name: 'More', href: '/more' },
+];
+
+const EDITORIAL_LINKS = [
+  { name: 'Festive Lookbook 2026', href: '/lookbook' },
+  { name: 'Churi Hand-Sizing Guide', href: '/size-fit' },
+  { name: 'Delivery & COD Rates (64 Districts)', href: '/delivery-payment' },
+  { name: 'Our Story & Vision', href: '/about' },
+];
+
 export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
-  const { customer, logout } = useCustomerAuth();
+  const { customer } = useCustomerAuth();
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const [isEditorialOpen, setIsEditorialOpen] = useState(false);
+
   if (!isOpen) return null;
 
   return (
@@ -25,8 +54,8 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
       />
 
       {/* Drawer */}
-      <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-paper shadow-2xl z-50 flex flex-col justify-between overflow-y-auto border-r border-line">
-        <div>
+      <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-paper shadow-2xl z-50 flex flex-col h-full border-r border-line">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Header */}
           <div className="p-4 bg-sand text-ink flex items-center justify-between border-b border-line">
             <div className="flex items-center space-x-3">
@@ -122,80 +151,139 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
             </a>
           </div>
 
-          {/* Category Navigation Links */}
+          {/* The Collections Section */}
           <div className="py-2">
-            <div className="px-4 py-2 text-[10px] font-medium tracking-[0.2em] text-text-muted uppercase">
+            <div className="px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-text-muted uppercase">
               The Collections
             </div>
-            <nav className="divide-y divide-line/60">
-              <Link
-                href="/shop"
-                onClick={onClose}
-                className="flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-sand/40 transition-colors"
+
+            {/* Explore All Dropdown Accordion */}
+            <div className="border-t border-line/60">
+              <button
+                type="button"
+                onClick={() => setIsExploreOpen((prev) => !prev)}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-ink hover:bg-sand/40 transition-colors text-left group"
+                aria-expanded={isExploreOpen}
               >
-                <span>Explore All (All 15 Designs)</span>
-                <ChevronRight className="w-4 h-4 text-text-muted" />
-              </Link>
-              {CATEGORIES.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/${cat.slug}`}
-                  onClick={onClose}
-                  className="flex items-center justify-between px-4 py-3 text-sm hover:bg-sand/40 transition-colors"
-                >
-                  <div>
-                    <span className="font-medium text-ink block">{cat.name}</span>
-                    <span className="text-[11px] text-text-muted">{cat.count}</span>
+                <span className="group-hover:text-gold-deep transition-colors">Explore All</span>
+                <ChevronDown
+                  className={`w-4 h-4 text-text-muted group-hover:text-gold-deep transition-transform duration-300 ease-in-out ${
+                    isExploreOpen ? 'rotate-180 text-gold-deep' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Collapsible Dropdown Menu */}
+              <div
+                className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                  isExploreOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="bg-sand/25 py-1 pl-4 pr-3 border-y border-line/40 space-y-0.5">
+                    {EXPLORE_ALL_LINKS.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClose}
+                        className="flex items-center justify-between py-2 px-3 text-xs text-ink/85 hover:text-gold-deep hover:bg-sand/60 rounded-[2px] transition-colors group"
+                      >
+                        <span className="group-hover:translate-x-0.5 transition-transform">{item.name}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-text-muted/60 group-hover:text-gold-deep transition-colors" />
+                      </Link>
+                    ))}
                   </div>
-                  <ChevronRight className="w-4 h-4 text-text-muted" />
+                </div>
+              </div>
+            </div>
+
+            {/* Subsection: New Arrivals & Best Sellers */}
+            <div className="border-t border-line/60 pt-2 pb-1">
+              <div className="px-4 pb-1 text-[9px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                Curated
+              </div>
+              <div className="divide-y divide-line/30">
+                <Link
+                  href="/shop?filter=new-arrivals"
+                  onClick={onClose}
+                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-sand/40 transition-colors group"
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <Sparkles className="w-4 h-4 text-gold-deep shrink-0" />
+                    <span className="font-medium text-ink group-hover:text-gold-deep transition-colors">
+                      New Arrivals
+                    </span>
+                  </div>
+                  <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 bg-gold/15 text-gold-deep rounded-[2px]">
+                    New Drop
+                  </span>
                 </Link>
-              ))}
-            </nav>
+                <Link
+                  href="/shop?filter=bestsellers"
+                  onClick={onClose}
+                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-sand/40 transition-colors group"
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <Flame className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span className="font-medium text-ink group-hover:text-gold-deep transition-colors">
+                      Best Sellers
+                    </span>
+                  </div>
+                  <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded-[2px]">
+                    Popular
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* Editorial & Trust Links */}
-          <div className="py-3 border-t border-line">
-            <div className="px-4 py-1.5 text-[10px] font-medium tracking-[0.2em] text-text-muted uppercase">
-              Editorial & Guides
-            </div>
-            <div className="space-y-1 px-2">
-              <Link
-                href="/lookbook"
-                onClick={onClose}
-                className="block px-3 py-2 text-xs text-ink-soft hover:text-gold-ink rounded hover:bg-sand/40"
-              >
-                Festive Lookbook 2026
-              </Link>
-              <Link
-                href="/size-fit"
-                onClick={onClose}
-                className="block px-3 py-2 text-xs text-ink-soft hover:text-gold-ink rounded hover:bg-sand/40"
-              >
-                Churi Hand-Sizing Guide
-              </Link>
-              <Link
-                href="/delivery-payment"
-                onClick={onClose}
-                className="block px-3 py-2 text-xs text-ink-soft hover:text-gold-ink rounded hover:bg-sand/40"
-              >
-                Delivery & COD Rates (64 Districts)
-              </Link>
-              <Link
-                href="/about"
-                onClick={onClose}
-                className="block px-3 py-2 text-xs text-ink-soft hover:text-gold-ink rounded hover:bg-sand/40"
-              >
-                Our Story & Vision
-              </Link>
+          {/* Editorial & Guides Dropdown Accordion */}
+          <div className="border-t border-line">
+            <button
+              type="button"
+              onClick={() => setIsEditorialOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-sand/40 transition-colors group"
+              aria-expanded={isEditorialOpen}
+            >
+              <span className="text-[10px] font-semibold tracking-[0.2em] text-text-muted uppercase group-hover:text-gold-deep transition-colors">
+                Editorial & Guides
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-text-muted group-hover:text-gold-deep transition-transform duration-300 ease-in-out ${
+                  isEditorialOpen ? 'rotate-180 text-gold-deep' : ''
+                }`}
+              />
+            </button>
+
+            {/* Collapsible Dropdown Menu */}
+            <div
+              className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                isEditorialOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="space-y-0.5 px-3 py-1.5 bg-sand/20 border-t border-line/40">
+                  {EDITORIAL_LINKS.map((guide) => (
+                    <Link
+                      key={guide.href}
+                      href={guide.href}
+                      onClick={onClose}
+                      className="block px-3 py-2 text-xs text-ink-soft hover:text-gold-ink rounded-[2px] hover:bg-sand/40 transition-colors"
+                    >
+                      {guide.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Drawer Bottom Details */}
-        <div className="p-4 bg-sand border-t border-line text-xs space-y-2.5">
+        <div className="p-4 bg-sand border-t border-line text-xs space-y-2.5 shrink-0">
           <div className="flex items-center space-x-2 text-text-muted">
             <Truck className="w-3.5 h-3.5 text-gold-ink shrink-0" />
-            <span>Dhaka: 1–2 Days (৳70) | Nationwide: 2–4 Days (৳130)</span>
+            <span>Dhaka: 1–2 Days (৳80) | Nationwide: 2–4 Days (৳130)</span>
           </div>
           <div className="flex items-center space-x-2 text-text-muted">
             <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />

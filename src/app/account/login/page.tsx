@@ -441,7 +441,7 @@ function LoginFormContent() {
                     onChange={(e) => setRegDistrict(e.target.value)}
                     className="w-full h-10 px-3 bg-paper border border-line rounded-[2px] text-xs text-ink focus:outline-none focus:border-gold"
                   >
-                    <option value="Dhaka">Dhaka (Inside Dhaka ৳70)</option>
+                    <option value="Dhaka">Dhaka (Inside Dhaka ৳80)</option>
                     <option value="Gazipur">Gazipur (৳130)</option>
                     <option value="Narayanganj">Narayanganj (৳130)</option>
                     <option value="Chittagong">Chittagong (৳130)</option>

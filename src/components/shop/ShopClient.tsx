@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
 import { useInventory } from '@/context/InventoryContext';
 import { useOrders } from '@/context/OrdersContext';
@@ -28,11 +29,24 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
   const { getOrdering } = useProductOrdering();
   const { orders } = useOrders();
   const { reviews } = useReviews();
+  const searchParams = useSearchParams();
+  const filterParam = searchParams.get('filter');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [curatedFilter, setCuratedFilter] = useState<'all' | 'new-arrivals' | 'bestsellers'>('all');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterInStock, setFilterInStock] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
+
+  useEffect(() => {
+    if (filterParam === 'new-arrivals') {
+      setCuratedFilter('new-arrivals');
+    } else if (filterParam === 'bestsellers') {
+      setCuratedFilter('bestsellers');
+    } else {
+      setCuratedFilter('all');
+    }
+  }, [filterParam]);
 
   // Base products: prioritize live InventoryContext if loaded, fallback to server-rendered initialProducts
   const activeProducts = allProducts.length > 0 ? allProducts : initialProducts;
@@ -118,6 +132,14 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
   // Filter and sort products (customer sort overrides admin order for price/newest)
   const filteredProducts = useMemo(() => {
     let list = adminSortedProducts.map(getEffectiveProduct).filter((product) => {
+      // Curated collection filter (New Arrivals / Best Sellers)
+      if (curatedFilter === 'new-arrivals' && !product.isNewDrop) {
+        return false;
+      }
+      if (curatedFilter === 'bestsellers' && !product.isBestseller) {
+        return false;
+      }
+
       // Category filter
       if (selectedCategory !== 'all' && product.category !== selectedCategory) {
         return false;
@@ -157,16 +179,18 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
     // 'featured' keeps adminSortedProducts order
 
     return list;
-  }, [adminSortedProducts, getEffectiveProduct, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy]);
+  }, [adminSortedProducts, getEffectiveProduct, curatedFilter, selectedCategory, selectedColor, searchQuery, filterInStock, sortBy]);
 
   const activeFiltersCount =
     (selectedCategory !== 'all' ? 1 : 0) +
+    (curatedFilter !== 'all' ? 1 : 0) +
     (selectedColor ? 1 : 0) +
     (filterInStock ? 1 : 0) +
     (searchQuery ? 1 : 0);
 
   const resetFilters = () => {
     setSelectedCategory('all');
+    setCuratedFilter('all');
     setSelectedColor(null);
     setSearchQuery('');
     setFilterInStock(false);
@@ -200,18 +224,49 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
             </div>
           </div>
 
-          {/* Category Tabs */}
+          {/* Category & Curated Tabs */}
           <div className="mt-6 sm:mt-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full min-w-0">
             <button
               type="button"
-              onClick={() => setSelectedCategory('all')}
+              onClick={() => {
+                setSelectedCategory('all');
+                setCuratedFilter('all');
+              }}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
-                selectedCategory === 'all'
-                  ? 'bg-sand text-gold-deep shadow-sm'
+                selectedCategory === 'all' && curatedFilter === 'all'
+                  ? 'bg-sand text-gold-deep shadow-sm font-semibold'
                   : 'bg-paper border border-line text-ink hover:border-gold'
               }`}
             >
               All Items ({activeProducts.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCuratedFilter(curatedFilter === 'new-arrivals' ? 'all' : 'new-arrivals');
+                setSelectedCategory('all');
+              }}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
+                curatedFilter === 'new-arrivals'
+                  ? 'bg-sand text-gold-deep shadow-sm font-semibold'
+                  : 'bg-paper border border-line text-ink hover:border-gold'
+              }`}
+            >
+              ✨ New Arrivals ({activeProducts.filter((p) => p.isNewDrop).length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCuratedFilter(curatedFilter === 'bestsellers' ? 'all' : 'bestsellers');
+                setSelectedCategory('all');
+              }}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
+                curatedFilter === 'bestsellers'
+                  ? 'bg-sand text-gold-deep shadow-sm font-semibold'
+                  : 'bg-paper border border-line text-ink hover:border-gold'
+              }`}
+            >
+              🔥 Best Sellers ({activeProducts.filter((p) => p.isBestseller).length})
             </button>
             {CATEGORIES.map((cat) => {
               const count = activeProducts.filter((p) => p.category === cat.slug).length;
@@ -219,10 +274,13 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                 <button
                   key={cat.slug}
                   type="button"
-                  onClick={() => setSelectedCategory(cat.slug)}
+                  onClick={() => {
+                    setSelectedCategory(cat.slug);
+                    setCuratedFilter('all');
+                  }}
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
-                    selectedCategory === cat.slug
-                      ? 'bg-sand text-gold-deep shadow-sm'
+                    selectedCategory === cat.slug && curatedFilter === 'all'
+                      ? 'bg-sand text-gold-deep shadow-sm font-semibold'
                       : 'bg-paper border border-line text-ink hover:border-gold'
                   }`}
                 >

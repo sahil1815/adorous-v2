@@ -125,7 +125,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
-          value: product.price >= 2000 ? 0 : 70,
+          value: product.price >= 2000 ? 0 : 80,
           currency: 'BDT',
         },
         deliveryTime: {

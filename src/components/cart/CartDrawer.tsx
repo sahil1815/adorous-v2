@@ -47,7 +47,7 @@ export default function CartDrawer() {
     if (remainingForFreeShipping === 0) {
       text += `Delivery: Free (Order > ৳2,000)\n`;
     } else {
-      text += `Delivery: Dhaka ৳70 / Outside Dhaka ৳130\n`;
+      text += `Delivery: Dhaka ৳80 / Outside Dhaka ৳130\n`;
     }
     text += `\nPlease confirm my order.`;
     return `https://wa.me/8801577731381?text=${encodeURIComponent(text)}`;
