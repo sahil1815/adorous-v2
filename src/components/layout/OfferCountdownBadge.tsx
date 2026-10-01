@@ -8,15 +8,41 @@ export default function OfferCountdownBadge() {
   const { isOfferActive, remainingSeconds, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
   const [isDismissed, setIsDismissed] = useState(false);
 
-  // Drag-and-return coordinates and active state
+  // Drag coordinates and active state
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const badgeRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ clientX: number; clientY: number; startOffsetX: number; startOffsetY: number }>({
     clientX: 0,
     clientY: 0,
     startOffsetX: 0,
     startOffsetY: 0,
   });
+
+  const clampOffset = (x: number, y: number) => {
+    if (typeof window === 'undefined') return { x, y };
+    const badgeEl = badgeRef.current;
+    const badgeWidth = badgeEl ? badgeEl.offsetWidth : 240;
+    const badgeHeight = badgeEl ? badgeEl.offsetHeight : 44;
+
+    const minX = -(window.innerWidth - badgeWidth - 16);
+    const maxX = 8;
+    const minY = -64;
+    const maxY = window.innerHeight - 72 - badgeHeight - 16;
+
+    return {
+      x: Math.min(maxX, Math.max(minX, x)),
+      y: Math.min(maxY, Math.max(minY, y)),
+    };
+  };
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setOffset((prev) => clampOffset(prev.x, prev.y));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     // If user clicked close button, let close handler execute without dragging
@@ -40,10 +66,12 @@ export default function OfferCountdownBadge() {
     if (!isDragging) return;
     const deltaX = e.clientX - dragStartRef.current.clientX;
     const deltaY = e.clientY - dragStartRef.current.clientY;
-    setOffset({
-      x: dragStartRef.current.startOffsetX + deltaX,
-      y: dragStartRef.current.startOffsetY + deltaY,
-    });
+    setOffset(
+      clampOffset(
+        dragStartRef.current.startOffsetX + deltaX,
+        dragStartRef.current.startOffsetY + deltaY
+      )
+    );
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -52,8 +80,7 @@ export default function OfferCountdownBadge() {
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
-    // Return back to original anchor position smoothly
-    setOffset({ x: 0, y: 0 });
+    // Stays at the place where it is taken
   };
 
   const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -62,8 +89,7 @@ export default function OfferCountdownBadge() {
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
-    // Return back to original anchor position smoothly
-    setOffset({ x: 0, y: 0 });
+    // Stays at the place where it is taken
   };
 
   if (!isOfferActive || remainingSeconds <= 0 || isDismissed) return null;
@@ -86,6 +112,7 @@ export default function OfferCountdownBadge() {
       }}
     >
       <div
+        ref={badgeRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -101,7 +128,7 @@ export default function OfferCountdownBadge() {
           transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
           transition: isDragging
             ? 'none'
-            : 'transform 0.55s cubic-bezier(0.18, 0.9, 0.25, 1.25), box-shadow 0.3s ease',
+            : 'box-shadow 0.3s ease, border-color 0.2s ease, transform 0.15s ease-out',
           boxShadow: isDragging
             ? '0 16px 36px rgba(0,0,0,0.55), 0 0 25px rgba(198,169,110,0.45)'
             : isUrgent
