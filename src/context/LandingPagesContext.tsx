@@ -64,49 +64,30 @@ export function LandingPagesProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Hydrate on mount: check localStorage, sync to DB if needed, and fetch DB
+  // Hydrate on mount: database is the single authoritative source of truth
   useEffect(() => {
     let mounted = true;
 
     async function init() {
-      let localPages: LandingPage[] = [];
+      // 1. Instant optimistic load from localStorage for zero layout shift
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          localPages = JSON.parse(stored).map((p: any) => ({
-            ...p,
-            sortOrder: p.sortOrder || ('manual' as SortOrder),
-          }));
-          if (mounted && localPages.length > 0) {
-            setPages(localPages);
+          const parsed = JSON.parse(stored);
+          if (mounted && Array.isArray(parsed) && parsed.length > 0) {
+            setPages(parsed);
           }
         }
-      } catch (e) {
-        console.warn('[LandingPagesContext] Failed to read from localStorage');
-      }
+      } catch (e) {}
 
-      // If client has local pages, sync them to server database
-      if (localPages.length > 0) {
-        syncLandingPagesFromClient(localPages).catch((err) =>
-          console.warn('[LandingPagesContext] Client sync failed:', err)
-        );
-      }
-
-      // Load all persistent pages from server database
+      // 2. Fetch authoritative records from PostgreSQL
       try {
         const dbPages = await getAllLandingPages();
-        if (mounted && dbPages && dbPages.length > 0) {
-          setPages((prev) => {
-            // Merge server and local, giving precedence to local if fresher
-            const map = new Map<string, LandingPage>();
-            dbPages.forEach((p) => map.set(p.slug, p as LandingPage));
-            prev.forEach((p) => map.set(p.slug, p));
-            const merged = Array.from(map.values());
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-            } catch {}
-            return merged;
-          });
+        if (mounted) {
+          setPages((dbPages || []) as LandingPage[]);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dbPages || []));
+          } catch {}
         }
       } catch (err) {
         console.warn('[LandingPagesContext] DB load failed:', err);

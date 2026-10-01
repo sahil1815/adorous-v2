@@ -8,8 +8,26 @@ const publicRoutes = ['/admin/login'];
 
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  // 1. Clean Facebook tracking parameter (?fbclid=...) and set official Meta attribution cookie
+  const fbclid = req.nextUrl.searchParams.get('fbclid');
+  if (fbclid) {
+    const cleanUrl = req.nextUrl.clone();
+    cleanUrl.searchParams.delete('fbclid');
+
+    const response = NextResponse.redirect(cleanUrl, 307);
+    const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
+    response.cookies.set('_fbc', fbcValue, {
+      path: '/',
+      maxAge: 90 * 24 * 60 * 60, // 90 days Meta attribution window
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: false,
+    });
+    return response;
+  }
   
-  // Check if it's an admin route
+  // 2. Check if it's an admin route
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route)) && 
                            !publicRoutes.some(route => path.startsWith(route));
 
@@ -28,7 +46,10 @@ export default async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Only run proxy middleware on admin routes; all storefront routes & prefetches bypass middleware for instant CDN delivery
 export const config = {
-  matcher: ['/admin', '/admin/:path*'],
+  matcher: [
+    '/admin',
+    '/admin/:path*',
+    '/collections/:path*',
+  ],
 };

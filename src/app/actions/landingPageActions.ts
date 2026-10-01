@@ -18,123 +18,43 @@ export interface LandingPageData {
   updatedAt: string;
 }
 
-// Built-in fallback seeds for active campaign links
-const SEED_LANDING_PAGES: LandingPageData[] = [
-  {
-    id: 'lp-luxe-crystal-collection',
-    slug: 'luxe-crystal-collection',
-    title: 'Luxe Crystal Collection',
-    headline: 'Luxe Crystal Collection',
-    subtitle: 'Brilliant faceted crystal suites, floral cluster drops, and heirloom statement pieces.',
-    productIds: [
-      'prod-luxe-floral-crystal-duo-2-piece-set',
-      'prod-luxe-crystal-gemstone-suite-2-piece-set',
-      'prod-luxe-golden-crystal-gemstone-suite-5-piece-box-set',
-      'golden-crystal-5-piece-luxury-suite',
-    ],
-    sortOrder: 'manual',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'lp-jewellery5',
-    slug: 'jewellery5',
-    title: 'Jewelry Sets Collection',
-    headline: 'Jewelry Suites & Heritage Sets',
-    subtitle: 'Artisanal bridal suites and handcrafted crystal suites presented in signature velvet gift cases.',
-    productIds: [
-      'golden-crystal-5-piece-luxury-suite',
-      'prod-luxe-golden-crystal-gemstone-suite-5-piece-box-set',
-      'prod-luxe-crystal-gemstone-suite-2-piece-set',
-      'prod-luxe-floral-crystal-duo-2-piece-set',
-      'kundan-bridal-heritage-choker-set',
-    ],
-    sortOrder: 'manual',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 export async function getAllLandingPages(): Promise<LandingPageData[]> {
   try {
     const pages = await prisma.landingPage.findMany({
       orderBy: { createdAt: 'desc' },
     });
-
-    if (pages.length === 0) {
-      // Auto-seed into DB so they are persistent
-      for (const seed of SEED_LANDING_PAGES) {
-        await prisma.landingPage.upsert({
-          where: { slug: seed.slug },
-          update: {},
-          create: {
-            id: seed.id,
-            slug: seed.slug,
-            title: seed.title,
-            headline: seed.headline,
-            subtitle: seed.subtitle,
-            productIds: seed.productIds,
-            sortOrder: seed.sortOrder,
-            isActive: seed.isActive,
-          },
-        }).catch(() => {});
-      }
-
-      const seededPages = await prisma.landingPage.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
-      return seededPages.map(serializeLandingPage);
-    }
-
     return pages.map(serializeLandingPage);
   } catch (error) {
     console.error('[getAllLandingPages] Error fetching landing pages from DB:', error);
-    return SEED_LANDING_PAGES;
+    return [];
   }
 }
 
 export async function getLandingPageBySlug(slug: string): Promise<LandingPageData | null> {
   if (!slug) return null;
-  const cleanSlug = slug.trim().toLowerCase();
+  const cleanSlug = decodeURIComponent(slug).trim().toLowerCase();
 
   try {
-    const page = await prisma.landingPage.findUnique({
+    let page = await prisma.landingPage.findUnique({
       where: { slug: cleanSlug },
     });
+
+    if (!page) {
+      page = await prisma.landingPage.findFirst({
+        where: {
+          slug: { equals: cleanSlug, mode: 'insensitive' },
+        },
+      });
+    }
 
     if (page) {
       return serializeLandingPage(page);
     }
 
-    // Check seed fallback
-    const seed = SEED_LANDING_PAGES.find((p) => p.slug === cleanSlug);
-    if (seed) {
-      // Persist seed to database for future requests
-      await prisma.landingPage.upsert({
-        where: { slug: seed.slug },
-        update: {},
-        create: {
-          id: seed.id,
-          slug: seed.slug,
-          title: seed.title,
-          headline: seed.headline,
-          subtitle: seed.subtitle,
-          productIds: seed.productIds,
-          sortOrder: seed.sortOrder,
-          isActive: seed.isActive,
-        },
-      }).catch(() => {});
-
-      return seed;
-    }
-
     return null;
   } catch (error) {
     console.error(`[getLandingPageBySlug] Error fetching slug "${slug}":`, error);
-    const seed = SEED_LANDING_PAGES.find((p) => p.slug === cleanSlug);
-    return seed || null;
+    return null;
   }
 }
 
