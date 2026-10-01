@@ -104,8 +104,8 @@ export default function AddProductPage() {
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [category, setCategory] = useState<ProductCategory>('jewelry');
   const [tagline, setTagline] = useState('');
-  const [price, setPrice] = useState<number>(3850);
-  const [originalPrice, setOriginalPrice] = useState<number>(4500);
+  const [price, setPrice] = useState<number | string>(3850);
+  const [originalPrice, setOriginalPrice] = useState<number | string>(4500);
   const [description, setDescription] = useState('');
 
   // Image Showcase & Gallery Selection
@@ -331,7 +331,7 @@ export default function AddProductPage() {
       return;
     }
 
-    if (price <= 0) {
+    if (Number(price) <= 0) {
       setErrorMsg('Price must be greater than 0.');
       return;
     }
@@ -346,6 +346,9 @@ export default function AddProductPage() {
 
     setIsPublishing(true);
 
+    const numPrice = Number(price);
+    const numOriginalPrice = originalPrice && Number(originalPrice) > 0 ? Number(originalPrice) : undefined;
+
     const newProduct: Product = {
       id: `prod-${cleanSlug}-${Date.now()}`,
       slug: cleanSlug,
@@ -353,8 +356,8 @@ export default function AddProductPage() {
       category,
       categoryLabel: selectedCategoryOption ? selectedCategoryOption.label : 'Luxury Accessories',
       tagline: tagline.trim() || `${name.trim()} - Boutique Premium Luxury`,
-      price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      price: numPrice,
+      originalPrice: numOriginalPrice,
       description: description.trim() || 'A premium curated piece designed for timeless elegance and luxury styling across Bangladesh.',
       details,
       piecesIncluded: piecesIncluded.length > 0 ? piecesIncluded : undefined,
@@ -547,11 +550,12 @@ export default function AddProductPage() {
                 <span className="absolute left-3 top-2 text-gold font-sans font-semibold">৳</span>
                 <input
                   type="number"
+                  step="any"
                   required
-                  min="1"
+                  min="0.01"
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm"
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm font-mono"
                 />
               </div>
             </div>
@@ -564,11 +568,12 @@ export default function AddProductPage() {
                 <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">৳</span>
                 <input
                   type="number"
+                  step="any"
                   min="0"
                   placeholder="0 for no strikethrough"
                   value={originalPrice}
-                  onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none"
+                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-mono"
                 />
               </div>
             </div>

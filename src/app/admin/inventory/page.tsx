@@ -28,6 +28,7 @@ import {
   X,
   ShieldAlert,
 } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 function fromDbProduct(p: any): Product {
   return {
@@ -94,8 +95,8 @@ export default function AdminInventoryPage() {
 
   // Inline Price Editing
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [priceInput, setPriceInput] = useState<number>(0);
-  const [origPriceInput, setOrigPriceInput] = useState<number>(0);
+  const [priceInput, setPriceInput] = useState<number | string>(0);
+  const [origPriceInput, setOrigPriceInput] = useState<number | string>(0);
   const [savingPriceId, setSavingPriceId] = useState<string | null>(null);
   const [savedSuccessId, setSavedSuccessId] = useState<string | null>(null);
 
@@ -373,7 +374,7 @@ export default function AdminInventoryPage() {
   const handleSavePrice = async (prod: Product) => {
     setSavingPriceId(prod.id);
     const numPrice = Number(priceInput);
-    const numOrig = origPriceInput ? Number(origPriceInput) : undefined;
+    const numOrig = origPriceInput && Number(origPriceInput) > 0 ? Number(origPriceInput) : undefined;
 
     updateProductPrice(prod.id, numPrice, numOrig);
 
@@ -694,17 +695,19 @@ export default function AdminInventoryPage() {
                             <span className="text-paper/60 text-[11px]">৳</span>
                             <input
                               type="number"
+                              step="any"
                               value={priceInput}
-                              onChange={(e) => setPriceInput(Number(e.target.value))}
-                              className="w-20 bg-[#171717] border border-white/20 text-paper text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold"
+                              onChange={(e) => setPriceInput(e.target.value)}
+                              className="w-20 bg-[#171717] border border-white/20 text-paper text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
                             />
                             <span className="text-paper/40 text-[10px]">Orig:</span>
                             <input
                               type="number"
+                              step="any"
                               value={origPriceInput}
-                              onChange={(e) => setOrigPriceInput(Number(e.target.value))}
+                              onChange={(e) => setOrigPriceInput(e.target.value)}
                               placeholder="Optional"
-                              className="w-20 bg-[#171717] border border-white/20 text-paper/70 text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold"
+                              className="w-20 bg-[#171717] border border-white/20 text-paper/70 text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
                             />
                             <button
                               type="button"
@@ -725,11 +728,11 @@ export default function AdminInventoryPage() {
                         ) : (
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-paper tabular-nums">
-                              ৳{effective.price.toLocaleString('en-US')}
+                              ৳{formatPrice(effective.price)}
                             </span>
                             {effective.originalPrice && (
                               <span className="text-[11px] text-paper/40 line-through tabular-nums">
-                                ৳{effective.originalPrice.toLocaleString('en-US')}
+                                ৳{formatPrice(effective.originalPrice)}
                               </span>
                             )}
                             <button
@@ -986,7 +989,7 @@ export default function AdminInventoryPage() {
                   {deleteModalProduct.name}
                 </p>
                 <p className="text-[11px] text-paper/60 font-mono">
-                  ৳{deleteModalProduct.price.toLocaleString('en-US')}
+                  ৳{formatPrice(deleteModalProduct.price)}
                 </p>
               </div>
             </div>

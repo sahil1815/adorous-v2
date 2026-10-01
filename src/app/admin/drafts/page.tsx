@@ -9,6 +9,7 @@ import {
   getDraftSignInsAction,
   deleteDraftSignInAction,
 } from '@/app/actions/draftActions';
+import { formatPrice } from '@/lib/formatPrice';
 import {
   ShoppingBag,
   UserCheck,
@@ -132,7 +133,7 @@ export default function AdminDraftsPage() {
 
     const name = draft.fullName && draft.fullName !== 'Anonymous Visitor' ? draft.fullName : 'Customer';
 
-    const message = `Hello ${name}, Assalamu Alaikum from Adorous Fashion!\n\nWe noticed you were selecting:\n${itemsSummary || 'luxury churi & fine jewelry'}\nTotal: ৳${draft.grandTotal?.toLocaleString('en-US')}\n\nWould you like any assistance completing your Cash on Delivery order, or would you like our team to confirm and dispatch this for you? Please let us know!`;
+    const message = `Hello ${name}, Assalamu Alaikum from Adorous Fashion!\n\nWe noticed you were selecting:\n${itemsSummary || 'luxury churi & fine jewelry'}\nTotal: ৳${formatPrice(draft.grandTotal)}\n\nWould you like any assistance completing your Cash on Delivery order, or would you like our team to confirm and dispatch this for you? Please let us know!`;
 
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   };
@@ -408,7 +409,7 @@ export default function AdminDraftsPage() {
                     <div className="sm:text-right mt-1 sm:mt-0">
                       <span className="text-[11px] text-paper/50 block">Potential Value</span>
                       <span className="font-serif text-lg font-bold text-gold">
-                        ৳{draft.grandTotal?.toLocaleString('en-US') || 0}
+                        ৳{formatPrice(draft.grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -511,7 +512,7 @@ export default function AdminDraftsPage() {
                                 <span>• Qty: {item.quantity}</span>
                               </div>
                               <span className="text-gold font-medium text-[11px] block mt-0.5">
-                                ৳{(item.product?.price * item.quantity).toLocaleString('en-US')}
+                                ৳{formatPrice(item.product?.price * item.quantity)}
                               </span>
                             </div>
                           </div>

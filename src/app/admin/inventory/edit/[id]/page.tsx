@@ -49,8 +49,8 @@ export default function EditProductPage() {
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [category, setCategory] = useState<ProductCategory>('jewelry');
   const [tagline, setTagline] = useState('');
-  const [price, setPrice] = useState<number>(0);
-  const [originalPrice, setOriginalPrice] = useState<number>(0);
+  const [price, setPrice] = useState<number | string>(0);
+  const [originalPrice, setOriginalPrice] = useState<number | string>(0);
   const [description, setDescription] = useState('');
 
   // Image Showcase & Gallery
@@ -292,10 +292,13 @@ export default function EditProductPage() {
     if (!name.trim()) { setErrorMsg('Please enter a product title.'); return; }
     if (!slug.trim()) { setErrorMsg('Please specify a URL slug.'); return; }
     if (!featuredImage) { setErrorMsg('Please select a featured image.'); return; }
-    if (price <= 0) { setErrorMsg('Price must be greater than 0.'); return; }
+    if (Number(price) <= 0) { setErrorMsg('Price must be greater than 0.'); return; }
 
     setIsSaving(true);
     const selectedCat = CATEGORY_OPTIONS.find((c) => c.slug === category);
+
+    const numPrice = Number(price);
+    const numOriginalPrice = originalPrice && Number(originalPrice) > 0 ? Number(originalPrice) : undefined;
 
     const res = await updateProductAction(productId, {
       name: name.trim(),
@@ -303,8 +306,8 @@ export default function EditProductPage() {
       category,
       categoryLabel: selectedCat?.label || 'Luxury Accessories',
       tagline: tagline.trim() || undefined,
-      price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      price: numPrice,
+      originalPrice: numOriginalPrice,
       description: description.trim() || undefined,
       featuredImage,
       isNewDrop,
@@ -339,8 +342,8 @@ export default function EditProductPage() {
       category,
       categoryLabel: selectedCat?.label || 'Luxury Accessories',
       tagline: tagline.trim(),
-      price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      price: numPrice,
+      originalPrice: numOriginalPrice,
       description: description.trim(),
       details,
       piecesIncluded,
@@ -565,9 +568,13 @@ export default function EditProductPage() {
               <div className="relative">
                 <span className="absolute left-3 top-2 text-gold font-sans font-semibold">৳</span>
                 <input
-                  type="number" required min="1" value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm"
+                  type="number"
+                  step="any"
+                  required
+                  min="0.01"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm font-mono"
                 />
               </div>
             </div>
@@ -576,9 +583,12 @@ export default function EditProductPage() {
               <div className="relative">
                 <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">৳</span>
                 <input
-                  type="number" min="0" value={originalPrice}
-                  onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none"
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={originalPrice}
+                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-mono"
                 />
               </div>
             </div>

@@ -278,7 +278,8 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
-                      min="1"
+                      step="any"
+                      min="0.01"
                       max="100"
                       value={discountPercent}
                       onChange={(e) => setDiscountPercent(Number(e.target.value))}
@@ -347,6 +348,7 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
+                      step="any"
                       min="0"
                       value={maxDiscountAmount ?? ''}
                       onChange={(e) =>
@@ -370,6 +372,7 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
+                      step="any"
                       min="0"
                       value={minOrderAmount ?? ''}
                       onChange={(e) =>

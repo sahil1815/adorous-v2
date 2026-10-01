@@ -20,6 +20,7 @@ import {
   TrendingUp,
   X
 } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function AdminCouponsPage() {
   const {
@@ -194,7 +195,7 @@ export default function AdminCouponsPage() {
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           </div>
           <p className="text-2xl font-serif text-gold font-normal">
-            ৳{estimatedSavings.toLocaleString()}
+            ৳{formatPrice(estimatedSavings)}
           </p>
           <p className="text-[11px] text-paper/40">Cumulative discount savings in BDT</p>
         </div>
@@ -290,13 +291,13 @@ export default function AdminCouponsPage() {
                   {/* Conditions Details */}
                   <div className="flex flex-wrap items-center gap-3 text-[11px] text-paper/50">
                     {coupon.minOrderAmount ? (
-                      <span>Min Spend: <strong className="text-paper/70 font-semibold">৳{coupon.minOrderAmount.toLocaleString()}</strong></span>
+                      <span>Min Spend: <strong className="text-paper/70 font-semibold">৳{formatPrice(coupon.minOrderAmount)}</strong></span>
                     ) : (
                       <span>No Minimum Spend</span>
                     )}
 
                     {coupon.maxDiscountAmount && coupon.discountType === 'percentage' && (
-                      <span>• Capped At: <strong className="text-paper/70 font-semibold">৳{coupon.maxDiscountAmount.toLocaleString()}</strong></span>
+                      <span>• Capped At: <strong className="text-paper/70 font-semibold">৳{formatPrice(coupon.maxDiscountAmount)}</strong></span>
                     )}
 
                     {coupon.expiresAt && (
@@ -471,7 +472,8 @@ export default function AdminCouponsPage() {
                     </label>
                     <input
                       type="number"
-                      min="1"
+                      step="any"
+                      min="0.01"
                       max={discountType === 'percentage' ? '100' : '50000'}
                       value={discountValue}
                       onChange={(e) => setDiscountValue(Number(e.target.value))}
@@ -486,6 +488,7 @@ export default function AdminCouponsPage() {
                       </label>
                       <input
                         type="number"
+                        step="any"
                         min="0"
                         placeholder="e.g. 1000"
                         value={maxDiscountAmount}
@@ -505,6 +508,7 @@ export default function AdminCouponsPage() {
                   </label>
                   <input
                     type="number"
+                    step="any"
                     min="0"
                     placeholder="0 for no minimum"
                     value={minOrderAmount}

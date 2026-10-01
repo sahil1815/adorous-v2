@@ -10,6 +10,7 @@ import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
 import { Product } from '@/types';
 import { CATEGORIES } from '@/data/catalogue';
+import { formatPrice } from '@/lib/formatPrice';
 import {
   GripVertical,
   ArrowUpDown,
@@ -577,7 +578,7 @@ export default function AdminProductOrderingPage() {
                       <div className="flex items-center space-x-3 text-[11px] text-paper/40 mt-0.5">
                         <span className="capitalize">{product.categoryLabel || product.category}</span>
                         <span>•</span>
-                        <span className="text-paper/70 font-semibold font-mono">৳{product.price.toLocaleString()}</span>
+                        <span className="text-paper/70 font-semibold font-mono">৳{formatPrice(product.price)}</span>
                       </div>
                     </div>
                   </div>
