@@ -1,12 +1,70 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
-import { Clock, Sparkles, X, Eye } from 'lucide-react';
+import { Clock, Sparkles, X } from 'lucide-react';
 
 export default function OfferCountdownBadge() {
   const { isOfferActive, remainingSeconds, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Drag-and-return coordinates and active state
+  const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ clientX: number; clientY: number; startOffsetX: number; startOffsetY: number }>({
+    clientX: 0,
+    clientY: 0,
+    startOffsetX: 0,
+    startOffsetY: 0,
+  });
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // If user clicked close button, let close handler execute without dragging
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (e.button !== 0) return; // Only drag with primary mouse button / touch
+
+    setIsDragging(true);
+    dragStartRef.current = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      startOffsetX: offset.x,
+      startOffsetY: offset.y,
+    };
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStartRef.current.clientX;
+    const deltaY = e.clientY - dragStartRef.current.clientY;
+    setOffset({
+      x: dragStartRef.current.startOffsetX + deltaX,
+      y: dragStartRef.current.startOffsetY + deltaY,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+    // Return back to original anchor position smoothly
+    setOffset({ x: 0, y: 0 });
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+    // Return back to original anchor position smoothly
+    setOffset({ x: 0, y: 0 });
+  };
 
   if (!isOfferActive || remainingSeconds <= 0 || isDismissed) return null;
 
@@ -19,32 +77,45 @@ export default function OfferCountdownBadge() {
 
   return (
     <div
-      className="fixed z-40 transition-all duration-500 ease-out"
+      className="fixed z-40"
       style={{
         top: '72px',
         right: '16px',
+        touchAction: 'none',
+        userSelect: 'none',
       }}
     >
       <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
         className={`
           flex items-center gap-2.5 px-4 py-2.5 rounded-full
-          bg-ink shadow-xl border border-gold/25
-          backdrop-blur-md
-          ${isUrgent ? 'animate-pulse' : ''}
+          bg-ink border border-gold/25
+          backdrop-blur-md select-none
+          ${isUrgent && !isDragging ? 'animate-pulse' : ''}
+          ${isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab hover:border-gold/50'}
         `}
         style={{
-          boxShadow: isUrgent
-            ? '0 0 20px rgba(198,169,110,0.35), 0 4px 20px rgba(0,0,0,0.3)'
-            : '0 4px 20px rgba(0,0,0,0.25)',
+          transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
+          transition: isDragging
+            ? 'none'
+            : 'transform 0.55s cubic-bezier(0.18, 0.9, 0.25, 1.25), box-shadow 0.3s ease',
+          boxShadow: isDragging
+            ? '0 16px 36px rgba(0,0,0,0.55), 0 0 25px rgba(198,169,110,0.45)'
+            : isUrgent
+              ? '0 0 20px rgba(198,169,110,0.35), 0 4px 20px rgba(0,0,0,0.3)'
+              : '0 4px 20px rgba(0,0,0,0.25)',
         }}
       >
         {/* Sparkle icon */}
-        <div className="w-6 h-6 rounded-full gold-gradient-bg flex items-center justify-center shrink-0">
+        <div className="w-6 h-6 rounded-full gold-gradient-bg flex items-center justify-center shrink-0 pointer-events-none">
           <Sparkles className="w-3 h-3 text-ink" />
         </div>
 
         {/* Text */}
-        <div className="flex flex-col leading-none">
+        <div className="flex flex-col leading-none pointer-events-none">
           <span className="text-[10px] uppercase tracking-wider text-gold/60 font-sans font-medium flex items-center gap-1">
             <span>
               {discountPercent}% off · {settings.timerLabel || 'New Visitor Offer'}
@@ -69,7 +140,11 @@ export default function OfferCountdownBadge() {
 
         {/* Close / dismiss badge */}
         <button
-          onClick={() => setIsDismissed(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsDismissed(true);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
           className="ml-1 w-5 h-5 flex items-center justify-center rounded-full text-gold/40 hover:text-gold hover:bg-ink-soft/60 transition-colors shrink-0"
           aria-label="Hide countdown badge"
         >
