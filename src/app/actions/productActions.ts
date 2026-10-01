@@ -316,6 +316,7 @@ export async function updateProductAction(
       revalidatePath('/shop');
       revalidatePath('/');
       revalidatePath('/admin/inventory');
+      revalidatePath('/', 'layout');
     } catch (revalErr) {
       console.warn('Revalidation warning:', revalErr);
     }

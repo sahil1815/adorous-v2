@@ -66,6 +66,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const initialColorParam = searchParams.get('colour');
   const matchedInitialColor = product.colorways.find(
     (c) => c.id.toLowerCase() === initialColorParam?.toLowerCase()
+  ) || (product.featuredImage
+    ? product.colorways.find((c) => c.image && (c.image === product.featuredImage || product.featuredImage.includes(c.image) || c.image.includes(product.featuredImage)))
+    : undefined
   ) || product.colorways[0];
 
   const [selectedColor, setSelectedColor] = useState<Colorway>(matchedInitialColor);
@@ -82,7 +85,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     return initial;
   });
   const [mixErrorMessage, setMixErrorMessage] = useState<string | null>(null);
-  const [activeImage, setActiveImage] = useState<string>(matchedInitialColor?.image || product.featuredImage);
+  const [activeImage, setActiveImage] = useState<string>(
+    (initialColorParam ? (matchedInitialColor?.image || product.featuredImage) : (product.featuredImage || matchedInitialColor?.image)) || ''
+  );
   const [isSizingModalOpen, setIsSizingModalOpen] = useState(false);
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);

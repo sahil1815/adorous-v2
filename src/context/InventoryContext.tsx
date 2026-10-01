@@ -140,8 +140,14 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProduct = (updatedProd: Product) => {
-    const updated = customProducts.map((p) => (p.id === updatedProd.id ? updatedProd : p));
-    saveCustomProducts(updated);
+    if (customProducts.some((p) => p.id === updatedProd.id)) {
+      const updated = customProducts.map((p) => (p.id === updatedProd.id ? updatedProd : p));
+      saveCustomProducts(updated);
+    }
+    setDbProducts((prev) => {
+      if (!prev) return prev;
+      return prev.map((p) => (p.id === updatedProd.id ? updatedProd : p));
+    });
     setTimeout(() => {
       refreshProducts();
     }, 500);

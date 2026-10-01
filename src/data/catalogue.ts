@@ -38,7 +38,7 @@ export const CATEGORIES = [
     slug: "bags",
     name: "Ladies' Bags",
     count: "4 Designs",
-    image: "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391",
+    image: "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-white-1.png?v=1782911196",
     blurb: "Architectural croc-embossed satchels, woven French tweed, and everyday commuter totes.",
   },
   {

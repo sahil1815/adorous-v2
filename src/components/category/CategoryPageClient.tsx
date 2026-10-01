@@ -232,14 +232,22 @@ export default function CategoryPageClient({
             {/* Editorial Still-Life Thumbnail Showcase */}
             <div className="lg:col-span-5 relative">
               <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[4/3] rounded-[2px] overflow-hidden border border-line shadow-sm bg-stone">
-                <Image
-                  src={categoryImage}
-                  alt={`${categoryName} Still Life`}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover object-center"
-                />
+                {categoryImage.startsWith('data:') || categoryImage.startsWith('http') ? (
+                  <img
+                    src={categoryImage}
+                    alt={`${categoryName} Still Life`}
+                    className="w-full h-full object-cover object-center"
+                  />
+                ) : (
+                  <Image
+                    src={categoryImage}
+                    alt={`${categoryName} Still Life`}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="object-cover object-center"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white text-[11px] font-medium tracking-wider flex items-center justify-between">
                   <span>Adorous Still Life Studio</span>

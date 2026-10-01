@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Product } from '@/types';
+import { Product, Colorway } from '@/types';
 import { ShoppingBag, Check, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -15,7 +15,27 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [activeColor, setActiveColor] = useState(product.colorways[0]);
+  // Find the colorway corresponding to the featured cover image, or default to the first colorway
+  const defaultColor = React.useMemo(() => {
+    if (!product.colorways || product.colorways.length === 0) return undefined;
+    if (product.featuredImage) {
+      const match = product.colorways.find(
+        (c) => c.image && (c.image === product.featuredImage || product.featuredImage.includes(c.image) || c.image.includes(product.featuredImage))
+      );
+      if (match) return match;
+    }
+    return product.colorways[0];
+  }, [product.colorways, product.featuredImage]);
+
+  const [userSelectedColor, setUserSelectedColor] = useState<Colorway | null>(null);
+  const [prevProductKey, setPrevProductKey] = useState(`${product.id}-${product.featuredImage}`);
+
+  if (prevProductKey !== `${product.id}-${product.featuredImage}`) {
+    setPrevProductKey(`${product.id}-${product.featuredImage}`);
+    setUserSelectedColor(null);
+  }
+
+  const activeColor = userSelectedColor || defaultColor || product.colorways?.[0];
   const [isAdded, setIsAdded] = useState(false);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -51,9 +71,11 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    addToCart(product, activeColor, product.sizes ? product.sizes[1] || product.sizes[0] : undefined, 1);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1800);
+    if (activeColor) {
+      addToCart(product, activeColor, product.sizes ? product.sizes[1] || product.sizes[0] : undefined, 1);
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 1800);
+    }
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -62,9 +84,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     toggleWishlist(product);
   };
 
-  const productHref = `/${product.category}/${product.slug}?colour=${activeColor.id}`;
+  const productHref = activeColor
+    ? `/${product.category}/${product.slug}?colour=${activeColor.id}`
+    : `/${product.category}/${product.slug}`;
 
-  const displayImage = activeColor?.image || product.featuredImage;
+  const displayImage = userSelectedColor
+    ? (userSelectedColor.image || product.featuredImage || '')
+    : (product.featuredImage || defaultColor?.image || activeColor?.image || '');
 
   return (
     <div className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300 w-full min-w-0 overflow-hidden">
@@ -201,10 +227,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    setActiveColor(c);
+                    setUserSelectedColor(c);
                   }}
                   className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border transition-all ${
-                    activeColor.id === c.id
+                    activeColor?.id === c.id
                       ? 'border-ink scale-125 shadow-sm'
                       : 'border-black/20 hover:scale-110'
                   }`}
