@@ -22,14 +22,8 @@ export default function CartDrawer() {
     remainingForFreeShipping,
   } = useCart();
   const { isOfferActive, discountPercent, calculateDiscount } = useNewVisitorOffer();
-  // NVO discount is based on compare prices (originalPrice), not selling prices
-  const compareSubtotal = items.reduce((sum, item) => {
-    const comparePrice = item.product.originalPrice && item.product.originalPrice > item.product.price
-      ? item.product.originalPrice
-      : item.product.price;
-    return sum + comparePrice * item.quantity;
-  }, 0);
-  const nvoDiscount = calculateDiscount(compareSubtotal);
+  // Flat X% discount calculation (keeping items with >X% existing discounts intact)
+  const nvoDiscount = calculateDiscount(items);
 
   if (!isOpen) return null;
 

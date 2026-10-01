@@ -21,25 +21,28 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { isOfferActive, discountPercent } = useNewVisitorOffer();
 
   // Price & Discount calculations (synchronized with ProductDetailClient)
-  const comparePrice = product.originalPrice && product.originalPrice > product.price
+  const baseOriginalPrice = product.originalPrice && product.originalPrice > product.price
     ? product.originalPrice
-    : (isOfferActive ? product.price : null);
+    : product.price;
 
   const existingDiscountPct = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const totalDiscountPct = isOfferActive
-    ? existingDiscountPct + discountPercent
+  // Flat discount rule:
+  // If product already has more discount than discountPercent, keep it as is (exception);
+  // otherwise, make it flat discountPercent.
+  const hasHigherExistingDiscount = isOfferActive && existingDiscountPct > discountPercent;
+  const displayDiscountPct = isOfferActive
+    ? (hasHigherExistingDiscount ? existingDiscountPct : discountPercent)
     : existingDiscountPct;
 
-  const sellingPrice = isOfferActive && comparePrice
-    ? Math.round(comparePrice * (1 - totalDiscountPct / 100))
+  const targetPrice = Math.round(baseOriginalPrice * (1 - discountPercent / 100));
+  const sellingPrice = isOfferActive
+    ? (hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice))
     : product.price;
 
-  const strikethroughPrice = isOfferActive
-    ? comparePrice
-    : (product.originalPrice && product.originalPrice > product.price ? product.originalPrice : null);
+  const strikethroughPrice = baseOriginalPrice > sellingPrice ? baseOriginalPrice : null;
 
   const isSaved = isInWishlist(product.id);
 
@@ -97,9 +100,9 @@ export default function ProductCard({ product }: ProductCardProps) {
               Bestseller
             </span>
           )}
-          {totalDiscountPct > 0 && (
+          {displayDiscountPct > 0 && (
             <span className="bg-[#9E2A2B] text-white text-[9px] sm:text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 font-semibold shadow-xs">
-              {totalDiscountPct}% OFF
+              {displayDiscountPct}% OFF
             </span>
           )}
         </div>
@@ -181,7 +184,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   ৳{strikethroughPrice.toLocaleString('en-US')}
                 </span>
                 <span className="text-[10px] sm:text-[11px] font-bold text-[#9E2A2B] tracking-tight">
-                  ({totalDiscountPct}% off)
+                  ({displayDiscountPct}% off)
                 </span>
               </>
             )}

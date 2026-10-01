@@ -30,16 +30,27 @@ export async function createOrder(orderData: any) {
           });
           const dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
 
-          let serverCompareSubtotal = 0;
           let serverSubtotal = 0;
+          let serverFlatDiscount = 0;
+          const pct = settings.discountPercent || 10;
+
           for (const item of orderData.items || []) {
             const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
             const price = dbProd?.price ?? item.product?.price ?? 0;
             const originalPrice = dbProd?.originalPrice ?? item.product?.originalPrice;
-            const comparePrice = originalPrice && originalPrice > price ? originalPrice : price;
+            const baseOriginalPrice = originalPrice && originalPrice > price ? originalPrice : price;
             const qty = Number(item.quantity) || 1;
-            serverCompareSubtotal += comparePrice * qty;
             serverSubtotal += price * qty;
+
+            // Flat target price at X% discount from baseOriginalPrice
+            const targetPrice = Math.round(baseOriginalPrice * (1 - pct / 100));
+
+            // If current selling price is higher than targetPrice, discount down to flat X%
+            if (price > targetPrice) {
+              serverFlatDiscount += (price - targetPrice) * qty;
+            }
+            // Exception: If current price <= targetPrice (product already has >= X% discount),
+            // keep it as is (additional discount = 0).
           }
 
           // Check minOrderAmount threshold
@@ -47,10 +58,9 @@ export async function createOrder(orderData: any) {
             validatedDiscountAmount = undefined;
             validatedCouponCode = undefined;
           } else {
-            const rawDiscount = Math.round((serverCompareSubtotal * settings.discountPercent) / 100);
             const maxAllowedDiscount = settings.maxDiscountAmount
-              ? Math.min(rawDiscount, settings.maxDiscountAmount)
-              : rawDiscount;
+              ? Math.min(serverFlatDiscount, settings.maxDiscountAmount)
+              : serverFlatDiscount;
 
             const claimedDiscount = Number(orderData.discountAmount) || 0;
             // Verify client discount does not exceed authorized calculation (±1 BDT tolerance for rounding)

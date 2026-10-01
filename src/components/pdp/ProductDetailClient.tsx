@@ -762,20 +762,28 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     const existingDiscountPct = comparePrice > product.price
                       ? Math.round(((comparePrice - product.price) / comparePrice) * 100)
                       : 0;
-                    // Total discount = existing + NVO (both off the compare price)
-                    const totalDiscountPct = existingDiscountPct + discountPercent;
-                    const nvoFinalPrice = Math.round(comparePrice * (1 - totalDiscountPct / 100));
+
+                    // Flat rule: if product already has more discount than X%, keep it as is (exception);
+                    // otherwise, make it flat X% discount.
+                    const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
+                    const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
+                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
+                    const nvoFinalPrice = hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice);
+                    const showStrikethrough = comparePrice > nvoFinalPrice;
+
                     return (
                       <>
                         <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
                           ৳{nvoFinalPrice.toLocaleString('en-US')}
                         </span>
-                        <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                          ৳{comparePrice.toLocaleString('en-US')}
-                        </span>
+                        {showStrikethrough && (
+                          <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
+                            ৳{comparePrice.toLocaleString('en-US')}
+                          </span>
+                        )}
                         <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
                           <Sparkles className="w-3 h-3" />
-                          {totalDiscountPct}% OFF · New Visitor
+                          {effectiveDiscountPct}% OFF · {hasHigherExistingDiscount ? 'Special Offer' : 'New Visitor'}
                         </span>
                       </>
                     );

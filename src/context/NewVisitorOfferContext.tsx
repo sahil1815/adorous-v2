@@ -28,6 +28,14 @@ const SS_PREVIEW_START_TS    = 'adorous_nvo_preview_start_ts';
 const SS_PREVIEW_DISMISSED   = 'adorous_nvo_preview_dismissed';
 const SS_PREVIEW_USED        = 'adorous_nvo_preview_used';
 
+export interface DiscountCalculableItem {
+  product: {
+    price: number;
+    originalPrice?: number | null;
+  };
+  quantity: number;
+}
+
 export interface NewVisitorOfferContextType {
   /** Whether the welcome modal should be visible */
   isModalOpen: boolean;
@@ -43,8 +51,8 @@ export interface NewVisitorOfferContextType {
   isPreviewMode: boolean;
   /** Dismiss the modal (discount stays active) */
   dismissModal: () => void;
-  /** Calculate the discount amount for a given subtotal */
-  calculateDiscount: (subtotal: number) => number;
+  /** Calculate flat discount amount for cart items or subtotal */
+  calculateDiscount: (itemsOrSubtotal: DiscountCalculableItem[] | number) => number;
   /** Mark the offer as redeemed (call after successful order) */
   markUsed: () => void;
   /** Force trigger test offer (preview mode helper) */
@@ -321,16 +329,50 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     setStorageItem('dismissed', 'true', isPreviewMode);
   }, [isPreviewMode, setStorageItem]);
 
-  // ── 6. Calculate Discount Amount ─────────────────────────────────
+  // ── 6. Calculate Flat Discount Amount ────────────────────────────
   const calculateDiscount = useCallback(
-    (subtotal: number): number => {
+    (itemsOrSubtotal: DiscountCalculableItem[] | number): number => {
       if (!isOfferActive || remainingSeconds <= 0) return 0;
-      if (settings.minOrderAmount && subtotal < settings.minOrderAmount) return 0;
+      const pct = settings.discountPercent || 10;
 
-      const raw = Math.round((subtotal * (settings.discountPercent || 10)) / 100);
-      return settings.maxDiscountAmount
-        ? Math.min(raw, settings.maxDiscountAmount)
-        : raw;
+      if (Array.isArray(itemsOrSubtotal)) {
+        let cartSubtotal = 0;
+        let totalDiscount = 0;
+
+        for (const item of itemsOrSubtotal) {
+          const price = Number(item.product.price) || 0;
+          const originalPrice =
+            item.product.originalPrice && item.product.originalPrice > price
+              ? Number(item.product.originalPrice)
+              : price;
+          const qty = Number(item.quantity) || 1;
+          cartSubtotal += price * qty;
+
+          // Target price at flat X% discount from originalPrice
+          const targetPrice = Math.round(originalPrice * (1 - pct / 100));
+
+          // If current selling price is higher than targetPrice, discount down to flat X%
+          if (price > targetPrice) {
+            totalDiscount += (price - targetPrice) * qty;
+          }
+          // Exception: If current price <= targetPrice (product already has >= X% discount),
+          // keep it as is (additional discount = 0).
+        }
+
+        if (settings.minOrderAmount && cartSubtotal < settings.minOrderAmount) {
+          return 0;
+        }
+
+        return settings.maxDiscountAmount
+          ? Math.min(totalDiscount, settings.maxDiscountAmount)
+          : totalDiscount;
+      }
+
+      // Fallback for number subtotal
+      const subtotal = Number(itemsOrSubtotal) || 0;
+      if (settings.minOrderAmount && subtotal < settings.minOrderAmount) return 0;
+      const raw = Math.round((subtotal * pct) / 100);
+      return settings.maxDiscountAmount ? Math.min(raw, settings.maxDiscountAmount) : raw;
     },
     [isOfferActive, remainingSeconds, settings.discountPercent, settings.minOrderAmount, settings.maxDiscountAmount]
   );
