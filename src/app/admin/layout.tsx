@@ -22,7 +22,8 @@ import {
   FileText,
   Users,
   ShoppingBag,
-  ArrowUpDown
+  ArrowUpDown,
+  Sparkles
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -279,6 +280,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {pendingReviewCount}
               </span>
             )}
+          </Link>
+
+          <Link
+            href="/admin/welcome-offer"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/welcome-offer'
+                ? 'bg-gold text-ink font-semibold shadow-sm'
+                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Welcome Offer</span>
           </Link>
         </div>
       </header>

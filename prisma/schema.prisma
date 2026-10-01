@@ -203,3 +203,21 @@ model LandingPage {
   updatedAt  DateTime @updatedAt
 }
 
+model WelcomeOfferSettings {
+  id                String   @id @default("default")
+  enabled           Boolean  @default(true)
+  discountPercent   Float    @default(10)
+  delaySeconds      Int      @default(5)
+  durationMinutes   Int      @default(30)
+  maxDiscountAmount Float?   @default(500)
+  minOrderAmount    Float?   @default(0)
+  welcomeTitle      String   @default("Welcome to Adorous Fashion ✨")
+  welcomeSubtext    String   @default("As a special welcome, enjoy an exclusive 10% off on your first order. This offer expires in 30 minutes — start exploring our curated collection now!")
+  ctaButtonText     String   @default("Start Shopping Now")
+  skipButtonText    String   @default("No thanks, continue browsing")
+  timerLabel        String   @default("New Visitor Offer")
+  badgeText         String   @default("Exclusive First Visit Offer")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+

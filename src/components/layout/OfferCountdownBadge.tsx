@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
-import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
-import { Clock, Sparkles, X } from 'lucide-react';
+import { Clock, Sparkles, X, Eye } from 'lucide-react';
 
 export default function OfferCountdownBadge() {
-  const { isOfferActive, remainingSeconds, discountPercent } = useNewVisitorOffer();
+  const { isOfferActive, remainingSeconds, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
   const [isDismissed, setIsDismissed] = useState(false);
 
   if (!isOfferActive || remainingSeconds <= 0 || isDismissed) return null;
@@ -46,8 +45,15 @@ export default function OfferCountdownBadge() {
 
         {/* Text */}
         <div className="flex flex-col leading-none">
-          <span className="text-[10px] uppercase tracking-wider text-gold/60 font-sans font-medium">
-            {discountPercent}% off · {NEW_VISITOR_OFFER.timerLabel}
+          <span className="text-[10px] uppercase tracking-wider text-gold/60 font-sans font-medium flex items-center gap-1">
+            <span>
+              {discountPercent}% off · {settings.timerLabel || 'New Visitor Offer'}
+            </span>
+            {isPreviewMode && (
+              <span className="text-[8px] bg-gold/20 text-gold-light px-1 py-0.2 rounded-xs border border-gold/30">
+                PREVIEW
+              </span>
+            )}
           </span>
           <div className="flex items-center gap-1 mt-0.5">
             <Clock className="w-3 h-3 text-gold-light" />

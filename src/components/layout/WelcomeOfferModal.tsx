@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
-import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
-import { Sparkles, Gift, Clock, X } from 'lucide-react';
+import { Sparkles, Gift, Clock, X, Eye } from 'lucide-react';
 
 export default function WelcomeOfferModal() {
-  const { isModalOpen, dismissModal, discountPercent } = useNewVisitorOffer();
+  const { isModalOpen, dismissModal, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
   const [isAnimatingIn, setIsAnimatingIn] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
@@ -72,6 +71,14 @@ export default function WelcomeOfferModal() {
             <X className="w-4 h-4" />
           </button>
 
+          {/* Admin preview banner if in test mode */}
+          {isPreviewMode && (
+            <div className="bg-gold/20 border-b border-gold/30 px-3 py-1 flex items-center justify-center gap-1.5 text-[10px] text-gold-light uppercase tracking-wider font-semibold">
+              <Eye className="w-3 h-3 text-gold" />
+              <span>Admin Preview Mode · Simulated New Visitor</span>
+            </div>
+          )}
+
           {/* Decorative top pattern */}
           <div className="relative h-28 overflow-hidden flex items-center justify-center">
             {/* Geometric gold lines / shimmer background */}
@@ -119,18 +126,19 @@ export default function WelcomeOfferModal() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 mb-4">
               <Sparkles className="w-3.5 h-3.5 text-gold animate-pulse" />
               <span className="text-xs font-medium tracking-wider uppercase text-gold-light">
-                Exclusive First Visit Offer
+                {settings.badgeText || 'Exclusive First Visit Offer'}
               </span>
             </div>
 
             {/* Title */}
             <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-gold-light mb-3 leading-tight">
-              {NEW_VISITOR_OFFER.welcomeTitle}
+              {settings.welcomeTitle || 'Welcome to Adorous Fashion ✨'}
             </h2>
 
             {/* Subtitle */}
             <p className="text-sm text-gold-light/70 leading-relaxed mb-5 max-w-xs mx-auto font-sans">
-              {NEW_VISITOR_OFFER.welcomeSubtext}
+              {settings.welcomeSubtext ||
+                'As a special welcome, enjoy an exclusive discount on your first order. Start exploring our curated collection now!'}
             </p>
 
             {/* Big discount display */}
@@ -145,7 +153,7 @@ export default function WelcomeOfferModal() {
               </div>
               <p className="text-xs text-gold/50 mt-1 font-sans flex items-center justify-center gap-1">
                 <Clock className="w-3 h-3" />
-                Valid for {NEW_VISITOR_OFFER.durationMinutes} minutes after you close this popup
+                Valid for {settings.durationMinutes || 30} minutes after unlocking this offer
               </p>
             </div>
 
@@ -154,7 +162,7 @@ export default function WelcomeOfferModal() {
               onClick={handleClose}
               className="w-full py-3.5 px-6 rounded-xl font-sans font-semibold text-sm tracking-wider uppercase transition-all duration-300 gold-gradient-bg text-ink hover:shadow-lg hover:shadow-gold/20 hover:scale-[1.02] active:scale-[0.98]"
             >
-              Start Shopping Now
+              {settings.ctaButtonText || 'Start Shopping Now'}
             </button>
 
             {/* Skip link */}
@@ -162,7 +170,7 @@ export default function WelcomeOfferModal() {
               onClick={handleClose}
               className="mt-3 text-xs text-gold/40 hover:text-gold/60 transition-colors font-sans underline underline-offset-2"
             >
-              No thanks, continue browsing
+              {settings.skipButtonText || 'No thanks, continue browsing'}
             </button>
           </div>
         </div>

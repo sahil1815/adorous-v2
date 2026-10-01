@@ -3,9 +3,74 @@
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { deductStockAction } from './productActions';
+import { getWelcomeOfferSettings } from './welcomeOfferActions';
 
 export async function createOrder(orderData: any) {
   try {
+    let validatedDiscountAmount = orderData.discountAmount ? Number(orderData.discountAmount) : undefined;
+    let validatedCouponCode = orderData.couponCode;
+    let validatedGrandTotal = orderData.grandTotal;
+
+    // Server-side validation for New Visitor Offer
+    if (orderData.couponCode === 'NEW_VISITOR') {
+      try {
+        const settings = await getWelcomeOfferSettings();
+        if (!settings.enabled) {
+          validatedDiscountAmount = undefined;
+          validatedCouponCode = undefined;
+        } else {
+          // Look up authentic product prices directly from the database
+          const itemProductIds = (orderData.items || [])
+            .map((i: any) => i.product?.id)
+            .filter(Boolean);
+
+          const dbProducts = await prisma.product.findMany({
+            where: { id: { in: itemProductIds } },
+            select: { id: true, price: true, originalPrice: true },
+          });
+          const dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
+
+          let serverCompareSubtotal = 0;
+          let serverSubtotal = 0;
+          for (const item of orderData.items || []) {
+            const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
+            const price = dbProd?.price ?? item.product?.price ?? 0;
+            const originalPrice = dbProd?.originalPrice ?? item.product?.originalPrice;
+            const comparePrice = originalPrice && originalPrice > price ? originalPrice : price;
+            const qty = Number(item.quantity) || 1;
+            serverCompareSubtotal += comparePrice * qty;
+            serverSubtotal += price * qty;
+          }
+
+          // Check minOrderAmount threshold
+          if (settings.minOrderAmount && serverSubtotal < settings.minOrderAmount) {
+            validatedDiscountAmount = undefined;
+            validatedCouponCode = undefined;
+          } else {
+            const rawDiscount = Math.round((serverCompareSubtotal * settings.discountPercent) / 100);
+            const maxAllowedDiscount = settings.maxDiscountAmount
+              ? Math.min(rawDiscount, settings.maxDiscountAmount)
+              : rawDiscount;
+
+            const claimedDiscount = Number(orderData.discountAmount) || 0;
+            // Verify client discount does not exceed authorized calculation (±1 BDT tolerance for rounding)
+            if (claimedDiscount > maxAllowedDiscount + 1) {
+              validatedDiscountAmount = maxAllowedDiscount;
+            } else {
+              validatedDiscountAmount = claimedDiscount > 0 ? claimedDiscount : maxAllowedDiscount;
+            }
+          }
+        }
+
+        const sub = Number(orderData.subtotal) || 0;
+        const ship = Number(orderData.shippingFee) || 0;
+        const disc = Number(validatedDiscountAmount) || 0;
+        validatedGrandTotal = Math.max(0, sub - disc + ship);
+      } catch (err) {
+        console.error('[createOrder] Error validating NEW_VISITOR discount on server:', err);
+      }
+    }
+
     const order = await prisma.order.create({
       data: {
         orderId: orderData.orderId,
@@ -15,9 +80,9 @@ export async function createOrder(orderData: any) {
         paymentMethod: orderData.paymentMethod,
         subtotal: orderData.subtotal,
         shippingFee: orderData.shippingFee,
-        discountAmount: orderData.discountAmount,
-        couponCode: orderData.couponCode,
-        grandTotal: orderData.grandTotal,
+        discountAmount: validatedDiscountAmount,
+        couponCode: validatedCouponCode,
+        grandTotal: validatedGrandTotal,
         internalNotes: orderData.internalNotes,
         customer: {
           create: {
