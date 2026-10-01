@@ -28,6 +28,16 @@ export default function CollectionClient({
   // If client-side context has updated page data (e.g. from admin edits), prefer it
   const page = getPageBySlug(initialPage.slug) || initialPage;
 
+  // Clean Facebook tracking clutter (?fbclid=...) from address bar while preserving tracking
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('fbclid')) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('fbclid');
+      const cleanUrl = url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '');
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }, []);
+
   const sortOrder = page.sortOrder || 'manual';
   const productIds = page.productIds || [];
 
