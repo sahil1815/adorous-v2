@@ -142,7 +142,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="p-3 bg-paper border border-line hover:border-gold/60 text-center rounded-xs transition-colors"
                 >
                   <span className="font-medium text-ink block">Jewelry Sets</span>
-                  <span className="text-[10px] text-text-muted">4 Designs</span>
+                  <span className="text-[10px] text-text-muted">Bridal & Sets</span>
                 </Link>
                 <Link
                   href="/churi"
@@ -150,7 +150,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="p-3 bg-paper border border-line hover:border-gold/60 text-center rounded-xs transition-colors"
                 >
                   <span className="font-medium text-ink block">Churi Stacks</span>
-                  <span className="text-[10px] text-text-muted">4 Designs</span>
+                  <span className="text-[10px] text-text-muted">Velvet & Kundan</span>
                 </Link>
                 <Link
                   href="/bags"
@@ -158,7 +158,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="p-3 bg-paper border border-line hover:border-gold/60 text-center rounded-xs transition-colors"
                 >
                   <span className="font-medium text-ink block">Ladies' Bags</span>
-                  <span className="text-[10px] text-text-muted">4 Designs</span>
+                  <span className="text-[10px] text-text-muted">Satchels & Totes</span>
                 </Link>
                 <Link
                   href="/more"
@@ -183,7 +183,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   onClick={onClose}
                   className="text-xs text-gold-deep hover:underline font-medium inline-flex items-center gap-1"
                 >
-                  <span>Browse all 15 designs</span>
+                  <span>Browse full collection</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -192,7 +192,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             /* Matching Results */
             <div className="space-y-3">
               <div className="flex items-center justify-between text-[11px] text-text-muted uppercase tracking-wider">
-                <span>Matching Pieces ({matchingProducts.length})</span>
+                <span>Matching Pieces</span>
                 <Link
                   href={`/shop?q=${encodeURIComponent(query)}`}
                   onClick={onClose}

@@ -219,7 +219,7 @@ export default function CategoryPageClient({
               <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-ink/80">
                 <span className="inline-flex items-center gap-1.5 font-medium">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                  {products.length} Curated Designs
+                  Curated Designs
                 </span>
                 <span className="hidden sm:inline text-line">|</span>
                 <span className="inline-flex items-center gap-1 text-gold-ink font-medium">
@@ -308,11 +308,8 @@ export default function CategoryPageClient({
             </label>
           </div>
 
-          {/* Right: Sort Dropdown & Product Count */}
-          <div className="flex items-center justify-between sm:justify-end gap-3">
-            <span className="text-text-muted text-[11px]">
-              Showing <strong className="text-ink font-semibold">{filteredProducts.length}</strong> of {products.length}
-            </span>
+          {/* Right: Sort Dropdown */}
+          <div className="flex items-center justify-end">
 
             <div className="relative inline-flex items-center">
               <select

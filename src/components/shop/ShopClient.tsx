@@ -238,7 +238,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                   : 'bg-paper border border-line text-ink hover:border-gold'
               }`}
             >
-              All Items ({activeProducts.length})
+              All Items
             </button>
             <button
               type="button"
@@ -252,7 +252,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                   : 'bg-paper border border-line text-ink hover:border-gold'
               }`}
             >
-              ✨ New Arrivals ({activeProducts.filter((p) => p.isNewDrop).length})
+              ✨ New Arrivals
             </button>
             <button
               type="button"
@@ -266,28 +266,25 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                   : 'bg-paper border border-line text-ink hover:border-gold'
               }`}
             >
-              🔥 Best Sellers ({activeProducts.filter((p) => p.isBestseller).length})
+              🔥 Best Sellers
             </button>
-            {CATEGORIES.map((cat) => {
-              const count = activeProducts.filter((p) => p.category === cat.slug).length;
-              return (
-                <button
-                  key={cat.slug}
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategory(cat.slug);
-                    setCuratedFilter('all');
-                  }}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
-                    selectedCategory === cat.slug && curatedFilter === 'all'
-                      ? 'bg-sand text-gold-deep shadow-sm font-semibold'
-                      : 'bg-paper border border-line text-ink hover:border-gold'
-                  }`}
-                >
-                  {cat.name} ({count})
-                </button>
-              );
-            })}
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(cat.slug);
+                  setCuratedFilter('all');
+                }}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-all rounded-xs shrink-0 ${
+                  selectedCategory === cat.slug && curatedFilter === 'all'
+                    ? 'bg-sand text-gold-deep shadow-sm font-semibold'
+                    : 'bg-paper border border-line text-ink hover:border-gold'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -369,16 +366,13 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
                 onClick={resetFilters}
                 className="text-[11px] text-gold-deep hover:underline font-medium"
               >
-                Clear All ({activeFiltersCount})
+                Clear All
               </button>
             )}
           </div>
 
-          {/* Right: Sort & Count */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-            <span className="text-text-muted text-[11px]">
-              Showing <strong className="text-ink font-semibold">{filteredProducts.length}</strong> of {activeProducts.length}
-            </span>
+          {/* Right: Sort */}
+          <div className="flex items-center justify-end shrink-0">
 
             <div className="relative inline-flex items-center">
               <select

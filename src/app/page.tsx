@@ -198,7 +198,7 @@ export default async function HomePage() {
             href="/shop"
             className="mt-4 md:mt-0 inline-flex items-center text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors group"
           >
-            <span>View All Designs ({allAvailable.length})</span>
+            <span>View All Designs</span>
             <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

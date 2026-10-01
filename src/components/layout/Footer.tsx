@@ -92,13 +92,13 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-ink">
               <li>
                 <Link href="/shop" className="hover:text-gold-deep transition-colors">
-                  Explore All (All 15 Designs)
+                  Explore All
                 </Link>
               </li>
               {CATEGORIES.map((cat) => (
                 <li key={cat.slug}>
                   <Link href={`/${cat.slug}`} className="hover:text-gold-deep transition-colors">
-                    {cat.name} ({cat.count})
+                    {cat.name}
                   </Link>
                 </li>
               ))}

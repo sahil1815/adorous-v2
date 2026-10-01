@@ -159,7 +159,7 @@ export default function CollectionLandingPage({ params }: CollectionLandingPageP
           <>
             <div className="text-center mb-6 sm:mb-8">
               <p className="text-xs uppercase tracking-[0.2em] text-text-muted">
-                {products.length} curated piece{products.length !== 1 ? 's' : ''}
+                Curated Boutique Collection
               </p>
             </div>
 
