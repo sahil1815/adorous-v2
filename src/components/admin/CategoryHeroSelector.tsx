@@ -222,12 +222,10 @@ export default function CategoryHeroSelector({
 
           <div className="relative aspect-[4/3] rounded-xs overflow-hidden bg-black border border-gold/40 shadow-md group">
             {activeHeroImage && (
-              <Image
+              <img
                 src={activeHeroImage}
                 alt="Active Category Hero"
-                fill
-                sizes="(max-width: 1024px) 100vw, 300px"
-                className="object-cover object-center group-hover:scale-102 transition-transform duration-500"
+                className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-500"
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
@@ -317,12 +315,11 @@ export default function CategoryHeroSelector({
                     <div>
                       {/* Thumbnail */}
                       <div className="relative aspect-square rounded-xs overflow-hidden bg-black mb-2 border border-white/15">
-                        <Image
+                        <img
                           src={prod.featuredImage}
                           alt={prod.name}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                         {isActive && (
                           <div className="absolute top-1 right-1 bg-gold text-ink p-0.5 rounded-full shadow">
