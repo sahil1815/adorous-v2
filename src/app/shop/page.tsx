@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { getAllProducts } from '@/app/actions/productActions';
+import { getPageOrdering } from '@/app/actions/productOrderingActions';
 import { ProductCategory, Product } from '@/types';
 import ShopClient from '@/components/shop/ShopClient';
 
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
-  const productsDb = await getAllProducts();
+  const [productsDb, orderingSettings] = await Promise.all([
+    getAllProducts(),
+    getPageOrdering('shop-all'),
+  ]);
 
   const initialProducts: Product[] = productsDb.map((p) => ({
     ...p,
@@ -36,6 +40,16 @@ export default async function ShopPage() {
     })),
   }));
 
+  // If manual order is specified, sort initialProducts on the server
+  if (orderingSettings.sortOrder === 'manual' && orderingSettings.manualOrder.length > 0) {
+    const orderMap = new Map(orderingSettings.manualOrder.map((id, idx) => [id, idx]));
+    initialProducts.sort((a, b) => {
+      const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+      const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+      return aIdx - bIdx;
+    });
+  }
+
   return (
     <Suspense
       fallback={
@@ -44,7 +58,7 @@ export default async function ShopPage() {
         </div>
       }
     >
-      <ShopClient initialProducts={initialProducts} />
+      <ShopClient initialProducts={initialProducts} initialOrdering={orderingSettings} />
     </Suspense>
   );
 }

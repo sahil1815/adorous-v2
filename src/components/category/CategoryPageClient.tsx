@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
-import { useProductOrdering } from '@/context/ProductOrderingContext';
+import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
@@ -26,6 +26,7 @@ interface CategoryPageClientProps {
   categoryBlurb: string;
   categoryImage: string;
   products: Product[];
+  initialOrdering?: PageOrdering;
 }
 
 export default function CategoryPageClient({
@@ -34,6 +35,7 @@ export default function CategoryPageClient({
   categoryBlurb,
   categoryImage,
   products: initialProducts,
+  initialOrdering,
 }: CategoryPageClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
   const { getOrdering } = useProductOrdering();
@@ -52,7 +54,11 @@ export default function CategoryPageClient({
 
   // Get admin-configured ordering for this category
   const pageKey = `category-${categorySlug}`;
-  const adminOrdering = getOrdering(pageKey);
+  const contextOrdering = getOrdering(pageKey);
+  const adminOrdering =
+    contextOrdering && contextOrdering.manualOrder && contextOrdering.manualOrder.length > 0
+      ? contextOrdering
+      : (initialOrdering || contextOrdering);
 
   // Build purchase count map from orders (for admin sort)
   const purchaseCountMap = useMemo(() => {
@@ -86,10 +92,12 @@ export default function CategoryPageClient({
     switch (adminOrdering.sortOrder) {
       case 'manual': {
         if (adminOrdering.manualOrder.length > 0) {
-          const orderMap = new Map(adminOrdering.manualOrder.map((id, idx) => [id, idx]));
+          const orderMap = new Map<string, number>(
+            adminOrdering.manualOrder.map((id: string, idx: number) => [id, idx])
+          );
           list.sort((a, b) => {
-            const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
-            const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+            const aIdx: number = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+            const bIdx: number = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
             return aIdx - bIdx;
           });
         } else {

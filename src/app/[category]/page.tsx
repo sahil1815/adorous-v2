@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { CATEGORIES } from '@/data/catalogue';
 import { getProductsByCategory } from '@/app/actions/productActions';
 import { getCategoryHeroSettings } from '@/app/actions/categoryHeroActions';
+import { getPageOrdering } from '@/app/actions/productOrderingActions';
 import { ProductCategory } from '@/types';
 import CategoryPageClient from '@/components/category/CategoryPageClient';
 
@@ -66,9 +67,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!cat) {
     notFound();
   }
-  const [categoryProductsDb, heroSetting] = await Promise.all([
+  const [categoryProductsDb, heroSetting, orderingSetting] = await Promise.all([
     getProductsByCategory(category),
     getCategoryHeroSettings(category),
+    getPageOrdering(`category-${category}`),
   ]);
   const heroImage = heroSetting?.heroImage || cat.image;
   
@@ -86,6 +88,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     seoKeywords: p.seoKeywords ? p.seoKeywords.split(',') : []
   }));
 
+  // If manual order exists in database, sort categoryProducts on the server
+  if (orderingSetting.sortOrder === 'manual' && orderingSetting.manualOrder.length > 0) {
+    const orderMap = new Map(orderingSetting.manualOrder.map((id, idx) => [id, idx]));
+    categoryProducts.sort((a, b) => {
+      const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+      const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+      return aIdx - bIdx;
+    });
+  }
+
   return (
     <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading collection...</div>}>
       <CategoryPageClient
@@ -94,6 +106,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         categoryBlurb={cat.blurb}
         categoryImage={heroImage}
         products={categoryProducts}
+        initialOrdering={orderingSetting}
       />
     </Suspense>
   );

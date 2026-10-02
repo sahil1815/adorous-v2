@@ -53,7 +53,7 @@ export async function getProductsByCategory(category: string) {
     const products = await prisma.product.findMany({
       where: isMoreCategory ? { category: { in: ['more', 'umbrellas'] } } : { category },
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
-      orderBy: { featuredRank: 'asc' },
+      orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
     });
     return products || [];
   } catch (error) {
@@ -86,7 +86,7 @@ export async function getAllProducts() {
     if (!process.env.DATABASE_URL) return PRODUCTS.map(toDbShape);
     const products = await prisma.product.findMany({
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
-      orderBy: { featuredRank: 'asc' },
+      orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
     });
     return products || [];
   } catch (error) {

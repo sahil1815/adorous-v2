@@ -30,6 +30,7 @@ import {
   ShoppingCart,
   CheckCircle2,
   Info,
+  Loader2,
 } from 'lucide-react';
 
 interface StandardPageTab {
@@ -65,6 +66,7 @@ export default function AdminProductOrderingPage() {
   const [currentSortMethod, setCurrentSortMethod] = useState<AdminSortOrder>('manual');
   const [orderedProductIds, setOrderedProductIds] = useState<string[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
   // Drag and drop state
@@ -262,30 +264,36 @@ export default function AdminProductOrderingPage() {
   };
 
   // Save changes
-  const handleSave = () => {
-    if (activeTab === 'landing-pages') {
-      if (activeLandingPage) {
-        updatePage(activeLandingPage.id, {
-          sortOrder: currentSortMethod,
-          productIds: orderedProductIds,
-        });
-        setSaveSuccessMessage(`Order saved for collection: ${activeLandingPage.title}`);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      if (activeTab === 'landing-pages') {
+        if (activeLandingPage) {
+          updatePage(activeLandingPage.id, {
+            sortOrder: currentSortMethod,
+            productIds: orderedProductIds,
+          });
+          setSaveSuccessMessage(`Order saved for collection: ${activeLandingPage.title}`);
+        }
+      } else {
+        const standardPage = STANDARD_PAGES.find((s) => s.id === activeTab);
+        if (standardPage) {
+          await setOrdering(standardPage.pageKey, {
+            sortOrder: currentSortMethod,
+            manualOrder: orderedProductIds,
+          });
+          setSaveSuccessMessage(`Order saved to database for ${standardPage.name}! Live across all devices.`);
+        }
       }
-    } else {
-      const standardPage = STANDARD_PAGES.find((s) => s.id === activeTab);
-      if (standardPage) {
-        setOrdering(standardPage.pageKey, {
-          sortOrder: currentSortMethod,
-          manualOrder: orderedProductIds,
-        });
-        setSaveSuccessMessage(`Order saved for ${standardPage.name}`);
-      }
+      setHasUnsavedChanges(false);
+    } catch (err) {
+      console.error('Failed to save ordering:', err);
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => {
+        setSaveSuccessMessage(null);
+      }, 4000);
     }
-
-    setHasUnsavedChanges(false);
-    setTimeout(() => {
-      setSaveSuccessMessage(null);
-    }, 3500);
   };
 
   // Reset to default rank
@@ -342,15 +350,15 @@ export default function AdminProductOrderingPage() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={!hasUnsavedChanges}
+            disabled={!hasUnsavedChanges || isSaving}
             className={`inline-flex items-center space-x-1.5 px-4 py-2 rounded-xs text-xs font-semibold uppercase tracking-wider transition-all shadow-sm ${
-              hasUnsavedChanges
+              hasUnsavedChanges && !isSaving
                 ? 'bg-gold hover:bg-gold-light text-ink cursor-pointer animate-pulse'
                 : 'bg-[#222] text-paper/30 cursor-not-allowed border border-white/5'
             }`}
           >
-            <Save className="w-4 h-4" />
-            <span>{hasUnsavedChanges ? 'Save Changes' : 'Saved'}</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin text-gold" /> : <Save className="w-4 h-4" />}
+            <span>{isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}</span>
           </button>
         </div>
       </div>

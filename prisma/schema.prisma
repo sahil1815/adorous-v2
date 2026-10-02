@@ -261,3 +261,11 @@ model CategoryHeroSettings {
   createdAt    DateTime @default(now())
 }
 
+model ProductPageOrdering {
+  pageKey     String   @id // e.g. 'shop-all', 'category-jewelry', 'category-bags', 'category-churi', 'category-earrings', 'category-more'
+  sortOrder   String   @default("manual") // 'manual' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating'
+  manualOrder Json?    // string[] of product IDs in exact sequence
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+

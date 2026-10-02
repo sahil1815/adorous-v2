@@ -7,7 +7,7 @@ import { CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
 import { useInventory } from '@/context/InventoryContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
-import { useProductOrdering } from '@/context/ProductOrderingContext';
+import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import {
@@ -22,9 +22,10 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 interface ShopClientProps {
   initialProducts: Product[];
+  initialOrdering?: PageOrdering;
 }
 
-export default function ShopClient({ initialProducts }: ShopClientProps) {
+export default function ShopClient({ initialProducts, initialOrdering }: ShopClientProps) {
   const { allProducts, getEffectiveProduct } = useInventory();
   const { getOrdering } = useProductOrdering();
   const { orders } = useOrders();
@@ -52,7 +53,11 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
   const activeProducts = allProducts.length > 0 ? allProducts : initialProducts;
 
   // Get admin-configured ordering for Shop All
-  const adminOrdering = getOrdering('shop-all');
+  const contextOrdering = getOrdering('shop-all');
+  const adminOrdering =
+    contextOrdering && contextOrdering.manualOrder && contextOrdering.manualOrder.length > 0
+      ? contextOrdering
+      : (initialOrdering || contextOrdering);
 
   // Build purchase count map from orders (for admin sort)
   const purchaseCountMap = useMemo(() => {
@@ -92,10 +97,12 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
     switch (adminOrdering.sortOrder) {
       case 'manual': {
         if (adminOrdering.manualOrder.length > 0) {
-          const orderMap = new Map(adminOrdering.manualOrder.map((id, idx) => [id, idx]));
+          const orderMap = new Map<string, number>(
+            adminOrdering.manualOrder.map((id: string, idx: number) => [id, idx])
+          );
           list.sort((a, b) => {
-            const aIdx = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
-            const bIdx = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
+            const aIdx: number = orderMap.get(a.id) ?? orderMap.get(a.slug) ?? 9999;
+            const bIdx: number = orderMap.get(b.id) ?? orderMap.get(b.slug) ?? 9999;
             return aIdx - bIdx;
           });
         } else {

@@ -1,18 +1,20 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  AdminSortOrder,
+  PageOrdering,
+  getAllPageOrderings,
+  savePageOrdering,
+} from '@/app/actions/productOrderingActions';
 
-export type AdminSortOrder = 'manual' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating';
-
-export interface PageOrdering {
-  sortOrder: AdminSortOrder;
-  manualOrder: string[]; // Product IDs in display order (used when sortOrder === 'manual')
-}
+export type { AdminSortOrder, PageOrdering };
 
 interface ProductOrderingContextType {
   orderings: Record<string, PageOrdering>;
   getOrdering: (pageKey: string) => PageOrdering;
-  setOrdering: (pageKey: string, ordering: PageOrdering) => void;
+  setOrdering: (pageKey: string, ordering: PageOrdering) => Promise<void>;
+  refreshOrderings: () => Promise<void>;
 }
 
 const DEFAULT_ORDERING: PageOrdering = {
@@ -28,8 +30,28 @@ export function ProductOrderingProvider({ children }: { children: React.ReactNod
   const [orderings, setOrderings] = useState<Record<string, PageOrdering>>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate from localStorage on mount
+  // 1. Initial hydration: fast load from localStorage, followed by authoritative fetch from DB
+  const refreshOrderings = useCallback(async () => {
+    try {
+      const dbOrderings = await getAllPageOrderings();
+      if (dbOrderings && Object.keys(dbOrderings).length > 0) {
+        setOrderings((prev) => {
+          const merged = { ...prev, ...dbOrderings };
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          } catch {
+            // ignore localStorage errors
+          }
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn('[ProductOrderingContext] Error refreshing from DB:', err);
+    }
+  }, []);
+
   useEffect(() => {
+    // Optimistic fast read from localStorage
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -39,9 +61,12 @@ export function ProductOrderingProvider({ children }: { children: React.ReactNod
       console.warn('[ProductOrderingContext] Failed to read from localStorage');
     }
     setIsHydrated(true);
-  }, []);
 
-  // Persist to localStorage on change
+    // Authoritative sync from database
+    refreshOrderings();
+  }, [refreshOrderings]);
+
+  // Persist to localStorage whenever state updates
   useEffect(() => {
     if (!isHydrated) return;
     try {
@@ -58,15 +83,23 @@ export function ProductOrderingProvider({ children }: { children: React.ReactNod
     [orderings]
   );
 
-  const setOrdering = useCallback((pageKey: string, ordering: PageOrdering) => {
+  const setOrdering = useCallback(async (pageKey: string, ordering: PageOrdering) => {
+    // 1. Optimistic local state update
     setOrderings((prev) => ({
       ...prev,
       [pageKey]: ordering,
     }));
+
+    // 2. Persist to PostgreSQL database in background
+    try {
+      await savePageOrdering(pageKey, ordering);
+    } catch (err) {
+      console.error('[ProductOrderingContext] Failed to save ordering to database:', err);
+    }
   }, []);
 
   return (
-    <ProductOrderingContext.Provider value={{ orderings, getOrdering, setOrdering }}>
+    <ProductOrderingContext.Provider value={{ orderings, getOrdering, setOrdering, refreshOrderings }}>
       {children}
     </ProductOrderingContext.Provider>
   );
