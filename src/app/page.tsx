@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 import { getAllProducts } from '@/app/actions/productActions';
+import { getLookbookSettings } from '@/app/actions/lookbookActions';
 import { Product, ProductCategory } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import {
@@ -60,7 +61,10 @@ function toFrontendProduct(p: any): Product {
 }
 
 export default async function HomePage() {
-  const dbProductsRaw = await getAllProducts();
+  const [dbProductsRaw, lookbookSettings] = await Promise.all([
+    getAllProducts(),
+    getLookbookSettings(),
+  ]);
   const allAvailable: Product[] = (dbProductsRaw && dbProductsRaw.length > 0)
     ? dbProductsRaw.map(toFrontendProduct)
     : PRODUCTS;
@@ -277,13 +281,18 @@ export default async function HomePage() {
             <div className="lg:col-span-5 space-y-5">
               <div className="inline-flex items-center space-x-2 text-gold text-xs tracking-[0.2em] uppercase">
                 <Layers className="w-4 h-4" />
-                <span>Editorial Lookbook 2026</span>
+                <span>{lookbookSettings.homepageBadge || 'Editorial Lookbook 2026'}</span>
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium leading-tight">
-                Designed to dialogue, <span className="gold-gradient-text italic font-normal">not compete.</span>
+                {lookbookSettings.homepageHeading || (
+                  <>
+                    Designed to dialogue, <span className="gold-gradient-text italic font-normal">not compete.</span>
+                  </>
+                )}
               </h2>
               <p className="text-sm text-ink/80 leading-relaxed font-normal">
-                Every piece in the Adorous catalog is calibrated to harmonize. The warm antique gold finish of the Zari Choker mirrors the brass clasps on the Gulshan Bag and the peacock karas on the Meher Bangle stack.
+                {lookbookSettings.homepageDescription ||
+                  'Every piece in the Adorous catalog is calibrated to harmonize. The warm antique gold finish of the Zari Choker mirrors the brass clasps on the Gulshan Bag and the peacock karas on the Meher Bangle stack.'}
               </p>
               <div className="pt-2">
                 <Link
@@ -299,25 +308,25 @@ export default async function HomePage() {
             <div className="lg:col-span-7 grid grid-cols-2 gap-4">
               <div className="relative aspect-[4/5] bg-sand border border-line overflow-hidden">
                 <Image
-                  src="/images/products/jewelry-zari-choker.jpg"
-                  alt="Jewelry Artistry"
+                  src={lookbookSettings.homepageImage1 || '/images/products/jewelry-zari-choker.jpg'}
+                  alt={lookbookSettings.homepageImage1Label || 'Jewelry Artistry'}
                   fill
                   className="object-cover"
                 />
                 <div className="absolute bottom-3 left-3 bg-paper/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
-                  Zari Bridal Choker
+                  {lookbookSettings.homepageImage1Label || 'Zari Bridal Choker'}
                 </div>
               </div>
 
               <div className="relative aspect-[4/5] bg-sand border border-line overflow-hidden mt-6">
                 <Image
-                  src="/images/products/churi-meher-emerald.jpg"
-                  alt="Churi Stack"
+                  src={lookbookSettings.homepageImage2 || '/images/products/churi-meher-emerald.jpg'}
+                  alt={lookbookSettings.homepageImage2Label || 'Churi Stack'}
                   fill
                   className="object-cover"
                 />
                 <div className="absolute bottom-3 left-3 bg-paper/90 px-3 py-1 text-[10px] tracking-wider uppercase text-gold">
-                  Meher Bangle Stack
+                  {lookbookSettings.homepageImage2Label || 'Meher Bangle Stack'}
                 </div>
               </div>
             </div>

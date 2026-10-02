@@ -23,7 +23,8 @@ import {
   Users,
   ShoppingBag,
   ArrowUpDown,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -292,6 +293,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Welcome Offer</span>
+          </Link>
+
+          <Link
+            href="/admin/lookbook"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/lookbook'
+                ? 'bg-gold text-ink font-semibold shadow-sm'
+                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Lookbook</span>
           </Link>
         </div>
       </header>

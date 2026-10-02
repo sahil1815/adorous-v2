@@ -221,3 +221,34 @@ model WelcomeOfferSettings {
   updatedAt         DateTime @updatedAt
 }
 
+model LookbookLook {
+  id          String   @id @default(uuid())
+  numeral     String   @default("LOOK I")
+  title       String
+  tagline     String
+  description String
+  heroImage   String
+  paletteJson String   @default("[]") // JSON string of [{ name, hex }]
+  itemIds     String[] // Array of product IDs or slugs
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LookbookSettings {
+  id                  String   @id @default("default")
+  pageBadge           String   @default("Curated Still Life Harmonies")
+  pageTitle           String   @default("The Atelier Lookbook")
+  pageDescription     String   @default("Every ensemble is photographed as a still life study on architectural warm stone plinths, velvet neckforms, and keepsake trays. Discover how our jewelry, bangles, and boutique bags unite into harmonious festival ensembles.")
+  homepageBadge       String   @default("Editorial Lookbook 2026")
+  homepageHeading     String   @default("Designed to dialogue, not compete.")
+  homepageDescription String   @default("Every piece in the Adorous catalog is calibrated to harmonize. The warm antique gold finish of the Zari Choker mirrors the brass clasps on the Gulshan Bag and the peacock karas on the Meher Bangle stack.")
+  homepageImage1      String   @default("/images/products/jewelry-zari-choker.jpg")
+  homepageImage1Label String   @default("Zari Bridal Choker")
+  homepageImage2      String   @default("/images/products/churi-meher-emerald.jpg")
+  homepageImage2Label String   @default("Meher Bangle Stack")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
