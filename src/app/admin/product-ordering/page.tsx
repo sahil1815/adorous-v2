@@ -11,6 +11,7 @@ import { useReviews } from '@/context/ReviewsContext';
 import { Product } from '@/types';
 import { CATEGORIES } from '@/data/catalogue';
 import { formatPrice } from '@/lib/formatPrice';
+import CategoryHeroSelector from '@/components/admin/CategoryHeroSelector';
 import {
   GripVertical,
   ArrowUpDown,
@@ -41,11 +42,11 @@ interface StandardPageTab {
 
 const STANDARD_PAGES: StandardPageTab[] = [
   { id: 'shop-all', name: 'Explore All (Shop)', pageKey: 'shop-all', viewUrl: '/shop' },
-  { id: 'jewelry', name: 'Jewelry Sets', pageKey: 'category-jewelry', viewUrl: '/category/jewelry', categoryFilter: 'jewelry' },
-  { id: 'bags', name: "Ladies' Bags", pageKey: 'category-bags', viewUrl: '/category/bags', categoryFilter: 'bags' },
-  { id: 'churi', name: 'Churi (Bangles)', pageKey: 'category-churi', viewUrl: '/category/churi', categoryFilter: 'churi' },
-  { id: 'earrings', name: 'Earrings', pageKey: 'category-earrings', viewUrl: '/category/earrings', categoryFilter: 'earrings' },
-  { id: 'more', name: 'More / Lifestyle', pageKey: 'category-more', viewUrl: '/category/more', categoryFilter: 'more' },
+  { id: 'jewelry', name: 'Jewelry Sets', pageKey: 'category-jewelry', viewUrl: '/jewelry', categoryFilter: 'jewelry' },
+  { id: 'bags', name: "Ladies' Bags", pageKey: 'category-bags', viewUrl: '/bags', categoryFilter: 'bags' },
+  { id: 'churi', name: 'Churi (Bangles)', pageKey: 'category-churi', viewUrl: '/churi', categoryFilter: 'churi' },
+  { id: 'earrings', name: 'Earrings', pageKey: 'category-earrings', viewUrl: '/earrings', categoryFilter: 'earrings' },
+  { id: 'more', name: 'More / Lifestyle', pageKey: 'category-more', viewUrl: '/more', categoryFilter: 'more' },
 ];
 
 export default function AdminProductOrderingPage() {
@@ -427,6 +428,17 @@ export default function AdminProductOrderingPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Category Hero Cover Photo Selector (Available for Category Pages) */}
+      {activeStandardPage?.categoryFilter && (
+        <CategoryHeroSelector
+          key={activeStandardPage.categoryFilter}
+          categorySlug={activeStandardPage.categoryFilter}
+          categoryName={activeStandardPage.name}
+          categoryProducts={baseProductsForTab}
+          viewUrl={activeStandardPage.viewUrl}
+        />
       )}
 
       {/* Control Box: Sort Method Selector & Quick Actions */}

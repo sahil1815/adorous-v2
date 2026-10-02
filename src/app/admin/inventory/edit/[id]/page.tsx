@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getProductById, updateProductAction, updateStockAction } from '@/app/actions/productActions';
+import { setCategoryHeroImage } from '@/app/actions/categoryHeroActions';
 import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Colorway } from '@/types';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
@@ -92,6 +93,7 @@ export default function EditProductPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [heroSavedMsg, setHeroSavedMsg] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProduct() {
@@ -274,6 +276,27 @@ export default function EditProductPage() {
       setActivePreviewImage(cw.image);
     } else {
       setActivePreviewImage(featuredImage);
+    }
+  };
+
+  const handleSetAsCategoryHero = async () => {
+    const targetImage = activePreviewImage || featuredImage;
+    if (!targetImage) return;
+    try {
+      const res = await setCategoryHeroImage({
+        categorySlug: category,
+        heroImage: targetImage,
+        productId,
+        productName: name,
+      });
+      if (res.success) {
+        setHeroSavedMsg(`Cover photo set as hero for ${category} page!`);
+        setTimeout(() => setHeroSavedMsg(null), 3500);
+      } else {
+        setErrorMsg(res.error || 'Failed to update category hero image.');
+      }
+    } catch {
+      setErrorMsg('Failed to update category hero image.');
     }
   };
 
@@ -739,6 +762,26 @@ export default function EditProductPage() {
                   <Star className="w-3 h-3" />
                   <span>Set as Primary Cover Photo</span>
                 </button>
+              )}
+
+              {/* Set as Category Hero Button */}
+              {(activePreviewImage || featuredImage) && (
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={handleSetAsCategoryHero}
+                    className="w-full py-1.5 bg-[#1C1C1C] hover:bg-[#252525] text-gold-light hover:text-gold border border-gold/25 text-[11px] font-medium rounded-xs transition-colors flex items-center justify-center space-x-1.5"
+                    title={`Feature this image on the /${category} hero banner`}
+                  >
+                    <Sparkles className="w-3 h-3 text-gold" />
+                    <span>Set as /{category} Page Hero</span>
+                  </button>
+                  {heroSavedMsg && (
+                    <div className="text-[10px] text-emerald-400 text-center font-medium animate-in fade-in duration-150">
+                      ✓ {heroSavedMsg}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 

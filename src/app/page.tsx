@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 import { getAllProducts } from '@/app/actions/productActions';
 import { getLookbookSettings } from '@/app/actions/lookbookActions';
+import { getAllCategoryHeroSettings } from '@/app/actions/categoryHeroActions';
 import { Product, ProductCategory } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import {
@@ -61,9 +62,10 @@ function toFrontendProduct(p: any): Product {
 }
 
 export default async function HomePage() {
-  const [dbProductsRaw, lookbookSettings] = await Promise.all([
+  const [dbProductsRaw, lookbookSettings, categoryHeroMap] = await Promise.all([
     getAllProducts(),
     getLookbookSettings(),
+    getAllCategoryHeroSettings(),
   ]);
   const allAvailable: Product[] = (dbProductsRaw && dbProductsRaw.length > 0)
     ? dbProductsRaw.map(toFrontendProduct)
@@ -238,21 +240,23 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {CATEGORIES.map((category) => (
-              <Link
-                key={category.slug}
-                href={`/${category.slug}`}
-                className="group relative bg-paper border border-line p-5 flex flex-col justify-between hover:border-gold/60 transition-all hover:shadow-md"
-              >
-                <div>
-                  <div className="relative aspect-square bg-stone overflow-hidden mb-4">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
+            {CATEGORIES.map((category) => {
+              const displayImage = categoryHeroMap[category.slug]?.heroImage || category.image;
+              return (
+                <Link
+                  key={category.slug}
+                  href={`/${category.slug}`}
+                  className="group relative bg-paper border border-line p-5 flex flex-col justify-between hover:border-gold/60 transition-all hover:shadow-md"
+                >
+                  <div>
+                    <div className="relative aspect-square bg-stone overflow-hidden mb-4">
+                      <Image
+                        src={displayImage}
+                        alt={category.name}
+                        fill
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
                   <div className="text-[10px] tracking-[0.15em] uppercase text-text-muted font-medium">
                     {category.count}
                   </div>
@@ -264,12 +268,13 @@ export default async function HomePage() {
                   </p>
                 </div>
 
-                <div className="pt-4 flex items-center text-xs text-ink font-medium group-hover:text-gold-deep transition-colors">
-                  <span>Browse Category</span>
-                  <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            ))}
+                  <div className="pt-4 flex items-center text-xs text-ink font-medium group-hover:text-gold-deep transition-colors">
+                    <span>Browse Category</span>
+                    <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { CATEGORIES } from '@/data/catalogue';
 import { getProductsByCategory } from '@/app/actions/productActions';
+import { getCategoryHeroSettings } from '@/app/actions/categoryHeroActions';
 import { ProductCategory } from '@/types';
 import CategoryPageClient from '@/components/category/CategoryPageClient';
 
@@ -27,6 +28,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const title = `${cat.name} Collection | Adorous Fashion Dhaka`;
   const description = `${cat.blurb} Premium South Asian accessories available for Cash on Delivery across Bangladesh.`;
 
+  const heroSetting = await getCategoryHeroSettings(category);
+  const heroImage = heroSetting?.heroImage || cat.image;
+
   return {
     title,
     description,
@@ -40,7 +44,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       url: `https://adorousfashion.com/${cat.slug}`,
       images: [
         {
-          url: cat.image,
+          url: heroImage,
           width: 800,
           height: 1000,
           alt: `${cat.name} Collection Still Life`,
@@ -62,7 +66,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!cat) {
     notFound();
   }
-  const categoryProductsDb = await getProductsByCategory(category);
+  const [categoryProductsDb, heroSetting] = await Promise.all([
+    getProductsByCategory(category),
+    getCategoryHeroSettings(category),
+  ]);
+  const heroImage = heroSetting?.heroImage || cat.image;
   
   // Transform DB product to match the frontend type
   const categoryProducts = categoryProductsDb.map(p => ({
@@ -84,7 +92,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         categorySlug={cat.slug}
         categoryName={cat.name}
         categoryBlurb={cat.blurb}
-        categoryImage={cat.image}
+        categoryImage={heroImage}
         products={categoryProducts}
       />
     </Suspense>
