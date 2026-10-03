@@ -97,6 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Image Container with Warm Stone Backdrop */}
       <Link
         href={productHref}
+        scroll={true}
         className="relative block aspect-[4/5] bg-stone overflow-hidden active:opacity-90 active:scale-[0.99] transition-all"
       >
         {displayImage.startsWith('data:') || displayImage.startsWith('http') ? (
@@ -193,6 +194,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Title */}
           <Link
             href={productHref}
+            scroll={true}
             className="block mt-1 font-medium text-xs sm:text-sm text-ink group-hover:text-gold-deep transition-colors line-clamp-1"
           >
             {product.name}

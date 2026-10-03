@@ -22,7 +22,7 @@ export default function CartDrawer() {
     freeShippingThreshold,
     remainingForFreeShipping,
   } = useCart();
-  const { isOfferActive, discountPercent, calculateDiscount } = useNewVisitorOffer();
+  const { isOfferActive, discountPercent, calculateDiscount, settings } = useNewVisitorOffer();
   // Flat X% discount calculation (keeping items with >X% existing discounts intact)
   const nvoDiscount = calculateDiscount(items);
 
@@ -282,7 +282,7 @@ export default function CartDrawer() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="inline-flex items-center gap-1 text-amber-700">
                     <Gift className="w-3.5 h-3.5" />
-                    <span className="font-medium text-xs">New Visitor {discountPercent}% Off</span>
+                    <span className="font-medium text-xs">{(settings?.timerLabel?.trim() || 'Special Offer')} {discountPercent}% Off</span>
                   </span>
                   <span className="font-semibold text-sm text-success tabular-nums">
                     -৳{formatPrice(nvoDiscount)}

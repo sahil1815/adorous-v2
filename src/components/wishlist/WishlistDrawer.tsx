@@ -124,6 +124,7 @@ export default function WishlistDrawer() {
                       {/* Product Thumbnail */}
                       <Link
                         href={`/${product.category}/${product.slug}`}
+                        scroll={true}
                         onClick={closeWishlist}
                         className="relative w-20 h-24 bg-stone rounded-xs overflow-hidden shrink-0 border border-line"
                       >
@@ -144,6 +145,7 @@ export default function WishlistDrawer() {
 
                         <Link
                           href={`/${product.category}/${product.slug}`}
+                          scroll={true}
                           onClick={closeWishlist}
                           className="font-medium text-xs sm:text-sm text-ink hover:text-gold-deep transition-colors line-clamp-1 block"
                         >

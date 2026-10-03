@@ -42,7 +42,7 @@ export default function CheckoutPage() {
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
-  const { isOfferActive, discountPercent, calculateDiscount, markUsed } = useNewVisitorOffer();
+  const { isOfferActive, discountPercent, calculateDiscount, markUsed, settings } = useNewVisitorOffer();
 
   // Persistent session ID for abandoned checkout recovery
   const [draftSessionId, setDraftSessionId] = useState('');
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
   const useNvo = nvoDiscount > 0 && nvoDiscount >= couponDiscount;
   const discountAmount = useNvo ? nvoDiscount : couponDiscount;
   const discountLabel = useNvo
-    ? `New Visitor ${discountPercent}% Off`
+    ? `${settings?.timerLabel?.trim() || 'Special Offer'} ${discountPercent}% Off`
     : appliedCoupon
       ? `Promo Discount (${appliedCoupon.code})`
       : '';
@@ -904,13 +904,13 @@ export default function CheckoutPage() {
                   {/* Hint when both NVO and coupon exist but NVO wins */}
                   {useNvo && couponDiscount > 0 && couponDiscount < nvoDiscount && appliedCoupon && (
                     <p className="text-[10px] text-text-muted italic">
-                      Your new visitor offer gives a better deal than coupon "{appliedCoupon.code}" (৳{formatPrice(couponDiscount)} off)
+                      Your {(settings?.timerLabel?.trim() || 'special offer').toLowerCase()} gives a better deal than coupon "{appliedCoupon.code}" (৳{formatPrice(couponDiscount)} off)
                     </p>
                   )}
                   {/* Hint when coupon is better than NVO */}
                   {!useNvo && nvoDiscount > 0 && couponDiscount > nvoDiscount && (
                     <p className="text-[10px] text-text-muted italic">
-                      Your coupon gives a better deal than the visitor offer (৳{formatPrice(nvoDiscount)} off)
+                      Your coupon gives a better deal than the {(settings?.timerLabel?.trim() || 'special offer').toLowerCase()} (৳{formatPrice(nvoDiscount)} off)
                     </p>
                   )}
 
