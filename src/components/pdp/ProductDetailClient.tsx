@@ -33,7 +33,9 @@ import {
   Heart,
   Zap,
   Star,
-  Loader2
+  Loader2,
+  X,
+  ZoomIn
 } from 'lucide-react';
 
 interface ProductDetailClientProps {
@@ -117,6 +119,13 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     ])
   );
 
+  // Fullscreen Pure Photo Lightbox Modal State ("if click on photo just the photo should be shown")
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isPhotoModalZoomed, setIsPhotoModalZoomed] = useState(false);
+  const [imageAspectRatios, setImageAspectRatios] = useState<Record<string, number>>({});
+  const isMovedRef = useRef(false);
+  const modalTouchStartX = useRef<number | null>(null);
+
   // Swipe & Touch Carousel State
   const [currentIndex, setCurrentIndex] = useState(() => {
     const initialImg = matchedInitialColor?.image || product.featuredImage;
@@ -131,6 +140,40 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
   const mobileThumbnailsRef = useRef<HTMLDivElement>(null);
   const isThumbnailMount = useRef(true);
+
+  // Determine current image aspect ratio to avoid cutting jewelry sets (3:4)
+  const currentImgUrl = allDisplayImages[currentIndex] || activeImage || '';
+  const detectedRatio = imageAspectRatios[currentImgUrl];
+  const isPortraitHero = detectedRatio !== undefined
+    ? detectedRatio <= 0.85
+    : (product.category === 'jewelry' || product.slug.includes('crystal') || product.slug.includes('duo'));
+  const heroAspectClass = isPortraitHero
+    ? 'aspect-[3/4]'
+    : 'aspect-square sm:aspect-[4/5] lg:aspect-[4/4.5]';
+
+  // Handle escape key and lock body scroll when fullscreen pure photo view is active
+  useEffect(() => {
+    if (!isPhotoModalOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsPhotoModalOpen(false);
+        setIsPhotoModalZoomed(false);
+      } else if (e.key === 'ArrowRight' && allDisplayImages.length > 1) {
+        goToNext();
+      } else if (e.key === 'ArrowLeft' && allDisplayImages.length > 1) {
+        goToPrev();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isPhotoModalOpen, currentIndex, allDisplayImages.length]);
 
   // Auto-scroll mobile thumbnail horizontally within the strip only when user changes image (never scroll the main window)
   useEffect(() => {
@@ -187,21 +230,30 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (allDisplayImages.length <= 1) return;
+    isMovedRef.current = false;
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchStartTime.current = Date.now();
     swipeDirection.current = null;
-    setIsDragging(true);
-    setDragOffset(0);
+    if (allDisplayImages.length > 1) {
+      setIsDragging(true);
+      setDragOffset(0);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null || allDisplayImages.length <= 1) return;
+    if (touchStartX.current === null || touchStartY.current === null) return;
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
     const deltaX = currentX - touchStartX.current;
     const deltaY = currentY - touchStartY.current;
+
+    // Detect noticeable movement (> 8px)
+    if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+      isMovedRef.current = true;
+    }
+
+    if (allDisplayImages.length <= 1) return;
 
     // Detect direction on first noticeable movement (> 8px)
     if (swipeDirection.current === null) {
@@ -235,8 +287,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   const handleTouchEnd = () => {
-    if (swipeDirection.current === 'horizontal' && isDragging) {
-      const elapsed = Date.now() - touchStartTime.current;
+    const elapsed = Date.now() - touchStartTime.current;
+    if (!isMovedRef.current && elapsed < 400) {
+      setIsPhotoModalOpen(true);
+    } else if (swipeDirection.current === 'horizontal' && isDragging) {
       const isFlick = elapsed < 250;
       const threshold = isFlick ? 20 : 40;
 
@@ -254,17 +308,23 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (allDisplayImages.length <= 1) return;
+    isMovedRef.current = false;
     touchStartX.current = e.clientX;
     touchStartY.current = e.clientY;
     touchStartTime.current = Date.now();
     swipeDirection.current = 'horizontal';
-    setIsDragging(true);
-    setDragOffset(0);
+    if (allDisplayImages.length > 1) {
+      setIsDragging(true);
+      setDragOffset(0);
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || touchStartX.current === null || allDisplayImages.length <= 1) return;
+    if (touchStartX.current === null) return;
+    if (Math.abs(e.clientX - touchStartX.current) > 5) {
+      isMovedRef.current = true;
+    }
+    if (!isDragging || allDisplayImages.length <= 1) return;
     const deltaX = e.clientX - touchStartX.current;
     let effectiveDelta = deltaX;
     if (
@@ -277,8 +337,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   const handleMouseUp = () => {
-    if (isDragging) {
-      const elapsed = Date.now() - touchStartTime.current;
+    const elapsed = Date.now() - touchStartTime.current;
+    if (!isMovedRef.current && elapsed < 400) {
+      setIsPhotoModalOpen(true);
+    } else if (isDragging) {
       const isFlick = elapsed < 250;
       const threshold = isFlick ? 20 : 40;
 
@@ -287,12 +349,12 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       } else if (dragOffset > threshold && currentIndex > 0) {
         goToPrev();
       }
-      setIsDragging(false);
-      setDragOffset(0);
-      swipeDirection.current = null;
-      touchStartX.current = null;
-      touchStartY.current = null;
     }
+    setIsDragging(false);
+    setDragOffset(0);
+    swipeDirection.current = null;
+    touchStartX.current = null;
+    touchStartY.current = null;
   };
 
   const handleMouseLeave = handleMouseUp;
@@ -491,7 +553,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
             {/* Primary Visual */}
             <div
-              className="relative aspect-[4/5] lg:aspect-[4/4.5] flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px] select-none touch-pan-y"
+              className={`relative ${heroAspectClass} flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px] select-none touch-pan-y cursor-zoom-in group/hero transition-all duration-300`}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -500,17 +562,49 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
+              onClick={() => {
+                if (!isMovedRef.current) {
+                  setIsPhotoModalOpen(true);
+                }
+              }}
             >
               {/* Mobile Top-Left Back Button (Reference Screenshot 1) */}
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.back();
+                }}
                 onTouchStart={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
-                className="lg:hidden absolute top-3.5 left-3.5 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line flex items-center justify-center text-ink shadow-sm active:scale-90 transition-transform"
+                className="lg:hidden absolute top-3.5 left-3.5 z-20 w-9.5 h-9.5 rounded-full bg-paper/90 backdrop-blur-md border border-line flex items-center justify-center text-ink shadow-sm active:scale-90 transition-transform"
                 aria-label="Go back"
               >
                 <ChevronLeft className="w-5 h-5 -ml-0.5" />
+              </button>
+
+              {/* Mobile Top-Right Luxury Wishlist Heart Button (Moved away from jewelry center to top-right) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleWishlist(product);
+                }}
+                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                className={`lg:hidden absolute top-3.5 right-3.5 z-20 w-9.5 h-9.5 rounded-full backdrop-blur-md border flex items-center justify-center shadow-sm active:scale-90 transition-all ${
+                  isSaved
+                    ? 'bg-rose-50/95 border-rose-300 text-rose-600 shadow-rose-500/10'
+                    : 'bg-paper/90 border-line text-ink hover:text-rose-500'
+                }`}
+                aria-label={isSaved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
+                title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
+              >
+                <Heart
+                  className={`w-4.5 h-4.5 transition-transform duration-200 ${
+                    isSaved ? 'fill-rose-600 text-rose-600 scale-110' : 'text-ink/80'
+                  }`}
+                />
               </button>
 
               {/* Sliding Image Track */}
@@ -530,6 +624,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                       <img
                         src={img}
                         alt={`${product.name} - View ${idx + 1}`}
+                        onLoad={(e) => {
+                          const { naturalWidth, naturalHeight } = e.currentTarget;
+                          if (naturalWidth && naturalHeight) {
+                            setImageAspectRatios((prev) => ({
+                              ...prev,
+                              [img]: naturalWidth / naturalHeight,
+                            }));
+                          }
+                        }}
                         className="w-full h-full object-cover object-center pointer-events-none select-none"
                         draggable={false}
                       />
@@ -540,6 +643,14 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                         fill
                         priority={idx === 0 || idx === currentIndex}
                         sizes="(max-width: 1024px) 100vw, 55vw"
+                        onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+                          if (naturalWidth && naturalHeight) {
+                            setImageAspectRatios((prev) => ({
+                              ...prev,
+                              [img]: naturalWidth / naturalHeight,
+                            }));
+                          }
+                        }}
                         className="object-cover object-center pointer-events-none select-none"
                         draggable={false}
                       />
@@ -600,23 +711,29 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               <div className="hidden lg:flex absolute top-4 right-4 items-center space-x-2 z-10">
                 <button
                   type="button"
-                  onClick={() => toggleWishlist(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(product);
+                  }}
                   onTouchStart={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                   className={`p-2.5 backdrop-blur-sm border transition-all rounded-[2px] ${
                     isSaved
-                      ? 'bg-gold text-ink border-gold/40 shadow-md'
+                      ? 'bg-rose-50 border-rose-300 text-rose-600 shadow-sm'
                       : 'bg-paper/85 border-line hover:bg-paper text-ink hover:text-gold-deep'
                   }`}
                   title={isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
                   aria-label={isSaved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
                 >
-                  <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-gold text-gold' : ''}`} />
+                  <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isSaved ? 'fill-rose-600 text-rose-600' : ''}`} />
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                   onTouchStart={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                   className="p-2.5 bg-paper/85 backdrop-blur-sm border border-line hover:bg-paper text-ink transition-colors rounded-[2px]"
@@ -641,23 +758,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <span className="text-emerald-700 font-medium">In Stock</span>
               </div>
 
-              {/* Mobile Center Wishlist Heart & Slide Dots (Reference Screenshot 1) */}
-              <div className="lg:hidden absolute bottom-3 inset-x-0 flex flex-col items-center justify-center pointer-events-none z-20 gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleWishlist(product);
-                  }}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className="pointer-events-auto p-2 rounded-full bg-paper/95 backdrop-blur-md border border-line shadow-md text-ink hover:text-rose-500 active:scale-125 transition-all"
-                  aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-                >
-                  <Heart className={`w-5 h-5 ${isSaved ? 'fill-rose-500 text-rose-500' : 'text-ink/80'}`} />
-                </button>
-
-                {allDisplayImages.length > 1 && (
+              {/* Mobile Center Slide Dots (Only if multiple images) */}
+              {allDisplayImages.length > 1 && (
+                <div className="lg:hidden absolute bottom-2.5 inset-x-0 flex items-center justify-center pointer-events-none z-20">
                   <div
                     className="flex items-center gap-1.5 bg-paper/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-line pointer-events-auto shadow-xs"
                     onTouchStart={(e) => e.stopPropagation()}
@@ -680,8 +783,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                       />
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Mobile Bottom-Right View Similar (Reference Screenshot 1) */}
               <a
@@ -693,6 +796,12 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <Sparkles className="w-3 h-3 text-gold-deep" />
                 <span>View Similar</span>
               </a>
+
+              {/* Desktop Hover Hint to Expand Photo */}
+              <div className="hidden lg:flex items-center gap-1.5 absolute bottom-4 left-4 z-10 bg-paper/90 backdrop-blur-md px-3 py-1 rounded-full border border-line shadow-xs text-[11px] text-ink/80 opacity-0 group-hover/hero:opacity-100 transition-opacity pointer-events-none">
+                <ZoomIn className="w-3.5 h-3.5 text-gold-deep" />
+                <span>Click photo to view full image</span>
+              </div>
 
               {/* Backdrop Authenticity Watermark on Desktop */}
               <div className="hidden lg:block absolute bottom-4 right-4 bg-sand/60 backdrop-blur-sm text-ink/80 text-[10px] tracking-widest uppercase px-2.5 py-1 pointer-events-none">
@@ -1487,6 +1596,121 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 )}
               </button>
             </div>
+          </div>
+        </div>,
+        document.body
+      )}
+      {/* Fullscreen Pure Photo Modal (Requirement 1: "if click on photo just the photo should be shown") */}
+      {isMounted && isPhotoModalOpen && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${product.name} Fullscreen Photo View`}
+          className="fixed inset-0 z-[10000] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center select-none animate-fade-in touch-none"
+          onTouchStart={(e) => {
+            modalTouchStartX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            if (modalTouchStartX.current === null) return;
+            const deltaX = e.changedTouches[0].clientX - modalTouchStartX.current;
+            if (Math.abs(deltaX) > 40 && allDisplayImages.length > 1) {
+              if (deltaX < 0 && currentIndex < allDisplayImages.length - 1) {
+                goToNext();
+              } else if (deltaX > 0 && currentIndex > 0) {
+                goToPrev();
+              }
+            }
+            modalTouchStartX.current = null;
+          }}
+          onClick={() => {
+            setIsPhotoModalOpen(false);
+            setIsPhotoModalZoomed(false);
+          }}
+        >
+          {/* Top Bar with Minimal Close and Image Counter */}
+          <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-20 pointer-events-none">
+            {/* Subtle Counter / Hint */}
+            <div className="flex items-center gap-2 pointer-events-auto">
+              {allDisplayImages.length > 1 && (
+                <span className="bg-white/10 backdrop-blur-md text-white/90 text-xs px-3 py-1 rounded-full font-mono tracking-wider border border-white/10">
+                  {currentIndex + 1} / {allDisplayImages.length}
+                </span>
+              )}
+              <span className="hidden sm:inline-block text-white/40 text-xs tracking-wider uppercase font-sans">
+                {isPhotoModalZoomed ? 'Click photo to fit' : 'Click photo to zoom'}
+              </span>
+            </div>
+
+            {/* Minimalist Close Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPhotoModalOpen(false);
+                setIsPhotoModalZoomed(false);
+              }}
+              className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-md border border-white/15 transition-all shadow-lg"
+              aria-label="Close photo view"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+
+          {/* Navigation Arrows for Multiple Images */}
+          {allDisplayImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrev();
+                }}
+                disabled={currentIndex === 0}
+                className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border border-white/15 items-center justify-center backdrop-blur-md transition-all disabled:opacity-0 disabled:pointer-events-none shadow-lg active:scale-95"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToNext();
+                }}
+                disabled={currentIndex === allDisplayImages.length - 1}
+                className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border border-white/15 items-center justify-center backdrop-blur-md transition-all disabled:opacity-0 disabled:pointer-events-none shadow-lg active:scale-95"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
+
+          {/* The Pure Photo (Uncropped, Full Aspect Ratio, Zero Badges/Overlays) */}
+          <div
+            className="relative w-full h-full flex items-center justify-center p-3 sm:p-10 overflow-hidden"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsPhotoModalOpen(false);
+                setIsPhotoModalZoomed(false);
+              }
+            }}
+          >
+            <img
+              src={allDisplayImages[currentIndex] || activeImage}
+              alt={`${product.name} - Full Photo View`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPhotoModalZoomed((z) => !z);
+              }}
+              draggable={false}
+              className={`max-w-[95vw] max-h-[88vh] sm:max-h-[92vh] object-contain transition-transform duration-300 ease-out select-none shadow-2xl rounded-[2px] ${
+                isPhotoModalZoomed
+                  ? 'scale-150 sm:scale-175 cursor-zoom-out'
+                  : 'scale-100 cursor-zoom-in'
+              }`}
+            />
           </div>
         </div>,
         document.body
