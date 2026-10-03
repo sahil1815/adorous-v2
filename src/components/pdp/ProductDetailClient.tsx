@@ -1260,10 +1260,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <span>Order Directly on WhatsApp</span>
               </a>
 
-              {/* Trust, Delivery & Shop Card (Screenshot 1 matching) */}
-              <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg flex items-center justify-between gap-3 shadow-xs">
-                {/* Left: 4 logistics bullets */}
-                <div className="space-y-1.5 text-xs text-ink/90 flex-1">
+              {/* Trust & Delivery Card */}
+              <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg shadow-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-ink/90">
                   <div className="flex items-center gap-2">
                     <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                     <span><strong>Return :</strong> 7 Days Exchange</span>
@@ -1280,18 +1279,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
                     <span><strong>Payment :</strong> COD Available</span>
                   </div>
-                </div>
-
-                {/* Right: Boutique / Shop Badge */}
-                <div className="shrink-0 p-3 bg-sand/40 border border-line rounded-md text-xs flex flex-col items-center justify-center text-center min-w-[105px]">
-                  <div className="flex items-center gap-1 text-gold-ink font-semibold text-xs">
-                    <span>🏪</span>
-                    <span>Shop</span>
-                  </div>
-                  <div className="font-serif font-bold text-ink text-xs mt-1">
-                    Adorous Shop
-                  </div>
-                  <span className="text-[10px] text-text-muted mt-0.5">Dhaka Flagship</span>
                 </div>
               </div>
 
