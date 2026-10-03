@@ -1,5 +1,60 @@
 [
   {
+    "id": "prod-moonlit-pearl-set",
+    "slug": "moonlit-pearl-set",
+    "name": "Moonlit Pearl Set",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "Lustrous Ivory Pearls with Teardrop Crystal & Pavé Accents",
+    "price": 860.19,
+    "originalPrice": 971,
+    "description": "Lustrous ivory pearls meet an intricately pavé-set chevron pendant, anchored by a radiant faceted teardrop crystal and paired with matching halo pearl drop earrings.",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": null,
+    "isNewDrop": true,
+    "isGiftPick": false,
+    "isBestseller": false,
+    "featuredRank": 1,
+    "seoKeywords": [
+      "moonlit pearl set",
+      "pearl necklace set bangladesh",
+      "fine jewelry sets dhaka",
+      "crystal pearl choker",
+      "wedding pearl set"
+    ],
+    "metaDescription": "Shop Moonlit Pearl Set at Adorous Fashion Dhaka. Lustrous Ivory Pearls with Teardrop Crystal & Pavé Accents. Cash on delivery across Bangladesh.",
+    "details": [
+      "High-luster ivory shell pearls with faceted pear-cut crystal teardrop pendant",
+      "Polished silver-tone rhodium plated setting with micro-pavé cubic zirconia",
+      "Matching halo stud earrings with suspended pearl drops and secure post back",
+      "Adjustable lobster clasp closure for a tailored neckline fit",
+      "Care: Store dry in a velvet pouch; avoid direct contact with perfumes and moisture"
+    ],
+    "piecesIncluded": [
+      "1x Moonlit Pearl & Teardrop Pendant Necklace",
+      "1x Pair Matching Pearl & Halo Drop Earrings",
+      "1x Protective Velvet Keepsake Pouch"
+    ],
+    "colorways": [
+      {
+        "id": "silver-pristine-pearl",
+        "name": "Silver & Pristine Pearl",
+        "hex": "#F4F1EA",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248",
+        "altText": "Moonlit Pearl Set - Fine Jewelry Set Still-Life Display"
+      }
+    ],
+    "complimentaryItem": null
+  },
+  {
     "id": "prod-kashmiri-noor-e-sitara",
     "slug": "kashmiri-noor-e-sitara",
     "name": "Kashmiri Noor-e-Sitara Tiered Lotus Jhumka Earrings",
