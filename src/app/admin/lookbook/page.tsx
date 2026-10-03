@@ -146,7 +146,7 @@ export default function AdminLookbookPage() {
       const [fetchedLooks, fetchedSettings, rawProducts] = await Promise.all([
         getLookbookLooks(true),
         getLookbookSettings(),
-        getAllProducts(),
+        getAllProducts(true),
       ]);
       setLooks(fetchedLooks);
       setSettings(fetchedSettings);

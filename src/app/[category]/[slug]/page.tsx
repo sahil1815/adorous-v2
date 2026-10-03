@@ -1,10 +1,13 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { decrypt } from '@/lib/session';
 import { getAllProducts, getProductBySlug } from '@/app/actions/productActions';
 import { ProductCategory } from '@/types';
 import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
+import { EyeOff } from 'lucide-react';
 
 export const dynamicParams = true;
 export const dynamic = 'force-dynamic';
@@ -59,7 +62,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (category.toLowerCase() === 'umbrellas') {
     redirect(`/more/${slug}`);
   }
-  const productDb = await getProductBySlug(slug);
+  let productDb = await getProductBySlug(slug, false);
+  let isPreviewForAdmin = false;
+
+  if (!productDb) {
+    try {
+      const cookieStore = await cookies();
+      const sessionToken = cookieStore.get('adorous_admin_session')?.value;
+      if (sessionToken) {
+        const session = await decrypt(sessionToken);
+        if (session) {
+          productDb = await getProductBySlug(slug, true);
+          if (productDb) {
+            isPreviewForAdmin = true;
+          }
+        }
+      }
+    } catch {}
+  }
   
   const categoryMatches =
     productDb &&
@@ -147,6 +167,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {isPreviewForAdmin && (
+        <div className="bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2.5 px-4 text-center font-medium flex items-center justify-center gap-2 sticky top-0 z-50 backdrop-blur-xs shadow-md">
+          <EyeOff className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>
+            <strong>Atelier Admin Preview:</strong> This piece is currently <span className="underline decoration-amber-400">hidden from customers</span> on the live storefront.
+          </span>
+        </div>
+      )}
       <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading product...</div>}>
         <ProductDetailClient product={product} pairsWellWith={pairsWellWith} />
       </Suspense>

@@ -32,6 +32,7 @@ export interface Product {
   inStock?: boolean;
   featuredRank: number;
   seoKeywords: string[];
+  isHidden?: boolean;
 }
 
 export interface CartItem {

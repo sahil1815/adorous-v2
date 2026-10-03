@@ -56,6 +56,7 @@ function toFrontendProduct(p: any): Product {
     galleryImages: Array.isArray(p.galleryImages)
       ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
       : [p.featuredImage],
+    isHidden: Boolean(p.isHidden),
     seoKeywords: Array.isArray(p.seoKeywords)
       ? p.seoKeywords
       : (p.seoKeywords ? p.seoKeywords.split(',') : []),

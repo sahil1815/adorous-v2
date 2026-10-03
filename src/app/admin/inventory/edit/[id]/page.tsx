@@ -12,6 +12,7 @@ import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEdi
 import {
   ArrowLeft, Sparkles, Upload, Image as ImageIcon, CheckCircle2, AlertCircle,
   Plus, Trash2, ShieldAlert, Tag, Loader2, Package, Infinity, Star, Layers, Palette, X,
+  Copy, Eye, EyeOff, ExternalLink,
 } from 'lucide-react';
 
 const CATEGORY_OPTIONS: { slug: ProductCategory; label: string }[] = [
@@ -81,6 +82,7 @@ export default function EditProductPage() {
   const [isBestseller, setIsBestseller] = useState(false);
   const [isGiftPick, setIsGiftPick] = useState(false);
   const [inStock, setInStock] = useState(true);
+  const [isHidden, setIsHidden] = useState(false);
   const [includeSizes, setIncludeSizes] = useState(false);
 
   // Stock management
@@ -129,6 +131,7 @@ export default function EditProductPage() {
       setIsBestseller(product.isBestseller);
       setIsGiftPick(product.isGiftPick);
       setInStock(product.inStock);
+      setIsHidden(Boolean(product.isHidden));
 
       if (product.stockQty === null || product.stockQty === undefined) {
         setStockMode('unlimited');
@@ -337,6 +340,7 @@ export default function EditProductPage() {
       isBestseller,
       isGiftPick,
       inStock,
+      isHidden,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
       details,
       piecesIncluded,
@@ -378,6 +382,7 @@ export default function EditProductPage() {
       isBestseller,
       isGiftPick,
       inStock,
+      isHidden,
       featuredRank: 1,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
     });
@@ -410,7 +415,7 @@ export default function EditProductPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-4">
         <div className="flex items-center space-x-3">
           <Link
             href="/admin/inventory"
@@ -424,11 +429,33 @@ export default function EditProductPage() {
             <p className="text-xs text-paper/60 mt-0.5 font-mono">{slug}</p>
           </div>
         </div>
-        {savedSuccess && (
-          <div className="flex items-center space-x-1.5 text-emerald-400 text-xs">
-            <CheckCircle2 className="w-4 h-4" /><span>Saved! Redirecting…</span>
-          </div>
-        )}
+
+        <div className="flex items-center space-x-2.5 flex-wrap">
+          <Link
+            href={`/admin/inventory/new?duplicate=${productId}`}
+            className="px-3 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-gold/40 text-gold-light hover:text-gold rounded-xs text-xs font-medium transition-colors flex items-center space-x-1.5 shadow-xs"
+            title="Duplicate this piece to create a new product"
+          >
+            <Copy className="w-3.5 h-3.5 text-gold" />
+            <span>Duplicate Piece</span>
+          </Link>
+
+          <Link
+            href={`/${category}/${slug}`}
+            target="_blank"
+            className="px-3 py-1.5 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-paper/70 hover:text-paper rounded-xs text-xs transition-colors flex items-center space-x-1.5"
+            title="Preview live product page"
+          >
+            <span>View Live</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+
+          {savedSuccess && (
+            <div className="flex items-center space-x-1.5 text-emerald-400 text-xs font-semibold pl-2">
+              <CheckCircle2 className="w-4 h-4" /><span>Saved! Redirecting…</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mandate Banner */}
@@ -439,6 +466,75 @@ export default function EditProductPage() {
           All product images must be 100% still-life photography on warm stone plinths, velvet jewelry busts, or keepsake trays.
           <strong> No human faces, hands, or models.</strong>
         </p>
+      </div>
+
+      {/* ── Product Visibility (Live vs Hidden) ───────────────────────────── */}
+      <div className="bg-[#171717] border border-white/10 rounded-xs p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {isHidden ? (
+              <EyeOff className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Eye className="w-4 h-4 text-emerald-400" />
+            )}
+            <h2 className="font-serif text-base text-paper font-normal">Frontend Visibility</h2>
+          </div>
+          <span
+            className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-xs border ${
+              isHidden
+                ? 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+            }`}
+          >
+            {isHidden ? 'Hidden from Storefront' : 'Live on Storefront'}
+          </span>
+        </div>
+
+        <p className="text-xs text-paper/60 leading-relaxed">
+          When hidden, this piece is completely invisible to customers on the homepage, category pages, search, and direct links.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <button
+            type="button"
+            onClick={() => setIsHidden(false)}
+            className={`p-3 rounded-xs border text-left transition-all cursor-pointer ${
+              !isHidden
+                ? 'bg-emerald-950/30 border-emerald-500/60 text-paper shadow-sm'
+                : 'bg-[#1C1C1C] border-white/10 text-paper/50 hover:text-paper'
+            }`}
+          >
+            <div className="flex items-center space-x-2 font-medium text-xs mb-1">
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span className={!isHidden ? 'text-emerald-300 font-semibold' : ''}>
+                Live on Storefront
+              </span>
+            </div>
+            <p className="text-[11px] text-paper/50 leading-snug">
+              Visible across the entire storefront for customers to browse and order.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsHidden(true)}
+            className={`p-3 rounded-xs border text-left transition-all cursor-pointer ${
+              isHidden
+                ? 'bg-amber-950/40 border-amber-500/60 text-paper shadow-sm'
+                : 'bg-[#1C1C1C] border-white/10 text-paper/50 hover:text-paper'
+            }`}
+          >
+            <div className="flex items-center space-x-2 font-medium text-xs mb-1">
+              <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+              <span className={isHidden ? 'text-amber-300 font-semibold' : ''}>
+                Hidden from Storefront
+              </span>
+            </div>
+            <p className="text-[11px] text-paper/50 leading-snug">
+              Excluded from frontend. Only you can view and edit it in this admin console.
+            </p>
+          </button>
+        </div>
       </div>
 
       {errorMsg && (

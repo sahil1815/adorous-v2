@@ -11,6 +11,7 @@ export interface ProductOverride {
   isBestseller?: boolean;
   price?: number;
   originalPrice?: number;
+  isHidden?: boolean;
 }
 
 interface InventoryContextType {
@@ -24,9 +25,10 @@ interface InventoryContextType {
   updateProductStock: (productId: string, stockStatus: ProductOverride['stockStatus']) => void;
   updateProductBadges: (productId: string, badges: { isNewDrop?: boolean; isBestseller?: boolean }) => void;
   updateProductPrice: (productId: string, price: number, originalPrice?: number) => void;
+  updateProductVisibility: (productId: string, isHidden: boolean) => void;
   resetInventoryOverrides: () => void;
   getEffectiveProduct: (product: Product) => Product;
-  getProductBySlug: (category: string, slug: string) => Product | undefined;
+  getProductBySlug: (category: string, slug: string, allowHidden?: boolean) => Product | undefined;
 }
 
 function fromDbProduct(p: any): Product {
@@ -65,6 +67,7 @@ function fromDbProduct(p: any): Product {
     galleryImages: Array.isArray(p.galleryImages)
       ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
       : [p.featuredImage],
+    isHidden: Boolean(p.isHidden),
     seoKeywords: Array.isArray(p.seoKeywords)
       ? p.seoKeywords
       : (p.seoKeywords ? p.seoKeywords.split(',') : []),
@@ -215,6 +218,33 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateProductVisibility = (productId: string, isHidden: boolean) => {
+    const current = overrides[productId] || { stockStatus: 'in_stock' };
+    saveOverrides({
+      ...overrides,
+      [productId]: {
+        ...current,
+        isHidden,
+      },
+    });
+
+    if (customProducts.some((p) => p.id === productId || p.slug === productId)) {
+      const updated = customProducts.map((p) =>
+        p.id === productId || p.slug === productId ? { ...p, isHidden } : p
+      );
+      saveCustomProducts(updated);
+    }
+    setDbProducts((prev) => {
+      if (!prev) return prev;
+      return prev.map((p) =>
+        p.id === productId || p.slug === productId ? { ...p, isHidden } : p
+      );
+    });
+    setTimeout(() => {
+      refreshProducts();
+    }, 500);
+  };
+
   const resetInventoryOverrides = () => {
     setOverrides({});
     setCustomProducts([]);
@@ -239,6 +269,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       isNewDrop: override.isNewDrop !== undefined ? override.isNewDrop : product.isNewDrop,
       isBestseller: override.isBestseller !== undefined ? override.isBestseller : product.isBestseller,
       inStock: override.stockStatus !== 'sold_out',
+      isHidden: override.isHidden !== undefined ? override.isHidden : product.isHidden,
     };
   };
 
@@ -246,7 +277,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProducts = async () => {
     try {
-      const serverProducts = await getAllProducts();
+      const serverProducts = await getAllProducts(true);
       if (serverProducts) {
         setDbProducts(serverProducts.map(fromDbProduct));
       }
@@ -285,7 +316,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   const allProducts = combined;
 
-  const getProductBySlug = (category: string, slug: string): Product | undefined => {
+  const getProductBySlug = (category: string, slug: string, allowHidden = false): Product | undefined => {
     const cleanSlug = slug ? slug.toLowerCase().trim() : '';
     const cleanCategory = category ? category.toLowerCase().trim() : '';
 
@@ -301,6 +332,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (!found) return undefined;
+    if (found.isHidden && !allowHidden) return undefined;
     return getEffectiveProduct(found);
   };
 
@@ -317,6 +349,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         updateProductStock,
         updateProductBadges,
         updateProductPrice,
+        updateProductVisibility,
         resetInventoryOverrides,
         getEffectiveProduct,
         getProductBySlug,

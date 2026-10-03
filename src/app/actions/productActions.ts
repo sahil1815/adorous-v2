@@ -27,6 +27,7 @@ function toDbShape(product: Product) {
     featuredRank: product.featuredRank ?? null,
     featuredImage: product.featuredImage,
     seoKeywords: Array.isArray(product.seoKeywords) ? product.seoKeywords.join(',') : (product.seoKeywords ?? ''),
+    isHidden: product.isHidden ?? false,
     details: (product.details || []).map((text, idx) => ({ id: `detail-${idx}`, text, productId: product.id })),
     piecesIncluded: (product.piecesIncluded || []).map((text, idx) => ({ id: `piece-${idx}`, text, productId: product.id })),
     colorways: (product.colorways || []).map((cw) => ({
@@ -44,14 +45,23 @@ function toDbShape(product: Product) {
   };
 }
 
-export async function getProductsByCategory(category: string) {
+export async function getProductsByCategory(category: string, includeHidden = false) {
   try {
     const isMoreCategory = category.toLowerCase() === 'more';
     if (!process.env.DATABASE_URL) {
-      return PRODUCTS.filter((p) => p.category === category || (isMoreCategory && p.category === 'umbrellas')).map(toDbShape);
+      return PRODUCTS.filter((p) => {
+        const catMatch = p.category === category || (isMoreCategory && p.category === 'umbrellas');
+        return catMatch && (includeHidden || !p.isHidden);
+      }).map(toDbShape);
+    }
+    const whereClause: any = isMoreCategory
+      ? { category: { in: ['more', 'umbrellas'] } }
+      : { category };
+    if (!includeHidden) {
+      whereClause.isHidden = false;
     }
     const products = await prisma.product.findMany({
-      where: isMoreCategory ? { category: { in: ['more', 'umbrellas'] } } : { category },
+      where: whereClause,
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
     });
@@ -59,39 +69,48 @@ export async function getProductsByCategory(category: string) {
   } catch (error) {
     console.warn(`[getProductsByCategory] Falling back to static catalogue for category "${category}":`, error);
     const isMoreCategory = category.toLowerCase() === 'more';
-    return PRODUCTS.filter((p) => p.category === category || (isMoreCategory && p.category === 'umbrellas')).map(toDbShape);
+    return PRODUCTS.filter((p) => {
+      const catMatch = p.category === category || (isMoreCategory && p.category === 'umbrellas');
+      return catMatch && (includeHidden || !p.isHidden);
+    }).map(toDbShape);
   }
 }
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string, allowHidden = false) {
   try {
     if (!process.env.DATABASE_URL) {
-      const match = PRODUCTS.find((p) => p.slug === slug);
+      const match = PRODUCTS.find((p) => p.slug === slug && (allowHidden || !p.isHidden));
       return match ? toDbShape(match) : null;
     }
     const product = await prisma.product.findUnique({
       where: { slug },
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
     });
-    return product ? product : null;
+    if (!product) return null;
+    if (product.isHidden && !allowHidden) return null;
+    return product;
   } catch (error) {
     console.warn(`[getProductBySlug] Falling back to static catalogue for slug "${slug}":`, error);
-    const match = PRODUCTS.find((p) => p.slug === slug);
+    const match = PRODUCTS.find((p) => p.slug === slug && (allowHidden || !p.isHidden));
     return match ? toDbShape(match) : null;
   }
 }
 
-export async function getAllProducts() {
+export async function getAllProducts(includeHidden = false) {
   try {
-    if (!process.env.DATABASE_URL) return PRODUCTS.map(toDbShape);
+    if (!process.env.DATABASE_URL) {
+      return PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
+    }
+    const whereClause = includeHidden ? {} : { isHidden: false };
     const products = await prisma.product.findMany({
+      where: whereClause,
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
     });
     return products || [];
   } catch (error) {
     console.warn('[getAllProducts] Database unavailable. Falling back to static catalogue:', error);
-    return PRODUCTS.map(toDbShape);
+    return PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
   }
 }
 
@@ -148,6 +167,7 @@ export async function createProductAction(productData: Product) {
         isGiftPick: productData.isGiftPick ?? false,
         isBestseller: productData.isBestseller ?? false,
         featuredRank: productData.featuredRank ?? 1,
+        isHidden: Boolean(productData.isHidden),
         seoKeywords: Array.isArray(productData.seoKeywords) ? productData.seoKeywords.join(',') : (productData.seoKeywords || ''),
         details: { create: (productData.details || []).map((text) => ({ text })) },
         piecesIncluded: { create: (productData.piecesIncluded || []).map((text) => ({ text })) },
@@ -204,6 +224,7 @@ export async function updateProductAction(
     isBestseller: boolean;
     isGiftPick: boolean;
     inStock: boolean;
+    isHidden?: boolean;
     seoKeywords: string[];
     details: string[];
     piecesIncluded: string[];
@@ -253,6 +274,7 @@ export async function updateProductAction(
           isNewDrop: productData.isNewDrop,
           isBestseller: productData.isBestseller,
           isGiftPick: productData.isGiftPick,
+          isHidden: productData.isHidden ?? false,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
@@ -288,6 +310,7 @@ export async function updateProductAction(
           isNewDrop: productData.isNewDrop,
           isBestseller: productData.isBestseller,
           isGiftPick: productData.isGiftPick,
+          isHidden: productData.isHidden !== undefined ? productData.isHidden : undefined,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
@@ -525,6 +548,132 @@ export async function deleteProductAction(productIdOrSlug: string) {
   } catch (error: any) {
     console.error('[deleteProductAction] Error deleting product:', error);
     return { success: false, error: error?.message || 'Failed to delete product from database' };
+  }
+}
+
+export async function toggleProductVisibilityAction(productIdOrSlug: string, isHidden: boolean) {
+  try {
+    if (!process.env.DATABASE_URL) return { success: true, isHidden };
+    const existing = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+    });
+
+    if (!existing) return { success: false, error: 'Product not found' };
+
+    await prisma.product.update({
+      where: { id: existing.id },
+      data: { isHidden },
+    });
+
+    try {
+      revalidatePath('/admin/inventory');
+      revalidatePath('/shop');
+      revalidatePath('/');
+      revalidatePath(`/${existing.category}`);
+      revalidatePath(`/${existing.category}/${existing.slug}`);
+      revalidatePath('/lookbook');
+      revalidatePath('/collections');
+      revalidatePath('/', 'layout');
+    } catch (revalErr) {
+      console.warn('Revalidation warning:', revalErr);
+    }
+
+    return { success: true, isHidden, productId: existing.id, productName: existing.name };
+  } catch (error: any) {
+    console.error('[toggleProductVisibilityAction] Error:', error);
+    return { success: false, error: error?.message || 'Failed to toggle visibility' };
+  }
+}
+
+export async function duplicateProductAction(productIdOrSlug: string) {
+  try {
+    if (!process.env.DATABASE_URL) return { success: false, error: 'No database configured' };
+
+    const original = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: productIdOrSlug },
+          { slug: productIdOrSlug.trim().toLowerCase() },
+        ],
+      },
+      include: { details: true, piecesIncluded: true, colorways: true, galleryImages: true },
+    });
+
+    if (!original) return { success: false, error: 'Original product not found' };
+
+    // Generate unique slug
+    let candidateSlug = `${original.slug}-copy`;
+    let counter = 1;
+    while (await prisma.product.findUnique({ where: { slug: candidateSlug } })) {
+      counter++;
+      candidateSlug = `${original.slug}-copy-${counter}`;
+    }
+
+    const newId = `prod-${candidateSlug}-${Date.now()}`;
+    const newName = `${original.name} (Copy${counter > 1 ? ` ${counter}` : ''})`;
+
+    const created = await prisma.product.create({
+      data: {
+        id: newId,
+        slug: candidateSlug,
+        name: newName,
+        category: original.category,
+        categoryLabel: original.categoryLabel,
+        tagline: original.tagline,
+        price: original.price,
+        originalPrice: original.originalPrice,
+        description: original.description,
+        complimentaryItem: original.complimentaryItem,
+        featuredImage: original.featuredImage,
+        badge: original.badge,
+        inStock: original.inStock,
+        stockQty: original.stockQty,
+        isNewDrop: true,
+        isGiftPick: original.isGiftPick,
+        isBestseller: false,
+        featuredRank: 1,
+        seoKeywords: original.seoKeywords,
+        isHidden: false,
+        details: {
+          create: original.details.map((d) => ({ text: d.text })),
+        },
+        piecesIncluded: {
+          create: original.piecesIncluded.map((p) => ({ text: p.text })),
+        },
+        colorways: {
+          create: original.colorways.map((cw) => ({
+            colorId: `cw-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+            name: cw.name,
+            hex: cw.hex,
+            inStock: cw.inStock,
+            image: cw.image,
+          })),
+        },
+        galleryImages: {
+          create: (original.galleryImages.length > 0 ? original.galleryImages : [{ url: original.featuredImage }]).map(
+            (g) => ({ url: g.url })
+          ),
+        },
+      },
+      include: { details: true, piecesIncluded: true, colorways: true, galleryImages: true },
+    });
+
+    try {
+      revalidatePath('/admin/inventory');
+      revalidatePath('/shop');
+      revalidatePath('/');
+      revalidatePath(`/${original.category}`);
+    } catch {}
+
+    return { success: true, product: toDbShape(created as any) };
+  } catch (error: any) {
+    console.error('[duplicateProductAction] Error duplicating product:', error);
+    return { success: false, error: error?.message || 'Failed to duplicate product' };
   }
 }
 

@@ -12,6 +12,7 @@ import {
   updateStockAction,
   updateProductBadgesAction,
   updateProductPriceAction,
+  toggleProductVisibilityAction,
 } from '@/app/actions/productActions';
 import {
   Search,
@@ -27,6 +28,9 @@ import {
   AlertCircle,
   X,
   ShieldAlert,
+  Copy,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 
@@ -65,6 +69,7 @@ function fromDbProduct(p: any): Product {
     isGiftPick: Boolean(p.isGiftPick),
     isBestseller: Boolean(p.isBestseller),
     featuredRank: p.featuredRank ?? 999,
+    isHidden: Boolean(p.isHidden),
     seoKeywords:
       typeof p.seoKeywords === 'string'
         ? p.seoKeywords.split(',')
@@ -82,6 +87,7 @@ export default function AdminInventoryPage() {
     updateProductStock,
     updateProductBadges,
     updateProductPrice,
+    updateProductVisibility,
     getEffectiveProduct,
   } = useInventory();
 
@@ -92,6 +98,8 @@ export default function AdminInventoryPage() {
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'visible' | 'hidden'>('all');
+  const [togglingVisibilityId, setTogglingVisibilityId] = useState<string | null>(null);
 
   // Inline Price Editing
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
@@ -117,13 +125,13 @@ export default function AdminInventoryPage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Fetch real products from PostgreSQL on mount
+  // Fetch real products (including hidden pieces) from PostgreSQL on mount
   useEffect(() => {
     let isMounted = true;
     async function fetchInventory() {
       try {
         setIsLoading(true);
-        const serverProducts = await getAllProducts();
+        const serverProducts = await getAllProducts(true);
         if (isMounted && serverProducts) {
           setDbProducts(serverProducts.map(fromDbProduct));
         }
@@ -138,6 +146,40 @@ export default function AdminInventoryPage() {
       isMounted = false;
     };
   }, []);
+
+  // Quick 1-click Visibility Toggle Handler
+  const handleToggleVisibility = async (prod: Product, targetHidden: boolean) => {
+    setTogglingVisibilityId(prod.id);
+    // Optimistically update dbProducts
+    setDbProducts((prev) =>
+      prev
+        ? prev.map((p) =>
+            p.id === prod.id || p.slug === prod.slug ? { ...p, isHidden: targetHidden } : p
+          )
+        : null
+    );
+    updateProductVisibility(prod.id, targetHidden);
+
+    const res = await toggleProductVisibilityAction(prod.id, targetHidden);
+    setTogglingVisibilityId(null);
+
+    if (res.success) {
+      showToast(
+        `"${prod.name}" is now ${targetHidden ? 'hidden from storefront' : 'live on storefront'}`
+      );
+    } else {
+      // Revert on failure
+      setDbProducts((prev) =>
+        prev
+          ? prev.map((p) =>
+              p.id === prod.id || p.slug === prod.slug ? { ...p, isHidden: !targetHidden } : p
+            )
+          : null
+      );
+      updateProductVisibility(prod.id, !targetHidden);
+      showToast(res.error || 'Failed to update visibility', 'error');
+    }
+  };
 
   // Derive active product list (merging DB products with any local additions, avoiding duplicates)
   const activeProducts: Product[] = React.useMemo(() => {
@@ -450,11 +492,29 @@ export default function AdminInventoryPage() {
     const matchesCategory =
       selectedCategory === 'all' || prod.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    const effective = getEffectiveProduct(prod);
+    const isHidden = effective.isHidden !== undefined ? effective.isHidden : Boolean(prod.isHidden);
+
+    const matchesVisibility =
+      visibilityFilter === 'all'
+        ? true
+        : visibilityFilter === 'visible'
+        ? !isHidden
+        : isHidden;
+
+    return matchesSearch && matchesCategory && matchesVisibility;
   });
 
   // Metrics
   const totalItems = activeProducts.length;
+  const visibleCount = activeProducts.filter((p) => {
+    const eff = getEffectiveProduct(p);
+    return eff.isHidden !== undefined ? !eff.isHidden : !p.isHidden;
+  }).length;
+  const hiddenCount = activeProducts.filter((p) => {
+    const eff = getEffectiveProduct(p);
+    return eff.isHidden !== undefined ? eff.isHidden : Boolean(p.isHidden);
+  }).length;
   const inStockCount = activeProducts.filter((p) => {
     const s = stockInputs[p.id] || getStockState(p);
     return s.mode === 'unlimited' || s.qty > 2;
@@ -510,8 +570,8 @@ export default function AdminInventoryPage() {
         </div>
       </div>
 
-      {/* Stock Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Stock & Visibility Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
         <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
           <span className="text-[10px] uppercase text-paper/50 block font-medium">Total Designs</span>
           <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">{totalItems}</span>
@@ -519,21 +579,31 @@ export default function AdminInventoryPage() {
         </div>
 
         <div className="bg-[#171717] border border-emerald-600/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-emerald-400 block font-medium">In Stock</span>
-          <span className="text-2xl font-serif text-emerald-300 font-semibold mt-0.5 block">{inStockCount}</span>
-          <span className="text-[10px] text-emerald-200/50">Ready for dispatch</span>
+          <span className="text-[10px] uppercase text-emerald-400 block font-medium flex items-center gap-1">
+            <Eye className="w-3 h-3" /> Live on Store
+          </span>
+          <span className="text-2xl font-serif text-emerald-300 font-semibold mt-0.5 block">{visibleCount}</span>
+          <span className="text-[10px] text-emerald-200/50">Discoverable to shoppers</span>
         </div>
 
         <div className="bg-[#171717] border border-amber-600/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-amber-400 block font-medium">Low Stock Warning</span>
-          <span className="text-2xl font-serif text-amber-300 font-semibold mt-0.5 block">{lowStockCount}</span>
-          <span className="text-[10px] text-amber-200/50">Under 3 pieces left</span>
+          <span className="text-[10px] uppercase text-amber-400 block font-medium flex items-center gap-1">
+            <EyeOff className="w-3 h-3" /> Hidden from Store
+          </span>
+          <span className="text-2xl font-serif text-amber-300 font-semibold mt-0.5 block">{hiddenCount}</span>
+          <span className="text-[10px] text-amber-200/50">Private / draft pieces</span>
         </div>
 
-        <div className="bg-[#171717] border border-red-600/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-red-400 block font-medium">Sold Out</span>
-          <span className="text-2xl font-serif text-red-300 font-semibold mt-0.5 block">{soldOutCount}</span>
-          <span className="text-[10px] text-red-200/50">Purchases paused</span>
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
+          <span className="text-[10px] uppercase text-paper/50 block font-medium">In Stock</span>
+          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">{inStockCount}</span>
+          <span className="text-[10px] text-paper/40">Ready for dispatch</span>
+        </div>
+
+        <div className="bg-[#171717] border border-red-600/30 p-4 rounded-xs col-span-2 sm:col-span-1">
+          <span className="text-[10px] uppercase text-red-400 block font-medium">Stock Alert</span>
+          <span className="text-2xl font-serif text-red-300 font-semibold mt-0.5 block">{lowStockCount + soldOutCount}</span>
+          <span className="text-[10px] text-red-200/50">{lowStockCount} low · {soldOutCount} sold out</span>
         </div>
       </div>
 
@@ -581,6 +651,64 @@ export default function AdminInventoryPage() {
             );
           })}
         </div>
+
+        {/* Visibility Filter Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-[10px] uppercase font-semibold text-paper/40 tracking-wider mr-1">
+              Store Visibility:
+            </span>
+            <button
+              type="button"
+              onClick={() => setVisibilityFilter('all')}
+              className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors ${
+                visibilityFilter === 'all'
+                  ? 'bg-paper/20 text-paper border border-white/20 font-semibold'
+                  : 'bg-[#222222] text-paper/60 hover:text-paper border border-transparent'
+              }`}
+            >
+              All Pieces ({activeProducts.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibilityFilter('visible')}
+              className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors flex items-center space-x-1.5 ${
+                visibilityFilter === 'visible'
+                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/50 font-semibold'
+                  : 'bg-[#222222] text-paper/60 hover:text-emerald-300 border border-transparent'
+              }`}
+            >
+              <Eye className="w-3 h-3 text-emerald-400" />
+              <span>Live on Store ({visibleCount})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibilityFilter('hidden')}
+              className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors flex items-center space-x-1.5 ${
+                visibilityFilter === 'hidden'
+                  ? 'bg-amber-950/60 text-amber-300 border border-amber-500/50 font-semibold'
+                  : 'bg-[#222222] text-paper/60 hover:text-amber-300 border border-transparent'
+              }`}
+            >
+              <EyeOff className="w-3 h-3 text-amber-400" />
+              <span>Hidden Pieces ({hiddenCount})</span>
+            </button>
+          </div>
+
+          {(selectedCategory !== 'all' || visibilityFilter !== 'all' || searchQuery.trim() !== '') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory('all');
+                setVisibilityFilter('all');
+                setSearchQuery('');
+              }}
+              className="text-[11px] text-paper/40 hover:text-gold underline transition-colors"
+            >
+              Reset all filters
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Products Table / Cards */}
@@ -607,6 +735,7 @@ export default function AdminInventoryPage() {
           <div className="grid grid-cols-1 gap-4">
             {filteredProducts.map((prod) => {
               const effective = getEffectiveProduct(prod);
+              const isProductHidden = effective.isHidden !== undefined ? effective.isHidden : Boolean(prod.isHidden);
               const isEditingPrice = editingPriceId === prod.id;
               const isSavingPrice = savingPriceId === prod.id;
               const isSavedPrice = savedSuccessId === prod.id;
@@ -682,6 +811,17 @@ export default function AdminInventoryPage() {
                           </span>
                         )}
                         {stockBadge}
+                        {isProductHidden ? (
+                          <span className="text-[10px] px-2 py-0.5 rounded-xs bg-amber-950/60 text-amber-300 border border-amber-800/40 flex items-center gap-1 font-medium">
+                            <EyeOff className="w-2.5 h-2.5" />
+                            Hidden from Store
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-2 py-0.5 rounded-xs bg-emerald-950/40 text-emerald-300/90 border border-emerald-800/30 flex items-center gap-1 font-medium">
+                            <Eye className="w-2.5 h-2.5" />
+                            Live on Store
+                          </span>
+                        )}
                       </div>
 
                       <h3 className="font-serif text-base text-paper font-medium truncate block max-w-md">
@@ -759,15 +899,51 @@ export default function AdminInventoryPage() {
                     </div>
                   </div>
 
-                  {/* Middle: Edit & Ribbon Badges */}
-                  <div className="flex flex-wrap items-center gap-2.5 text-xs w-full xl:w-auto">
+                  {/* Middle: Edit, Duplicate, Visibility Toggle & Ribbon Badges */}
+                  <div className="flex flex-wrap items-center gap-2 text-xs w-full xl:w-auto">
                     <Link
                       href={`/admin/inventory/edit/${prod.id}`}
                       className="px-2.5 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1.5"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit Details</span>
+                      <span>Edit</span>
                     </Link>
+
+                    <Link
+                      href={`/admin/inventory/new?duplicate=${prod.id}`}
+                      className="px-2.5 py-1.5 bg-[#222222] hover:bg-gold/15 hover:border-gold/40 border border-white/10 text-paper/70 hover:text-gold rounded-xs text-[11px] transition-colors flex items-center space-x-1.5"
+                      title="Duplicate this piece and its details into a new draft"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Duplicate</span>
+                    </Link>
+
+                    {/* Quick Visibility 1-Click Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleVisibility(prod, !isProductHidden)}
+                      disabled={togglingVisibilityId === prod.id}
+                      className={`px-2.5 py-1.5 border rounded-xs text-[11px] transition-colors flex items-center space-x-1.5 disabled:opacity-50 ${
+                        isProductHidden
+                          ? 'bg-amber-950/40 hover:bg-amber-900/50 border-amber-600/40 text-amber-300'
+                          : 'bg-[#222222] hover:bg-[#2A2A2A] border-white/10 text-paper/60 hover:text-paper'
+                      }`}
+                      title={isProductHidden ? 'Click to make Live on storefront' : 'Click to Hide from storefront'}
+                    >
+                      {togglingVisibilityId === prod.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                      ) : isProductHidden ? (
+                        <>
+                          <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Hidden (Make Live)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Hide</span>
+                        </>
+                      )}
+                    </button>
 
                     {/* Ribbon Badges Toggles */}
                     <div className="flex items-center space-x-1 bg-[#222222] p-1 rounded-xs border border-white/10">

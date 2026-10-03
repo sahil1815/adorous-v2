@@ -45,7 +45,7 @@ export default function ClientProductDetailResolver({
   }
 
   const pairsWellWith = allProducts
-    .filter((p) => p.category !== product.category && p.id !== product.id)
+    .filter((p) => !p.isHidden && p.category !== product.category && p.id !== product.id)
     .slice(0, 4);
 
   return <ProductDetailClient product={product} pairsWellWith={pairsWellWith} />;

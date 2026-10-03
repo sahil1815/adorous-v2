@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Product, Colorway } from '@/types';
-import { createProductAction } from '@/app/actions/productActions';
+import { createProductAction, getProductById } from '@/app/actions/productActions';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import {
   ArrowLeft,
@@ -21,6 +21,9 @@ import {
   Tag,
   Check,
   Eye,
+  EyeOff,
+  Copy,
+  Loader2,
   Star,
   Layers,
   Palette,
@@ -95,7 +98,23 @@ const STILL_LIFE_PRESETS = [
 ];
 
 export default function AddProductPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[50vh] flex items-center justify-center text-paper/40">
+          <Loader2 className="w-6 h-6 animate-spin text-gold" />
+        </div>
+      }
+    >
+      <AddProductContent />
+    </Suspense>
+  );
+}
+
+function AddProductContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const duplicateId = searchParams.get('duplicate') || searchParams.get('copyFrom');
   const { addProduct } = useInventory();
 
   // Basic Details
@@ -107,6 +126,82 @@ export default function AddProductPage() {
   const [price, setPrice] = useState<number | string>(3850);
   const [originalPrice, setOriginalPrice] = useState<number | string>(4500);
   const [description, setDescription] = useState('');
+
+  // Visibility & Duplication
+  const [isHidden, setIsHidden] = useState(false);
+  const [duplicatedFrom, setDuplicatedFrom] = useState<{ id: string; name: string } | null>(null);
+  const [isLoadingDuplicate, setIsLoadingDuplicate] = useState(false);
+
+  // Load product to duplicate if duplicateId is provided in URL
+  useEffect(() => {
+    if (!duplicateId) return;
+    let isMounted = true;
+    async function loadDuplicate() {
+      try {
+        setIsLoadingDuplicate(true);
+        const prod = await getProductById(duplicateId as string);
+        if (!prod || !isMounted) return;
+
+        setName(`${prod.name} (Copy)`);
+        const baseSlug = prod.slug.replace(/-copy(-\d+)?$/, '');
+        const randomSuffix = Math.floor(100 + Math.random() * 900);
+        setSlug(`${baseSlug}-copy-${randomSuffix}`);
+        setIsSlugCustomized(true);
+        setCategory(prod.category as ProductCategory);
+        setTagline(prod.tagline || '');
+        setPrice(prod.price);
+        setOriginalPrice(prod.originalPrice ? prod.originalPrice : '');
+        setDescription(prod.description || '');
+
+        const featImg = prod.featuredImage || STILL_LIFE_PRESETS[0].url;
+        setFeaturedImage(featImg);
+        const gImages =
+          prod.galleryImages && prod.galleryImages.length > 0
+            ? prod.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
+            : [featImg];
+        setGalleryImages(gImages);
+        setActivePreviewImage(featImg);
+
+        setDetails(
+          Array.isArray(prod.details)
+            ? prod.details.map((d: any) => (typeof d === 'string' ? d : d.text))
+            : []
+        );
+        setPiecesIncluded(
+          Array.isArray(prod.piecesIncluded)
+            ? prod.piecesIncluded.map((p: any) => (typeof p === 'string' ? p : p.text))
+            : []
+        );
+        setHasComplimentaryItem(Boolean(prod.complimentaryItem));
+        setComplimentaryItemText(prod.complimentaryItem || 'Adorous Signature Keepsake Box & Velvet Pouch');
+
+        setColorways(
+          (prod.colorways || []).map((cw: any, idx: number) => ({
+            id: `cw-copy-${Date.now()}-${idx}`,
+            name: cw.name,
+            hex: cw.hex,
+            inStock: cw.inStock ?? true,
+            image: cw.image || null,
+          }))
+        );
+
+        setIncludeSizes(Boolean((prod as any).sizes && (prod as any).sizes.length > 0));
+        setIsNewDrop(true);
+        setIsBestseller(false);
+        setIsGiftPick(Boolean(prod.isGiftPick));
+        setIsHidden(Boolean(prod.isHidden));
+        setDuplicatedFrom({ id: prod.id, name: prod.name });
+      } catch (err) {
+        console.error('Failed to load duplicate product:', err);
+      } finally {
+        if (isMounted) setIsLoadingDuplicate(false);
+      }
+    }
+    loadDuplicate();
+    return () => {
+      isMounted = false;
+    };
+  }, [duplicateId]);
 
   // Image Showcase & Gallery Selection
   const [imageMode, setImageMode] = useState<'preset' | 'upload' | 'url'>('preset');
@@ -370,6 +465,7 @@ export default function AddProductPage() {
       isBestseller,
       isGiftPick,
       inStock: true,
+      isHidden,
       featuredRank: 1,
       seoKeywords: [
         name.trim(),
@@ -438,6 +534,42 @@ export default function AddProductPage() {
         </div>
       </div>
 
+      {/* Duplication Notice Banner (if copying existing product) */}
+      {isLoadingDuplicate && (
+        <div className="p-4 bg-[#1A1A1A] border border-gold/40 rounded-xs flex items-center space-x-3 text-xs text-gold">
+          <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+          <span>Copying all details from source piece...</span>
+        </div>
+      )}
+
+      {duplicatedFrom && !isLoadingDuplicate && (
+        <div className="p-4 bg-[#1C1A14] border border-gold/40 rounded-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xs bg-gold/20 border border-gold/40 flex items-center justify-center shrink-0 text-gold">
+              <Copy className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-paper">
+                Duplicating from <span className="text-gold font-serif italic">"{duplicatedFrom.name}"</span>
+              </h4>
+              <p className="text-xs text-paper/60 mt-0.5">
+                All specifications, images, colorways, and descriptions have been copied. You can publish directly or customize any details below.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setDuplicatedFrom(null);
+              router.replace('/admin/inventory/new');
+            }}
+            className="text-xs text-paper/50 hover:text-paper underline shrink-0 px-2 py-1 transition-colors"
+          >
+            Start Empty
+          </button>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-3 bg-red-950/60 border border-red-700/40 rounded-xs flex items-center space-x-2 text-xs text-red-300">
           <AlertCircle className="w-4 h-4 shrink-0" />
@@ -447,6 +579,77 @@ export default function AddProductPage() {
 
       {/* Main Creation Form */}
       <form onSubmit={handleSubmit} className="space-y-8 text-xs">
+        {/* Section: Product Visibility (Live vs Hidden) */}
+        <div className="bg-[#141414] border border-white/10 p-5 sm:p-6 rounded-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {isHidden ? (
+                <EyeOff className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Eye className="w-4 h-4 text-emerald-400" />
+              )}
+              <h2 className="font-serif text-base text-paper font-normal">
+                Frontend Visibility Status
+              </h2>
+            </div>
+            <span
+              className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-xs border ${
+                isHidden
+                  ? 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                  : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+              }`}
+            >
+              {isHidden ? 'Hidden (Draft)' : 'Live & Discoverable'}
+            </span>
+          </div>
+
+          <p className="text-xs text-paper/60 leading-relaxed">
+            Choose whether this piece is immediately visible to visitors on the storefront or hidden for internal prep.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setIsHidden(false)}
+              className={`p-3 rounded-xs border text-left transition-all cursor-pointer ${
+                !isHidden
+                  ? 'bg-emerald-950/30 border-emerald-500/60 text-paper shadow-sm'
+                  : 'bg-[#1C1C1C] border-white/10 text-paper/50 hover:text-paper'
+              }`}
+            >
+              <div className="flex items-center space-x-2 font-medium text-xs mb-1">
+                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                <span className={!isHidden ? 'text-emerald-300 font-semibold' : ''}>
+                  Live on Storefront (Default)
+                </span>
+              </div>
+              <p className="text-[11px] text-paper/50 leading-snug">
+                Visible across homepage, category catalogs, search, and direct links.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsHidden(true)}
+              className={`p-3 rounded-xs border text-left transition-all cursor-pointer ${
+                isHidden
+                  ? 'bg-amber-950/40 border-amber-500/60 text-paper shadow-sm'
+                  : 'bg-[#1C1C1C] border-white/10 text-paper/50 hover:text-paper'
+              }`}
+            >
+              <div className="flex items-center space-x-2 font-medium text-xs mb-1">
+                <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                <span className={isHidden ? 'text-amber-300 font-semibold' : ''}>
+                  Hidden from Frontend
+                </span>
+              </div>
+              <p className="text-[11px] text-paper/50 leading-snug">
+                Hidden from customers. Visible and editable only inside your admin inventory.
+              </p>
+            </button>
+          </div>
+        </div>
+
         {/* Section 1: Title & Category */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
           <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">

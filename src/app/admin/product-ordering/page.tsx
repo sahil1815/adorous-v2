@@ -594,6 +594,11 @@ export default function AdminProductOrderingPage() {
                             New Drop
                           </span>
                         )}
+                        {product.isHidden && (
+                          <span className="px-1.5 py-0.2 bg-amber-950/60 text-amber-300 border border-amber-600/30 text-[9px] font-semibold uppercase rounded-xs">
+                            Hidden
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center space-x-3 text-[11px] text-paper/40 mt-0.5">
                         <span className="capitalize">{product.categoryLabel || product.category}</span>

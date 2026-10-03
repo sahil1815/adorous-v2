@@ -50,7 +50,7 @@ export default function ShopClient({ initialProducts, initialOrdering }: ShopCli
   }, [filterParam]);
 
   // Base products: prioritize live InventoryContext if loaded, fallback to server-rendered initialProducts
-  const activeProducts = allProducts.length > 0 ? allProducts : initialProducts;
+  const activeProducts = (allProducts.length > 0 ? allProducts : initialProducts).filter((p) => !p.isHidden);
 
   // Get admin-configured ordering for Shop All
   const contextOrdering = getOrdering('shop-all');

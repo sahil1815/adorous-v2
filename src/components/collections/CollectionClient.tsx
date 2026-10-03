@@ -50,7 +50,7 @@ export default function CollectionClient({
         const match = pool.find((p) => p.id === id || p.slug === id);
         return match ? getEffectiveProduct(match) : undefined;
       })
-      .filter((p): p is Product => p !== undefined);
+      .filter((p): p is Product => p !== undefined && !p.isHidden);
   }, [productIds, pool, getEffectiveProduct]);
 
   // Build purchase count map from orders

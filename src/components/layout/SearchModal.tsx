@@ -48,6 +48,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const matchingProducts: Product[] = query.trim() === ''
     ? []
     : allProducts
+        .filter((p) => !p.isHidden)
         .map(getEffectiveProduct)
         .filter((p) => {
           const q = query.toLowerCase();

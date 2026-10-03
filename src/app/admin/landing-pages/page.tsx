@@ -103,7 +103,7 @@ export default function AdminLandingPagesPage() {
 
   const fetchDbProducts = useCallback(async () => {
     try {
-      const serverProducts = await getAllProducts();
+      const serverProducts = await getAllProducts(true);
       if (serverProducts) {
         setDbProducts(serverProducts.map(fromDbProduct));
       }
