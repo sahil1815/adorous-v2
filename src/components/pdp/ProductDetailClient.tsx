@@ -1262,7 +1262,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* Trust & Delivery Card */}
               <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg shadow-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-ink/90">
+                <div className="space-y-2 text-xs text-ink/90">
                   <div className="flex items-center gap-2">
                     <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                     <span><strong>Return :</strong> 7 Days Exchange</span>
@@ -1274,10 +1274,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   <div className="flex items-center gap-2">
                     <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                     <span><strong>Promised Delivery by</strong> {deliveryDates}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
-                    <span><strong>Payment :</strong> COD Available</span>
                   </div>
                 </div>
               </div>
@@ -1343,7 +1339,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                           <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                           <span>{product.complimentaryItem}</span>
                         </span>
-                        <span className="text-[11px]">Complimentary</span>
+                        <span className="text-[11px] font-semibold text-gold-deep">GIFT</span>
                       </li>
                     )}
                   </ul>

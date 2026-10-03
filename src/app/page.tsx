@@ -37,6 +37,7 @@ function toFrontendProduct(p: any): Product {
     isGiftPick: p.isGiftPick ?? false,
     featuredRank: p.featuredRank ?? 999,
     description: p.description || '',
+    complimentaryItem: p.complimentaryItem ?? null,
     details: Array.isArray(p.details)
       ? p.details.map((d: any) => (typeof d === 'string' ? d : d.text))
       : [],

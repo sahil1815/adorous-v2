@@ -1209,7 +1209,7 @@ export default function EditProductPage() {
                   Complimentary Packaging / Gift
                 </label>
                 <p className="text-[11px] text-paper/40">
-                  Highlighted as a &quot;Complimentary&quot; item in the &quot;What&apos;s in Your Package&quot; box on PDP
+                  Highlighted as a &quot;GIFT&quot; item in the &quot;What&apos;s in Your Package&quot; box on PDP
                 </p>
               </div>
               <button

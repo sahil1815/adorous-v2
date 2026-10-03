@@ -154,12 +154,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </button>
 
-        {/* Pieces Count or Quick Specs */}
-        {product.piecesIncluded && (
-          <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
-            {product.piecesIncluded.length} Pcs Set
-          </div>
-        )}
+        {/* Pieces Count or Quick Specs (including box / complimentary gift item) */}
+        {(() => {
+          const namePieceMatch = product.name?.match(/\((\d+)[- ]*(?:piece|pcs|pc)/i);
+          const nameCount = namePieceMatch ? parseInt(namePieceMatch[1], 10) : 0;
+          const piecesCount = (product.piecesIncluded?.length || 0) + (product.complimentaryItem ? 1 : 0);
+          const displayPieces = Math.max(piecesCount, nameCount);
+          if (displayPieces <= 0) return null;
+          return (
+            <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
+              {displayPieces} Pcs Set
+            </div>
+          );
+        })()}
 
         {/* Quick Add overlay button (desktop hover & mobile accessible) */}
         <div className="absolute inset-x-2 bottom-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto hidden sm:block">
