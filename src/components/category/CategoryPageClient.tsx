@@ -7,7 +7,7 @@ import { Product } from '@/types';
 import { useInventory } from '@/context/InventoryContext';
 import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingContext';
 import { useOrders } from '@/context/OrdersContext';
-import { useReviews } from '@/context/ReviewsContext';
+import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
 import {
   SlidersHorizontal,
@@ -76,7 +76,7 @@ export default function CategoryPageClient({
   const avgRatingMap = useMemo(() => {
     const ratings = new Map<string, number>();
     products.forEach((p) => {
-      const approved = reviews.filter((r) => r.productId === p.id && r.status === 'approved');
+      const approved = reviews.filter((r) => isReviewForProduct(r, p) && r.status === 'approved');
       if (approved.length > 0) {
         ratings.set(p.id, approved.reduce((sum, r) => sum + r.rating, 0) / approved.length);
       } else {

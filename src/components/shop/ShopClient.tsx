@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { CATEGORIES, COLOR_FILTER_SWATCHES } from '@/data/catalogue';
 import { useInventory } from '@/context/InventoryContext';
 import { useOrders } from '@/context/OrdersContext';
-import { useReviews } from '@/context/ReviewsContext';
+import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
@@ -77,7 +77,7 @@ export default function ShopClient({ initialProducts, initialOrdering }: ShopCli
     const ratings = new Map<string, number>();
     activeProducts.forEach((p) => {
       const productReviews = reviews.filter(
-        (r) => r.productId === p.id && r.status === 'approved'
+        (r) => isReviewForProduct(r, p) && r.status === 'approved'
       );
       if (productReviews.length > 0) {
         const avg =

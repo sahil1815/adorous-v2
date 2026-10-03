@@ -19,7 +19,7 @@ interface ReviewSectionProps {
 
 export default function ReviewSection({ product }: ReviewSectionProps) {
   const { addReview, getReviewsForProduct } = useReviews();
-  const allReviews = getReviewsForProduct(product.id);
+  const allReviews = getReviewsForProduct(product.id, product.slug);
   const approvedReviews = allReviews.filter((r) => r.status === 'approved');
 
   const [isWriting, setIsWriting] = useState(false);
@@ -32,10 +32,13 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
   const [submitted, setSubmitted] = useState(false);
   const [isPhotoSelectorOpen, setIsPhotoSelectorOpen] = useState(false);
 
-  // Calculate Average Rating
-  const averageRating = approvedReviews.length > 0
-    ? approvedReviews.reduce((acc, rev) => acc + rev.rating, 0) / approvedReviews.length
-    : 0;
+  const displayReviews: Review[] = approvedReviews;
+
+  // Calculate Average Rating dynamically
+  const averageRatingNum = displayReviews.length > 0
+    ? displayReviews.reduce((acc, rev) => acc + rev.rating, 0) / displayReviews.length
+    : 5.0;
+  const averageRating = averageRatingNum.toFixed(1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,31 +61,6 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
       setFormState({ name: '', rating: 5, comment: '', photoUrl: '' });
     }, 4000);
   };
-
-  const fallbackReviews: Review[] = [
-    {
-      id: `seed-rev-1-${product.id}`,
-      productId: product.id,
-      customerName: 'Manik',
-      rating: 4,
-      colorwayName: product.colorways[1]?.name || product.colorways[0]?.name || 'Dark Grey',
-      comment: 'Daily use e kono problem hoy nai, onek comfortable lage.',
-      status: 'approved',
-      createdAt: '2026-06-28T12:00:00.000Z',
-    },
-    {
-      id: `seed-rev-2-${product.id}`,
-      productId: product.id,
-      customerName: 'Manik',
-      rating: 5,
-      colorwayName: product.colorways[0]?.name || 'Black',
-      comment: 'Delivery expected time er moddhei chole esheche, eta amar kache onek positive ekta dik mone hoyeche.',
-      status: 'approved',
-      createdAt: '2026-05-18T15:30:00.000Z',
-    },
-  ];
-
-  const displayReviews: Review[] = approvedReviews.length > 0 ? approvedReviews : fallbackReviews;
 
   return (
     <div className="mt-14 pt-10 border-t border-line">
@@ -112,11 +90,13 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
         {/* Left: Overall Score */}
         <div className="flex flex-col items-center justify-center shrink-0 pr-4 sm:pr-8 border-r border-line min-w-[110px] sm:min-w-[130px]">
           <div className="text-3xl sm:text-4xl font-bold text-ink flex items-center gap-1.5">
-            <span>4.8</span>
+            <span>{averageRating}</span>
             <span className="text-amber-500 text-2xl sm:text-3xl">★</span>
           </div>
           <span className="text-[11px] text-text-muted mt-1 text-center whitespace-nowrap">
-            By Verified Buyers
+            {displayReviews.length > 0
+              ? `Based on ${displayReviews.length} ${displayReviews.length === 1 ? 'Review' : 'Reviews'}`
+              : 'Verified Atelier Standard'}
           </span>
         </div>
 
@@ -277,59 +257,72 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
         </form>
       )}
 
-      {/* Product Reviews Heading (Screenshot 2 matching) */}
+      {/* Product Reviews Heading */}
       <h3 className="font-serif text-base sm:text-lg text-ink font-semibold mb-4">
         Product Reviews ({displayReviews.length})
       </h3>
 
-      {/* Review List (Screenshot 2 matching) */}
-      <div className="space-y-3.5">
-        {displayReviews.map((review) => {
-          const dateObj = new Date(review.createdAt);
-          const formattedDate = !isNaN(dateObj.getTime())
-            ? `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`
-            : '28-06-2026';
+      {displayReviews.length === 0 ? (
+        <div className="p-8 text-center bg-sand/20 border border-line rounded-lg">
+          <p className="text-sm text-text-muted mb-3">No reviews yet for this piece. Be the first to share your experience!</p>
+          {!isWriting && (
+            <button
+              onClick={() => setIsWriting(true)}
+              className="px-4 py-2 bg-gold hover:bg-gold-deep text-ink text-xs font-semibold uppercase tracking-wider rounded-[3px] transition-colors"
+            >
+              Write First Review
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3.5">
+          {displayReviews.map((review) => {
+            const dateObj = new Date(review.createdAt);
+            const formattedDate = !isNaN(dateObj.getTime())
+              ? `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`
+              : '28-06-2026';
 
-          return (
-            <div key={review.id} className="p-4 bg-paper border border-line rounded-lg shadow-2xs">
-              {/* Header: Name and Star Rating */}
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-ink text-sm">{review.customerName}</h4>
-                <div className="flex items-center gap-0.5 text-amber-500">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span key={star} className="text-sm">
-                      {star <= review.rating ? '★' : '☆'}
-                    </span>
-                  ))}
+            return (
+              <div key={review.id} className="p-4 bg-paper border border-line rounded-lg shadow-2xs">
+                {/* Header: Name and Star Rating */}
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-ink text-sm">{review.customerName}</h4>
+                  <div className="flex items-center gap-0.5 text-amber-500">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star} className="text-sm">
+                        {star <= review.rating ? '★' : '☆'}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Sub-row: Color & Date */}
-              <div className="text-[11px] text-text-muted mt-0.5 mb-2 flex items-center gap-2">
-                <span>Color: {review.colorwayName || product.colorways[0]?.name || 'Standard Finish'}</span>
-                <span>•</span>
-                <span>{formattedDate}</span>
-              </div>
-
-              {/* Review Comment */}
-              <p className="text-xs sm:text-sm text-ink/90 leading-relaxed">
-                {review.comment}
-              </p>
-
-              {review.photoUrl && (
-                <div className="mt-3 relative w-16 h-16 border border-line rounded-xs overflow-hidden shrink-0">
-                  <Image
-                    src={review.photoUrl}
-                    alt="Customer product photo"
-                    fill
-                    className="object-cover"
-                  />
+                {/* Sub-row: Color & Date */}
+                <div className="text-[11px] text-text-muted mt-0.5 mb-2 flex items-center gap-2">
+                  <span>Color: {review.colorwayName || product.colorways[0]?.name || 'Standard Finish'}</span>
+                  <span>•</span>
+                  <span>{formattedDate}</span>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {/* Review Comment */}
+                <p className="text-xs sm:text-sm text-ink/90 leading-relaxed">
+                  {review.comment}
+                </p>
+
+                {review.photoUrl && (
+                  <div className="mt-3 relative w-16 h-16 border border-line rounded-xs overflow-hidden shrink-0">
+                    <Image
+                      src={review.photoUrl}
+                      alt="Customer product photo"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

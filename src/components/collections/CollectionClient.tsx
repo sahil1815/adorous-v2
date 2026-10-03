@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useLandingPages } from '@/context/LandingPagesContext';
 import { useInventory } from '@/context/InventoryContext';
 import { useOrders } from '@/context/OrdersContext';
-import { useReviews } from '@/context/ReviewsContext';
+import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 import { Sparkles } from 'lucide-react';
@@ -71,7 +71,7 @@ export default function CollectionClient({
     const ratings = new Map<string, number>();
     resolvedProducts.forEach((p) => {
       const productReviews = reviews.filter(
-        (r) => r.productId === p.id && r.status === 'approved'
+        (r) => isReviewForProduct(r, p) && r.status === 'approved'
       );
       if (productReviews.length > 0) {
         const avg =

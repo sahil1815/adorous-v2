@@ -7,7 +7,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { useProductOrdering, AdminSortOrder } from '@/context/ProductOrderingContext';
 import { useLandingPages } from '@/context/LandingPagesContext';
 import { useOrders } from '@/context/OrdersContext';
-import { useReviews } from '@/context/ReviewsContext';
+import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import { Product } from '@/types';
 import { CATEGORIES } from '@/data/catalogue';
 import { formatPrice } from '@/lib/formatPrice';
@@ -97,7 +97,7 @@ export default function AdminProductOrderingPage() {
   const avgRatingMap = useMemo(() => {
     const ratings = new Map<string, { avg: number; count: number }>();
     allProducts.forEach((p) => {
-      const productReviews = reviews.filter((r) => r.productId === p.id && r.status === 'approved');
+      const productReviews = reviews.filter((r) => isReviewForProduct(r, p) && r.status === 'approved');
       if (productReviews.length > 0) {
         const sum = productReviews.reduce((acc, r) => acc + r.rating, 0);
         ratings.set(p.id, { avg: sum / productReviews.length, count: productReviews.length });
