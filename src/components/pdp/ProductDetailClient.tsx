@@ -126,6 +126,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const isZoomed = isHoverZooming || isTouchZooming;
   const [imageAspectRatios, setImageAspectRatios] = useState<Record<string, number>>({});
 
+  // Real-time touch swipe gesture tracking
+  const [swipeTranslate, setSwipeTranslate] = useState(0);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const isSwipingRef = useRef(false);
+  const isHoldZoomingRef = useRef(false);
+  const touchHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastTouchTime = useRef(0);
+  const isClickUnzoomedRef = useRef(false);
+
   // Carousel State
   const [currentIndex, setCurrentIndex] = useState(() => {
     const initialImg = matchedInitialColor?.image || product.featuredImage;
@@ -201,6 +210,22 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
   // Localized Magnifier Zoom Handlers (Laptop: hover, Phone: touch)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent zoom from synthesized touch events or touch devices without fine hover
+    if (Date.now() - lastTouchTime.current < 1000) return;
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      return;
+    }
+
+    // Ignore if hovering over interactive buttons / overlay controls
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('button, a, [data-no-zoom]')) {
+      if (isHoverZooming) setIsHoverZooming(false);
+      return;
+    }
+
+    // If user clicked photo to explicitly unzoom, stay at 1x until cursor leaves
+    if (isClickUnzoomedRef.current) return;
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
@@ -209,6 +234,15 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (Date.now() - lastTouchTime.current < 1000) return;
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      return;
+    }
+
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('button, a, [data-no-zoom]')) return;
+
+    isClickUnzoomedRef.current = false;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
@@ -218,35 +252,156 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
   const handleMouseLeave = () => {
     setIsHoverZooming(false);
+    isClickUnzoomedRef.current = false;
   };
 
+  // Clicking on the photo always resets back to 1x zoom (Glitch 1 fix)
+  const handleHeroClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('button, a, [data-no-zoom]')) return;
+
+    setIsHoverZooming(false);
+    setIsTouchZooming(false);
+    isHoldZoomingRef.current = false;
+    isClickUnzoomedRef.current = true;
+    if (touchHoldTimer.current) {
+      clearTimeout(touchHoldTimer.current);
+      touchHoldTimer.current = null;
+    }
+  };
+
+  // Touch Handlers with Real Swipe Gesture (Glitch 1, 2, 3 fix)
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    lastTouchTime.current = Date.now();
+
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('button, a, [data-no-zoom]')) return;
+
     if (e.touches.length === 1) {
       const touch = e.touches[0];
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+      };
+      isSwipingRef.current = false;
+      isHoldZoomingRef.current = false;
+      isClickUnzoomedRef.current = false;
+
+      if (touchHoldTimer.current) {
+        clearTimeout(touchHoldTimer.current);
+        touchHoldTimer.current = null;
+      }
+
       const rect = e.currentTarget.getBoundingClientRect();
       const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
       const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
       setZoomPos({ x, y });
-      setIsTouchZooming(true);
+
+      // If user holds still for >260ms without swiping, activate hold-to-zoom
+      touchHoldTimer.current = setTimeout(() => {
+        if (!isSwipingRef.current) {
+          isHoldZoomingRef.current = true;
+          setIsTouchZooming(true);
+        }
+      }, 260);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 1) {
-      const touch = e.touches[0];
+    lastTouchTime.current = Date.now();
+    if (e.touches.length !== 1 || !touchStartRef.current) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    // If hold-to-zoom is already active, user is panning the zoomed view
+    if (isHoldZoomingRef.current) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
       const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
       setZoomPos({ x, y });
+      return;
+    }
+
+    // If movement exceeds minimal threshold (6px):
+    if (absX > 6 || absY > 6) {
+      // Cancel hold timer so movement never accidentally triggers zoom
+      if (touchHoldTimer.current) {
+        clearTimeout(touchHoldTimer.current);
+        touchHoldTimer.current = null;
+      }
+
+      // Horizontal swipe detected
+      if (absX > absY) {
+        isSwipingRef.current = true;
+        setIsTouchZooming(false);
+        setIsHoverZooming(false);
+
+        if (allDisplayImages.length > 1) {
+          const isAtStart = currentIndex === 0 && deltaX > 0;
+          const isAtEnd = currentIndex === allDisplayImages.length - 1 && deltaX < 0;
+          const factor = isAtStart || isAtEnd ? 0.25 : 1;
+          setSwipeTranslate(deltaX * factor);
+        }
+      } else {
+        // Vertical movement: user is scrolling the page
+        isSwipingRef.current = false;
+      }
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    lastTouchTime.current = Date.now();
+
+    if (touchHoldTimer.current) {
+      clearTimeout(touchHoldTimer.current);
+      touchHoldTimer.current = null;
+    }
+
+    // Always reset zoom on touch release (always returns to 1x zoom)
     setIsTouchZooming(false);
+    setIsHoverZooming(false);
+    isHoldZoomingRef.current = false;
+
+    // Handle horizontal swipe across multiple images
+    if (touchStartRef.current && isSwipingRef.current && allDisplayImages.length > 1) {
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const elapsed = Date.now() - touchStartRef.current.time;
+
+      const isFlick = elapsed < 320 && Math.abs(deltaX) > 25;
+      const isDrag = Math.abs(deltaX) > 45;
+
+      if (isFlick || isDrag) {
+        if (deltaX < 0) {
+          goToNext();
+        } else if (deltaX > 0) {
+          goToPrev();
+        }
+      }
+    }
+
+    setSwipeTranslate(0);
+    touchStartRef.current = null;
+    isSwipingRef.current = false;
   };
 
   const handleTouchCancel = () => {
+    lastTouchTime.current = Date.now();
+    if (touchHoldTimer.current) {
+      clearTimeout(touchHoldTimer.current);
+      touchHoldTimer.current = null;
+    }
     setIsTouchZooming(false);
+    setIsHoverZooming(false);
+    isHoldZoomingRef.current = false;
+    setSwipeTranslate(0);
+    touchStartRef.current = null;
+    isSwipingRef.current = false;
   };
 
   // Sync color selection with URL without reloading
@@ -443,7 +598,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
             {/* Primary Visual with Localized Zoom (Laptop: hover, Phone: touch) */}
             <div
-              className={`relative ${heroAspectClass} flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px] select-none touch-none cursor-crosshair group/hero transition-all duration-300`}
+              className={`relative ${heroAspectClass} flex-1 w-full bg-stone border border-line overflow-hidden shadow-sm rounded-[2px] select-none touch-pan-y cursor-crosshair group/hero transition-all duration-300`}
+              onClick={handleHeroClick}
               onMouseMove={handleMouseMove}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
@@ -455,12 +611,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Mobile Top-Left Back Button */}
               <button
                 type="button"
+                data-no-zoom="true"
                 onClick={(e) => {
                   e.stopPropagation();
                   router.back();
                 }}
                 onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onTouchCancel={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
+                onMouseMove={(e) => e.stopPropagation()}
+                onMouseEnter={(e) => e.stopPropagation()}
                 className="lg:hidden absolute top-3.5 left-3.5 z-20 w-10 h-10 rounded-full bg-paper/90 backdrop-blur-md border border-line flex items-center justify-center text-ink shadow-sm active:scale-90 transition-transform"
                 aria-label="Go back"
               >
@@ -470,12 +632,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Mobile Top-Right Luxury Wishlist Heart Button (Noticeable Rose-Blush Background) */}
               <button
                 type="button"
+                data-no-zoom="true"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleWishlist(product);
                 }}
                 onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onTouchCancel={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
+                onMouseMove={(e) => e.stopPropagation()}
+                onMouseEnter={(e) => e.stopPropagation()}
                 className={`lg:hidden absolute top-3.5 right-3.5 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 ${
                   isSaved
                     ? 'bg-gradient-to-br from-[#E11D48] to-[#BE123C] border-2 border-[#9F1239] text-white shadow-[0_4px_14px_rgba(225,29,72,0.35)]'
@@ -491,12 +659,16 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 />
               </button>
 
-              {/* Sliding Image Track with Active Slide Localized Magnifier */}
+              {/* Sliding Image Track with Active Slide Localized Magnifier & Touch Swipe */}
               <div
                 className="flex w-full h-full will-change-transform"
                 style={{
-                  transform: `translateX(-${currentIndex * 100}%)`,
-                  transition: 'transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1)',
+                  transform: swipeTranslate !== 0
+                    ? `translateX(calc(-${currentIndex * 100}% + ${swipeTranslate}px))`
+                    : `translateX(-${currentIndex * 100}%)`,
+                  transition: swipeTranslate !== 0
+                    ? 'none'
+                    : 'transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1)',
                 }}
               >
                 {allDisplayImages.map((img, idx) => {
@@ -558,7 +730,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               </div>
 
               {/* Scarcity / Drop Badges on Desktop */}
-              <div className="hidden lg:flex absolute top-4 left-4 flex-col gap-2 pointer-events-none z-10">
+              <div data-no-zoom="true" className="hidden lg:flex absolute top-4 left-4 flex-col gap-2 pointer-events-none z-10">
                 {product.isNewDrop && (
                   <span className="bg-gold hover:bg-gold-deep text-ink text-xs tracking-wider uppercase px-3 py-1 font-medium border border-gold/30">
                     New Drop
@@ -576,12 +748,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <>
                   <button
                     type="button"
+                    data-no-zoom="true"
                     onClick={(e) => {
                       e.stopPropagation();
                       goToPrev();
                     }}
                     onTouchStart={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    onTouchCancel={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onMouseMove={(e) => e.stopPropagation()}
+                    onMouseEnter={(e) => e.stopPropagation()}
                     disabled={currentIndex === 0}
                     className="flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line items-center justify-center text-ink hover:text-gold-deep hover:bg-paper transition-all disabled:opacity-0 disabled:pointer-events-none shadow-md group active:scale-90"
                     aria-label="Previous image"
@@ -590,12 +768,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </button>
                   <button
                     type="button"
+                    data-no-zoom="true"
                     onClick={(e) => {
                       e.stopPropagation();
                       goToNext();
                     }}
                     onTouchStart={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    onTouchCancel={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onMouseMove={(e) => e.stopPropagation()}
+                    onMouseEnter={(e) => e.stopPropagation()}
                     disabled={currentIndex === allDisplayImages.length - 1}
                     className="flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-paper/90 backdrop-blur-md border border-line items-center justify-center text-ink hover:text-gold-deep hover:bg-paper transition-all disabled:opacity-0 disabled:pointer-events-none shadow-md group active:scale-90"
                     aria-label="Next image"
@@ -606,15 +790,27 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               )}
 
               {/* Top-Right Visual Actions on Desktop: Wishlist & Share */}
-              <div className="hidden lg:flex absolute top-4 right-4 items-center space-x-2 z-10">
+              <div
+                data-no-zoom="true"
+                onMouseMove={(e) => e.stopPropagation()}
+                onMouseEnter={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                className="hidden lg:flex absolute top-4 right-4 items-center space-x-2 z-10"
+              >
                 <button
                   type="button"
+                  data-no-zoom="true"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleWishlist(product);
                   }}
                   onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
+                  onTouchCancel={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
+                  onMouseMove={(e) => e.stopPropagation()}
+                  onMouseEnter={(e) => e.stopPropagation()}
                   className={`p-2.5 backdrop-blur-sm border transition-all rounded-full ${
                     isSaved
                       ? 'bg-gradient-to-br from-[#E11D48] to-[#BE123C] border-[#9F1239] text-white shadow-md'
@@ -628,12 +824,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
                 <button
                   type="button"
+                  data-no-zoom="true"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleShare();
                   }}
                   onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
+                  onTouchCancel={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
+                  onMouseMove={(e) => e.stopPropagation()}
+                  onMouseEnter={(e) => e.stopPropagation()}
                   className="p-2.5 bg-paper/85 backdrop-blur-sm border border-line hover:bg-paper text-ink transition-colors rounded-full"
                   title="Share link"
                   aria-label="Share link"
