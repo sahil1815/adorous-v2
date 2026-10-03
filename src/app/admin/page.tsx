@@ -30,6 +30,7 @@ import {
   X
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
+import { getDistrictDeliveryFee } from '@/data/districts';
 
 const getCourierPortalUrl = (courierPartner: string | null | undefined, consignmentId: string) => {
   if (!consignmentId) return '#';
@@ -100,6 +101,7 @@ export default function AdminOrdersPage() {
     deleteOrder,
     resetToSampleOrders,
     updateOrderItemQuantity,
+    updateOrderShippingFee,
     updateOrderTotals,
   } = useOrders();
 
@@ -115,9 +117,17 @@ export default function AdminOrdersPage() {
     orderId: string;
     itemId: string;
     quantity: number;
+    shippingFee: number;
     customTotal?: number;
   } | null>(null);
   const [isSavingQuantity, setIsSavingQuantity] = useState(false);
+
+  // Delivery charge editing state
+  const [editingOrderShipping, setEditingOrderShipping] = useState<{
+    orderId: string;
+    fee: number;
+  } | null>(null);
+  const [isSavingShipping, setIsSavingShipping] = useState(false);
 
   // Direct COD collection amount override state
   const [editingOrderCod, setEditingOrderCod] = useState<{
@@ -127,10 +137,12 @@ export default function AdminOrdersPage() {
   const [isSavingCod, setIsSavingCod] = useState(false);
 
   const handleStartEditQuantity = (order: AdminOrder, item: any, index: number) => {
+    // If current shippingFee is 0 but district qualifies for standard fee, we default to current shippingFee
     setEditingItemQuantity({
       orderId: order.orderId,
       itemId: item.id || `item-${index}`,
       quantity: item.quantity,
+      shippingFee: order.shippingFee,
     });
   };
 
@@ -152,7 +164,7 @@ export default function AdminOrdersPage() {
     });
   };
 
-  const calculatePreviewGrandTotal = (order: AdminOrder, item: any, newQty: number) => {
+  const calculatePreviewGrandTotal = (order: AdminOrder, item: any, newQty: number, shippingFeeOverride?: number) => {
     const newSubtotal = order.items.reduce((sum, it) => {
       const q = (it.id === item.id || (!it.id && order.items.length === 1)) ? newQty : it.quantity;
       return sum + (it.product.price * q);
@@ -163,7 +175,8 @@ export default function AdminOrdersPage() {
       newDiscount = Math.round(newSubtotal * (order.discountAmount / order.subtotal) * 100) / 100;
     }
 
-    return Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + order.shippingFee) * 100) / 100);
+    const ship = typeof shippingFeeOverride === 'number' ? shippingFeeOverride : order.shippingFee;
+    return Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + ship) * 100) / 100);
   };
 
   const handleSaveQuantity = async (orderId: string, itemId: string) => {
@@ -174,13 +187,27 @@ export default function AdminOrdersPage() {
         orderId,
         itemId,
         editingItemQuantity.quantity,
-        editingItemQuantity.customTotal
+        editingItemQuantity.customTotal,
+        editingItemQuantity.shippingFee
       );
       setEditingItemQuantity(null);
     } catch (err) {
       console.error('Failed to update quantity:', err);
     } finally {
       setIsSavingQuantity(false);
+    }
+  };
+
+  const handleSaveShippingFee = async (orderId: string) => {
+    if (!editingOrderShipping) return;
+    setIsSavingShipping(true);
+    try {
+      await updateOrderShippingFee(orderId, editingOrderShipping.fee);
+      setEditingOrderShipping(null);
+    } catch (err) {
+      console.error('Failed to update delivery fee:', err);
+    } finally {
+      setIsSavingShipping(false);
     }
   };
 
@@ -556,21 +583,76 @@ export default function AdminOrdersPage() {
                                   </div>
                                 </div>
 
-                                {/* Summary preview */}
-                                <div className="bg-[#181818] p-2 rounded-xs space-y-1 text-[11px] border border-white/5">
-                                  <div className="flex justify-between text-paper/70">
-                                    <span>Item Subtotal ({editingItemQuantity.quantity} × ৳{formatPrice(item.product.price)}):</span>
-                                    <span className="text-paper font-semibold tabular-nums">
-                                      ৳{formatPrice(item.product.price * editingItemQuantity.quantity)}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between text-gold">
-                                    <span className="font-medium">New Total COD Collection:</span>
-                                    <span className="font-bold tabular-nums">
-                                      ৳{formatPrice(calculatePreviewGrandTotal(order, item, editingItemQuantity.quantity))}
-                                    </span>
-                                  </div>
-                                </div>
+                                {/* Summary preview with Delivery Fee calculation */}
+                                {(() => {
+                                  const districtFee = getDistrictDeliveryFee(order.customer.district || '');
+                                  const previewSubtotal = item.product.price * editingItemQuantity.quantity;
+                                  const ratio = (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0)
+                                    ? (order.discountAmount / order.subtotal)
+                                    : 0;
+                                  const previewDiscount = ratio > 0 ? Math.round(previewSubtotal * ratio * 100) / 100 : 0;
+                                  const previewGrandTotal = Math.max(
+                                    0,
+                                    Math.round((previewSubtotal - previewDiscount + editingItemQuantity.shippingFee) * 100) / 100
+                                  );
+
+                                  return (
+                                    <div className="bg-[#181818] p-2.5 rounded-xs space-y-1.5 text-[11px] border border-white/5">
+                                      <div className="flex justify-between text-paper/70">
+                                        <span>Item Subtotal ({editingItemQuantity.quantity} × ৳{formatPrice(item.product.price)}):</span>
+                                        <span className="text-paper font-semibold tabular-nums">
+                                          ৳{formatPrice(previewSubtotal)}
+                                        </span>
+                                      </div>
+
+                                      {previewDiscount > 0 && (
+                                        <div className="flex justify-between text-emerald-400">
+                                          <span>Voucher ({order.couponCode || 'PROMO'}):</span>
+                                          <span className="tabular-nums">-৳{formatPrice(previewDiscount)}</span>
+                                        </div>
+                                      )}
+
+                                      {/* Delivery Charge in Quantity Editor */}
+                                      <div className="flex justify-between items-center text-paper/70 pt-1 border-t border-white/5">
+                                        <span className="flex items-center gap-1">
+                                          <Truck className="w-3 h-3 text-paper/40" />
+                                          <span>Delivery ({order.customer.district || 'Standard'}):</span>
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: 0 })}
+                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${
+                                              editingItemQuantity.shippingFee === 0
+                                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                                                : 'bg-white/5 text-paper/50 hover:text-paper'
+                                            }`}
+                                          >
+                                            Free (৳0)
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: districtFee })}
+                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${
+                                              editingItemQuantity.shippingFee === districtFee
+                                                ? 'bg-gold/20 text-gold border border-gold/40'
+                                                : 'bg-white/5 text-paper/50 hover:text-paper'
+                                            }`}
+                                          >
+                                            ৳{districtFee}
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex justify-between text-gold pt-1 border-t border-white/5">
+                                        <span className="font-medium">New Total COD Collection:</span>
+                                        <span className="font-bold tabular-nums">
+                                          ৳{formatPrice(previewGrandTotal)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
 
                                 <div className="flex items-center justify-end gap-2 pt-1">
                                   <button
@@ -606,7 +688,14 @@ export default function AdminOrdersPage() {
                       })}
                     </div>
 
-                    <div className="border-t border-white/10 pt-2 space-y-1 text-xs">
+                    <div className="border-t border-white/10 pt-2.5 space-y-1.5 text-xs">
+                      {/* Subtotal */}
+                      <div className="flex items-center justify-between text-paper/60 text-[11px]">
+                        <span>Subtotal:</span>
+                        <span className="font-semibold text-paper/80 tabular-nums">৳{formatPrice(order.subtotal)}</span>
+                      </div>
+
+                      {/* Voucher / Coupon */}
                       {order.couponCode && (
                         <div className="flex items-center justify-between text-[11px] text-emerald-400">
                           <span className="flex items-center space-x-1">
@@ -616,6 +705,103 @@ export default function AdminOrdersPage() {
                           <span>-৳{formatPrice(order.discountAmount || 0)}</span>
                         </div>
                       )}
+
+                      {/* Delivery Charge / Shipping Fee */}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-paper/60 flex items-center gap-1 text-[11px]">
+                          <Truck className="w-3 h-3 text-paper/40" />
+                          <span>Delivery Charge {order.customer.district ? `(${order.customer.district})` : ''}:</span>
+                        </span>
+
+                        {editingOrderShipping?.orderId === order.orderId ? (
+                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                            <span className="text-gold font-bold text-xs">৳</span>
+                            <input
+                              type="number"
+                              min={0}
+                              value={editingOrderShipping.fee}
+                              onChange={(e) =>
+                                setEditingOrderShipping({
+                                  ...editingOrderShipping,
+                                  fee: Math.max(0, parseInt(e.target.value) || 0),
+                                })
+                              }
+                              className="w-14 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-paper text-right"
+                            />
+                            {/* Preset Buttons */}
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 0 })}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
+                                  editingOrderShipping.fee === 0
+                                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                                    : 'bg-white/5 text-paper/50 hover:text-paper'
+                                }`}
+                              >
+                                Free
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 80 })}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
+                                  editingOrderShipping.fee === 80
+                                    ? 'bg-gold/20 text-gold border border-gold/40'
+                                    : 'bg-white/5 text-paper/50 hover:text-paper'
+                                }`}
+                              >
+                                ৳80
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 130 })}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
+                                  editingOrderShipping.fee === 130
+                                    ? 'bg-gold/20 text-gold border border-gold/40'
+                                    : 'bg-white/5 text-paper/50 hover:text-paper'
+                                }`}
+                              >
+                                ৳130
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleSaveShippingFee(order.orderId)}
+                              disabled={isSavingShipping}
+                              className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light"
+                              title="Save Delivery Fee"
+                            >
+                              {isSavingShipping ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingOrderShipping(null)}
+                              className="p-1 text-paper/50 hover:text-paper"
+                              title="Cancel"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-semibold tabular-nums text-xs">
+                              {order.shippingFee === 0 ? (
+                                <span className="text-emerald-400 font-medium">Free (৳0)</span>
+                              ) : (
+                                <span className="text-paper/90 font-medium">৳{formatPrice(order.shippingFee)}</span>
+                              )}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setEditingOrderShipping({ orderId: order.orderId, fee: order.shippingFee })}
+                              className="text-[10px] text-paper/40 hover:text-gold flex items-center gap-0.5"
+                              title="Edit delivery charge"
+                            >
+                              <Edit2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center justify-between">
                         <span className="text-paper/50">Total COD Collection:</span>
                         {editingOrderCod?.orderId === order.orderId ? (

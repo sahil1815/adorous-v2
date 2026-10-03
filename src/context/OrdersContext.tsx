@@ -9,7 +9,8 @@ import {
   updateInternalNotes as updateInternalNotesDb,
   deleteOrder as deleteOrderDb,
   updateOrderItemQuantity as updateOrderItemQuantityDb,
-  updateOrderTotals as updateOrderTotalsDb
+  updateOrderTotals as updateOrderTotalsDb,
+  updateOrderShippingFee as updateOrderShippingFeeDb
 } from '@/app/actions/orderActions';
 import { PRODUCTS } from '@/data/catalogue'; // used as fallback if needed
 
@@ -72,8 +73,15 @@ interface OrdersContextType {
   updateOrderCourier: (orderId: string, courierPartner: AdminOrder['courierPartner'], consignmentId: string) => Promise<void>;
   updateInternalNotes: (orderId: string, notes: string) => Promise<void>;
   deleteOrder: (orderId: string) => Promise<void>;
-  updateOrderItemQuantity: (orderId: string, itemId: string, newQuantity: number, customGrandTotal?: number) => Promise<{ success: boolean; error?: string }>;
-  updateOrderTotals: (orderId: string, grandTotal: number, discountAmount?: number, subtotal?: number) => Promise<{ success: boolean; error?: string }>;
+  updateOrderItemQuantity: (
+    orderId: string,
+    itemId: string,
+    newQuantity: number,
+    customGrandTotal?: number,
+    customShippingFee?: number
+  ) => Promise<{ success: boolean; error?: string }>;
+  updateOrderShippingFee: (orderId: string, shippingFee: number, customGrandTotal?: number) => Promise<{ success: boolean; error?: string }>;
+  updateOrderTotals: (orderId: string, grandTotal: number, discountAmount?: number, subtotal?: number, shippingFee?: number) => Promise<{ success: boolean; error?: string }>;
   getOrderByIdOrPhone: (query: string) => AdminOrder | undefined;
   resetToSampleOrders: () => void;
 }
@@ -134,7 +142,8 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     orderId: string,
     itemId: string,
     newQuantity: number,
-    customGrandTotal?: number
+    customGrandTotal?: number,
+    customShippingFee?: number
   ) => {
     // Optimistic update
     setOrders(prev =>
@@ -151,22 +160,52 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         if (o.subtotal > 0 && typeof o.discountAmount === 'number' && o.discountAmount > 0) {
           newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal) * 100) / 100;
         }
+        const finalShip = typeof customShippingFee === 'number' ? customShippingFee : o.shippingFee;
         const newGrandTotal =
           typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
             ? customGrandTotal
-            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + o.shippingFee) * 100) / 100);
+            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + finalShip) * 100) / 100);
 
         return {
           ...o,
           items: updatedItems,
           subtotal: newSubtotal,
           discountAmount: newDiscount,
+          shippingFee: finalShip,
           grandTotal: newGrandTotal,
         };
       })
     );
 
-    const res = await updateOrderItemQuantityDb(orderId, itemId, newQuantity, customGrandTotal);
+    const res = await updateOrderItemQuantityDb(orderId, itemId, newQuantity, customGrandTotal, customShippingFee);
+    if (res.success) {
+      await refreshOrders();
+    }
+    return res;
+  };
+
+  const updateOrderShippingFee = async (
+    orderId: string,
+    shippingFee: number,
+    customGrandTotal?: number
+  ) => {
+    const fee = Math.max(0, shippingFee);
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.orderId !== orderId) return o;
+        const calculatedGrandTotal = Math.max(0, Math.round((o.subtotal - (o.discountAmount || 0) + fee) * 100) / 100);
+        const finalGrandTotal =
+          typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+            ? customGrandTotal
+            : calculatedGrandTotal;
+        return {
+          ...o,
+          shippingFee: fee,
+          grandTotal: finalGrandTotal,
+        };
+      })
+    );
+    const res = await updateOrderShippingFeeDb(orderId, fee, customGrandTotal);
     if (res.success) {
       await refreshOrders();
     }
@@ -177,7 +216,8 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     orderId: string,
     grandTotal: number,
     discountAmount?: number,
-    subtotal?: number
+    subtotal?: number,
+    shippingFee?: number
   ) => {
     setOrders(prev =>
       prev.map(o => {
@@ -187,10 +227,11 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
           grandTotal,
           ...(typeof discountAmount === 'number' ? { discountAmount } : {}),
           ...(typeof subtotal === 'number' ? { subtotal } : {}),
+          ...(typeof shippingFee === 'number' ? { shippingFee } : {}),
         };
       })
     );
-    const res = await updateOrderTotalsDb(orderId, grandTotal, discountAmount, subtotal);
+    const res = await updateOrderTotalsDb(orderId, grandTotal, discountAmount, subtotal, shippingFee);
     if (res.success) {
       await refreshOrders();
     }
@@ -222,6 +263,7 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         updateInternalNotes,
         deleteOrder,
         updateOrderItemQuantity,
+        updateOrderShippingFee,
         updateOrderTotals,
         getOrderByIdOrPhone,
         resetToSampleOrders,

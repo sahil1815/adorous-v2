@@ -261,7 +261,8 @@ export async function updateOrderItemQuantity(
   orderId: string,
   itemId: string,
   newQuantity: number,
-  customGrandTotal?: number
+  customGrandTotal?: number,
+  customShippingFee?: number
 ) {
   try {
     if (newQuantity < 1) {
@@ -308,10 +309,16 @@ export async function updateOrderItemQuantity(
       newDiscount = Math.round(newSubtotal * discountRatio * 100) / 100;
     }
 
-    // 3. Calculate new grand total
+    // 3. Determine shipping fee
+    let finalShippingFee = order.shippingFee;
+    if (typeof customShippingFee === 'number' && !isNaN(customShippingFee) && customShippingFee >= 0) {
+      finalShippingFee = customShippingFee;
+    }
+
+    // 4. Calculate new grand total
     const calculatedGrandTotal = Math.max(
       0,
-      Math.round((newSubtotal - (newDiscount || 0) + order.shippingFee) * 100) / 100
+      Math.round((newSubtotal - (newDiscount || 0) + finalShippingFee) * 100) / 100
     );
 
     const finalGrandTotal =
@@ -319,7 +326,7 @@ export async function updateOrderItemQuantity(
         ? customGrandTotal
         : calculatedGrandTotal;
 
-    // 4. Update database in transaction
+    // 5. Update database in transaction
     await prisma.$transaction(async (tx) => {
       // Update item quantity
       await tx.orderItem.update({
@@ -327,17 +334,18 @@ export async function updateOrderItemQuantity(
         data: { quantity: newQuantity },
       });
 
-      // Update order totals
+      // Update order totals & shipping fee
       await tx.order.update({
         where: { orderId },
         data: {
           subtotal: newSubtotal,
           discountAmount: newDiscount,
+          shippingFee: finalShippingFee,
           grandTotal: finalGrandTotal,
         },
       });
 
-      // 5. Adjust product stock if tracked
+      // 6. Adjust product stock if tracked
       if (targetItem.productId && quantityDiff !== 0) {
         if (quantityDiff < 0) {
           // Quantity reduced -> restore stock back to inventory
@@ -376,6 +384,7 @@ export async function updateOrderItemQuantity(
       success: true,
       newSubtotal,
       newDiscount,
+      finalShippingFee,
       finalGrandTotal,
     };
   } catch (error: any) {
@@ -384,16 +393,61 @@ export async function updateOrderItemQuantity(
   }
 }
 
+export async function updateOrderShippingFee(
+  orderId: string,
+  shippingFee: number,
+  customGrandTotal?: number
+) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { orderId },
+    });
+    if (!order) {
+      return { success: false, error: 'Order not found' };
+    }
+
+    const fee = Math.max(0, shippingFee);
+    const calculatedGrandTotal = Math.max(
+      0,
+      Math.round((order.subtotal - (order.discountAmount || 0) + fee) * 100) / 100
+    );
+    const finalGrandTotal =
+      typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+        ? customGrandTotal
+        : calculatedGrandTotal;
+
+    await prisma.order.update({
+      where: { orderId },
+      data: {
+        shippingFee: fee,
+        grandTotal: finalGrandTotal,
+      },
+    });
+
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/track-order');
+    } catch {}
+
+    return { success: true, shippingFee: fee, grandTotal: finalGrandTotal };
+  } catch (error: any) {
+    console.error('[updateOrderShippingFee] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update delivery fee' };
+  }
+}
+
 export async function updateOrderTotals(
   orderId: string,
   grandTotal: number,
   discountAmount?: number,
-  subtotal?: number
+  subtotal?: number,
+  shippingFee?: number
 ) {
   try {
     const data: any = { grandTotal };
     if (typeof discountAmount === 'number') data.discountAmount = discountAmount;
     if (typeof subtotal === 'number') data.subtotal = subtotal;
+    if (typeof shippingFee === 'number') data.shippingFee = shippingFee;
 
     await prisma.order.update({
       where: { orderId },
