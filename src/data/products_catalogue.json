@@ -1061,5 +1061,60 @@
       }
     ],
     "complimentaryItem": null
+  },
+  {
+    "id": "prod-sapphire-blue-crystal-duo",
+    "slug": "sapphire-blue-crystal-duo",
+    "name": "Sapphire Blue Crystal Duo",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "2-Piece Crystal Cluster Necklace & Matching Teardrop Earrings",
+    "price": 995,
+    "originalPrice": 1039,
+    "description": "Exuding regal poise and cinematic sparkle, the Sapphire Blue Crystal Duo pairs luminous marquise crystal foliage with a breathtaking teardrop halo pendant.\n\nAccompanied by matching teardrop earrings, this set creates an unforgettable statement for grand galas, bridal celebrations, and formal evenings.",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 8,
+    "isNewDrop": true,
+    "isGiftPick": true,
+    "isBestseller": false,
+    "featuredRank": 1,
+    "seoKeywords": [
+      "Sapphire Blue Crystal Duo",
+      "sapphire crystal necklace set bd",
+      "blue bridal jewelry",
+      "teardrop crystal earrings dhaka",
+      "luxury jewelry set"
+    ],
+    "metaDescription": "Shop the Sapphire Blue Crystal Duo featuring a royal sapphire teardrop crystal necklace with marquise leaves and matching halo drop earrings in Bangladesh.",
+    "details": [
+      "**Stone Colors:** Royal Sapphire Blue offset by brilliant clear crystal pavé",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
+      "**Earring Design:** Matching teardrop sapphire crystal earrings framed with sparkling clear crystal halo",
+      "**Style:** Royal European Classic / Statement Elegance",
+      "**Perfect For:** Galas, formal dinners, weddings, bridal wear, and magnificent gifting"
+    ],
+    "piecesIncluded": [
+      "1x Floral Crystal Cluster Necklace with Teardrop Halo Pendant",
+      "1x Pair Matching Crystal Teardrop Drop Earrings"
+    ],
+    "colorways": [
+      {
+        "id": "royal-sapphire-blue",
+        "name": "Royal Sapphire Blue",
+        "hex": "#0F52BA",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520",
+        "altText": "Sapphire Blue Crystal Duo floral cluster necklace with teardrop halo pendant and matching earrings"
+      }
+    ],
+    "complimentaryItem": null
   }
 ]
