@@ -51,7 +51,7 @@ export default function AdminLogisticsPage() {
             Courier Dispatch Manifest
           </h1>
           <p className="text-xs text-paper/60 mt-1">
-            Generate and print daily handover manifests for Steadfast & Pathao courier pickup riders across Bangladesh.
+            Generate and print daily handover manifests for CarryBee, Pathao & Steadfast courier pickup riders across Bangladesh.
           </p>
         </div>
 

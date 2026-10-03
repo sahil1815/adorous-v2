@@ -22,9 +22,26 @@ import {
   Phone,
   FileText,
   Save,
-  Tag
+  Tag,
+  Plus,
+  Minus,
+  Check,
+  Loader2,
+  X
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
+
+const getCourierPortalUrl = (courierPartner: string | null | undefined, consignmentId: string) => {
+  if (!consignmentId) return '#';
+  const c = (courierPartner || '').toLowerCase();
+  if (c.includes('carrybee')) {
+    return `https://carrybee.com/track?tracking_id=${encodeURIComponent(consignmentId)}`;
+  }
+  if (c.includes('pathao')) {
+    return `https://merchant.pathao.com/tracking?consignment_id=${encodeURIComponent(consignmentId)}`;
+  }
+  return `https://steadfast.com.bd/t/${encodeURIComponent(consignmentId)}`;
+};
 
 const STATUS_CONFIG: Record<
   OrderStatus,
@@ -82,6 +99,8 @@ export default function AdminOrdersPage() {
     updateInternalNotes,
     deleteOrder,
     resetToSampleOrders,
+    updateOrderItemQuantity,
+    updateOrderTotals,
   } = useOrders();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,6 +109,93 @@ export default function AdminOrdersPage() {
   const [editingConsignmentOrderId, setEditingConsignmentOrderId] = useState<string | null>(null);
   const [consignmentInput, setConsignmentInput] = useState('');
   const [courierInput, setCourierInput] = useState<AdminOrder['courierPartner']>('Steadfast Courier');
+
+  // Quantity editing state
+  const [editingItemQuantity, setEditingItemQuantity] = useState<{
+    orderId: string;
+    itemId: string;
+    quantity: number;
+    customTotal?: number;
+  } | null>(null);
+  const [isSavingQuantity, setIsSavingQuantity] = useState(false);
+
+  // Direct COD collection amount override state
+  const [editingOrderCod, setEditingOrderCod] = useState<{
+    orderId: string;
+    amount: number;
+  } | null>(null);
+  const [isSavingCod, setIsSavingCod] = useState(false);
+
+  const handleStartEditQuantity = (order: AdminOrder, item: any, index: number) => {
+    setEditingItemQuantity({
+      orderId: order.orderId,
+      itemId: item.id || `item-${index}`,
+      quantity: item.quantity,
+    });
+  };
+
+  const handleStepQuantity = (step: number) => {
+    if (!editingItemQuantity) return;
+    const next = Math.max(1, editingItemQuantity.quantity + step);
+    setEditingItemQuantity({
+      ...editingItemQuantity,
+      quantity: next,
+    });
+  };
+
+  const handleDirectQuantityChange = (val: number) => {
+    if (!editingItemQuantity) return;
+    const next = Math.max(1, Math.min(99, isNaN(val) ? 1 : val));
+    setEditingItemQuantity({
+      ...editingItemQuantity,
+      quantity: next,
+    });
+  };
+
+  const calculatePreviewGrandTotal = (order: AdminOrder, item: any, newQty: number) => {
+    const newSubtotal = order.items.reduce((sum, it) => {
+      const q = (it.id === item.id || (!it.id && order.items.length === 1)) ? newQty : it.quantity;
+      return sum + (it.product.price * q);
+    }, 0);
+
+    let newDiscount = order.discountAmount;
+    if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
+      newDiscount = Math.round(newSubtotal * (order.discountAmount / order.subtotal) * 100) / 100;
+    }
+
+    return Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + order.shippingFee) * 100) / 100);
+  };
+
+  const handleSaveQuantity = async (orderId: string, itemId: string) => {
+    if (!editingItemQuantity) return;
+    setIsSavingQuantity(true);
+    try {
+      await updateOrderItemQuantity(
+        orderId,
+        itemId,
+        editingItemQuantity.quantity,
+        editingItemQuantity.customTotal
+      );
+      setEditingItemQuantity(null);
+    } catch (err) {
+      console.error('Failed to update quantity:', err);
+    } finally {
+      setIsSavingQuantity(false);
+    }
+  };
+
+  const handleSaveCodAmount = async (orderId: string) => {
+    if (!editingOrderCod) return;
+    setIsSavingCod(true);
+    try {
+      await updateOrderTotals(orderId, editingOrderCod.amount);
+      setEditingOrderCod(null);
+    } catch (err) {
+      console.error('Failed to update COD collection amount:', err);
+    } finally {
+      setIsSavingCod(false);
+    }
+  };
 
   // Stats calculation
   const totalOrders = orders.length;
@@ -175,7 +281,7 @@ export default function AdminOrdersPage() {
 
         <div className="bg-[#171717] border border-emerald-600/30 p-4 rounded-xs space-y-1">
           <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-medium">
-            With Steadfast Courier
+            With Courier
           </span>
           <div className="text-2xl font-serif text-emerald-300 font-semibold">{courierCount}</div>
           <span className="text-[10px] text-emerald-200/50">In active delivery</span>
@@ -361,38 +467,143 @@ export default function AdminOrdersPage() {
                       Package Items ({order.items.reduce((s, i) => s + i.quantity, 0)})
                     </span>
                     <div className="space-y-2 divide-y divide-white/5">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="pt-2 first:pt-0 flex items-center justify-between gap-2">
-                          <div className="flex items-center space-x-2.5 min-w-0">
-                            <div className="relative w-10 h-12 bg-stone rounded-xs overflow-hidden shrink-0 border border-white/10">
-                              <Image
-                                src={item.product.featuredImage}
-                                alt={item.product.name}
-                                fill
-                                sizes="40px"
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <span className="font-medium text-paper text-xs line-clamp-1 block">
-                                {item.product.name}
-                              </span>
-                              <div className="text-[10px] text-paper/50 flex items-center gap-1.5">
-                                <span
-                                  className="w-2 h-2 rounded-full border border-black/30"
-                                  style={{ backgroundColor: item.selectedColor.hex }}
-                                />
-                                <span>{item.selectedColor.name}</span>
-                                {item.selectedSize && <span>· {item.selectedSize}</span>}
-                                <span>· Qty: {item.quantity}</span>
+                      {order.items.map((item, idx) => {
+                        const isEditingThis =
+                          editingItemQuantity?.orderId === order.orderId &&
+                          (editingItemQuantity?.itemId === item.id || (!item.id && idx === 0));
+
+                        return (
+                          <div key={item.id || idx} className="pt-2 first:pt-0 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center space-x-2.5 min-w-0">
+                                <div className="relative w-10 h-12 bg-stone rounded-xs overflow-hidden shrink-0 border border-white/10">
+                                  {item.product.featuredImage ? (
+                                    <Image
+                                      src={item.product.featuredImage}
+                                      alt={item.product.name}
+                                      fill
+                                      sizes="40px"
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <Package className="w-4 h-4 text-paper/40 m-auto mt-3" />
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-medium text-paper text-xs line-clamp-1 block">
+                                    {item.product.name}
+                                  </span>
+                                  <div className="text-[10px] text-paper/50 flex items-center gap-1.5 flex-wrap">
+                                    <span
+                                      className="w-2 h-2 rounded-full border border-black/30"
+                                      style={{ backgroundColor: item.selectedColor.hex }}
+                                    />
+                                    <span>{item.selectedColor.name}</span>
+                                    {item.selectedSize && <span>· {item.selectedSize}</span>}
+                                    <span className="font-semibold text-paper/90">· Qty: {item.quantity}</span>
+                                    {!isEditingThis && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleStartEditQuantity(order, item, idx)}
+                                        className="text-[10px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 ml-1 font-semibold transition-colors"
+                                        title="Change ordered quantity"
+                                      >
+                                        <Edit2 className="w-2.5 h-2.5" />
+                                        <span>Edit Qty</span>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
+                              <span className="font-semibold text-gold-light tabular-nums shrink-0 text-xs">
+                                ৳{formatPrice(item.product.price * item.quantity)}
+                              </span>
                             </div>
+
+                            {/* Inline Quantity Editor Form */}
+                            {isEditingThis && (
+                              <div className="bg-black/60 border border-gold/30 p-2.5 rounded-xs space-y-2 mt-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[11px] text-paper/80 font-medium">
+                                    Adjust Quantity:
+                                  </span>
+                                  <div className="flex items-center border border-white/20 rounded-xs bg-[#222]">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStepQuantity(-1)}
+                                      disabled={editingItemQuantity.quantity <= 1}
+                                      className="px-2 py-1 text-paper hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                      aria-label="Decrease quantity"
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min={1}
+                                      max={99}
+                                      value={editingItemQuantity.quantity}
+                                      onChange={(e) => handleDirectQuantityChange(parseInt(e.target.value) || 1)}
+                                      className="w-12 text-center bg-transparent text-paper font-bold text-xs focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStepQuantity(1)}
+                                      className="px-2 py-1 text-paper hover:bg-white/10 transition-colors"
+                                      aria-label="Increase quantity"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Summary preview */}
+                                <div className="bg-[#181818] p-2 rounded-xs space-y-1 text-[11px] border border-white/5">
+                                  <div className="flex justify-between text-paper/70">
+                                    <span>Item Subtotal ({editingItemQuantity.quantity} × ৳{formatPrice(item.product.price)}):</span>
+                                    <span className="text-paper font-semibold tabular-nums">
+                                      ৳{formatPrice(item.product.price * editingItemQuantity.quantity)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between text-gold">
+                                    <span className="font-medium">New Total COD Collection:</span>
+                                    <span className="font-bold tabular-nums">
+                                      ৳{formatPrice(calculatePreviewGrandTotal(order, item, editingItemQuantity.quantity))}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-end gap-2 pt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingItemQuantity(null)}
+                                    className="px-2.5 py-1 text-[11px] text-paper/50 hover:text-paper rounded-xs transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSaveQuantity(order.orderId, item.id || editingItemQuantity.itemId)}
+                                    disabled={isSavingQuantity}
+                                    className="px-3 py-1 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] rounded-xs uppercase tracking-wider flex items-center gap-1 shadow-xs transition-all disabled:opacity-50"
+                                  >
+                                    {isSavingQuantity ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        <span>Saving...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="w-3 h-3" />
+                                        <span>Update Order</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          <span className="font-semibold text-gold-light tabular-nums shrink-0">
-                            ৳{formatPrice(item.product.price * item.quantity)}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     <div className="border-t border-white/10 pt-2 space-y-1 text-xs">
@@ -407,9 +618,54 @@ export default function AdminOrdersPage() {
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-paper/50">Total COD Collection:</span>
-                        <strong className="text-sm font-semibold text-gold tabular-nums">
-                          ৳{formatPrice(order.grandTotal)}
-                        </strong>
+                        {editingOrderCod?.orderId === order.orderId ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-gold font-bold text-xs">৳</span>
+                            <input
+                              type="number"
+                              min={0}
+                              value={editingOrderCod.amount}
+                              onChange={(e) =>
+                                setEditingOrderCod({
+                                  ...editingOrderCod,
+                                  amount: Math.max(0, parseInt(e.target.value) || 0),
+                                })
+                              }
+                              className="w-20 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-gold text-right"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveCodAmount(order.orderId)}
+                              disabled={isSavingCod}
+                              className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light"
+                              title="Save custom COD"
+                            >
+                              {isSavingCod ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingOrderCod(null)}
+                              className="p-1 text-paper/50 hover:text-paper"
+                              title="Cancel"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <strong className="text-sm font-semibold text-gold tabular-nums">
+                              ৳{formatPrice(order.grandTotal)}
+                            </strong>
+                            <button
+                              type="button"
+                              onClick={() => setEditingOrderCod({ orderId: order.orderId, amount: order.grandTotal })}
+                              className="text-[10px] text-paper/40 hover:text-gold flex items-center gap-0.5"
+                              title="Manually adjust COD collection amount"
+                            >
+                              <Edit2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -443,8 +699,9 @@ export default function AdminOrdersPage() {
                             onChange={(e) => setCourierInput(e.target.value as any)}
                             className="w-full h-8 px-2 bg-[#222222] border border-white/10 rounded-xs text-xs text-paper"
                           >
-                            <option value="Steadfast Courier">Steadfast Courier</option>
+                            <option value="CarryBee">CarryBee</option>
                             <option value="Pathao Courier">Pathao Courier</option>
+                            <option value="Steadfast Courier">Steadfast Courier</option>
                             <option value="RedX">RedX</option>
                             <option value="Paperfly">Paperfly</option>
                           </select>
@@ -452,7 +709,13 @@ export default function AdminOrdersPage() {
                             type="text"
                             value={consignmentInput}
                             onChange={(e) => setConsignmentInput(e.target.value)}
-                            placeholder="e.g. ST-88294102"
+                            placeholder={
+                              courierInput === 'CarryBee'
+                                ? 'e.g. CB-88294102'
+                                : courierInput === 'Pathao Courier'
+                                ? 'e.g. PT-88294102'
+                                : 'e.g. ST-88294102'
+                            }
                             className="w-full h-8 px-2 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
                           />
                           <div className="flex items-center space-x-2">
@@ -476,14 +739,14 @@ export default function AdminOrdersPage() {
                       ) : (
                         <div className="p-2 bg-black/30 rounded-xs flex items-center justify-between">
                           <div>
-                            <span className="text-[10px] text-paper/40 block">{order.courierPartner}</span>
+                            <span className="text-[10px] text-paper/40 block">{order.courierPartner || 'Unassigned'}</span>
                             <span className="font-mono text-xs text-paper font-medium">
                               {order.consignmentId || 'Unassigned (Awaiting pickup)'}
                             </span>
                           </div>
                           {order.consignmentId && (
                             <a
-                              href={`https://steadfast.com.bd/t/${order.consignmentId}`}
+                              href={getCourierPortalUrl(order.courierPartner, order.consignmentId)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-gold-light hover:text-gold p-1"

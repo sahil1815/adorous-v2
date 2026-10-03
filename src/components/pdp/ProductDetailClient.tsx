@@ -1446,26 +1446,26 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
             {/* Action Buttons: Buy Now & Add to Cart */}
             <div className="flex flex-1 items-center gap-2 sm:gap-2.5 min-w-0 pl-0.5">
-              {/* Buy Now Button (Warm Amber / Radiant Gold Luxury CTA) */}
+              {/* Buy Now Button (Signature Jewelry Gold Luxury CTA) */}
               <button
                 type="button"
                 onClick={handleOrderNow}
                 disabled={isOrdering || (product as any).stockQty === 0 || product.inStock === false}
-                className="flex-1 h-12 px-2 sm:px-3 bg-gradient-to-r from-amber-500 via-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs sm:text-[13px] tracking-wide rounded-xl shadow-[0_3px_12px_rgba(245,158,11,0.32)] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 min-w-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                className="flex-1 h-12 px-2 sm:px-3 bg-[#CCA352] hover:bg-[#B89040] text-ink-deep font-bold text-xs sm:text-[13px] tracking-wide rounded-xl border border-[#B89040]/30 shadow-[0_2px_10px_rgba(204,163,82,0.25)] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 min-w-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {isOrdering ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0 text-ink-deep" />
                     <span className="truncate">Processing...</span>
                   </>
                 ) : (product as any).stockQty === 0 || product.inStock === false ? (
                   <>
-                    <Zap className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                    <Zap className="w-3.5 h-3.5 shrink-0 opacity-60 text-ink-deep" />
                     <span className="truncate">Sold Out</span>
                   </>
                 ) : (
                   <>
-                    <Zap className="w-3.5 h-3.5 fill-white shrink-0 drop-shadow-xs" />
+                    <Zap className="w-3.5 h-3.5 fill-ink-deep text-ink-deep shrink-0" />
                     <span className="truncate">
                       {purchaseMode === 'mix' && totalMixItems > 0
                         ? `Buy Now (${totalMixItems})`

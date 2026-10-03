@@ -183,6 +183,7 @@ export async function getOrders() {
       grandTotal: order.grandTotal,
       internalNotes: order.internalNotes || undefined,
       items: order.items.map(item => ({
+        id: item.id,
         product: {
           id: item.productId || 'unknown',
           name: item.productName,
@@ -253,5 +254,160 @@ export async function deleteOrder(orderId: string) {
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
+  }
+}
+
+export async function updateOrderItemQuantity(
+  orderId: string,
+  itemId: string,
+  newQuantity: number,
+  customGrandTotal?: number
+) {
+  try {
+    if (newQuantity < 1) {
+      return { success: false, error: 'Quantity must be at least 1' };
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      return { success: false, error: 'Order not found' };
+    }
+
+    // Match item by id or fallback to item-index or first item
+    let targetItem = order.items.find((i) => i.id === itemId);
+    if (!targetItem && typeof itemId === 'string' && itemId.startsWith('item-')) {
+      const idx = parseInt(itemId.replace('item-', ''), 10);
+      if (!isNaN(idx) && order.items[idx]) {
+        targetItem = order.items[idx];
+      }
+    }
+    if (!targetItem) {
+      targetItem = order.items[0];
+    }
+    if (!targetItem) {
+      return { success: false, error: 'Order item not found' };
+    }
+
+    const oldQuantity = targetItem.quantity;
+    const quantityDiff = newQuantity - oldQuantity;
+
+    // 1. Calculate new subtotal
+    const newSubtotal = order.items.reduce((sum, item) => {
+      const q = item.id === targetItem.id ? newQuantity : item.quantity;
+      return sum + item.price * q;
+    }, 0);
+
+    // 2. Calculate proportional discount
+    let newDiscount = order.discountAmount;
+    if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
+      const discountRatio = order.discountAmount / order.subtotal;
+      newDiscount = Math.round(newSubtotal * discountRatio * 100) / 100;
+    }
+
+    // 3. Calculate new grand total
+    const calculatedGrandTotal = Math.max(
+      0,
+      Math.round((newSubtotal - (newDiscount || 0) + order.shippingFee) * 100) / 100
+    );
+
+    const finalGrandTotal =
+      typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+        ? customGrandTotal
+        : calculatedGrandTotal;
+
+    // 4. Update database in transaction
+    await prisma.$transaction(async (tx) => {
+      // Update item quantity
+      await tx.orderItem.update({
+        where: { id: targetItem.id },
+        data: { quantity: newQuantity },
+      });
+
+      // Update order totals
+      await tx.order.update({
+        where: { orderId },
+        data: {
+          subtotal: newSubtotal,
+          discountAmount: newDiscount,
+          grandTotal: finalGrandTotal,
+        },
+      });
+
+      // 5. Adjust product stock if tracked
+      if (targetItem.productId && quantityDiff !== 0) {
+        if (quantityDiff < 0) {
+          // Quantity reduced -> restore stock back to inventory
+          const restoreCount = Math.abs(quantityDiff);
+          await tx.product.updateMany({
+            where: { id: targetItem.productId, NOT: { stockQty: null } },
+            data: {
+              stockQty: { increment: restoreCount },
+              inStock: true,
+            },
+          });
+        } else if (quantityDiff > 0) {
+          // Quantity increased -> deduct from inventory
+          await tx.product.updateMany({
+            where: { id: targetItem.productId, stockQty: { not: null, gt: 0 } },
+            data: {
+              stockQty: { decrement: quantityDiff },
+            },
+          });
+          // Check if any tracked products hit 0
+          await tx.product.updateMany({
+            where: { id: targetItem.productId, stockQty: { lte: 0 }, NOT: { stockQty: null } },
+            data: { inStock: false, stockQty: 0 },
+          });
+        }
+      }
+    });
+
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/admin/inventory');
+      revalidatePath('/track-order');
+    } catch {}
+
+    return {
+      success: true,
+      newSubtotal,
+      newDiscount,
+      finalGrandTotal,
+    };
+  } catch (error: any) {
+    console.error('[updateOrderItemQuantity] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update item quantity' };
+  }
+}
+
+export async function updateOrderTotals(
+  orderId: string,
+  grandTotal: number,
+  discountAmount?: number,
+  subtotal?: number
+) {
+  try {
+    const data: any = { grandTotal };
+    if (typeof discountAmount === 'number') data.discountAmount = discountAmount;
+    if (typeof subtotal === 'number') data.subtotal = subtotal;
+
+    await prisma.order.update({
+      where: { orderId },
+      data,
+    });
+
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/track-order');
+    } catch {}
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateOrderTotals] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update order totals' };
   }
 }

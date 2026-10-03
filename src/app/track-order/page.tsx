@@ -60,6 +60,18 @@ interface TrackingData {
   timeline: TrackingStep[];
 }
 
+const getCourierPortalUrl = (courierPartner: string | null | undefined, consignmentId: string) => {
+  if (!consignmentId) return '#';
+  const c = (courierPartner || '').toLowerCase();
+  if (c.includes('carrybee')) {
+    return `https://carrybee.com/track?tracking_id=${encodeURIComponent(consignmentId)}`;
+  }
+  if (c.includes('pathao')) {
+    return `https://merchant.pathao.com/tracking?consignment_id=${encodeURIComponent(consignmentId)}`;
+  }
+  return `https://steadfast.com.bd/t/${encodeURIComponent(consignmentId)}`;
+};
+
 function TrackOrderContent() {
   const searchParams = useSearchParams();
   const initialRef = searchParams.get('ref') || searchParams.get('phone') || '';
@@ -121,7 +133,7 @@ function TrackOrderContent() {
         orderId: dbOrder.orderId,
         consignmentId: consignment,
         courierName: dbOrder.courierPartner || 'Steadfast Courier Bangladesh',
-        courierUrl: `https://steadfast.com.bd/t/${consignment}`,
+        courierUrl: getCourierPortalUrl(dbOrder.courierPartner, consignment),
         statusText,
         statusBadge,
         currentStepIndex,
@@ -585,7 +597,13 @@ function TrackOrderContent() {
                     className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-paper/10 hover:bg-paper/20 border border-gold/40 text-gold-deep text-xs font-medium rounded-xs transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5 text-gold" />
-                    <span>View on Steadfast Portal</span>
+                    <span>
+                      {trackingData.courierName?.toLowerCase().includes('carrybee')
+                        ? 'View on CarryBee Portal'
+                        : trackingData.courierName?.toLowerCase().includes('pathao')
+                        ? 'View on Pathao Portal'
+                        : 'View on Steadfast Portal'}
+                    </span>
                   </a>
 
                   <a

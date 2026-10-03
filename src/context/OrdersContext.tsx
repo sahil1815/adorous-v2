@@ -7,7 +7,9 @@ import {
   updateOrderStatus as updateOrderStatusDb,
   updateOrderCourier as updateOrderCourierDb,
   updateInternalNotes as updateInternalNotesDb,
-  deleteOrder as deleteOrderDb
+  deleteOrder as deleteOrderDb,
+  updateOrderItemQuantity as updateOrderItemQuantityDb,
+  updateOrderTotals as updateOrderTotalsDb
 } from '@/app/actions/orderActions';
 import { PRODUCTS } from '@/data/catalogue'; // used as fallback if needed
 
@@ -20,6 +22,7 @@ export type OrderStatus =
   | 'cancelled';
 
 export interface AdminOrderItem {
+  id?: string;
   product: {
     id: string;
     name: string;
@@ -41,7 +44,7 @@ export interface AdminOrder {
   customerUserId?: string | null;
   createdAt: string;
   status: OrderStatus;
-  courierPartner: 'Steadfast Courier' | 'Pathao Courier' | 'RedX' | 'Paperfly' | string | null;
+  courierPartner: 'Steadfast Courier' | 'Pathao Courier' | 'CarryBee' | 'RedX' | 'Paperfly' | string | null;
   consignmentId?: string | null;
   customer: {
     fullName: string;
@@ -69,6 +72,8 @@ interface OrdersContextType {
   updateOrderCourier: (orderId: string, courierPartner: AdminOrder['courierPartner'], consignmentId: string) => Promise<void>;
   updateInternalNotes: (orderId: string, notes: string) => Promise<void>;
   deleteOrder: (orderId: string) => Promise<void>;
+  updateOrderItemQuantity: (orderId: string, itemId: string, newQuantity: number, customGrandTotal?: number) => Promise<{ success: boolean; error?: string }>;
+  updateOrderTotals: (orderId: string, grandTotal: number, discountAmount?: number, subtotal?: number) => Promise<{ success: boolean; error?: string }>;
   getOrderByIdOrPhone: (query: string) => AdminOrder | undefined;
   resetToSampleOrders: () => void;
 }
@@ -125,6 +130,73 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     await deleteOrderDb(orderId);
   };
 
+  const updateOrderItemQuantity = async (
+    orderId: string,
+    itemId: string,
+    newQuantity: number,
+    customGrandTotal?: number
+  ) => {
+    // Optimistic update
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.orderId !== orderId) return o;
+        const updatedItems = o.items.map(it => {
+          if (it.id === itemId || (!it.id && o.items.length === 1)) {
+            return { ...it, quantity: newQuantity };
+          }
+          return it;
+        });
+        const newSubtotal = updatedItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
+        let newDiscount = o.discountAmount;
+        if (o.subtotal > 0 && typeof o.discountAmount === 'number' && o.discountAmount > 0) {
+          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal) * 100) / 100;
+        }
+        const newGrandTotal =
+          typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+            ? customGrandTotal
+            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + o.shippingFee) * 100) / 100);
+
+        return {
+          ...o,
+          items: updatedItems,
+          subtotal: newSubtotal,
+          discountAmount: newDiscount,
+          grandTotal: newGrandTotal,
+        };
+      })
+    );
+
+    const res = await updateOrderItemQuantityDb(orderId, itemId, newQuantity, customGrandTotal);
+    if (res.success) {
+      await refreshOrders();
+    }
+    return res;
+  };
+
+  const updateOrderTotals = async (
+    orderId: string,
+    grandTotal: number,
+    discountAmount?: number,
+    subtotal?: number
+  ) => {
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.orderId !== orderId) return o;
+        return {
+          ...o,
+          grandTotal,
+          ...(typeof discountAmount === 'number' ? { discountAmount } : {}),
+          ...(typeof subtotal === 'number' ? { subtotal } : {}),
+        };
+      })
+    );
+    const res = await updateOrderTotalsDb(orderId, grandTotal, discountAmount, subtotal);
+    if (res.success) {
+      await refreshOrders();
+    }
+    return res;
+  };
+
   const getOrderByIdOrPhone = (query: string): AdminOrder | undefined => {
     const clean = query.trim().toLowerCase();
     return orders.find(
@@ -149,6 +221,8 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         updateOrderCourier,
         updateInternalNotes,
         deleteOrder,
+        updateOrderItemQuantity,
+        updateOrderTotals,
         getOrderByIdOrPhone,
         resetToSampleOrders,
       }}
