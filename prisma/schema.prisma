@@ -270,3 +270,9 @@ model ProductPageOrdering {
   createdAt   DateTime @default(now())
 }
 
+model OrderSequence {
+  year    Int @id
+  lastSeq Int
+}
+
+

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { deductStockAction } from './productActions';
 import { getWelcomeOfferSettings } from './welcomeOfferActions';
+import { generateNextOrderId } from '@/lib/orderId';
 
 export async function createOrder(orderData: any) {
   try {
@@ -83,9 +84,16 @@ export async function createOrder(orderData: any) {
       }
     }
 
+    // Generate authoritative server-side continuous order ID (AF-YYYY-10001, AF-YYYY-10002, ...)
+    // Preserves legacy import IDs (AF-LEG-*) if explicitly provided
+    let finalOrderId = orderData.orderId;
+    if (!finalOrderId || !String(finalOrderId).startsWith('AF-LEG-')) {
+      finalOrderId = await generateNextOrderId();
+    }
+
     const order = await prisma.order.create({
       data: {
-        orderId: orderData.orderId,
+        orderId: finalOrderId,
         customerUserId: orderData.customerUserId || null,
         status: orderData.status || 'pending',
         courierPartner: orderData.courierPartner,
@@ -465,3 +473,8 @@ export async function updateOrderTotals(
     return { success: false, error: error?.message || 'Failed to update order totals' };
   }
 }
+
+export async function getNextOrderIdAction(): Promise<string> {
+  return await generateNextOrderId();
+}
+

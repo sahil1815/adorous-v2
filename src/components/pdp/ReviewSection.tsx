@@ -45,11 +45,12 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
     if (!formState.name.trim() || !formState.comment.trim()) return;
 
     addReview(
-      product.id,
+      product.slug || product.id,
       formState.name,
       formState.rating,
       formState.comment,
-      formState.photoUrl || undefined
+      formState.photoUrl || undefined,
+      product.colorways?.[0]?.name
     );
     
     setSubmitted(true);
@@ -281,6 +282,13 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
             const formattedDate = !isNaN(dateObj.getTime())
               ? `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`
               : '28-06-2026';
+            const matchingColor = product.colorways?.find(
+              (c) => c.name.trim().toLowerCase() === review.colorwayName?.trim().toLowerCase()
+            )?.name;
+            const displayColor =
+              matchingColor ||
+              (product.colorways && product.colorways.length > 0 ? product.colorways[0].name : review.colorwayName) ||
+              'Standard Finish';
 
             return (
               <div key={review.id} className="p-4 bg-paper border border-line rounded-lg shadow-2xs">
@@ -298,7 +306,7 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
 
                 {/* Sub-row: Color & Date */}
                 <div className="text-[11px] text-text-muted mt-0.5 mb-2 flex items-center gap-2">
-                  <span>Color: {review.colorwayName || product.colorways[0]?.name || 'Standard Finish'}</span>
+                  <span>Color: {displayColor}</span>
                   <span>•</span>
                   <span>{formattedDate}</span>
                 </div>

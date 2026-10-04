@@ -493,7 +493,7 @@ function TrackOrderContent() {
             Track Your Parcel
           </h1>
           <p className="text-xs sm:text-sm text-text-muted max-w-lg mx-auto leading-relaxed">
-            Enter your <strong>Order Reference</strong> (e.g. <code>AF-2026-4102</code>) or mobile number to track live courier transit and dispatch updates.
+            Enter your <strong>Order Reference</strong> (e.g. <code>AF-2026-10001</code>) or mobile number to track live courier transit and dispatch updates.
           </p>
         </div>
 
@@ -512,7 +512,7 @@ function TrackOrderContent() {
                 type="text"
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
-                placeholder="Enter Order Reference (e.g. AF-2026-4102) or Phone Number"
+                placeholder="Enter Order Reference (e.g. AF-2026-10001) or Phone Number"
                 className="w-full h-12 pl-10 pr-4 bg-paper border border-line rounded-[2px] text-xs sm:text-sm text-ink placeholder:text-text-muted/60 focus:outline-none focus:border-gold-deep transition-colors"
               />
             </div>
@@ -774,7 +774,7 @@ function TrackOrderContent() {
             <div className="space-y-1 max-w-md mx-auto">
               <h3 className="font-serif text-xl text-ink font-medium">No Parcel Found for "{inputQuery}"</h3>
               <p className="text-xs text-text-muted leading-relaxed">
-                Please double-check your Order Reference (e.g. <code>AF-2026-4102</code>) or the 11-digit phone number provided during checkout.
+                Please double-check your Order Reference (e.g. <code>AF-2026-10001</code>) or the 11-digit phone number provided during checkout.
               </p>
             </div>
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">

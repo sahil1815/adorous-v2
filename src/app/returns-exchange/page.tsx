@@ -86,7 +86,7 @@ export default function ReturnsExchangePage() {
               <div>
                 <strong className="text-ink text-xs sm:text-sm block">Message Our WhatsApp Desk</strong>
                 <p className="text-xs text-text-muted mt-0.5">
-                  Send a message to <strong>+880 15-7773-1381</strong> with your Order ID (e.g. AF-2026-XXXX) and the reason for exchange (e.g. "Need size 2-8 instead of 2-6").
+                  Send a message to <strong>+880 15-7773-1381</strong> with your Order ID (e.g. AF-2026-10001) and the reason for exchange (e.g. "Need size 2-8 instead of 2-6").
                 </p>
               </div>
             </div>

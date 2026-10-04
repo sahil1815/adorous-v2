@@ -302,7 +302,7 @@ export default function CheckoutPage() {
     setCouponError(null);
   };
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -330,12 +330,7 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
 
-    // Generate unique Bangladeshi Order ID
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const orderId = `AF-2026-${randomSuffix}`;
-
     const orderData = {
-      orderId,
       customerUserId: customer?.id || null,
       createdAt: new Date().toISOString(),
       customer: {
@@ -357,27 +352,40 @@ export default function CheckoutPage() {
     };
 
     try {
+      const res = await addOrder(orderData);
+      if (!res || !res.success || !res.order) {
+        throw new Error(res?.error || 'Failed to place order. Please try again.');
+      }
+
+      const assignedOrderId = res.order.orderId;
+
       if (appliedCoupon && !useNvo) {
         recordCouponUsage(appliedCoupon.code);
       }
       if (useNvo) {
         markUsed();
       }
-      addOrder(orderData);
+
       const activeSid = draftSessionId || (typeof window !== 'undefined' ? sessionStorage.getItem('adorous_draft_checkout_session') : null);
       if (activeSid) {
-        markDraftCheckoutConvertedAction(activeSid, orderId);
+        markDraftCheckoutConvertedAction(activeSid, assignedOrderId);
         sessionStorage.removeItem('adorous_draft_checkout_session');
       }
-      localStorage.setItem('adorous_last_order', JSON.stringify(orderData));
+
+      const savedOrder = {
+        ...orderData,
+        orderId: assignedOrderId,
+      };
+      localStorage.setItem('adorous_last_order', JSON.stringify(savedOrder));
+
       // Clear cart
       clearCart();
       // Redirect to confirmation
-      router.push(`/order-success/${orderId}`);
-    } catch (err) {
+      router.push(`/order-success/${assignedOrderId}`);
+    } catch (err: any) {
       console.error(err);
       setIsSubmitting(false);
-      setErrorMsg('An unexpected error occurred while placing your order. Please try again.');
+      setErrorMsg(err?.message || 'An unexpected error occurred while placing your order. Please try again.');
     }
   };
 

@@ -68,7 +68,10 @@ export interface AdminOrder {
 
 interface OrdersContextType {
   orders: AdminOrder[];
-  addOrder: (order: Omit<AdminOrder, 'status' | 'courierPartner'> & Partial<Pick<AdminOrder, 'status' | 'courierPartner'>>) => Promise<void>;
+  addOrder: (
+    order: Omit<AdminOrder, 'status' | 'courierPartner' | 'orderId'> &
+      Partial<Pick<AdminOrder, 'status' | 'courierPartner' | 'orderId'>>
+  ) => Promise<{ success: boolean; order?: { orderId: string; [key: string]: unknown }; error?: string }>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   updateOrderCourier: (orderId: string, courierPartner: AdminOrder['courierPartner'], consignmentId: string) => Promise<void>;
   updateInternalNotes: (orderId: string, notes: string) => Promise<void>;
@@ -104,11 +107,15 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     refreshOrders();
   }, []);
 
-  const addOrder = async (orderData: Omit<AdminOrder, 'status' | 'courierPartner'> & Partial<Pick<AdminOrder, 'status' | 'courierPartner'>>) => {
+  const addOrder = async (
+    orderData: Omit<AdminOrder, 'status' | 'courierPartner' | 'orderId'> &
+      Partial<Pick<AdminOrder, 'status' | 'courierPartner' | 'orderId'>>
+  ) => {
     const res = await createOrder(orderData);
     if (res.success) {
       await refreshOrders();
     }
+    return res;
   };
 
   const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
