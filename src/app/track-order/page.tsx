@@ -127,6 +127,14 @@ function TrackOrderContent() {
         statusText = 'Delivered to Doorstep & Payment Collected';
         statusBadge = 'delivered';
         currentStepIndex = 3;
+      } else if (dbOrder.status === 'returned') {
+        statusText = 'Consignment Returned to Merchant (RTO)';
+        statusBadge = 'transit';
+        currentStepIndex = 2;
+      } else if (dbOrder.status === 'cancelled') {
+        statusText = 'Order Cancelled';
+        statusBadge = 'confirmed';
+        currentStepIndex = 0;
       }
 
       setTrackingData({

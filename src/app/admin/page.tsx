@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useOrders, AdminOrder, OrderStatus } from '@/context/OrdersContext';
 import {
   Search,
@@ -27,7 +28,9 @@ import {
   Minus,
   Check,
   Loader2,
-  X
+  X,
+  XCircle,
+  Ban
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 import { getDistrictDeliveryFee } from '@/data/districts';
@@ -83,6 +86,13 @@ const STATUS_CONFIG: Record<
     border: 'border-green-600/40',
     step: 5,
   },
+  returned: {
+    label: 'Returned to Merchant (RTO)',
+    bg: 'bg-rose-950/60',
+    text: 'text-rose-300',
+    border: 'border-rose-600/40',
+    step: 0,
+  },
   cancelled: {
     label: 'Cancelled',
     bg: 'bg-red-950/60',
@@ -92,7 +102,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export default function AdminOrdersPage() {
+function AdminOrdersDesk() {
   const {
     orders,
     updateOrderStatus,
@@ -105,12 +115,21 @@ export default function AdminOrdersPage() {
     updateOrderTotals,
   } = useOrders();
 
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get('status');
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>(statusParam || 'all');
   const [regionFilter, setRegionFilter] = useState<string>('all');
   const [editingConsignmentOrderId, setEditingConsignmentOrderId] = useState<string | null>(null);
   const [consignmentInput, setConsignmentInput] = useState('');
   const [courierInput, setCourierInput] = useState<AdminOrder['courierPartner']>('Steadfast Courier');
+
+  useEffect(() => {
+    if (statusParam) {
+      setStatusFilter(statusParam);
+    }
+  }, [statusParam]);
 
   // Quantity editing state
   const [editingItemQuantity, setEditingItemQuantity] = useState<{
@@ -227,9 +246,21 @@ export default function AdminOrdersPage() {
   // Stats calculation
   const totalOrders = orders.length;
   const pendingCount = orders.filter((o) => o.status === 'pending').length;
+  const verifiedCount = orders.filter((o) => o.status === 'verified').length;
   const packagingCount = orders.filter((o) => o.status === 'packaging').length;
   const courierCount = orders.filter((o) => o.status === 'handed_to_courier').length;
+  const deliveredCount = orders.filter((o) => o.status === 'delivered').length;
+  const returnedCount = orders.filter((o) => o.status === 'returned').length;
+  const cancelledCount = orders.filter((o) => o.status === 'cancelled').length;
+  const returnedAndCancelledCount = returnedCount + cancelledCount;
+
   const totalRevenue = orders.reduce((sum, o) => sum + o.grandTotal, 0);
+  const deliveredRevenue = orders
+    .filter((o) => o.status === 'delivered')
+    .reduce((sum, o) => sum + o.grandTotal, 0);
+  const returnedAndCancelledRevenue = orders
+    .filter((o) => o.status === 'returned' || o.status === 'cancelled')
+    .reduce((sum, o) => sum + o.grandTotal, 0);
 
   // Filtered orders
   const filteredOrders = orders.filter((order) => {
@@ -243,7 +274,12 @@ export default function AdminOrdersPage() {
       (order.consignmentId && order.consignmentId.toLowerCase().includes(cleanSearch));
 
     // Status filter
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all'
+        ? true
+        : statusFilter === 'returned_and_cancelled'
+        ? order.status === 'returned' || order.status === 'cancelled'
+        : order.status === statusFilter;
 
     // Region filter
     const isDhaka = order.customer.district.toLowerCase().includes('dhaka');
@@ -281,47 +317,134 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-8">
       {/* Top Metrics Banner */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
-          <span className="text-[10px] uppercase tracking-wider text-paper/50 block font-medium">
-            Total Orders
-          </span>
-          <div className="text-2xl font-serif text-paper font-semibold">{totalOrders}</div>
-          <span className="text-[10px] text-paper/40">Logged in System</span>
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <button
+            type="button"
+            onClick={() => setStatusFilter('all')}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
+              statusFilter === 'all' ? 'border-gold bg-[#1c1a15]' : 'border-white/10 hover:border-white/30'
+            }`}
+          >
+            <span className="text-[10px] uppercase tracking-wider text-paper/50 block font-medium">
+              Total Orders
+            </span>
+            <div className="text-2xl font-serif text-paper font-semibold">{totalOrders}</div>
+            <span className="text-[10px] text-paper/40">Logged in System</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('pending')}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
+              statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/20' : 'border-amber-600/30 hover:border-amber-500/60'
+            }`}
+          >
+            <span className="text-[10px] uppercase tracking-wider text-amber-400 block font-medium">
+              Pending Call
+            </span>
+            <div className="text-2xl font-serif text-amber-300 font-semibold">{pendingCount}</div>
+            <span className="text-[10px] text-amber-200/50">Needs verification</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('packaging')}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
+              statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/20' : 'border-purple-600/30 hover:border-purple-500/60'
+            }`}
+          >
+            <span className="text-[10px] uppercase tracking-wider text-purple-400 block font-medium">
+              In Packaging
+            </span>
+            <div className="text-2xl font-serif text-purple-300 font-semibold">{packagingCount}</div>
+            <span className="text-[10px] text-purple-200/50">Inspecting & sealing</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('handed_to_courier')}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
+              statusFilter === 'handed_to_courier' ? 'border-blue-400 bg-blue-950/20' : 'border-blue-600/30 hover:border-blue-500/60'
+            }`}
+          >
+            <span className="text-[10px] uppercase tracking-wider text-blue-400 block font-medium">
+              With Courier
+            </span>
+            <div className="text-2xl font-serif text-blue-300 font-semibold">{courierCount}</div>
+            <span className="text-[10px] text-blue-200/50">In active delivery</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('delivered')}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
+              statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/20' : 'border-emerald-600/30 hover:border-emerald-500/60'
+            }`}
+          >
+            <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-medium">
+              Delivered & Paid
+            </span>
+            <div className="text-2xl font-serif text-emerald-300 font-semibold">{deliveredCount}</div>
+            <span className="text-[10px] text-emerald-200/50">Completed & Remitted</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('returned_and_cancelled')}
+            className={`text-left bg-[#181212] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer group ${
+              ['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
+                ? 'border-red-500 bg-red-950/40 shadow-xs'
+                : 'border-red-600/40 hover:border-red-500/80 hover:bg-[#201515]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider text-red-400 block font-medium group-hover:text-red-300">
+                Returned & Cancelled
+              </span>
+              <RotateCcw className="w-3 h-3 text-red-400/70 group-hover:text-red-300" />
+            </div>
+            <div className="text-2xl font-serif text-red-300 font-semibold">{returnedAndCancelledCount}</div>
+            <span className="text-[10px] text-red-200/60 block">
+              {returnedCount} Ret · {cancelledCount} Canc
+            </span>
+          </button>
         </div>
 
-        <div className="bg-[#171717] border border-amber-600/30 p-4 rounded-xs space-y-1">
-          <span className="text-[10px] uppercase tracking-wider text-amber-400 block font-medium">
-            Pending WhatsApp Call
-          </span>
-          <div className="text-2xl font-serif text-amber-300 font-semibold">{pendingCount}</div>
-          <span className="text-[10px] text-amber-200/50">Needs verification</span>
-        </div>
-
-        <div className="bg-[#171717] border border-purple-600/30 p-4 rounded-xs space-y-1">
-          <span className="text-[10px] uppercase tracking-wider text-purple-400 block font-medium">
-            In Packaging Desk
-          </span>
-          <div className="text-2xl font-serif text-purple-300 font-semibold">{packagingCount}</div>
-          <span className="text-[10px] text-purple-200/50">Inspecting & sealing</span>
-        </div>
-
-        <div className="bg-[#171717] border border-emerald-600/30 p-4 rounded-xs space-y-1">
-          <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-medium">
-            With Courier
-          </span>
-          <div className="text-2xl font-serif text-emerald-300 font-semibold">{courierCount}</div>
-          <span className="text-[10px] text-emerald-200/50">In active delivery</span>
-        </div>
-
-        <div className="col-span-2 lg:col-span-1 bg-[#171717] border border-gold/30 p-4 rounded-xs space-y-1">
-          <span className="text-[10px] uppercase tracking-wider text-gold block font-medium">
-            Total Pipeline Value
-          </span>
-          <div className="text-2xl font-serif text-gold-light font-semibold">
-            ৳{totalRevenue.toLocaleString('en-US')}
+        {/* Financial Pipeline Strip */}
+        <div className="bg-[#141414] border border-white/10 p-3.5 rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-6">
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-gold/70 block font-medium">
+                Total Order Pipeline
+              </span>
+              <div className="text-base font-serif text-gold-light font-semibold">
+                ৳{totalRevenue.toLocaleString('en-US')}
+              </div>
+            </div>
+            <div className="h-7 w-px bg-white/10 hidden sm:block" />
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 block font-medium">
+                Delivered & Collected
+              </span>
+              <div className="text-base font-serif text-emerald-300 font-semibold">
+                ৳{deliveredRevenue.toLocaleString('en-US')}
+              </div>
+            </div>
+            <div className="h-7 w-px bg-white/10 hidden sm:block" />
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-red-400/70 block font-medium">
+                Returned / Cancelled Value
+              </span>
+              <div className="text-base font-serif text-red-300 font-semibold">
+                ৳{returnedAndCancelledRevenue.toLocaleString('en-US')}
+              </div>
+            </div>
           </div>
-          <span className="text-[10px] text-gold/50">Cash on Delivery</span>
+
+          <div className="text-right text-[11px] text-paper/40">
+            <span>Cash on Delivery · Real-time Database Sync</span>
+          </div>
         </div>
       </div>
 
@@ -369,35 +492,98 @@ export default function AdminOrdersPage() {
           <span className="text-[11px] text-paper/40 font-medium mr-1">Status:</span>
           {[
             { id: 'all', label: 'All Orders', count: orders.length },
-            { id: 'pending', label: 'Pending WhatsApp', count: orders.filter((o) => o.status === 'pending').length },
-            { id: 'verified', label: 'Verified', count: orders.filter((o) => o.status === 'verified').length },
-            { id: 'packaging', label: 'In Packaging', count: orders.filter((o) => o.status === 'packaging').length },
-            { id: 'handed_to_courier', label: 'With Courier', count: orders.filter((o) => o.status === 'handed_to_courier').length },
-            { id: 'delivered', label: 'Delivered', count: orders.filter((o) => o.status === 'delivered').length },
-          ].map((pill) => (
-            <button
-              key={pill.id}
-              type="button"
-              onClick={() => setStatusFilter(pill.id)}
-              className={`px-3 py-1 rounded-xs text-[11px] transition-colors flex items-center space-x-1.5 ${
-                statusFilter === pill.id
-                  ? 'bg-gold text-ink font-semibold'
-                  : 'bg-[#222222] text-paper/70 hover:text-paper hover:bg-[#2A2A2A]'
-              }`}
-            >
-              <span>{pill.label}</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
-                statusFilter === pill.id ? 'bg-ink text-gold' : 'bg-black/40 text-paper/60'
-              }`}>
-                {pill.count}
-              </span>
-            </button>
-          ))}
+            { id: 'pending', label: 'Pending WhatsApp', count: pendingCount },
+            { id: 'verified', label: 'Verified', count: verifiedCount },
+            { id: 'packaging', label: 'In Packaging', count: packagingCount },
+            { id: 'handed_to_courier', label: 'With Courier', count: courierCount },
+            { id: 'delivered', label: 'Delivered', count: deliveredCount },
+            {
+              id: 'returned_and_cancelled',
+              label: 'Returned & Cancelled',
+              count: returnedAndCancelledCount,
+              isRedGroup: true,
+            },
+            { id: 'returned', label: 'Returned', count: returnedCount, isRedGroup: true },
+            { id: 'cancelled', label: 'Cancelled', count: cancelledCount, isRedGroup: true },
+          ].map((pill) => {
+            const isActive = statusFilter === pill.id;
+            return (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => setStatusFilter(pill.id)}
+                className={`px-3 py-1 rounded-xs text-[11px] transition-all flex items-center space-x-1.5 ${
+                  isActive
+                    ? pill.isRedGroup
+                      ? 'bg-red-800 text-white font-semibold shadow-xs border border-red-500'
+                      : 'bg-gold text-ink font-semibold shadow-xs'
+                    : pill.isRedGroup && pill.count > 0
+                    ? 'bg-[#221717] hover:bg-[#2c1c1c] text-red-300 border border-red-900/50 hover:border-red-700/60'
+                    : 'bg-[#222222] text-paper/70 hover:text-paper hover:bg-[#2A2A2A] border border-white/5'
+                }`}
+              >
+                <span>{pill.label}</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
+                    isActive
+                      ? pill.isRedGroup
+                        ? 'bg-black/50 text-red-200'
+                        : 'bg-ink text-gold'
+                      : pill.isRedGroup && pill.count > 0
+                      ? 'bg-red-950 text-red-300 border border-red-800/40'
+                      : 'bg-black/40 text-paper/60'
+                  }`}
+                >
+                  {pill.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Orders List */}
       <div className="space-y-4">
+        {/* Returned & Cancelled Context Alert */}
+        {['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter) && (
+          <div className="bg-[#1C1414] border border-red-700/40 p-4 rounded-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center space-x-3 text-red-300">
+              <div className="p-2 bg-red-950/80 rounded-xs border border-red-800/50 shrink-0">
+                <RotateCcw className="w-4 h-4 text-red-400" />
+              </div>
+              <div>
+                <span className="font-semibold text-red-200 text-sm block">
+                  {statusFilter === 'returned_and_cancelled'
+                    ? 'Returned & Cancelled Orders Section'
+                    : statusFilter === 'returned'
+                    ? 'Returned Orders Section (Courier RTO)'
+                    : 'Cancelled Orders Section'}
+                </span>
+                <p className="text-[11px] text-red-300/70 mt-0.5">
+                  {statusFilter === 'returned'
+                    ? 'Parcels that were dispatched with couriers but failed delivery or returned to merchant.'
+                    : statusFilter === 'cancelled'
+                    ? 'Orders cancelled before delivery (patron request, phone unreachable, or unverified).'
+                    : 'Viewing all unfulfilled orders: courier returns and cancelled orders.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 shrink-0">
+              <span className="px-2.5 py-1 bg-red-950 text-red-300 border border-red-800/50 rounded-xs text-[11px] font-mono font-semibold">
+                {filteredOrders.length} {filteredOrders.length === 1 ? 'Order' : 'Orders'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                className="px-2.5 py-1 bg-[#222] hover:bg-[#2A2A2A] text-paper/70 hover:text-paper rounded-xs text-[11px] border border-white/10 transition-colors"
+              >
+                Clear Filter
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-xs text-paper/60 px-1">
           <span>Showing {filteredOrders.length} of {orders.length} orders</span>
           <span className="text-[11px]">Real-time sync with patron parcel tracking</span>
@@ -408,12 +594,18 @@ export default function AdminOrdersPage() {
             <Package className="w-10 h-10 text-paper/30 mx-auto" />
             <h3 className="font-serif text-lg text-paper">No Orders Match Filter Criteria</h3>
             <p className="text-xs text-paper/50 max-w-sm mx-auto">
-              Try adjusting your search query or reset status filters to view all orders.
+              {statusFilter === 'returned_and_cancelled'
+                ? 'No returned or cancelled orders found in system.'
+                : statusFilter === 'returned'
+                ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
+                : statusFilter === 'cancelled'
+                ? 'No cancelled orders found in this view.'
+                : 'Try adjusting your search query or reset status filters to view all orders.'}
             </p>
           </div>
         ) : (
           filteredOrders.map((order) => {
-            const statusConfig = STATUS_CONFIG[order.status];
+            const statusConfig = (STATUS_CONFIG as Record<string, typeof STATUS_CONFIG['pending']>)[order.status] || STATUS_CONFIG.pending;
             const isEditingConsignment = editingConsignmentOrderId === order.orderId;
 
             return (
@@ -960,7 +1152,8 @@ export default function AdminOrdersPage() {
                         <option value="packaging">3. Packaging</option>
                         <option value="handed_to_courier">4. Handed to Courier (In Transit)</option>
                         <option value="delivered">5. Delivered & Cash Collected</option>
-                        <option value="cancelled">Cancelled / Returned</option>
+                        <option value="returned">6. Returned to Merchant (RTO)</option>
+                        <option value="cancelled">7. Cancelled Order</option>
                       </select>
                     </div>
 
@@ -1018,5 +1211,19 @@ export default function AdminOrdersPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminOrdersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[400px] flex items-center justify-center text-xs text-gold-light/60 uppercase tracking-widest">
+          Loading Orders Desk...
+        </div>
+      }
+    >
+      <AdminOrdersDesk />
+    </Suspense>
   );
 }

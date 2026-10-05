@@ -933,7 +933,7 @@ export default function AdminCustomersPage() {
                               className={`text-[9px] px-1.5 py-0.2 rounded-xs font-medium uppercase ${
                                 ord.status === 'delivered'
                                   ? 'bg-emerald-950 text-emerald-400 border border-emerald-700/50'
-                                  : ord.status === 'cancelled'
+                                  : ord.status === 'cancelled' || ord.status === 'returned'
                                   ? 'bg-red-950 text-red-400 border border-red-700/50'
                                   : 'bg-amber-950 text-amber-400 border border-amber-700/50'
                               }`}

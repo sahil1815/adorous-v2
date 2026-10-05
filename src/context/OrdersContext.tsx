@@ -20,6 +20,7 @@ export type OrderStatus =
   | 'packaging'
   | 'handed_to_courier'
   | 'delivered'
+  | 'returned'
   | 'cancelled';
 
 export interface AdminOrderItem {
