@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { sendWhatsAppDraftRecovery } from '@/lib/whatsapp';
 
 export interface DraftCheckoutInput {
   sessionId: string;
@@ -91,6 +92,25 @@ export async function saveDraftCheckoutAction(data: DraftCheckoutInput) {
     });
 
     revalidatePath('/admin/drafts');
+
+    // Trigger automated WhatsApp recovery message after 45s if customer abandons without placing order
+    if (data.phone && data.phone.trim().length >= 8) {
+      const sid = data.sessionId;
+      setTimeout(async () => {
+        try {
+          const latestDraft = await prisma.draftCheckout.findUnique({
+            where: { sessionId: sid },
+          });
+          // Only send if still abandoned (not converted to confirmed order)
+          if (latestDraft && latestDraft.status === 'abandoned') {
+            await sendWhatsAppDraftRecovery(latestDraft);
+          }
+        } catch (e) {
+          console.error(`[WhatsApp Draft Automation] Failed for session ${sid}:`, e);
+        }
+      }, 45000);
+    }
+
     return { success: true, draftId: draft.id };
   } catch (error) {
     console.error('Error saving draft checkout:', error);

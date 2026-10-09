@@ -85,6 +85,20 @@ export default function OrderSuccessPage() {
     }
   }, [orderId]);
 
+  // Automated 30s background WhatsApp verification trigger
+  useEffect(() => {
+    if (!orderId) return;
+    const timer = setTimeout(() => {
+      fetch('/api/whatsapp/send-order-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      }).catch((err) => console.warn('[Backup WhatsApp trigger error]', err));
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [orderId]);
+
   // Construct WhatsApp chat text
   const waMessage = order
     ? `Hello Adorous Fashion! I have a question or note regarding Order ${order.orderId} (Recipient: ${order.customer.fullName}, ${order.customer.district}).`

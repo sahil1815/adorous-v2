@@ -1316,15 +1316,23 @@ function AdminOrdersDesk() {
                     </div>
 
                     {/* WhatsApp Action */}
-                    <a
-                      href={generateWhatsAppVerificationLink(order)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 text-white" />
-                      <span>Verify on WhatsApp</span>
-                    </a>
+                    <div className="space-y-1">
+                      {order.internalNotes && order.internalNotes.includes('[WhatsApp Auto-Sent:') && (
+                        <div className="flex items-center justify-center space-x-1 py-1 px-2 bg-emerald-950/70 border border-emerald-500/40 rounded-xs text-[10px] text-emerald-300 font-medium">
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span>WhatsApp Auto-Sent (30s)</span>
+                        </div>
+                      )}
+                      <a
+                        href={generateWhatsAppVerificationLink(order)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 text-white" />
+                        <span>Verify on WhatsApp</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
 
