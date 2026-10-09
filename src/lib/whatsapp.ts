@@ -239,6 +239,14 @@ export async function sendWhatsAppOrderVerification(orderIdOrOrder: string | any
 
     const templateName = process.env.WHATSAPP_TEMPLATE_NAME || 'order_verification';
 
+    const adorousMessageText =
+      `Hello ${customerName}! Greetings from Adorous Fashion.\n\n` +
+      `We have received your Cash on Delivery order: ${orderRef}\n\n` +
+      `Items: ${itemsSummary}\n\n` +
+      `Total Amount: ৳${grandTotalFormatted}\n\n` +
+      `Delivery Address: ${fullAddress}\n\n` +
+      `Please confirm if this address is correct so we can package and dispatch your order today.`;
+
     // 1. Try sending the official Meta template
     let result = await sendMetaWhatsAppTemplate({
       to: customerPhone,
@@ -247,35 +255,16 @@ export async function sendWhatsAppOrderVerification(orderIdOrOrder: string | any
       parameters: [customerName, orderRef, itemsSummary, grandTotalFormatted, fullAddress],
     });
 
-    // 2. If custom template failed (e.g. pending Meta approval), attempt fallback to pre-approved order template
+    // 2. If template is pending Meta review or failed, send direct text with the exact Adorous Fashion message
     if (!result.success) {
-      console.warn(`[WhatsApp] Template "${templateName}" failed (${result.error}). Attempting approved order confirmation template fallback.`);
-      const fallbackTemplateRes = await sendMetaWhatsAppTemplate({
+      console.warn(`[WhatsApp] Template "${templateName}" not ready (${result.error}). Sending exact Adorous message via text.`);
+      const textRes = await sendMetaWhatsAppText({
         to: customerPhone,
-        templateName: 'jaspers_market_order_confirmation_v1',
-        languageCode: 'en_US',
-        parameters: [customerName, orderRef, `${fullAddress} (Total COD: ৳${grandTotalFormatted})`],
+        text: adorousMessageText,
       });
 
-      if (fallbackTemplateRes.success) {
-        result = fallbackTemplateRes;
-      } else {
-        const fallbackText =
-          `Hello ${customerName}! Greetings from Adorous Fashion.\n\n` +
-          `We have received your Cash on Delivery order: ${orderRef}\n\n` +
-          `Items: ${itemsSummary}\n\n` +
-          `Total Amount: ৳${grandTotalFormatted}\n` +
-          `Delivery Address: ${fullAddress}\n\n` +
-          `Please confirm if this address is correct so we can package and dispatch your order today.`;
-
-        const textRes = await sendMetaWhatsAppText({
-          to: customerPhone,
-          text: fallbackText,
-        });
-
-        if (textRes.success) {
-          result = textRes;
-        }
+      if (textRes.success) {
+        result = textRes;
       }
     }
 
