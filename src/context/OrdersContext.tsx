@@ -9,6 +9,7 @@ import {
   updateInternalNotes as updateInternalNotesDb,
   deleteOrder as deleteOrderDb,
   updateOrderItemQuantity as updateOrderItemQuantityDb,
+  updateOrderItemProduct as updateOrderItemProductDb,
   updateOrderTotals as updateOrderTotalsDb,
   updateOrderShippingFee as updateOrderShippingFeeDb
 } from '@/app/actions/orderActions';
@@ -84,6 +85,27 @@ interface OrdersContextType {
     customGrandTotal?: number,
     customShippingFee?: number
   ) => Promise<{ success: boolean; error?: string }>;
+  updateOrderItemProduct: (payload: {
+    orderId: string;
+    itemId: string;
+    newProduct: {
+      id: string;
+      name: string;
+      category?: string;
+      slug?: string;
+      price: number;
+      featuredImage: string;
+    };
+    newColor: {
+      name: string;
+      hex: string;
+    };
+    newSize?: string;
+    newQuantity: number;
+    customUnitPrice?: number;
+    customGrandTotal?: number;
+    customShippingFee?: number;
+  }) => Promise<{ success: boolean; error?: string }>;
   updateOrderShippingFee: (orderId: string, shippingFee: number, customGrandTotal?: number) => Promise<{ success: boolean; error?: string }>;
   updateOrderTotals: (orderId: string, grandTotal: number, discountAmount?: number, subtotal?: number, shippingFee?: number) => Promise<{ success: boolean; error?: string }>;
   getOrderByIdOrPhone: (query: string) => AdminOrder | undefined;
@@ -192,6 +214,86 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     return res;
   };
 
+  const updateOrderItemProduct = async (payload: {
+    orderId: string;
+    itemId: string;
+    newProduct: {
+      id: string;
+      name: string;
+      category?: string;
+      slug?: string;
+      price: number;
+      featuredImage: string;
+    };
+    newColor: {
+      name: string;
+      hex: string;
+    };
+    newSize?: string;
+    newQuantity: number;
+    customUnitPrice?: number;
+    customGrandTotal?: number;
+    customShippingFee?: number;
+  }) => {
+    const { orderId, itemId, newProduct, newColor, newSize, newQuantity, customUnitPrice, customGrandTotal, customShippingFee } = payload;
+    const unitPrice = typeof customUnitPrice === 'number' && !isNaN(customUnitPrice) ? customUnitPrice : newProduct.price;
+
+    // Optimistic update
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.orderId !== orderId) return o;
+        const updatedItems = o.items.map((it, idx) => {
+          if (it.id === itemId || (!it.id && (itemId === `item-${idx}` || o.items.length === 1))) {
+            return {
+              ...it,
+              product: {
+                id: newProduct.id,
+                name: newProduct.name,
+                category: newProduct.category || '',
+                slug: newProduct.slug || '',
+                price: unitPrice,
+                featuredImage: newProduct.featuredImage,
+              },
+              selectedColor: {
+                name: newColor.name,
+                hex: newColor.hex,
+              },
+              selectedSize: newSize || undefined,
+              quantity: newQuantity,
+            };
+          }
+          return it;
+        });
+
+        const newSubtotal = updatedItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
+        let newDiscount = o.discountAmount;
+        if (o.subtotal > 0 && typeof o.discountAmount === 'number' && o.discountAmount > 0) {
+          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal) * 100) / 100;
+        }
+        const finalShip = typeof customShippingFee === 'number' ? customShippingFee : o.shippingFee;
+        const newGrandTotal =
+          typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+            ? customGrandTotal
+            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + finalShip) * 100) / 100);
+
+        return {
+          ...o,
+          items: updatedItems,
+          subtotal: newSubtotal,
+          discountAmount: newDiscount,
+          shippingFee: finalShip,
+          grandTotal: newGrandTotal,
+        };
+      })
+    );
+
+    const res = await updateOrderItemProductDb(payload);
+    if (res.success) {
+      await refreshOrders();
+    }
+    return res;
+  };
+
   const updateOrderShippingFee = async (
     orderId: string,
     shippingFee: number,
@@ -271,6 +373,7 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         updateInternalNotes,
         deleteOrder,
         updateOrderItemQuantity,
+        updateOrderItemProduct,
         updateOrderShippingFee,
         updateOrderTotals,
         getOrderByIdOrPhone,

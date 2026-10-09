@@ -401,6 +401,213 @@ export async function updateOrderItemQuantity(
   }
 }
 
+export async function updateOrderItemProduct({
+  orderId,
+  itemId,
+  newProduct,
+  newColor,
+  newSize,
+  newQuantity,
+  customUnitPrice,
+  customGrandTotal,
+  customShippingFee,
+}: {
+  orderId: string;
+  itemId: string;
+  newProduct: {
+    id: string;
+    name: string;
+    category?: string;
+    slug?: string;
+    price: number;
+    featuredImage: string;
+  };
+  newColor: {
+    name: string;
+    hex: string;
+  };
+  newSize?: string;
+  newQuantity: number;
+  customUnitPrice?: number;
+  customGrandTotal?: number;
+  customShippingFee?: number;
+}) {
+  try {
+    if (newQuantity < 1) {
+      return { success: false, error: 'Quantity must be at least 1' };
+    }
+
+    if (!process.env.DATABASE_URL) {
+      return { success: true };
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      return { success: false, error: 'Order not found' };
+    }
+
+    // Match item by id or fallback to item-index or first item
+    let targetItem = order.items.find((i) => i.id === itemId);
+    if (!targetItem && typeof itemId === 'string' && itemId.startsWith('item-')) {
+      const idx = parseInt(itemId.replace('item-', ''), 10);
+      if (!isNaN(idx) && order.items[idx]) {
+        targetItem = order.items[idx];
+      }
+    }
+    if (!targetItem) {
+      targetItem = order.items[0];
+    }
+    if (!targetItem) {
+      return { success: false, error: 'Order item not found' };
+    }
+
+    const oldQuantity = targetItem.quantity;
+    const oldProductId = targetItem.productId;
+
+    const unitPrice =
+      typeof customUnitPrice === 'number' && !isNaN(customUnitPrice) && customUnitPrice >= 0
+        ? customUnitPrice
+        : newProduct.price;
+
+    // 1. Calculate new subtotal
+    const newSubtotal = order.items.reduce((sum, item) => {
+      if (item.id === targetItem.id) {
+        return sum + unitPrice * newQuantity;
+      }
+      return sum + item.price * item.quantity;
+    }, 0);
+
+    // 2. Calculate proportional discount if voucher was used
+    let newDiscount = order.discountAmount;
+    if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
+      const discountRatio = order.discountAmount / order.subtotal;
+      newDiscount = Math.round(newSubtotal * discountRatio * 100) / 100;
+    }
+
+    // 3. Determine shipping fee
+    let finalShippingFee = order.shippingFee;
+    if (typeof customShippingFee === 'number' && !isNaN(customShippingFee) && customShippingFee >= 0) {
+      finalShippingFee = customShippingFee;
+    }
+
+    // 4. Calculate new grand total
+    const calculatedGrandTotal = Math.max(
+      0,
+      Math.round((newSubtotal - (newDiscount || 0) + finalShippingFee) * 100) / 100
+    );
+
+    const finalGrandTotal =
+      typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
+        ? customGrandTotal
+        : calculatedGrandTotal;
+
+    // 5. Verify if newProduct.id exists in DB to prevent foreign key errors
+    let validProductId: string | null = null;
+    if (newProduct.id) {
+      try {
+        const found = await prisma.product.findUnique({
+          where: { id: newProduct.id },
+          select: { id: true },
+        });
+        if (found) {
+          validProductId = found.id;
+        }
+      } catch {}
+    }
+
+    // 6. Update database in transaction
+    await prisma.$transaction(async (tx) => {
+      // Update item
+      await tx.orderItem.update({
+        where: { id: targetItem.id },
+        data: {
+          productId: validProductId,
+          productName: newProduct.name,
+          productImage: newProduct.featuredImage,
+          price: unitPrice,
+          quantity: newQuantity,
+          colorName: newColor.name,
+          colorHex: newColor.hex,
+          selectedSize: newSize || null,
+        },
+      });
+
+      // Update order totals & shipping fee
+      await tx.order.update({
+        where: { orderId },
+        data: {
+          subtotal: newSubtotal,
+          discountAmount: newDiscount,
+          shippingFee: finalShippingFee,
+          grandTotal: finalGrandTotal,
+        },
+      });
+
+      // 7. Adjust inventory stocks if tracked
+      if (oldProductId && validProductId && oldProductId === validProductId) {
+        // Same product, different qty
+        const diff = newQuantity - oldQuantity;
+        if (diff < 0) {
+          await tx.product.updateMany({
+            where: { id: validProductId, NOT: { stockQty: null } },
+            data: { stockQty: { increment: Math.abs(diff) }, inStock: true },
+          });
+        } else if (diff > 0) {
+          await tx.product.updateMany({
+            where: { id: validProductId, stockQty: { not: null, gt: 0 } },
+            data: { stockQty: { decrement: diff } },
+          });
+          await tx.product.updateMany({
+            where: { id: validProductId, stockQty: { lte: 0 }, NOT: { stockQty: null } },
+            data: { inStock: false, stockQty: 0 },
+          });
+        }
+      } else {
+        // Product changed: restore old product stock
+        if (oldProductId) {
+          await tx.product.updateMany({
+            where: { id: oldProductId, NOT: { stockQty: null } },
+            data: { stockQty: { increment: oldQuantity }, inStock: true },
+          });
+        }
+        // Deduct new product stock
+        if (validProductId) {
+          await tx.product.updateMany({
+            where: { id: validProductId, stockQty: { not: null, gt: 0 } },
+            data: { stockQty: { decrement: newQuantity } },
+          });
+          await tx.product.updateMany({
+            where: { id: validProductId, stockQty: { lte: 0 }, NOT: { stockQty: null } },
+            data: { inStock: false, stockQty: 0 },
+          });
+        }
+      }
+    });
+
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/admin/inventory');
+      revalidatePath('/track-order');
+    } catch {}
+
+    return {
+      success: true,
+      newSubtotal,
+      newDiscount,
+      finalShippingFee,
+      finalGrandTotal,
+    };
+  } catch (error: any) {
+    console.error('[updateOrderItemProduct] Error:', error);
+    return { success: false, error: error?.message || 'Failed to update order product' };
+  }
+}
+
+
 export async function updateOrderShippingFee(
   orderId: string,
   shippingFee: number,

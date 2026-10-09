@@ -31,10 +31,60 @@ import {
   X,
   XCircle,
   Ban,
-  Copy
+  Copy,
+  RefreshCw,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 import { getDistrictDeliveryFee } from '@/data/districts';
+import { getAllProducts } from '@/app/actions/productActions';
+import { PRODUCTS } from '@/data/catalogue';
+import { Product, ProductCategory } from '@/types';
+import ChangeOrderedProductModal from './ChangeOrderedProductModal';
+
+function fromDbProduct(p: any): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    category: p.category as ProductCategory,
+    categoryLabel: p.categoryLabel || 'Luxury Accessories',
+    tagline: p.tagline || '',
+    price: Number(p.price),
+    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    stockQty: p.stockQty ?? null,
+    inStock: p.inStock ?? true,
+    description: p.description || '',
+    details: Array.isArray(p.details)
+      ? p.details.map((d: any) => (typeof d === 'string' ? d : d.text))
+      : [],
+    piecesIncluded: Array.isArray(p.piecesIncluded)
+      ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
+      : [],
+    colorways: (p.colorways || []).map((cw: any) => ({
+      id: cw.colorId || cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: cw.inStock ?? true,
+      image: cw.image || null,
+    })),
+    sizes: p.sizes,
+    featuredImage: p.featuredImage,
+    galleryImages: Array.isArray(p.galleryImages)
+      ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
+      : [p.featuredImage],
+    isNewDrop: Boolean(p.isNewDrop),
+    isGiftPick: Boolean(p.isGiftPick),
+    isBestseller: Boolean(p.isBestseller),
+    featuredRank: p.featuredRank ?? 999,
+    isHidden: Boolean(p.isHidden),
+    seoKeywords:
+      typeof p.seoKeywords === 'string'
+        ? p.seoKeywords.split(',')
+        : Array.isArray(p.seoKeywords)
+        ? p.seoKeywords
+        : [],
+  };
+}
 
 const getCourierPortalUrl = (courierPartner: string | null | undefined, consignmentId: string) => {
   if (!consignmentId) return '#';
@@ -158,6 +208,37 @@ function AdminOrdersDesk() {
 
   // Copied order delivery & COD info state
   const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
+
+  // Available catalogue products for product swapping
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+  const [swappingProductState, setSwappingProductState] = useState<{
+    order: AdminOrder;
+    item: any;
+    index: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadProducts() {
+      try {
+        const serverProducts = await getAllProducts(true);
+        if (isMounted && serverProducts && serverProducts.length > 0) {
+          setAvailableProducts(serverProducts.map(fromDbProduct));
+        } else if (isMounted) {
+          setAvailableProducts(PRODUCTS);
+        }
+      } catch (err) {
+        console.warn('Failed to load products from DB, fallback to catalogue:', err);
+        if (isMounted) {
+          setAvailableProducts(PRODUCTS);
+        }
+      }
+    }
+    loadProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleStartEditQuantity = (order: AdminOrder, item: any, index: number) => {
     // If current shippingFee is 0 but district qualifies for standard fee, we default to current shippingFee
@@ -791,15 +872,27 @@ function AdminOrdersDesk() {
                                     {item.selectedSize && <span>· {item.selectedSize}</span>}
                                     <span className="font-semibold text-paper/90">· Qty: {item.quantity}</span>
                                     {!isEditingThis && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleStartEditQuantity(order, item, idx)}
-                                        className="text-[10px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 ml-1 font-semibold transition-colors"
-                                        title="Change ordered quantity"
-                                      >
-                                        <Edit2 className="w-2.5 h-2.5" />
-                                        <span>Edit Qty</span>
-                                      </button>
+                                      <div className="flex items-center gap-1.5 ml-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStartEditQuantity(order, item, idx)}
+                                          className="text-[10px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 font-semibold transition-colors"
+                                          title="Change ordered quantity"
+                                        >
+                                          <Edit2 className="w-2.5 h-2.5" />
+                                          <span>Edit Qty</span>
+                                        </button>
+                                        <span className="text-paper/20">·</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => setSwappingProductState({ order, item, index: idx })}
+                                          className="text-[10px] text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-0.5 font-semibold transition-colors"
+                                          title="Customer called & changed product: Swap ordered piece"
+                                        >
+                                          <RefreshCw className="w-2.5 h-2.5" />
+                                          <span>Change Product</span>
+                                        </button>
+                                      </div>
                                     )}
                                   </div>
                                 </div>
@@ -1275,6 +1368,18 @@ function AdminOrdersDesk() {
           })
         )}
       </div>
+
+      {/* Change Ordered Product Modal */}
+      {swappingProductState && (
+        <ChangeOrderedProductModal
+          isOpen={Boolean(swappingProductState)}
+          onClose={() => setSwappingProductState(null)}
+          order={swappingProductState.order}
+          targetItem={swappingProductState.item}
+          targetIndex={swappingProductState.index}
+          availableProducts={availableProducts.length > 0 ? availableProducts : PRODUCTS}
+        />
+      )}
     </div>
   );
 }
