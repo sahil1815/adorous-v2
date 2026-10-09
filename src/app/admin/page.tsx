@@ -30,7 +30,8 @@ import {
   Loader2,
   X,
   XCircle,
-  Ban
+  Ban,
+  Copy
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 import { getDistrictDeliveryFee } from '@/data/districts';
@@ -154,6 +155,9 @@ function AdminOrdersDesk() {
     amount: number;
   } | null>(null);
   const [isSavingCod, setIsSavingCod] = useState(false);
+
+  // Copied order delivery & COD info state
+  const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
 
   const handleStartEditQuantity = (order: AdminOrder, item: any, index: number) => {
     // If current shippingFee is 0 but district qualifies for standard fee, we default to current shippingFee
@@ -312,6 +316,56 @@ function AdminOrdersDesk() {
 
     const cleanPhone = order.customer.phone.replace(/[^0-9]/g, '');
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const handleCopyOrderInfo = async (order: AdminOrder) => {
+    const rawAddress = (order.customer.address || '').trim().replace(/[\s,]+$/, '');
+    const rawDistrict = (order.customer.district || '').trim();
+    let fullAddress = rawAddress;
+    if (rawDistrict && !rawAddress.toLowerCase().includes(rawDistrict.toLowerCase())) {
+      fullAddress = rawAddress ? `${rawAddress}, ${rawDistrict}` : rawDistrict;
+    }
+
+    const textToCopy = [
+      `Customer Name: ${order.customer.fullName || ''}`,
+      `Customer Phone: ${order.customer.phone || ''}`,
+      `Address: ${fullAddress}`,
+      `Total COD Collection: ৳${formatPrice(order.grandTotal ?? 0)}`,
+    ].join('\n');
+
+    let success = false;
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        success = true;
+      } catch (err) {
+        console.warn('Clipboard writeText failed, attempting fallback', err);
+      }
+    }
+
+    if (!success && typeof document !== 'undefined') {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error('Fallback clipboard copy failed', err);
+      }
+    }
+
+    if (success) {
+      setCopiedOrderId(order.orderId);
+      setTimeout(() => {
+        setCopiedOrderId((prev) => (prev === order.orderId ? null : prev));
+      }, 2000);
+    }
   };
 
   return (
@@ -648,9 +702,34 @@ function AdminOrdersDesk() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs">
                   {/* Left: Customer & Address */}
                   <div className="md:col-span-4 space-y-2 bg-[#1C1C1C] p-3.5 rounded-xs border border-white/5">
-                    <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider block">
-                      Recipient Information
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider">
+                        Recipient Information
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyOrderInfo(order)}
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-medium tracking-wide transition-all border cursor-pointer shrink-0 ${
+                          copiedOrderId === order.orderId
+                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs'
+                            : 'bg-gold/10 hover:bg-gold/20 text-gold-light hover:text-gold border-gold/30 hover:border-gold/50'
+                        }`}
+                        title="Copy Customer Name, Phone, Address & Total COD Collection to clipboard"
+                        aria-label="Copy Delivery & COD info to clipboard"
+                      >
+                        {copiedOrderId === order.orderId ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="font-semibold text-emerald-300">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Delivery & COD</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <div>
                       <strong className="text-sm font-serif text-paper block">
                         {order.customer.fullName}
