@@ -282,8 +282,8 @@ function AdminOrdersDesk() {
       statusFilter === 'all'
         ? true
         : statusFilter === 'returned_and_cancelled'
-        ? order.status === 'returned' || order.status === 'cancelled'
-        : order.status === statusFilter;
+          ? order.status === 'returned' || order.status === 'cancelled'
+          : order.status === statusFilter;
 
     // Region filter
     const isDhaka = order.customer.district.toLowerCase().includes('dhaka');
@@ -307,9 +307,9 @@ function AdminOrdersDesk() {
   };
 
   const generateWhatsAppVerificationLink = (order: AdminOrder) => {
-    let msg = `Hello ${order.customer.fullName}! Greetings from Adorous Fashion Dhaka.\n\n`;
-    msg += `We have received your Cash on Delivery order: ${order.orderId}\n`;
-    msg += `Items: ${order.items.map((i) => `${i.product.name} (${i.selectedColor.name})`).join(', ')}\n`;
+    let msg = `Hello ${order.customer.fullName}! Greetings from Adorous Fashion.\n\n`;
+    msg += `We have received your Cash on Delivery order: ${order.orderId}\n\n`;
+    msg += `Items: ${order.items.map((i) => `${i.product.name} (${i.selectedColor.name})`).join(', ')}\n\n`;
     msg += `Total Amount: ৳${formatPrice(order.grandTotal)}\n`;
     msg += `Delivery Address: ${order.customer.address}, ${order.customer.district}\n\n`;
     msg += `Please confirm if this address is correct so we can package and dispatch your order today.`;
@@ -376,9 +376,8 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('all')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
-              statusFilter === 'all' ? 'border-gold bg-[#1c1a15]' : 'border-white/10 hover:border-white/30'
-            }`}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'all' ? 'border-gold bg-[#1c1a15]' : 'border-white/10 hover:border-white/30'
+              }`}
           >
             <span className="text-[10px] uppercase tracking-wider text-paper/50 block font-medium">
               Total Orders
@@ -390,9 +389,8 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('pending')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
-              statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/20' : 'border-amber-600/30 hover:border-amber-500/60'
-            }`}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/20' : 'border-amber-600/30 hover:border-amber-500/60'
+              }`}
           >
             <span className="text-[10px] uppercase tracking-wider text-amber-400 block font-medium">
               Pending Call
@@ -404,9 +402,8 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('packaging')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
-              statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/20' : 'border-purple-600/30 hover:border-purple-500/60'
-            }`}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/20' : 'border-purple-600/30 hover:border-purple-500/60'
+              }`}
           >
             <span className="text-[10px] uppercase tracking-wider text-purple-400 block font-medium">
               In Packaging
@@ -418,9 +415,8 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('handed_to_courier')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
-              statusFilter === 'handed_to_courier' ? 'border-blue-400 bg-blue-950/20' : 'border-blue-600/30 hover:border-blue-500/60'
-            }`}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'handed_to_courier' ? 'border-blue-400 bg-blue-950/20' : 'border-blue-600/30 hover:border-blue-500/60'
+              }`}
           >
             <span className="text-[10px] uppercase tracking-wider text-blue-400 block font-medium">
               With Courier
@@ -432,9 +428,8 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('delivered')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${
-              statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/20' : 'border-emerald-600/30 hover:border-emerald-500/60'
-            }`}
+            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/20' : 'border-emerald-600/30 hover:border-emerald-500/60'
+              }`}
           >
             <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-medium">
               Delivered & Paid
@@ -446,11 +441,10 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('returned_and_cancelled')}
-            className={`text-left bg-[#181212] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer group ${
-              ['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
-                ? 'border-red-500 bg-red-950/40 shadow-xs'
-                : 'border-red-600/40 hover:border-red-500/80 hover:bg-[#201515]'
-            }`}
+            className={`text-left bg-[#181212] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer group ${['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
+              ? 'border-red-500 bg-red-950/40 shadow-xs'
+              : 'border-red-600/40 hover:border-red-500/80 hover:bg-[#201515]'
+              }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-wider text-red-400 block font-medium group-hover:text-red-300">
@@ -566,27 +560,25 @@ function AdminOrdersDesk() {
                 key={pill.id}
                 type="button"
                 onClick={() => setStatusFilter(pill.id)}
-                className={`px-3 py-1 rounded-xs text-[11px] transition-all flex items-center space-x-1.5 ${
-                  isActive
-                    ? pill.isRedGroup
-                      ? 'bg-red-800 text-white font-semibold shadow-xs border border-red-500'
-                      : 'bg-gold text-ink font-semibold shadow-xs'
-                    : pill.isRedGroup && pill.count > 0
+                className={`px-3 py-1 rounded-xs text-[11px] transition-all flex items-center space-x-1.5 ${isActive
+                  ? pill.isRedGroup
+                    ? 'bg-red-800 text-white font-semibold shadow-xs border border-red-500'
+                    : 'bg-gold text-ink font-semibold shadow-xs'
+                  : pill.isRedGroup && pill.count > 0
                     ? 'bg-[#221717] hover:bg-[#2c1c1c] text-red-300 border border-red-900/50 hover:border-red-700/60'
                     : 'bg-[#222222] text-paper/70 hover:text-paper hover:bg-[#2A2A2A] border border-white/5'
-                }`}
+                  }`}
               >
                 <span>{pill.label}</span>
                 <span
-                  className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
-                    isActive
-                      ? pill.isRedGroup
-                        ? 'bg-black/50 text-red-200'
-                        : 'bg-ink text-gold'
-                      : pill.isRedGroup && pill.count > 0
+                  className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${isActive
+                    ? pill.isRedGroup
+                      ? 'bg-black/50 text-red-200'
+                      : 'bg-ink text-gold'
+                    : pill.isRedGroup && pill.count > 0
                       ? 'bg-red-950 text-red-300 border border-red-800/40'
                       : 'bg-black/40 text-paper/60'
-                  }`}
+                    }`}
                 >
                   {pill.count}
                 </span>
@@ -610,15 +602,15 @@ function AdminOrdersDesk() {
                   {statusFilter === 'returned_and_cancelled'
                     ? 'Returned & Cancelled Orders Section'
                     : statusFilter === 'returned'
-                    ? 'Returned Orders Section (Courier RTO)'
-                    : 'Cancelled Orders Section'}
+                      ? 'Returned Orders Section (Courier RTO)'
+                      : 'Cancelled Orders Section'}
                 </span>
                 <p className="text-[11px] text-red-300/70 mt-0.5">
                   {statusFilter === 'returned'
                     ? 'Parcels that were dispatched with couriers but failed delivery or returned to merchant.'
                     : statusFilter === 'cancelled'
-                    ? 'Orders cancelled before delivery (patron request, phone unreachable, or unverified).'
-                    : 'Viewing all unfulfilled orders: courier returns and cancelled orders.'}
+                      ? 'Orders cancelled before delivery (patron request, phone unreachable, or unverified).'
+                      : 'Viewing all unfulfilled orders: courier returns and cancelled orders.'}
                 </p>
               </div>
             </div>
@@ -651,10 +643,10 @@ function AdminOrdersDesk() {
               {statusFilter === 'returned_and_cancelled'
                 ? 'No returned or cancelled orders found in system.'
                 : statusFilter === 'returned'
-                ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
-                : statusFilter === 'cancelled'
-                ? 'No cancelled orders found in this view.'
-                : 'Try adjusting your search query or reset status filters to view all orders.'}
+                  ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
+                  : statusFilter === 'cancelled'
+                    ? 'No cancelled orders found in this view.'
+                    : 'Try adjusting your search query or reset status filters to view all orders.'}
             </p>
           </div>
         ) : (
@@ -709,11 +701,10 @@ function AdminOrdersDesk() {
                       <button
                         type="button"
                         onClick={() => handleCopyOrderInfo(order)}
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-medium tracking-wide transition-all border cursor-pointer shrink-0 ${
-                          copiedOrderId === order.orderId
-                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs'
-                            : 'bg-gold/10 hover:bg-gold/20 text-gold-light hover:text-gold border-gold/30 hover:border-gold/50'
-                        }`}
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-medium tracking-wide transition-all border cursor-pointer shrink-0 ${copiedOrderId === order.orderId
+                          ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs'
+                          : 'bg-gold/10 hover:bg-gold/20 text-gold-light hover:text-gold border-gold/30 hover:border-gold/50'
+                          }`}
                         title="Copy Customer Name, Phone, Address & Total COD Collection to clipboard"
                         aria-label="Copy Delivery & COD info to clipboard"
                       >
@@ -893,22 +884,20 @@ function AdminOrdersDesk() {
                                           <button
                                             type="button"
                                             onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: 0 })}
-                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${
-                                              editingItemQuantity.shippingFee === 0
-                                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                                                : 'bg-white/5 text-paper/50 hover:text-paper'
-                                            }`}
+                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${editingItemQuantity.shippingFee === 0
+                                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                                              : 'bg-white/5 text-paper/50 hover:text-paper'
+                                              }`}
                                           >
                                             Free (৳0)
                                           </button>
                                           <button
                                             type="button"
                                             onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: districtFee })}
-                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${
-                                              editingItemQuantity.shippingFee === districtFee
-                                                ? 'bg-gold/20 text-gold border border-gold/40'
-                                                : 'bg-white/5 text-paper/50 hover:text-paper'
-                                            }`}
+                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${editingItemQuantity.shippingFee === districtFee
+                                              ? 'bg-gold/20 text-gold border border-gold/40'
+                                              : 'bg-white/5 text-paper/50 hover:text-paper'
+                                              }`}
                                           >
                                             ৳{districtFee}
                                           </button>
@@ -1004,33 +993,30 @@ function AdminOrdersDesk() {
                               <button
                                 type="button"
                                 onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 0 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
-                                  editingOrderShipping.fee === 0
-                                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                                    : 'bg-white/5 text-paper/50 hover:text-paper'
-                                }`}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 0
+                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-white/5 text-paper/50 hover:text-paper'
+                                  }`}
                               >
                                 Free
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 80 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
-                                  editingOrderShipping.fee === 80
-                                    ? 'bg-gold/20 text-gold border border-gold/40'
-                                    : 'bg-white/5 text-paper/50 hover:text-paper'
-                                }`}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 80
+                                  ? 'bg-gold/20 text-gold border border-gold/40'
+                                  : 'bg-white/5 text-paper/50 hover:text-paper'
+                                  }`}
                               >
                                 ৳80
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 130 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${
-                                  editingOrderShipping.fee === 130
-                                    ? 'bg-gold/20 text-gold border border-gold/40'
-                                    : 'bg-white/5 text-paper/50 hover:text-paper'
-                                }`}
+                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 130
+                                  ? 'bg-gold/20 text-gold border border-gold/40'
+                                  : 'bg-white/5 text-paper/50 hover:text-paper'
+                                  }`}
                               >
                                 ৳130
                               </button>
@@ -1170,8 +1156,8 @@ function AdminOrdersDesk() {
                               courierInput === 'CarryBee'
                                 ? 'e.g. CB-88294102'
                                 : courierInput === 'Pathao Courier'
-                                ? 'e.g. PT-88294102'
-                                : 'e.g. ST-88294102'
+                                  ? 'e.g. PT-88294102'
+                                  : 'e.g. ST-88294102'
                             }
                             className="w-full h-8 px-2 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
                           />
