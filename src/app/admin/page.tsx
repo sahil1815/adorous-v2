@@ -208,6 +208,29 @@ function AdminOrdersDesk() {
 
   // Copied order delivery & COD info state
   const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
+  const [sendingApiOrderId, setSendingApiOrderId] = useState<string | null>(null);
+
+  const handleSendWhatsAppApi = async (orderId: string) => {
+    setSendingApiOrderId(orderId);
+    try {
+      const res = await fetch('/api/whatsapp/send-order-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Automated WhatsApp message successfully delivered via Meta Cloud API!');
+        window.location.reload();
+      } else {
+        alert('Meta API Error: ' + (data.error || 'Failed to send'));
+      }
+    } catch (err: any) {
+      alert('Error: ' + (err?.message || 'Failed'));
+    } finally {
+      setSendingApiOrderId(null);
+    }
+  };
 
   // Available catalogue products for product swapping
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
@@ -1332,6 +1355,25 @@ function AdminOrdersDesk() {
                         <MessageCircle className="w-3.5 h-3.5 text-white" />
                         <span>Verify on WhatsApp</span>
                       </a>
+                      <button
+                        type="button"
+                        onClick={() => handleSendWhatsAppApi(order.orderId)}
+                        disabled={sendingApiOrderId === order.orderId}
+                        className="w-full py-1.5 bg-[#252525] hover:bg-[#303030] border border-white/10 text-paper/70 hover:text-paper rounded-xs text-[10px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Trigger official Meta WhatsApp Cloud API automated message"
+                      >
+                        {sendingApiOrderId === order.orderId ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin text-gold" />
+                            <span>Sending via Meta API...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3 text-gold" />
+                            <span>Send via Meta API</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>

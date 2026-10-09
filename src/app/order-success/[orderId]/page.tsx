@@ -85,7 +85,7 @@ export default function OrderSuccessPage() {
     }
   }, [orderId]);
 
-  // Automated 30s background WhatsApp verification trigger
+  // Automated background WhatsApp verification trigger
   useEffect(() => {
     if (!orderId) return;
     const timer = setTimeout(() => {
@@ -94,7 +94,7 @@ export default function OrderSuccessPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId }),
       }).catch((err) => console.warn('[Backup WhatsApp trigger error]', err));
-    }, 30000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [orderId]);

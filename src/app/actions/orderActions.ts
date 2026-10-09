@@ -145,13 +145,13 @@ export async function createOrder(orderData: any) {
 
     revalidatePath('/admin');
 
-    // Trigger automated WhatsApp verification message after 30 seconds
+    // Trigger automated WhatsApp verification message after a brief 5s dispatch delay
     const targetOrderId = order.orderId;
     setTimeout(() => {
       sendWhatsAppOrderVerification(targetOrderId).catch((err) => {
-        console.error(`[WhatsApp 30s Automation] Failed to send verification for ${targetOrderId}:`, err);
+        console.error(`[WhatsApp Automation] Failed to send verification for ${targetOrderId}:`, err);
       });
-    }, 30000);
+    }, 5000);
 
     return { success: true, order };
   } catch (error) {
