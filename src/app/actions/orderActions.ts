@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { deductStockAction } from './productActions';
 import { getWelcomeOfferSettings } from './welcomeOfferActions';
 import { generateNextOrderId } from '@/lib/orderId';
-import { sendWhatsAppOrderVerification } from '@/lib/whatsapp';
 
 export async function createOrder(orderData: any) {
   try {
@@ -144,15 +143,6 @@ export async function createOrder(orderData: any) {
     );
 
     revalidatePath('/admin');
-
-    // Trigger automated WhatsApp verification message after a brief 5s dispatch delay
-    const targetOrderId = order.orderId;
-    setTimeout(() => {
-      sendWhatsAppOrderVerification(targetOrderId).catch((err) => {
-        console.error(`[WhatsApp Automation] Failed to send verification for ${targetOrderId}:`, err);
-      });
-    }, 5000);
-
     return { success: true, order };
   } catch (error) {
     console.error("Failed to create order:", error);
