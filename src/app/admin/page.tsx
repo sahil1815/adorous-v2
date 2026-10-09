@@ -310,7 +310,7 @@ function AdminOrdersDesk() {
     let msg = `Hello ${order.customer.fullName}! Greetings from Adorous Fashion.\n\n`;
     msg += `We have received your Cash on Delivery order: ${order.orderId}\n\n`;
     msg += `Items: ${order.items.map((i) => `${i.product.name} (${i.selectedColor.name})`).join(', ')}\n\n`;
-    msg += `Total Amount: ৳${formatPrice(order.grandTotal)}\n`;
+    msg += `Total Amount: ৳${formatPrice(order.grandTotal)}\n\n`;
     msg += `Delivery Address: ${order.customer.address}, ${order.customer.district}\n\n`;
     msg += `Please confirm if this address is correct so we can package and dispatch your order today.`;
 
