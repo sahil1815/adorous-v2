@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import { formatPrice } from '@/lib/formatPrice';
+import { getProductPieceInfo } from '@/lib/productPieces';
 
 interface ProductCardProps {
   product: Product;
@@ -156,14 +157,11 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Pieces Count or Quick Specs (including box / complimentary gift item) */}
         {(() => {
-          const namePieceMatch = product.name?.match(/\((\d+)[- ]*(?:piece|pcs|pc)/i);
-          const nameCount = namePieceMatch ? parseInt(namePieceMatch[1], 10) : 0;
-          const piecesCount = (product.piecesIncluded?.length || 0) + (product.complimentaryItem ? 1 : 0);
-          const displayPieces = Math.max(piecesCount, nameCount);
-          if (displayPieces <= 0) return null;
+          const pieceInfo = getProductPieceInfo(product);
+          if (!pieceInfo.badgeLabel) return null;
           return (
             <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
-              {displayPieces} Pcs Set
+              {pieceInfo.badgeLabel}
             </div>
           );
         })()}

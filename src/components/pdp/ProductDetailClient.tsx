@@ -14,6 +14,7 @@ import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
 import { renderFormattedText } from '@/lib/formatText';
 import { formatPrice } from '@/lib/formatPrice';
+import { getProductPieceInfo } from '@/lib/productPieces';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShoppingBag,
@@ -1492,36 +1493,39 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               </div>
 
               {/* What's in Your Package (Transparency Section) */}
-              {((product.piecesIncluded && product.piecesIncluded.length > 0) || product.complimentaryItem) && (
-                <div className="mt-8 border border-line p-4 bg-paper space-y-3 rounded-lg">
-                  <div className="flex items-center space-x-2 text-ink">
-                    <Box className="w-4 h-4 text-gold-deep" />
-                    <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
-                      What's in Your Package:
-                    </h3>
+              {((product.piecesIncluded && product.piecesIncluded.length > 0) || product.complimentaryItem) && (() => {
+                const pieceInfo = getProductPieceInfo(product);
+                return (
+                  <div className="mt-8 border border-line p-4 bg-paper space-y-3 rounded-lg">
+                    <div className="flex items-center space-x-2 text-ink">
+                      <Box className="w-4 h-4 text-gold-deep" />
+                      <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
+                        What&apos;s in Your Package{pieceInfo.badgeLabel ? ` (${pieceInfo.badgeLabel})` : ''}:
+                      </h3>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-ink/90 divide-y divide-line/40">
+                      {product.piecesIncluded?.map((piece, i) => (
+                        <li key={i} className="pt-1.5 flex items-center justify-between">
+                          <span className="flex items-center space-x-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
+                            <span>{piece}</span>
+                          </span>
+                          <span className="text-text-muted text-[11px]">Included</span>
+                        </li>
+                      ))}
+                      {product.complimentaryItem && (
+                        <li className="pt-1.5 flex items-center justify-between text-gold-ink font-medium">
+                          <span className="flex items-center space-x-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                            <span>{product.complimentaryItem}</span>
+                          </span>
+                          <span className="text-[11px] font-semibold text-gold-deep">GIFT</span>
+                        </li>
+                      )}
+                    </ul>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-ink/90 divide-y divide-line/40">
-                    {product.piecesIncluded?.map((piece, i) => (
-                      <li key={i} className="pt-1.5 flex items-center justify-between">
-                        <span className="flex items-center space-x-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
-                          <span>{piece}</span>
-                        </span>
-                        <span className="text-text-muted text-[11px]">Included</span>
-                      </li>
-                    ))}
-                    {product.complimentaryItem && (
-                      <li className="pt-1.5 flex items-center justify-between text-gold-ink font-medium">
-                        <span className="flex items-center space-x-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                          <span>{product.complimentaryItem}</span>
-                        </span>
-                        <span className="text-[11px] font-semibold text-gold-deep">GIFT</span>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>

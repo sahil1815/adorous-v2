@@ -10,6 +10,7 @@ import { createProductAction, getProductById } from '@/app/actions/productAction
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/formatPrice';
+import { getProductPieceInfo } from '@/lib/productPieces';
 import {
   ArrowLeft,
   Sparkles,
@@ -1438,9 +1439,21 @@ function AddProductContent() {
 
           {/* Pieces Included */}
           <div className="space-y-2 pt-2 border-t border-white/5">
-            <label className="block text-paper/70 uppercase tracking-widest text-[10px] font-semibold">
-              What's in the Box ({piecesIncluded.length} items)
-            </label>
+            {(() => {
+              const pieceInfo = getProductPieceInfo({
+                name,
+                category,
+                piecesIncluded,
+                complimentaryItem: hasComplimentaryItem ? complimentaryItemText : null,
+              });
+              const totalPcs = pieceInfo.displayPieces;
+              return (
+                <label className="block text-paper/70 uppercase tracking-widest text-[10px] font-semibold">
+                  What&apos;s in the Box ({piecesIncluded.length} {piecesIncluded.length === 1 ? 'item' : 'items'}
+                  {totalPcs > piecesIncluded.length ? ` · ${totalPcs} pcs total` : ''})
+                </label>
+              );
+            })()}
             <div className="space-y-1.5">
               {piecesIncluded.map((p, idx) => (
                 <div key={idx} className="flex items-center justify-between bg-[#1C1C1C] p-2 rounded-xs border border-white/5">

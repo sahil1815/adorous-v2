@@ -415,9 +415,9 @@ export const PRODUCTS_TO_IMPORT: FullProductDefinition[] = [
       'Care: Keep away from moisture, perfumes, and harsh chemicals; store in a dry bangle box',
     ],
     piecesIncluded: [
-      '4x Deep Maroon Silk Floral Bangles',
-      '4x Vibrant Teal Silk Floral Bangles',
-      '2x Gold-Tone Kundan Mirror Border Bangles with Pearl Drops',
+      '2x Deep Maroon Silk Floral Bangles',
+      '2x Vibrant Teal Silk Floral Bangles',
+      '4x Gold-Tone Kundan Mirror Border Bangles with Pearl Drops',
     ],
     colorways: [
       {
