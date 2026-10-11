@@ -31,6 +31,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Clock,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 import { calculateSellingPrice } from '@/lib/pricing';
@@ -79,6 +80,12 @@ function fromDbProduct(p: any): Product {
         : Array.isArray(p.seoKeywords)
         ? p.seoKeywords
         : [],
+    createdAt: p.createdAt
+      ? (p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt))
+      : undefined,
+    updatedAt: p.updatedAt
+      ? (p.updatedAt instanceof Date ? p.updatedAt.toISOString() : String(p.updatedAt))
+      : undefined,
   };
 }
 
@@ -135,7 +142,7 @@ export default function AdminInventoryPage() {
     async function fetchInventory() {
       try {
         setIsLoading(true);
-        const serverProducts = await getAllProducts(true);
+        const serverProducts = await getAllProducts(true, 'newest');
         if (isMounted && serverProducts) {
           setDbProducts(serverProducts.map(fromDbProduct));
         }
@@ -186,27 +193,38 @@ export default function AdminInventoryPage() {
   };
 
   // Derive active product list (merging DB products with any local additions, avoiding duplicates)
+  // Sorted based on added date (the one added last will be on the top)
   const activeProducts: Product[] = React.useMemo(() => {
+    let list: Product[] = [];
     if (dbProducts === null) {
-      return contextProducts;
+      list = [...contextProducts];
+    } else {
+      // Start with dbProducts
+      const map = new Map<string, Product>();
+      dbProducts.forEach((p) => {
+        map.set(p.id, p);
+        map.set(p.slug, p);
+      });
+
+      // Check if any custom product from context is not yet in DB
+      const merged = [...dbProducts];
+      contextProducts.forEach((cp) => {
+        if (!map.has(cp.id) && !map.has(cp.slug)) {
+          merged.unshift(cp);
+        }
+      });
+      list = merged;
     }
 
-    // Start with dbProducts
-    const map = new Map<string, Product>();
-    dbProducts.forEach((p) => {
-      map.set(p.id, p);
-      map.set(p.slug, p);
-    });
-
-    // Check if any custom product from context is not yet in DB
-    const merged = [...dbProducts];
-    contextProducts.forEach((cp) => {
-      if (!map.has(cp.id) && !map.has(cp.slug)) {
-        merged.unshift(cp);
+    // Sort strictly by added date descending (the one added last will be on the top)
+    return [...list].sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (timeB !== timeA) {
+        return timeB - timeA;
       }
+      return (b.id || '').localeCompare(a.id || '');
     });
-
-    return merged;
   }, [dbProducts, contextProducts]);
 
   // Stock state helper
@@ -749,10 +767,15 @@ export default function AdminInventoryPage() {
       {/* Products Table / Cards */}
       <div className="space-y-4">
         <div className="flex items-center justify-between text-xs text-paper/60 px-1">
-          <span>
-            {isLoading ? 'Synchronizing catalogue...' : `Showing ${filteredProducts.length} items`}
-          </span>
-          <span className="text-[11px]">100% Still-Life photography on warm stone plinths</span>
+          <div className="flex items-center space-x-2">
+            <span>
+              {isLoading ? 'Synchronizing catalogue...' : `Showing ${filteredProducts.length} items`}
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-xs bg-gold/10 text-gold-light border border-gold/20 font-medium">
+              Sorted by added date (newest first)
+            </span>
+          </div>
+          <span className="text-[11px] hidden sm:inline">100% Still-Life photography on warm stone plinths</span>
         </div>
 
         {isLoading ? (
@@ -857,6 +880,17 @@ export default function AdminInventoryPage() {
                             Live on Store
                           </span>
                         )}
+                        {(() => {
+                          if (!prod.createdAt) return null;
+                          const d = new Date(prod.createdAt);
+                          if (isNaN(d.getTime())) return null;
+                          return (
+                            <span className="text-[10px] px-2 py-0.5 rounded-xs bg-white/5 text-paper/50 border border-white/10 flex items-center gap-1 font-mono">
+                              <Clock className="w-2.5 h-2.5 text-paper/40" />
+                              Added {d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                          );
+                        })()}
                       </div>
 
                       <h3 className="font-serif text-base text-paper font-medium truncate block max-w-md">

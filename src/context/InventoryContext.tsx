@@ -81,6 +81,12 @@ function fromDbProduct(p: any): Product {
     seoKeywords: Array.isArray(p.seoKeywords)
       ? p.seoKeywords
       : (p.seoKeywords ? p.seoKeywords.split(',') : []),
+    createdAt: p.createdAt
+      ? (p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt))
+      : undefined,
+    updatedAt: p.updatedAt
+      ? (p.updatedAt instanceof Date ? p.updatedAt.toISOString() : String(p.updatedAt))
+      : undefined,
   };
 }
 
@@ -142,6 +148,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     const product: Product = {
       ...newProdData,
       id,
+      createdAt: (newProdData as any).createdAt || new Date().toISOString(),
     };
 
     const updated = [product, ...customProducts];

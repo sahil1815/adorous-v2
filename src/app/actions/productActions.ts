@@ -42,9 +42,13 @@ function toDbShape(product: Product) {
       image: cw.image ?? null,
       productId: product.id,
     })),
-    galleryImages: (product.galleryImages || []).map((url, idx) => ({ id: `img-${idx}`, url, productId: product.id })),
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    galleryImages: (product.galleryImages || []).map((url, idx) => ({ id: `img-${idx}`, url: typeof url === 'string' ? url : (url as any).url, productId: product.id })),
+    createdAt: (product as any).createdAt
+      ? ((product as any).createdAt instanceof Date ? (product as any).createdAt.toISOString() : String((product as any).createdAt))
+      : new Date().toISOString(),
+    updatedAt: (product as any).updatedAt
+      ? ((product as any).updatedAt instanceof Date ? (product as any).updatedAt.toISOString() : String((product as any).updatedAt))
+      : new Date().toISOString(),
   };
 }
 
@@ -99,21 +103,39 @@ export async function getProductBySlug(slug: string, allowHidden = false) {
   }
 }
 
-export async function getAllProducts(includeHidden = false) {
+export async function getAllProducts(
+  includeHidden = false,
+  orderByOption: 'featured' | 'newest' | 'oldest' = 'featured'
+) {
   try {
     if (!process.env.DATABASE_URL) {
-      return PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
+      const list = PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
+      if (orderByOption === 'newest') {
+        return [...list].reverse();
+      }
+      return list;
     }
     const whereClause = includeHidden ? {} : { isHidden: false };
+    const orderByClause =
+      orderByOption === 'newest'
+        ? [{ createdAt: 'desc' as const }]
+        : orderByOption === 'oldest'
+        ? [{ createdAt: 'asc' as const }]
+        : [{ featuredRank: 'asc' as const }, { createdAt: 'asc' as const }];
+
     const products = await prisma.product.findMany({
       where: whereClause,
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
-      orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
+      orderBy: orderByClause,
     });
     return products || [];
   } catch (error) {
     console.warn('[getAllProducts] Database unavailable. Falling back to static catalogue:', error);
-    return PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
+    const list = PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
+    if (orderByOption === 'newest') {
+      return [...list].reverse();
+    }
+    return list;
   }
 }
 

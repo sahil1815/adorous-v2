@@ -499,6 +499,7 @@ function AddProductContent() {
         'Dhaka boutique',
         'cash on delivery Bangladesh',
       ],
+      createdAt: new Date().toISOString(),
     };
 
     try {
@@ -511,7 +512,7 @@ function AddProductContent() {
       }
 
       // 2. Synchronize with local client context for instant reactivity
-      addProduct(newProduct);
+      addProduct((res as any).product || newProduct);
 
       setTimeout(() => {
         router.push('/admin/inventory');

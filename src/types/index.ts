@@ -35,6 +35,8 @@ export interface Product {
   featuredRank: number;
   seoKeywords: string[];
   isHidden?: boolean;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface CartItem {
