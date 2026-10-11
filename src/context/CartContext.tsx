@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, Colorway, CartItem } from '@/types';
 import { event as trackFbEvent } from '@/lib/fpixel';
+import { trackAddToCart } from '@/lib/gtag';
 
 interface CartContextType {
   items: CartItem[];
@@ -86,6 +87,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       content_type: 'product',
       value: product.price * quantity,
       currency: 'BDT',
+    });
+
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      category: product.categoryLabel || product.category,
+      price: product.price,
+      quantity,
     });
 
     setIsOpen(true);

@@ -17,6 +17,7 @@ import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
 import { isProductOutOfStock } from '@/lib/productStock';
 import { event as trackFbEvent } from '@/lib/fpixel';
+import { trackViewItem } from '@/lib/gtag';
 import {
   ShoppingBag,
   MessageCircle,
@@ -67,6 +68,12 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       content_type: 'product',
       value: product.price,
       currency: 'BDT',
+    });
+    trackViewItem({
+      id: product.id,
+      name: product.name,
+      category: product.categoryLabel || product.category,
+      price: product.price,
     });
     return () => cancelAnimationFrame(rafId);
   }, [product.id, product.name, product.categoryLabel, product.category, product.price, product.slug]);

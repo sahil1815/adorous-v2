@@ -17,6 +17,7 @@ import {
   PhoneCall
 } from 'lucide-react';
 import { event as trackFbEvent } from '@/lib/fpixel';
+import { trackPurchase } from '@/lib/gtag';
 import { formatPrice } from '@/lib/formatPrice';
 
 interface OrderData {
@@ -79,6 +80,16 @@ export default function OrderSuccessPage() {
               value: parsed.grandTotal,
               currency: 'BDT',
               num_items: (parsed.items || []).reduce((sum: number, i: any) => sum + (i.quantity || 1), 0),
+            });
+            trackPurchase({
+              transactionId: orderId,
+              value: parsed.grandTotal,
+              items: (parsed.items || []).map((i: any) => ({
+                id: i.product?.id || i.id,
+                name: i.product?.name || i.name,
+                price: i.product?.price || i.price,
+                quantity: i.quantity || 1,
+              })),
             });
           }
         }
@@ -240,14 +251,34 @@ export default function OrderSuccessPage() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-semibold text-ink tabular-nums">
-                        {(() => {
-                          const unitPrice = (item.product?.originalPrice && item.product.originalPrice > item.product.price)
-                            ? item.product.originalPrice
-                            : (item.product?.price ?? (item as any).price ?? 0);
-                          return `৳${formatPrice(unitPrice * item.quantity)}`;
-                        })()}
-                      </span>
+                      {(() => {
+                        const sellingPrice = (Number(item.product?.price) || Number((item as any).price) || 0) * item.quantity;
+                        const basePrice = (item.product?.originalPrice && item.product.originalPrice > item.product.price
+                          ? Number(item.product.originalPrice)
+                          : (Number(item.product?.price) || Number((item as any).price) || 0)) * item.quantity;
+                        const hasDiscount = basePrice > sellingPrice;
+                        const discountPct = hasDiscount ? Math.round(((basePrice - sellingPrice) / basePrice) * 100) : 0;
+
+                        return (
+                          <div className="flex flex-col items-end">
+                            <div className="flex items-baseline gap-1.5 flex-wrap justify-end">
+                              <span className="text-xs font-bold text-ink tabular-nums">
+                                ৳{formatPrice(sellingPrice)}
+                              </span>
+                              {hasDiscount && (
+                                <span className="text-[10px] text-text-muted line-through tabular-nums">
+                                  ৳{formatPrice(basePrice)}
+                                </span>
+                              )}
+                            </div>
+                            {hasDiscount && discountPct > 0 && (
+                              <span className="text-[9.5px] font-bold text-[#9E2A2B] tracking-tight mt-0.5">
+                                ({discountPct}% off)
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}

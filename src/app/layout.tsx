@@ -18,6 +18,7 @@ import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { NewVisitorOfferProvider } from "@/context/NewVisitorOfferContext";
 import StorefrontLayoutWrapper from "@/components/layout/StorefrontLayoutWrapper";
 import MetaPixel from "@/components/analytics/MetaPixel";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -76,6 +77,10 @@ export default function RootLayout({
     process.env.META_PIXEL_ID ||
     process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
+  const gaMeasurementId =
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+    process.env.GA_MEASUREMENT_ID;
+
   return (
     <html lang="en">
       <head>
@@ -114,6 +119,7 @@ export default function RootLayout({
         </AdminAuthProvider>
         <Analytics />
         <MetaPixel pixelId={fbPixelId} />
+        <GoogleAnalytics gaId={gaMeasurementId} />
       </body>
     </html>
   );

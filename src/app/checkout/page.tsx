@@ -15,6 +15,7 @@ import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
 import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
+import { trackBeginCheckout } from '@/lib/gtag';
 import {
   ShieldCheck,
   Truck,
@@ -63,6 +64,15 @@ export default function CheckoutPage() {
         content_ids: items.map((item) => item.product.id),
         value: subtotal,
         currency: 'BDT',
+      });
+      trackBeginCheckout({
+        value: subtotal,
+        items: items.map((item) => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+        })),
       });
     }
   }, []);
@@ -671,9 +681,9 @@ export default function CheckoutPage() {
               </div>
 
               {/* Items Header */}
-              <div className="hidden sm:flex justify-between text-[11px] font-semibold text-text-muted uppercase tracking-wider px-2">
+              <div className="hidden sm:flex justify-between items-center text-[11px] font-semibold text-text-muted uppercase tracking-wider px-2">
                 <span className="flex-1">Product</span>
-                <span className="w-24 text-center">Price</span>
+                <span className="w-32 text-center">Price</span>
                 <span className="w-20 text-right">Quantity</span>
               </div>
 
@@ -681,8 +691,24 @@ export default function CheckoutPage() {
               <div className="divide-y divide-line max-h-96 overflow-y-auto pr-1">
                 {items.map((item, idx) => {
                   const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
-                  const itemUnitPrice = getItemComparePrice(item);
-                  const lineTotal = itemUnitPrice * item.quantity;
+                  const baseUnitPrice = getItemComparePrice(item);
+                  const baseLineTotal = baseUnitPrice * item.quantity;
+
+                  // Calculate discounted unit price (after new visitor offer or regular store discount)
+                  let discountedUnitPrice = Number(item.product.price) || 0;
+                  if (useNvo) {
+                    const pct = settings.discountPercent || 10;
+                    const targetPrice = Math.round(baseUnitPrice * (1 - pct / 100) * 100) / 100;
+                    discountedUnitPrice = Math.min(Number(item.product.price) || targetPrice, targetPrice);
+                  }
+
+                  const discountedLineTotal = discountedUnitPrice * item.quantity;
+                  const hasDiscount = baseLineTotal > discountedLineTotal;
+                  const discountPct = hasDiscount
+                    ? (!useNvo && (item.product as any).discount && (item.product as any).discountType === 'percent'
+                        ? Math.round(Number((item.product as any).discount))
+                        : Math.round(((baseLineTotal - discountedLineTotal) / baseLineTotal) * 100))
+                    : 0;
 
                   return (
                     <div key={itemKey} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0">
@@ -767,29 +793,81 @@ export default function CheckoutPage() {
                           </div>
 
                           {/* Mobile Quantity/Price Display */}
-                          <div className="sm:hidden flex items-center justify-between mt-2 w-full">
-                            <span className="text-xs font-semibold text-ink tabular-nums">
-                              ৳{formatPrice(lineTotal)}
-                            </span>
-                            <div className="flex items-center space-x-2 text-xs">
-                              <button onClick={() => handleDecreaseQuantity(item)} className="p-1 hover:bg-sand rounded-xs"><Minus className="w-3 h-3" /></button>
-                              <span className="font-semibold">Qty: {item.quantity}</span>
-                              <button onClick={() => handleIncreaseQuantity(item)} className="p-1 hover:bg-sand rounded-xs"><Plus className="w-3 h-3" /></button>
+                          <div className="sm:hidden flex items-center justify-between mt-2.5 w-full gap-2">
+                            <div className="min-w-0">
+                              <div className="flex items-baseline gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-ink tabular-nums">
+                                  ৳{formatPrice(discountedLineTotal)}
+                                </span>
+                                {hasDiscount && (
+                                  <>
+                                    <span className="text-[10.5px] text-text-muted line-through tabular-nums">
+                                      ৳{formatPrice(baseLineTotal)}
+                                    </span>
+                                    {discountPct > 0 && (
+                                      <span className="text-[9.5px] font-bold text-[#9E2A2B] tracking-tight">
+                                        ({discountPct}% off)
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                              {item.quantity > 1 && (
+                                <span className="text-[9.5px] text-text-muted block mt-0.5 tabular-nums">
+                                  ৳{formatPrice(discountedUnitPrice)} each
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleDecreaseQuantity(item)}
+                                className="p-1 hover:bg-sand rounded-xs transition-colors"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="font-semibold tabular-nums">Qty: {item.quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleIncreaseQuantity(item)}
+                                className="p-1 hover:bg-sand rounded-xs transition-colors"
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Desktop Price */}
-                      <div className="hidden sm:flex w-24 justify-center shrink-0">
-                        <span className="text-xs font-semibold text-ink tabular-nums">
-                          ৳{formatPrice(lineTotal)}
-                        </span>
+                      <div className="hidden sm:flex w-32 flex-col items-center justify-center shrink-0 text-center">
+                        <div className="flex items-baseline justify-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-ink tabular-nums">
+                            ৳{formatPrice(discountedLineTotal)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-[10px] text-text-muted line-through tabular-nums">
+                              ৳{formatPrice(baseLineTotal)}
+                            </span>
+                          )}
+                        </div>
+                        {hasDiscount && discountPct > 0 && (
+                          <span className="text-[9.5px] font-bold text-[#9E2A2B] tracking-tight mt-0.5">
+                            ({discountPct}% off)
+                          </span>
+                        )}
+                        {item.quantity > 1 && (
+                          <span className="text-[9px] text-text-muted block mt-0.5 tabular-nums">
+                            ৳{formatPrice(discountedUnitPrice)} each
+                          </span>
+                        )}
                       </div>
 
                       {/* Desktop Quantity Stepper */}
                       <div className="hidden sm:flex w-20 justify-end items-center space-x-2 shrink-0">
-                        <span className="text-xs font-semibold">Qty: {item.quantity}</span>
+                        <span className="text-xs font-semibold tabular-nums">Qty: {item.quantity}</span>
                         {/* Optionally add +/- here for desktop too, keeping simple text to match screenshot layout */}
                       </div>
                     </div>
@@ -1097,9 +1175,23 @@ export default function CheckoutPage() {
                   <span className="truncate">{itemToDelete.selectedColor.name}</span>
                   {itemToDelete.selectedSize && <span>· Size {itemToDelete.selectedSize}</span>}
                 </div>
-                <div className="text-xs font-semibold text-ink mt-1 tabular-nums">
-                  Qty: {itemToDelete.quantity} · ৳{formatPrice(itemToDelete.product.price * itemToDelete.quantity)}
-                </div>
+                {(() => {
+                  const baseTotal = getItemComparePrice(itemToDelete) * itemToDelete.quantity;
+                  const sellTotal = (Number(itemToDelete.product.price) || 0) * itemToDelete.quantity;
+                  const hasDisc = baseTotal > sellTotal;
+                  return (
+                    <div className="flex items-baseline gap-1.5 mt-1 text-xs tabular-nums">
+                      <span className="font-semibold text-ink">
+                        Qty: {itemToDelete.quantity} · ৳{formatPrice(sellTotal)}
+                      </span>
+                      {hasDisc && (
+                        <span className="text-[10px] text-text-muted line-through">
+                          ৳{formatPrice(baseTotal)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
