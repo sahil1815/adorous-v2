@@ -85,28 +85,37 @@ export function getProductPieceInfo(product: {
     calculatedPieces = 2;
   }
 
-  // In mixed jewelry box sets (e.g. 5-Piece Box Set), complimentary packaging / boxes are counted as a piece of the set.
-  // For churi and earrings, complimentary packaging is gift packaging, not a bangle or earring piece.
-  if (product.complimentaryItem && !isChuriOrEarrings) {
+  // If piecesIncluded is empty for bags or lifestyle items, default to 1 piece
+  if ((category === 'bags' || category === 'more' || category === 'umbrellas') && pieceStrings.length === 0 && calculatedPieces === 0) {
+    calculatedPieces = 1;
+  }
+
+  // In mixed jewelry sets without explicit piece count in name, complimentary packaging / boxes can count towards set pieces.
+  // For churi, earrings, bags, and items where the title already specifies exact piece count, complimentaryItem is gift packaging.
+  if (
+    product.complimentaryItem &&
+    !isChuriOrEarrings &&
+    category !== 'bags' &&
+    category !== 'more' &&
+    category !== 'umbrellas' &&
+    nameCount === 0
+  ) {
     calculatedPieces += 1;
   }
 
-  const effectiveCount = Math.max(calculatedPieces, nameCount, namePairCount);
-
-  // Bags and umbrellas are standalone lifestyle items, not jewelry/churi/earring sets.
-  // Unless explicitly defined as a multi-piece set in the product name (e.g. "(3-Piece Set)"),
-  // they should not display a "Pcs Set" badge.
-  if ((category === 'bags' || category === 'more' || category === 'umbrellas') && nameCount === 0) {
-    return {
-      displayPieces: effectiveCount,
-      badgeLabel: null,
-    };
+  let effectiveCount = 0;
+  if (nameCount > 0) {
+    effectiveCount = nameCount;
+  } else if (namePairCount > 0) {
+    effectiveCount = namePairCount;
+  } else {
+    effectiveCount = calculatedPieces;
   }
 
-  // A single item (effectiveCount <= 1) is never a "set", so do not display "1 Pcs Set"
-  if (effectiveCount <= 1) {
+  // Only products with no discernible piece count (effectiveCount <= 0) should hide the badge
+  if (effectiveCount <= 0) {
     return {
-      displayPieces: effectiveCount,
+      displayPieces: 0,
       badgeLabel: null,
     };
   }

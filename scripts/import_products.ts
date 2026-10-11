@@ -356,9 +356,9 @@ export const PRODUCTS_TO_IMPORT: FullProductDefinition[] = [
     ],
     piecesIncluded: [
       '2x Broad Magenta Kundan Statement Bangles',
-      '4x Gold Wire-Wrapped Accent Bangles',
+      '2x Gold Wire-Wrapped Accent Bangles',
       '2x Geometric Stone Trim Bangles',
-      '4x Faux Pearl Border Bangles',
+      '2x Faux Pearl Border Bangles',
     ],
     colorways: [
       {
