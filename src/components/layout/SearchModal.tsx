@@ -8,6 +8,7 @@ import { Search, X, ArrowRight, Sparkles, Tag } from 'lucide-react';
 import { useInventory } from '@/context/InventoryContext';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/formatPrice';
+import { isProductOutOfStock } from '@/lib/productStock';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -205,48 +206,65 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </div>
 
               <div className="space-y-2">
-                {matchingProducts.map((p) => (
-                  <Link
-                    key={p.id}
-                    href={`/${p.category}/${p.slug}`}
-                    onClick={onClose}
-                    className="flex items-center justify-between p-2.5 rounded-xs hover:bg-sand/50 transition-colors group"
-                  >
-                    <div className="flex items-center space-x-3 min-w-0">
-                      <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
-                        <Image
-                          src={p.featuredImage}
-                          alt={p.name}
-                          fill
-                          sizes="48px"
-                          className="object-cover group-hover:scale-105 transition-transform"
-                        />
+                {matchingProducts.map((p) => {
+                  const outOfStock = isProductOutOfStock(p);
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/${p.category}/${p.slug}`}
+                      onClick={onClose}
+                      className="flex items-center justify-between p-2.5 rounded-xs hover:bg-sand/50 transition-colors group"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
+                          <Image
+                            src={p.featuredImage}
+                            alt={p.name}
+                            fill
+                            sizes="48px"
+                            className={`object-cover group-hover:scale-105 transition-all ${
+                              outOfStock ? 'opacity-75 grayscale-[30%]' : ''
+                            }`}
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] tracking-wider uppercase text-text-muted font-medium block">
+                              {p.categoryLabel}
+                            </span>
+                            {outOfStock && (
+                              <span className="text-[9px] font-bold text-[#9E2A2B] uppercase tracking-wider block">
+                                · Out of Stock
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-medium text-ink group-hover:text-gold-deep transition-colors truncate">
+                            {p.name}
+                          </h4>
+                          <p className="text-[11px] text-text-muted truncate">
+                            {p.tagline}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <span className="text-[10px] tracking-wider uppercase text-text-muted font-medium block">
-                          {p.categoryLabel}
-                        </span>
-                        <h4 className="text-xs sm:text-sm font-medium text-ink group-hover:text-gold-deep transition-colors truncate">
-                          {p.name}
-                        </h4>
-                        <p className="text-[11px] text-text-muted truncate">
-                          {p.tagline}
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="text-right shrink-0 pl-3">
-                      <span className="text-xs font-semibold text-ink tabular-nums block">
-                        ৳{formatPrice(p.price)}
-                      </span>
-                      {p.originalPrice && (
-                        <span className="text-[10px] text-text-muted line-through tabular-nums block">
-                          ৳{formatPrice(p.originalPrice)}
+                      <div className="text-right shrink-0 pl-3">
+                        <span className={`text-xs font-semibold tabular-nums block ${outOfStock ? 'text-ink/60' : 'text-ink'}`}>
+                          ৳{formatPrice(p.price)}
                         </span>
-                      )}
-                    </div>
-                  </Link>
-                ))}
+                        {p.originalPrice && (
+                          <span className="text-[10px] text-text-muted line-through tabular-nums block">
+                            ৳{formatPrice(p.originalPrice)}
+                          </span>
+                        )}
+                        {outOfStock && (
+                          <span className="text-[9px] font-bold text-[#9E2A2B] uppercase tracking-wider block mt-0.5">
+                            Sold Out
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -23,7 +23,7 @@ function toDbShape(product: Product) {
     complimentaryItem: product.complimentaryItem ?? null,
     badge: null,
     inStock: product.inStock ?? true,
-    stockQty: null as number | null,
+    stockQty: (product as any).stockQty !== undefined ? (product as any).stockQty : null,
     isNewDrop: product.isNewDrop ?? false,
     isGiftPick: product.isGiftPick ?? false,
     isBestseller: product.isBestseller ?? false,

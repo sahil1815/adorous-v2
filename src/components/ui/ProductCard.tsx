@@ -8,14 +8,20 @@ import { ShoppingBag, Check, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { useInventory } from '@/context/InventoryContext';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
+import { isProductOutOfStock, isColorwayOutOfStock, isProductLowStock } from '@/lib/productStock';
 
 interface ProductCardProps {
   product: Product;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product: rawProduct }: ProductCardProps) {
+  // Resolve any inventory overrides if available
+  const { getEffectiveProduct } = useInventory();
+  const product = getEffectiveProduct ? getEffectiveProduct(rawProduct) : rawProduct;
+
   // Find the colorway corresponding to the featured cover image, or default to the first colorway
   const defaultColor = React.useMemo(() => {
     if (!product.colorways || product.colorways.length === 0) return undefined;
@@ -41,6 +47,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isOfferActive, discountPercent } = useNewVisitorOffer();
+
+  // Stock status evaluation
+  const isAllOutOfStock = isProductOutOfStock(product);
+  const isCurrentColorOutOfStock = isColorwayOutOfStock(product, activeColor);
+  const isLowStock = isProductLowStock(product);
 
   // Price & Discount calculations (synchronized with ProductDetailClient)
   const baseOriginalPrice = product.originalPrice && product.originalPrice > product.price
@@ -71,6 +82,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Guard: Prevent adding out of stock products
+    if (isCurrentColorOutOfStock) return;
 
     if (activeColor) {
       addToCart(product, activeColor, product.sizes ? product.sizes[1] || product.sizes[0] : undefined, 1);
@@ -105,7 +119,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img
             src={displayImage}
             alt={product.name}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            className={`w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-500 ${
+              isCurrentColorOutOfStock ? 'opacity-85 contrast-[0.95]' : ''
+            }`}
           />
         ) : (
           <Image
@@ -113,28 +129,62 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            className={`object-cover object-center group-hover:scale-105 transition-all duration-500 ${
+              isCurrentColorOutOfStock ? 'opacity-85 contrast-[0.95]' : ''
+            }`}
           />
         )}
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5 z-10 pointer-events-none">
-          {product.isNewDrop && (
-            <span className="bg-gold hover:bg-gold-deep text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-medium border border-gold/30">
-              New Drop
+          {isAllOutOfStock ? (
+            <span className="bg-ink/92 text-paper text-[9px] sm:text-[10px] tracking-[0.14em] uppercase px-2.5 py-0.5 font-bold shadow-xs border border-white/15 backdrop-blur-xs">
+              Out of Stock
             </span>
-          )}
-          {product.isBestseller && (
-            <span className="bg-gold text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-semibold">
-              Bestseller
+          ) : isCurrentColorOutOfStock ? (
+            <span className="bg-ink/92 text-paper text-[9px] sm:text-[10px] tracking-[0.14em] uppercase px-2.5 py-0.5 font-bold shadow-xs border border-white/15 backdrop-blur-xs">
+              Colour Sold Out
             </span>
+          ) : isLowStock ? (
+            <span className="bg-amber-900/90 text-amber-100 text-[9px] sm:text-[10px] tracking-[0.12em] uppercase px-2 py-0.5 font-semibold shadow-xs backdrop-blur-xs border border-amber-500/30">
+              Only {product.stockQty} Left
+            </span>
+          ) : (
+            <>
+              {product.isNewDrop && (
+                <span className="bg-gold hover:bg-gold-deep text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-medium border border-gold/30">
+                  New Drop
+                </span>
+              )}
+              {product.isBestseller && (
+                <span className="bg-gold text-ink text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 font-semibold">
+                  Bestseller
+                </span>
+              )}
+            </>
           )}
           {displayDiscountPct > 0 && (
-            <span className="bg-[#9E2A2B] text-white text-[9px] sm:text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 font-semibold shadow-xs">
+            <span
+              className={`text-white text-[9px] sm:text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 font-semibold shadow-xs ${
+                isCurrentColorOutOfStock ? 'bg-[#9E2A2B]/85' : 'bg-[#9E2A2B]'
+              }`}
+            >
               {displayDiscountPct}% OFF
             </span>
           )}
         </div>
+
+        {/* Out of Stock Frosted Architectural Plaque in Center */}
+        {isCurrentColorOutOfStock && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-none bg-stone/20 backdrop-brightness-[0.97]">
+            <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-paper/95 backdrop-blur-md border border-line/90 text-ink shadow-[0_4px_18px_rgba(0,0,0,0.08)] flex items-center gap-2 rounded-xs transition-transform duration-300 group-hover:scale-105">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#9E2A2B] shrink-0 animate-pulse" />
+              <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-ink select-none">
+                {isAllOutOfStock ? 'Out of Stock' : 'Colour Sold Out'}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Wishlist Heart Toggle */}
         <button
@@ -160,7 +210,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           const pieceInfo = getProductPieceInfo(product);
           if (!pieceInfo.badgeLabel) return null;
           return (
-            <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium">
+            <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium transition-opacity duration-200 sm:group-hover:opacity-0">
               {pieceInfo.badgeLabel}
             </div>
           );
@@ -168,32 +218,49 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Quick Add overlay button (desktop hover & mobile accessible) */}
         <div className="absolute inset-x-2 bottom-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto hidden sm:block">
-          <button
-            type="button"
-            onClick={handleQuickAdd}
-            className="w-full py-2.5 bg-sand/90 hover:bg-gold hover:bg-gold-deep text-ink hover:text-gold text-[11px] font-semibold tracking-wider uppercase backdrop-blur-sm transition-all flex items-center justify-center space-x-1.5 shadow-md"
-          >
-            {isAdded ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Added to Bag</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>Quick Add</span>
-              </>
-            )}
-          </button>
+          {isCurrentColorOutOfStock ? (
+            <div className="w-full py-2.5 bg-paper/95 border border-line text-text-muted text-[11px] font-semibold tracking-wider uppercase backdrop-blur-sm flex items-center justify-center space-x-1.5 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#9E2A2B]" />
+              <span>{isAllOutOfStock ? 'Out of Stock' : 'Colour Sold Out'} · View Piece</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleQuickAdd}
+              className="w-full py-2.5 bg-sand/90 hover:bg-gold hover:bg-gold-deep text-ink hover:text-gold text-[11px] font-semibold tracking-wider uppercase backdrop-blur-sm transition-all flex items-center justify-center space-x-1.5 shadow-md"
+            >
+              {isAdded ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Added to Bag</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Quick Add</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </Link>
 
       {/* Product Details */}
       <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between space-y-2 min-w-0">
         <div className="min-w-0">
-          {/* Eyebrow / Category */}
-          <div className="text-[10px] tracking-[0.16em] uppercase text-text-muted font-medium truncate">
-            {product.categoryLabel}
+          {/* Eyebrow / Category & Stock indicator */}
+          <div className="flex items-center justify-between gap-1 text-[10px] tracking-[0.16em] uppercase text-text-muted font-medium min-w-0">
+            <span className="truncate">{product.categoryLabel}</span>
+            {isCurrentColorOutOfStock ? (
+              <span className="shrink-0 text-[9px] sm:text-[10px] font-bold tracking-[0.12em] text-[#9E2A2B] uppercase flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#9E2A2B]" />
+                {isAllOutOfStock ? 'Out of Stock' : 'Sold Out'}
+              </span>
+            ) : isLowStock ? (
+              <span className="shrink-0 text-[9px] font-semibold tracking-[0.1em] text-amber-700 uppercase">
+                {product.stockQty} left
+              </span>
+            ) : null}
           </div>
 
           {/* Title */}
@@ -209,7 +276,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Price, Swatches, and Mobile Quick Add */}
         <div className="pt-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           <div className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 shrink-0 min-w-0">
-            <span className="font-semibold text-sm sm:text-base text-ink tabular-nums">
+            <span
+              className={`font-semibold text-sm sm:text-base tabular-nums ${
+                isCurrentColorOutOfStock ? 'text-ink/65' : 'text-ink'
+              }`}
+            >
               ৳{formatPrice(sellingPrice)}
             </span>
             {strikethroughPrice && strikethroughPrice > sellingPrice && (
@@ -228,24 +299,33 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 min-w-0">
             {/* Colour Swatch Dots */}
             <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
-              {product.colorways.slice(0, 3).map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setUserSelectedColor(c);
-                  }}
-                  className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border transition-all ${
-                    activeColor?.id === c.id
-                      ? 'border-ink scale-125 shadow-sm'
-                      : 'border-black/20 hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                  aria-label={c.name}
-                />
-              ))}
+              {product.colorways.slice(0, 3).map((c) => {
+                const isSwatchOutOfStock = isAllOutOfStock || c.inStock === false;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setUserSelectedColor(c);
+                    }}
+                    className={`relative w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border transition-all overflow-hidden ${
+                      activeColor?.id === c.id
+                        ? 'border-ink scale-125 shadow-sm'
+                        : 'border-black/20 hover:scale-110'
+                    } ${isSwatchOutOfStock ? 'opacity-55' : ''}`}
+                    style={{ backgroundColor: c.hex }}
+                    title={isSwatchOutOfStock ? `${c.name} (Out of Stock)` : c.name}
+                    aria-label={isSwatchOutOfStock ? `${c.name} (Out of Stock)` : c.name}
+                  >
+                    {isSwatchOutOfStock && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="w-[1.5px] h-full bg-[#9E2A2B] rotate-45 transform" />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
               {product.colorways.length > 3 && (
                 <span className="text-[9px] sm:text-[10px] text-text-muted font-medium">
                   +{product.colorways.length - 3}
@@ -253,19 +333,25 @@ export default function ProductCard({ product }: ProductCardProps) {
               )}
             </div>
 
-            {/* Mobile-only Quick Add button */}
-            <button
-              type="button"
-              onClick={handleQuickAdd}
-              className="sm:hidden p-1 rounded bg-sand hover:bg-stone text-ink transition-colors shrink-0"
-              aria-label={`Add ${product.name} to bag`}
-            >
-              {isAdded ? (
-                <Check className="w-3 h-3 text-emerald-600" />
-              ) : (
-                <ShoppingBag className="w-3 h-3" />
-              )}
-            </button>
+            {/* Mobile-only Quick Add button or Out of Stock indicator */}
+            {isCurrentColorOutOfStock ? (
+              <span className="sm:hidden text-[9px] font-bold text-[#9E2A2B] uppercase tracking-wider px-1.5 py-0.5 rounded-xs bg-rose-50 border border-rose-200/80 shrink-0 select-none">
+                Out
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleQuickAdd}
+                className="sm:hidden p-1 rounded bg-sand hover:bg-stone text-ink transition-colors shrink-0"
+                aria-label={`Add ${product.name} to bag`}
+              >
+                {isAdded ? (
+                  <Check className="w-3 h-3 text-emerald-600" />
+                ) : (
+                  <ShoppingBag className="w-3 h-3" />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

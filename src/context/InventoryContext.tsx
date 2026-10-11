@@ -289,6 +289,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       isNewDrop: override.isNewDrop !== undefined ? override.isNewDrop : product.isNewDrop,
       isBestseller: override.isBestseller !== undefined ? override.isBestseller : product.isBestseller,
       inStock: override.stockStatus !== 'sold_out',
+      stockQty: override.stockStatus === 'sold_out' ? 0 : product.stockQty,
       isHidden: override.isHidden !== undefined ? override.isHidden : product.isHidden,
     };
   };

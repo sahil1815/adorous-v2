@@ -10,6 +10,7 @@ import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingContext';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
+import { isProductOutOfStock } from '@/lib/productStock';
 import {
   Search,
   ChevronDown,
@@ -153,7 +154,7 @@ export default function ShopClient({ initialProducts, initialOrdering }: ShopCli
       }
 
       // In stock filter
-      if (filterInStock && !product.colorways.some((c) => c.inStock)) {
+      if (filterInStock && (isProductOutOfStock(product) || !product.colorways.some((c) => c.inStock))) {
         return false;
       }
 

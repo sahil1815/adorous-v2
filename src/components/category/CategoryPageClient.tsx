@@ -9,6 +9,7 @@ import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingConte
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
+import { isProductOutOfStock } from '@/lib/productStock';
 import { ChevronDown, Truck, MessageCircle } from 'lucide-react';
 
 interface CategoryPageClientProps {
@@ -140,7 +141,7 @@ export default function CategoryPageClient({
     let list = [...adminSortedProducts];
 
     if (filterInStock) {
-      list = list.filter((p) => p.colorways.some((c) => c.inStock));
+      list = list.filter((p) => !isProductOutOfStock(p) && p.colorways.some((c) => c.inStock));
     }
 
     if (selectedColor) {

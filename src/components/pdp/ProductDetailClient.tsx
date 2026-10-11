@@ -15,6 +15,7 @@ import ReviewSection from './ReviewSection';
 import { renderFormattedText } from '@/lib/formatText';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
+import { isProductOutOfStock } from '@/lib/productStock';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import {
   ShoppingBag,
@@ -82,6 +83,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   ) || product.colorways[0];
 
   const [selectedColor, setSelectedColor] = useState<Colorway>(matchedInitialColor);
+  const isOutOfStock = isProductOutOfStock(product);
   const [selectedSize, setSelectedSize] = useState<string>(
     product.sizes ? product.sizes[1] || product.sizes[0] : ''
   );
@@ -856,7 +858,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   4.80 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                 </span>
                 <span className="text-line">|</span>
-                <span className="text-emerald-700 font-medium">In Stock</span>
+                {isOutOfStock ? (
+                  <span className="text-[#9E2A2B] font-semibold">Out of Stock</span>
+                ) : (
+                  <span className="text-emerald-700 font-medium">In Stock</span>
+                )}
               </div>
 
               {/* Bottom-Right Image Counter Pill (Matching Reference Image 1) */}
@@ -1361,7 +1367,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Desktop-only action buttons */}
               <div className="hidden lg:flex items-center gap-3 w-full pt-4">
                 {/* Buy Now Button (Primary Accent) */}
-                {(product as any).stockQty === 0 || product.inStock === false ? (
+                {isOutOfStock ? (
                   <div className="flex-1 h-12 bg-sand/20 border border-line text-ink/40 font-semibold text-xs tracking-wider uppercase rounded-[3px] flex items-center justify-center space-x-2 cursor-not-allowed">
                     <Zap className="w-4 h-4 shrink-0" />
                     <span>Unavailable</span>
@@ -1385,7 +1391,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 )}
 
                 {/* Add to Bag Button (Secondary Luxury Brand Button) */}
-                {(product as any).stockQty === 0 || product.inStock === false ? (
+                {isOutOfStock ? (
                   <button
                     type="button"
                     disabled
@@ -1614,7 +1620,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               <button
                 type="button"
                 onClick={handleOrderNow}
-                disabled={isOrdering || (product as any).stockQty === 0 || product.inStock === false}
+                disabled={isOrdering || isOutOfStock}
                 className="flex-1 h-12 px-2 sm:px-3 bg-[#CCA352] hover:bg-[#B89040] text-ink-deep font-bold text-xs sm:text-[13px] tracking-wide rounded-xl border border-[#B89040]/30 shadow-[0_2px_10px_rgba(204,163,82,0.25)] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 min-w-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {isOrdering ? (
@@ -1622,7 +1628,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <Loader2 className="w-4 h-4 animate-spin shrink-0 text-ink-deep" />
                     <span className="truncate">Processing...</span>
                   </>
-                ) : (product as any).stockQty === 0 || product.inStock === false ? (
+                ) : isOutOfStock ? (
                   <>
                     <Zap className="w-3.5 h-3.5 shrink-0 opacity-60 text-ink-deep" />
                     <span className="truncate">Sold Out</span>
@@ -1643,7 +1649,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={(product as any).stockQty === 0 || product.inStock === false}
+                disabled={isOutOfStock}
                 className="flex-1 h-12 px-2 sm:px-3 bg-ink hover:bg-ink-deep text-paper font-bold text-xs sm:text-[13px] tracking-wide rounded-xl shadow-[0_3px_12px_rgba(0,0,0,0.12)] border border-ink-soft/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 min-w-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {isAddedAnimation ? (
@@ -1651,7 +1657,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <Check className="w-4 h-4 text-emerald-400 shrink-0" strokeWidth={2.5} />
                     <span className="truncate text-emerald-300">Added!</span>
                   </>
-                ) : (product as any).stockQty === 0 || product.inStock === false ? (
+                ) : isOutOfStock ? (
                   <>
                     <ShoppingBag className="w-3.5 h-3.5 shrink-0 opacity-60 text-paper/60" />
                     <span className="truncate">Out of Stock</span>
