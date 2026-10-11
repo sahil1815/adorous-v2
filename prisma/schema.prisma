@@ -17,6 +17,8 @@ model Product {
   tagline        String?
   price          Float
   originalPrice  Float?
+  discount       Float?            // Discount value (e.g. 14 for 14%, or 200 for flat 200 BDT)
+  discountType   String?           @default("percent") // "percent" | "flat"
   description    String?
   complimentaryItem String?         // Optional packaging / gift e.g. "Adorous Signature Keepsake Box & Velvet Pouch"
   featuredImage  String

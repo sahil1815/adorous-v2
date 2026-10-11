@@ -33,6 +33,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
+import { calculateSellingPrice } from '@/lib/pricing';
 
 function fromDbProduct(p: any): Product {
   return {
@@ -44,6 +45,8 @@ function fromDbProduct(p: any): Product {
     tagline: p.tagline || '',
     price: Number(p.price),
     originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    discount: p.discount !== null && p.discount !== undefined ? Number(p.discount) : null,
+    discountType: p.discountType ?? null,
     stockQty: p.stockQty ?? null,
     inStock: p.inStock ?? true,
     description: p.description || '',
@@ -103,8 +106,9 @@ export default function AdminInventoryPage() {
 
   // Inline Price Editing
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [priceInput, setPriceInput] = useState<number | string>(0);
-  const [origPriceInput, setOrigPriceInput] = useState<number | string>(0);
+  const [basePriceInput, setBasePriceInput] = useState<number | string>(0);
+  const [discountInput, setDiscountInput] = useState<number | string>('');
+  const [discountTypeInput, setDiscountTypeInput] = useState<'percent' | 'flat'>('percent');
   const [savingPriceId, setSavingPriceId] = useState<string | null>(null);
   const [savedSuccessId, setSavedSuccessId] = useState<string | null>(null);
 
@@ -409,28 +413,59 @@ export default function AdminInventoryPage() {
   const handleStartEditPrice = (prod: Product) => {
     const effective = getEffectiveProduct(prod);
     setEditingPriceId(prod.id);
-    setPriceInput(effective.price);
-    setOrigPriceInput(effective.originalPrice || 0);
+    const effBase = effective.originalPrice && effective.originalPrice > effective.price
+      ? effective.originalPrice
+      : effective.price;
+    setBasePriceInput(effBase);
+    if (effective.discount !== null && effective.discount !== undefined) {
+      setDiscountInput(effective.discount);
+      setDiscountTypeInput((effective.discountType as any) === 'flat' ? 'flat' : 'percent');
+    } else if (effective.originalPrice && effective.originalPrice > effective.price) {
+      const existingPct = Math.round(((effective.originalPrice - effective.price) / effective.originalPrice) * 100);
+      setDiscountInput(existingPct);
+      setDiscountTypeInput('percent');
+    } else {
+      setDiscountInput('');
+      setDiscountTypeInput('percent');
+    }
   };
 
   const handleSavePrice = async (prod: Product) => {
     setSavingPriceId(prod.id);
-    const numPrice = Number(priceInput);
-    const numOrig = origPriceInput && Number(origPriceInput) > 0 ? Number(origPriceInput) : undefined;
+    const numBase = Number(basePriceInput);
+    const numDiscount = discountInput !== '' && !isNaN(Number(discountInput)) ? Number(discountInput) : 0;
+    const finalPricing = calculateSellingPrice(numBase, numDiscount, discountTypeInput);
 
-    updateProductPrice(prod.id, numPrice, numOrig);
+    const newSellingPrice = finalPricing.sellingPrice;
+    const newComparePrice = finalPricing.comparePrice > finalPricing.sellingPrice ? finalPricing.comparePrice : undefined;
+    const newDiscount = numDiscount > 0 ? numDiscount : null;
+    const newDiscountType = numDiscount > 0 ? discountTypeInput : null;
+
+    updateProductPrice(prod.id, newSellingPrice, newComparePrice, newDiscount, newDiscountType);
 
     setDbProducts((prev) =>
       prev
         ? prev.map((p) =>
             p.id === prod.id || p.slug === prod.slug
-              ? { ...p, price: numPrice, originalPrice: numOrig }
+              ? {
+                  ...p,
+                  price: newSellingPrice,
+                  originalPrice: newComparePrice,
+                  discount: newDiscount,
+                  discountType: newDiscountType,
+                }
               : p
           )
         : null
     );
 
-    const res = await updateProductPriceAction(prod.id, numPrice, numOrig);
+    const res = await updateProductPriceAction(
+      prod.id,
+      newSellingPrice,
+      newComparePrice,
+      newDiscount,
+      newDiscountType
+    );
     setSavingPriceId(null);
     setEditingPriceId(null);
 
@@ -831,49 +866,80 @@ export default function AdminInventoryPage() {
                       {/* Pricing with inline editor */}
                       <div className="flex items-center space-x-3 text-xs flex-wrap gap-y-1">
                         {isEditingPrice ? (
-                          <div className="flex items-center space-x-2 bg-[#222222] p-1 rounded-xs border border-gold/40">
-                            <span className="text-paper/60 text-[11px]">৳</span>
-                            <input
-                              type="number"
-                              step="any"
-                              value={priceInput}
-                              onChange={(e) => setPriceInput(e.target.value)}
-                              className="w-20 bg-[#171717] border border-white/20 text-paper text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
-                            />
-                            <span className="text-paper/40 text-[10px]">Orig:</span>
-                            <input
-                              type="number"
-                              step="any"
-                              value={origPriceInput}
-                              onChange={(e) => setOrigPriceInput(e.target.value)}
-                              placeholder="Optional"
-                              className="w-20 bg-[#171717] border border-white/20 text-paper/70 text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleSavePrice(prod)}
-                              disabled={isSavingPrice}
-                              className="px-2 py-0.5 bg-gold text-ink text-[11px] font-semibold rounded-xs hover:bg-gold-light transition-colors"
-                            >
-                              {isSavingPrice ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingPriceId(null)}
-                              className="text-paper/40 hover:text-paper text-[11px] px-1"
-                            >
-                              ✕
-                            </button>
-                          </div>
+                          (() => {
+                            const inlinePricing = calculateSellingPrice(basePriceInput, discountInput, discountTypeInput);
+                            return (
+                              <div className="flex items-center space-x-2 bg-[#222222] p-1.5 rounded-xs border border-gold/40 flex-wrap gap-y-1">
+                                <div className="flex items-center space-x-1">
+                                  <span className="text-gold text-[10px] font-semibold">Price ৳:</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    min="0.01"
+                                    value={basePriceInput}
+                                    onChange={(e) => setBasePriceInput(e.target.value)}
+                                    className="w-20 bg-[#171717] border border-white/20 text-paper text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
+                                  />
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <span className="text-paper/60 text-[10px]">Disc:</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    min="0"
+                                    max={discountTypeInput === 'percent' ? 100 : undefined}
+                                    value={discountInput}
+                                    onChange={(e) => setDiscountInput(e.target.value)}
+                                    placeholder="0"
+                                    className="w-16 bg-[#171717] border border-white/20 text-paper/90 text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setDiscountTypeInput((prev) => (prev === 'percent' ? 'flat' : 'percent'))}
+                                    title="Toggle discount type between % and ৳"
+                                    className="px-1.5 py-0.5 bg-[#171717] border border-white/20 hover:border-gold text-[10px] text-gold font-mono rounded-xs"
+                                  >
+                                    {discountTypeInput === 'percent' ? '%' : '৳'}
+                                  </button>
+                                </div>
+                                <div className="text-[10px] text-paper/70 font-mono flex items-center gap-1">
+                                  <span>=</span>
+                                  <span className="text-gold font-semibold">৳{formatPrice(inlinePricing.sellingPrice)}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSavePrice(prod)}
+                                  disabled={isSavingPrice}
+                                  className="px-2 py-0.5 bg-gold text-ink text-[11px] font-semibold rounded-xs hover:bg-gold-light transition-colors"
+                                >
+                                  {isSavingPrice ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingPriceId(null)}
+                                  className="text-paper/40 hover:text-paper text-[11px] px-1"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            );
+                          })()
                         ) : (
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-paper tabular-nums">
                               ৳{formatPrice(effective.price)}
                             </span>
-                            {effective.originalPrice && (
-                              <span className="text-[11px] text-paper/40 line-through tabular-nums">
-                                ৳{formatPrice(effective.originalPrice)}
-                              </span>
+                            {effective.originalPrice && effective.originalPrice > effective.price && (
+                              <>
+                                <span className="text-[11px] text-paper/40 line-through tabular-nums">
+                                  ৳{formatPrice(effective.originalPrice)}
+                                </span>
+                                {effective.discount && (
+                                  <span className="text-[9px] px-1 py-0.2 rounded-xs bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 font-semibold font-mono">
+                                    {effective.discountType === 'flat' ? `৳${effective.discount} OFF` : `${effective.discount}% OFF`}
+                                  </span>
+                                )}
+                              </>
                             )}
                             <button
                               type="button"

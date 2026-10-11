@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +8,8 @@ import { getProductById, updateProductAction, updateStockAction } from '@/app/ac
 import { setCategoryHeroImage } from '@/app/actions/categoryHeroActions';
 import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Colorway } from '@/types';
+import { calculateSellingPrice } from '@/lib/pricing';
+import { formatPrice } from '@/lib/formatPrice';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import {
   ArrowLeft, Sparkles, Upload, Image as ImageIcon, CheckCircle2, AlertCircle,
@@ -51,8 +53,9 @@ export default function EditProductPage() {
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [category, setCategory] = useState<ProductCategory>('jewelry');
   const [tagline, setTagline] = useState('');
-  const [price, setPrice] = useState<number | string>(0);
-  const [originalPrice, setOriginalPrice] = useState<number | string>(0);
+  const [basePrice, setBasePrice] = useState<number | string>('');
+  const [discount, setDiscount] = useState<number | string>('');
+  const [discountType, setDiscountType] = useState<'percent' | 'flat'>('percent');
   const [description, setDescription] = useState('');
 
   // Image Showcase & Gallery
@@ -97,6 +100,11 @@ export default function EditProductPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [heroSavedMsg, setHeroSavedMsg] = useState<string | null>(null);
 
+  // Live pricing calculation preview
+  const calculatedPricing = useMemo(() => {
+    return calculateSellingPrice(basePrice, discount, discountType);
+  }, [basePrice, discount, discountType]);
+
   useEffect(() => {
     async function loadProduct() {
       const product = await getProductById(productId);
@@ -110,8 +118,22 @@ export default function EditProductPage() {
       setSlug(product.slug);
       setCategory(product.category as ProductCategory);
       setTagline(product.tagline || '');
-      setPrice(product.price);
-      setOriginalPrice(product.originalPrice || 0);
+
+      const effectiveBase = product.originalPrice && product.originalPrice > product.price
+        ? product.originalPrice
+        : product.price;
+      setBasePrice(effectiveBase);
+      if (product.discount !== null && product.discount !== undefined) {
+        setDiscount(product.discount);
+        setDiscountType((product.discountType as any) === 'flat' ? 'flat' : 'percent');
+      } else if (product.originalPrice && product.originalPrice > product.price) {
+        const existingPct = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+        setDiscount(existingPct);
+        setDiscountType('percent');
+      } else {
+        setDiscount('');
+        setDiscountType('percent');
+      }
       setDescription(product.description || '');
       setFeaturedImage(product.featuredImage);
       setGalleryImages(gallery);
@@ -318,13 +340,14 @@ export default function EditProductPage() {
     if (!name.trim()) { setErrorMsg('Please enter a product title.'); return; }
     if (!slug.trim()) { setErrorMsg('Please specify a URL slug.'); return; }
     if (!featuredImage) { setErrorMsg('Please select a featured image.'); return; }
-    if (Number(price) <= 0) { setErrorMsg('Price must be greater than 0.'); return; }
+    if (Number(basePrice) <= 0) { setErrorMsg('Price must be greater than 0.'); return; }
 
     setIsSaving(true);
     const selectedCat = CATEGORY_OPTIONS.find((c) => c.slug === category);
 
-    const numPrice = Number(price);
-    const numOriginalPrice = originalPrice && Number(originalPrice) > 0 ? Number(originalPrice) : undefined;
+    const numBasePrice = Number(basePrice);
+    const numDiscount = discount !== '' && Number(discount) > 0 ? Number(discount) : null;
+    const finalPricing = calculateSellingPrice(numBasePrice, numDiscount, discountType);
 
     const res = await updateProductAction(productId, {
       name: name.trim(),
@@ -332,8 +355,10 @@ export default function EditProductPage() {
       category,
       categoryLabel: selectedCat?.label || 'Luxury Accessories',
       tagline: tagline.trim() || undefined,
-      price: numPrice,
-      originalPrice: numOriginalPrice,
+      price: finalPricing.sellingPrice,
+      originalPrice: finalPricing.discountAmount > 0 ? finalPricing.comparePrice : undefined,
+      discount: numDiscount,
+      discountType,
       description: description.trim() || undefined,
       featuredImage,
       isNewDrop,
@@ -369,8 +394,10 @@ export default function EditProductPage() {
       category,
       categoryLabel: selectedCat?.label || 'Luxury Accessories',
       tagline: tagline.trim(),
-      price: numPrice,
-      originalPrice: numOriginalPrice,
+      price: finalPricing.sellingPrice,
+      originalPrice: finalPricing.discountAmount > 0 ? finalPricing.comparePrice : null,
+      discount: numDiscount,
+      discountType,
       description: description.trim(),
       details,
       piecesIncluded,
@@ -683,7 +710,9 @@ export default function EditProductPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-paper/70 uppercase tracking-widest text-[10px] mb-1 font-semibold">Selling Price (৳) *</label>
+              <label className="block text-paper/70 uppercase tracking-widest text-[10px] mb-1 font-semibold">
+                Price (৳) *
+              </label>
               <div className="relative">
                 <span className="absolute left-3 top-2 text-gold font-sans font-semibold">৳</span>
                 <input
@@ -691,27 +720,89 @@ export default function EditProductPage() {
                   step="any"
                   required
                   min="0.01"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(e.target.value)}
+                  placeholder="e.g. 1735"
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm font-mono"
                 />
               </div>
             </div>
+
             <div>
-              <label className="block text-paper/70 uppercase tracking-widest text-[10px] mb-1 font-semibold">Compare Price (৳)</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-paper/70 uppercase tracking-widest text-[10px] font-semibold">
+                  Discount (Optional)
+                </label>
+                <div className="flex items-center bg-[#1C1C1C] border border-white/15 rounded-xs p-0.5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('percent')}
+                    className={`px-2 py-0.5 rounded-[2px] transition-colors font-medium ${
+                      discountType === 'percent'
+                        ? 'bg-gold text-black font-semibold'
+                        : 'text-paper/60 hover:text-paper'
+                    }`}
+                  >
+                    % Percent
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('flat')}
+                    className={`px-2 py-0.5 rounded-[2px] transition-colors font-medium ${
+                      discountType === 'flat'
+                        ? 'bg-gold text-black font-semibold'
+                        : 'text-paper/60 hover:text-paper'
+                    }`}
+                  >
+                    ৳ Flat
+                  </button>
+                </div>
+              </div>
+
               <div className="relative">
-                <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">৳</span>
+                <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">
+                  {discountType === 'percent' ? '%' : '৳'}
+                </span>
                 <input
                   type="number"
                   step="any"
                   min="0"
-                  value={originalPrice}
-                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  max={discountType === 'percent' ? 100 : undefined}
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder={discountType === 'percent' ? 'e.g. 14' : 'e.g. 244.32'}
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-mono"
                 />
               </div>
             </div>
           </div>
+
+          {/* Live Price Preview Calculation Pill */}
+          {Number(basePrice) > 0 && (
+            <div className="p-3 bg-[#1C1C1C] border border-white/10 rounded-xs flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <span className="text-paper/60 text-[11px] uppercase tracking-wider">Selling Price:</span>
+                <span className="text-gold font-mono font-bold text-sm">
+                  ৳{formatPrice(calculatedPricing.sellingPrice)}
+                </span>
+                {calculatedPricing.discountAmount > 0 && (
+                  <>
+                    <span className="text-paper/40 line-through font-mono text-xs">
+                      ৳{formatPrice(calculatedPricing.comparePrice)}
+                    </span>
+                    <span className="bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded-xs text-[10px] font-semibold">
+                      {calculatedPricing.discountPercent}% OFF (Save ৳{formatPrice(calculatedPricing.discountAmount)})
+                    </span>
+                  </>
+                )}
+              </div>
+              <span className="text-[10px] text-paper/40 italic">
+                {calculatedPricing.discountAmount > 0
+                  ? 'Customers will see strikethrough compare price with discount badge'
+                  : 'Regular full price (no discount applied)'}
+              </span>
+            </div>
+          )}
 
           <div className="pt-2 border-t border-white/5 flex flex-wrap items-center gap-6">
             {[

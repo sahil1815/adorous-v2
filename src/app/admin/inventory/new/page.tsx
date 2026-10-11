@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +8,8 @@ import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Product, Colorway } from '@/types';
 import { createProductAction, getProductById } from '@/app/actions/productActions';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
+import { calculateSellingPrice } from '@/lib/pricing';
+import { formatPrice } from '@/lib/formatPrice';
 import {
   ArrowLeft,
   Sparkles,
@@ -123,9 +125,15 @@ function AddProductContent() {
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [category, setCategory] = useState<ProductCategory>('jewelry');
   const [tagline, setTagline] = useState('');
-  const [price, setPrice] = useState<number | string>(3850);
-  const [originalPrice, setOriginalPrice] = useState<number | string>(4500);
+  const [basePrice, setBasePrice] = useState<number | string>(3850);
+  const [discount, setDiscount] = useState<number | string>('');
+  const [discountType, setDiscountType] = useState<'percent' | 'flat'>('percent');
   const [description, setDescription] = useState('');
+
+  // Live pricing calculation preview
+  const calculatedPricing = useMemo(() => {
+    return calculateSellingPrice(basePrice, discount, discountType);
+  }, [basePrice, discount, discountType]);
 
   // Visibility & Duplication
   const [isHidden, setIsHidden] = useState(false);
@@ -149,8 +157,21 @@ function AddProductContent() {
         setIsSlugCustomized(true);
         setCategory(prod.category as ProductCategory);
         setTagline(prod.tagline || '');
-        setPrice(prod.price);
-        setOriginalPrice(prod.originalPrice ? prod.originalPrice : '');
+        const effectiveBase = prod.originalPrice && prod.originalPrice > prod.price
+          ? prod.originalPrice
+          : prod.price;
+        setBasePrice(effectiveBase);
+        if (prod.discount !== null && prod.discount !== undefined) {
+          setDiscount(prod.discount);
+          setDiscountType((prod.discountType as any) === 'flat' ? 'flat' : 'percent');
+        } else if (prod.originalPrice && prod.originalPrice > prod.price) {
+          const existingPct = Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100);
+          setDiscount(existingPct);
+          setDiscountType('percent');
+        } else {
+          setDiscount('');
+          setDiscountType('percent');
+        }
         setDescription(prod.description || '');
 
         const featImg = prod.featuredImage || STILL_LIFE_PRESETS[0].url;
@@ -426,7 +447,7 @@ function AddProductContent() {
       return;
     }
 
-    if (Number(price) <= 0) {
+    if (Number(basePrice) <= 0) {
       setErrorMsg('Price must be greater than 0.');
       return;
     }
@@ -441,8 +462,9 @@ function AddProductContent() {
 
     setIsPublishing(true);
 
-    const numPrice = Number(price);
-    const numOriginalPrice = originalPrice && Number(originalPrice) > 0 ? Number(originalPrice) : undefined;
+    const numBasePrice = Number(basePrice);
+    const numDiscount = discount !== '' && !isNaN(Number(discount)) ? Number(discount) : 0;
+    const finalPricing = calculateSellingPrice(numBasePrice, numDiscount, discountType);
 
     const newProduct: Product = {
       id: `prod-${cleanSlug}-${Date.now()}`,
@@ -451,8 +473,10 @@ function AddProductContent() {
       category,
       categoryLabel: selectedCategoryOption ? selectedCategoryOption.label : 'Luxury Accessories',
       tagline: tagline.trim() || `${name.trim()} - Boutique Premium Luxury`,
-      price: numPrice,
-      originalPrice: numOriginalPrice,
+      price: finalPricing.sellingPrice,
+      originalPrice: finalPricing.comparePrice > finalPricing.sellingPrice ? finalPricing.comparePrice : undefined,
+      discount: numDiscount > 0 ? numDiscount : null,
+      discountType: numDiscount > 0 ? discountType : null,
       description: description.trim() || 'A premium curated piece designed for timeless elegance and luxury styling across Bangladesh.',
       details,
       piecesIncluded: piecesIncluded.length > 0 ? piecesIncluded : undefined,
@@ -747,7 +771,7 @@ function AddProductContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-paper/70 uppercase tracking-widest text-[10px] mb-1 font-semibold">
-                Regular Selling Price (৳ BDT) *
+                Price (৳) *
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-2 text-gold font-sans font-semibold">৳</span>
@@ -756,31 +780,89 @@ function AddProductContent() {
                   step="any"
                   required
                   min="0.01"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(e.target.value)}
+                  placeholder="e.g. 1735"
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm font-mono"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-paper/70 uppercase tracking-widest text-[10px] mb-1 font-semibold">
-                Original Compare Price (৳ BDT)
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-paper/70 uppercase tracking-widest text-[10px] font-semibold">
+                  Discount (Optional)
+                </label>
+                <div className="flex items-center bg-[#1C1C1C] border border-white/15 rounded-xs p-0.5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('percent')}
+                    className={`px-2 py-0.5 rounded-[2px] transition-colors font-medium ${
+                      discountType === 'percent'
+                        ? 'bg-gold text-black font-semibold'
+                        : 'text-paper/60 hover:text-paper'
+                    }`}
+                  >
+                    % Percent
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('flat')}
+                    className={`px-2 py-0.5 rounded-[2px] transition-colors font-medium ${
+                      discountType === 'flat'
+                        ? 'bg-gold text-black font-semibold'
+                        : 'text-paper/60 hover:text-paper'
+                    }`}
+                  >
+                    ৳ Flat
+                  </button>
+                </div>
+              </div>
+
               <div className="relative">
-                <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">৳</span>
+                <span className="absolute left-3 top-2 text-paper/40 font-sans font-semibold">
+                  {discountType === 'percent' ? '%' : '৳'}
+                </span>
                 <input
                   type="number"
                   step="any"
                   min="0"
-                  placeholder="0 for no strikethrough"
-                  value={originalPrice}
-                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  max={discountType === 'percent' ? 100 : undefined}
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder={discountType === 'percent' ? 'e.g. 14' : 'e.g. 244.32'}
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-mono"
                 />
               </div>
             </div>
           </div>
+
+          {/* Live Price Preview Calculation Pill */}
+          {Number(basePrice) > 0 && (
+            <div className="p-3 bg-[#1C1C1C] border border-white/10 rounded-xs flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <span className="text-paper/60 text-[11px] uppercase tracking-wider">Selling Price:</span>
+                <span className="text-gold font-mono font-bold text-sm">
+                  ৳{formatPrice(calculatedPricing.sellingPrice)}
+                </span>
+                {calculatedPricing.discountAmount > 0 && (
+                  <>
+                    <span className="text-paper/40 line-through font-mono text-xs">
+                      ৳{formatPrice(calculatedPricing.comparePrice)}
+                    </span>
+                    <span className="bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded-xs text-[10px] font-semibold">
+                      {calculatedPricing.discountPercent}% OFF (Save ৳{formatPrice(calculatedPricing.discountAmount)})
+                    </span>
+                  </>
+                )}
+              </div>
+              <span className="text-[10px] text-paper/40 italic">
+                {calculatedPricing.discountAmount > 0
+                  ? 'Customers will see strikethrough compare price with discount badge'
+                  : 'Regular full price (no discount applied)'}
+              </span>
+            </div>
+          )}
 
           {/* Ribbons */}
           <div className="pt-2 border-t border-white/5 flex flex-wrap items-center gap-6">

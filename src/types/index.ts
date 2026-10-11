@@ -17,6 +17,8 @@ export interface Product {
   tagline: string;
   price: number;
   originalPrice?: number | null;
+  discount?: number | null;
+  discountType?: 'percent' | 'flat' | string | null;
   stockQty?: number | null;
   description: string;
   details: string[];

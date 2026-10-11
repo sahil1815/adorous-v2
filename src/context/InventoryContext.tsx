@@ -11,6 +11,8 @@ export interface ProductOverride {
   isBestseller?: boolean;
   price?: number;
   originalPrice?: number;
+  discount?: number;
+  discountType?: 'percent' | 'flat';
   isHidden?: boolean;
 }
 
@@ -24,7 +26,13 @@ interface InventoryContextType {
   deleteProduct: (productId: string) => void;
   updateProductStock: (productId: string, stockStatus: ProductOverride['stockStatus']) => void;
   updateProductBadges: (productId: string, badges: { isNewDrop?: boolean; isBestseller?: boolean }) => void;
-  updateProductPrice: (productId: string, price: number, originalPrice?: number) => void;
+  updateProductPrice: (
+    productId: string,
+    price: number,
+    originalPrice?: number,
+    discount?: number | null,
+    discountType?: 'percent' | 'flat' | null
+  ) => void;
   updateProductVisibility: (productId: string, isHidden: boolean) => void;
   resetInventoryOverrides: () => void;
   getEffectiveProduct: (product: Product) => Product;
@@ -41,6 +49,8 @@ function fromDbProduct(p: any): Product {
     tagline: p.tagline || '',
     price: Number(p.price),
     originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    discount: p.discount ? Number(p.discount) : null,
+    discountType: p.discountType || 'percent',
     stockQty: p.stockQty ?? null,
     inStock: p.inStock ?? true,
     isNewDrop: p.isNewDrop ?? false,
@@ -206,7 +216,13 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const updateProductPrice = (productId: string, price: number, originalPrice?: number) => {
+  const updateProductPrice = (
+    productId: string,
+    price: number,
+    originalPrice?: number,
+    discount?: number | null,
+    discountType?: 'percent' | 'flat' | null
+  ) => {
     const current = overrides[productId] || { stockStatus: 'in_stock' };
     saveOverrides({
       ...overrides,
@@ -214,6 +230,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         ...current,
         price,
         originalPrice,
+        discount: discount !== undefined && discount !== null ? Number(discount) : undefined,
+        discountType: discountType || 'percent',
       },
     });
   };
@@ -266,6 +284,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       ...product,
       price: override.price !== undefined ? override.price : product.price,
       originalPrice: override.originalPrice !== undefined ? override.originalPrice : product.originalPrice,
+      discount: override.discount !== undefined ? override.discount : product.discount,
+      discountType: override.discountType !== undefined ? override.discountType : product.discountType,
       isNewDrop: override.isNewDrop !== undefined ? override.isNewDrop : product.isNewDrop,
       isBestseller: override.isBestseller !== undefined ? override.isBestseller : product.isBestseller,
       inStock: override.stockStatus !== 'sold_out',

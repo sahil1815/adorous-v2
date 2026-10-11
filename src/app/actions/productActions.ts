@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product } from '@/types';
 import { revalidatePath } from 'next/cache';
+import { calculateSellingPrice } from '@/lib/pricing';
 
 // Helper to convert static Product to the shape expected by frontend PDP & Category pages
 function toDbShape(product: Product) {
@@ -16,6 +17,8 @@ function toDbShape(product: Product) {
     tagline: product.tagline ?? null,
     price: product.price,
     originalPrice: product.originalPrice ?? null,
+    discount: (product as any).discount ?? null,
+    discountType: (product as any).discountType ?? 'percent',
     description: product.description ?? null,
     complimentaryItem: product.complimentaryItem ?? null,
     badge: null,
@@ -147,6 +150,12 @@ export async function createProductAction(productData: Product) {
       };
     }
 
+    const pricing = calculateSellingPrice(
+      productData.originalPrice || productData.price,
+      productData.discount,
+      productData.discountType
+    );
+
     const created = await prisma.product.create({
       data: {
         id: productData.id || undefined,
@@ -155,8 +164,10 @@ export async function createProductAction(productData: Product) {
         category: productData.category,
         categoryLabel: productData.categoryLabel || 'Luxury Accessories',
         tagline: productData.tagline?.trim() || null,
-        price: Number(productData.price),
-        originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
+        price: pricing.sellingPrice,
+        originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
+        discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+        discountType: productData.discountType || 'percent',
         description: productData.description?.trim() || null,
         complimentaryItem: productData.complimentaryItem?.trim() || null,
         featuredImage: productData.featuredImage,
@@ -217,6 +228,8 @@ export async function updateProductAction(
     tagline?: string;
     price: number;
     originalPrice?: number;
+    discount?: number | null;
+    discountType?: 'percent' | 'flat' | null;
     description?: string;
     complimentaryItem?: string | null;
     featuredImage: string;
@@ -250,6 +263,12 @@ export async function updateProductAction(
       return { success: false, error: `Slug "${cleanSlug}" is already used by another product.` };
     }
 
+    const pricing = calculateSellingPrice(
+      productData.originalPrice || productData.price,
+      productData.discount,
+      productData.discountType
+    );
+
     await prisma.$transaction([
       prisma.productDetail.deleteMany({ where: { productId: id } }),
       prisma.productPiece.deleteMany({ where: { productId: id } }),
@@ -264,8 +283,10 @@ export async function updateProductAction(
           category: productData.category,
           categoryLabel: productData.categoryLabel,
           tagline: productData.tagline?.trim() || null,
-          price: Number(productData.price),
-          originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
+          price: pricing.sellingPrice,
+          originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
+          discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+          discountType: productData.discountType || 'percent',
           description: productData.description?.trim() || null,
           complimentaryItem: productData.complimentaryItem?.trim() || null,
           featuredImage: productData.featuredImage,
@@ -300,8 +321,10 @@ export async function updateProductAction(
           category: productData.category,
           categoryLabel: productData.categoryLabel,
           tagline: productData.tagline?.trim() || null,
-          price: Number(productData.price),
-          originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
+          price: pricing.sellingPrice,
+          originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
+          discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+          discountType: productData.discountType || 'percent',
           description: productData.description?.trim() || null,
           complimentaryItem: productData.complimentaryItem?.trim() || null,
           featuredImage: productData.featuredImage,
@@ -462,7 +485,9 @@ export async function updateProductBadgesAction(
 export async function updateProductPriceAction(
   productIdOrSlug: string,
   price: number,
-  originalPrice?: number
+  originalPrice?: number | null,
+  discount?: number | null,
+  discountType?: 'percent' | 'flat' | string | null
 ) {
   try {
     if (!process.env.DATABASE_URL) return { success: true };
@@ -477,11 +502,37 @@ export async function updateProductPriceAction(
 
     if (!existing) return { success: false, error: 'Product not found' };
 
+    let finalPrice = Number(price);
+    let finalOriginalPrice: number | null = originalPrice !== undefined && originalPrice !== null ? Number(originalPrice) : null;
+    let finalDiscount: number | null = discount !== undefined && discount !== null ? Number(discount) : null;
+    let finalDiscountType: string | null = (discountType as string) || (finalDiscount ? 'percent' : null);
+
+    // If caller passed 4 args with (id, basePrice, discount, discountType):
+    if (typeof discount === 'string' && (discount === 'percent' || discount === 'flat')) {
+      const calc = calculateSellingPrice(price, originalPrice, discount as any);
+      finalPrice = calc.sellingPrice;
+      finalOriginalPrice = calc.discountAmount > 0 ? calc.comparePrice : null;
+      finalDiscount = originalPrice ? Number(originalPrice) : null;
+      finalDiscountType = discount;
+    } else if (finalDiscount !== null && finalDiscount > 0) {
+      // If caller passed discount, calculate selling and compare price
+      const base = finalOriginalPrice && finalOriginalPrice > finalPrice ? finalOriginalPrice : finalPrice;
+      const calc = calculateSellingPrice(base, finalDiscount, (finalDiscountType as any) || 'percent');
+      finalPrice = calc.sellingPrice;
+      finalOriginalPrice = calc.discountAmount > 0 ? calc.comparePrice : null;
+    } else if (finalOriginalPrice && finalOriginalPrice > finalPrice) {
+      // If originalPrice exists without discount, calculate discount percentage
+      finalDiscount = Math.round(((finalOriginalPrice - finalPrice) / finalOriginalPrice) * 100);
+      finalDiscountType = 'percent';
+    }
+
     await prisma.product.update({
       where: { id: existing.id },
       data: {
-        price: Number(price),
-        originalPrice: originalPrice ? Number(originalPrice) : null,
+        price: finalPrice,
+        originalPrice: finalOriginalPrice,
+        discount: finalDiscount,
+        discountType: finalDiscountType,
       },
     });
 
@@ -627,6 +678,8 @@ export async function duplicateProductAction(productIdOrSlug: string) {
         tagline: original.tagline,
         price: original.price,
         originalPrice: original.originalPrice,
+        discount: (original as any).discount,
+        discountType: (original as any).discountType,
         description: original.description,
         complimentaryItem: original.complimentaryItem,
         featuredImage: original.featuredImage,

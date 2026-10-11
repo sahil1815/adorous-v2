@@ -10,6 +10,8 @@ export const PRODUCTS: Product[] = (catalogueJson as any[]).map((p) => ({
   tagline: p.tagline,
   price: p.price,
   originalPrice: p.originalPrice,
+  discount: p.discount ?? null,
+  discountType: p.discountType ?? 'percent',
   description: p.description,
   details: p.details,
   piecesIncluded: p.piecesIncluded,

@@ -51,6 +51,8 @@ function fromDbProduct(p: any): Product {
     tagline: p.tagline || '',
     price: Number(p.price),
     originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    discount: p.discount !== null && p.discount !== undefined ? Number(p.discount) : null,
+    discountType: p.discountType ?? null,
     stockQty: p.stockQty ?? null,
     inStock: p.inStock ?? true,
     description: p.description || '',
