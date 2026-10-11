@@ -119,10 +119,9 @@ export async function createOrder(orderData: any) {
         },
         items: {
           create: (orderData.items || []).map((item: any) => {
-            const isNvo = validatedCouponCode === 'NEW_VISITOR';
             const orig = item.product?.originalPrice;
             const sellPrice = item.product?.price ?? 0;
-            const itemPrice = (isNvo && orig && orig > sellPrice) ? orig : sellPrice;
+            const itemPrice = orig && orig > sellPrice ? orig : sellPrice;
             return {
               productId: item.product.id,
               productName: item.product.name,

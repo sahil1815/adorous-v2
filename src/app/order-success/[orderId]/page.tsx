@@ -39,6 +39,7 @@ interface OrderData {
       category: string;
       slug: string;
       price: number;
+      originalPrice?: number | null;
       featuredImage: string;
     };
     selectedColor: {
@@ -240,7 +241,12 @@ export default function OrderSuccessPage() {
 
                     <div className="text-right shrink-0">
                       <span className="text-xs font-semibold text-ink tabular-nums">
-                        ৳{formatPrice(item.product.price * item.quantity)}
+                        {(() => {
+                          const unitPrice = (item.product?.originalPrice && item.product.originalPrice > item.product.price)
+                            ? item.product.originalPrice
+                            : (item.product?.price ?? (item as any).price ?? 0);
+                          return `৳${formatPrice(unitPrice * item.quantity)}`;
+                        })()}
                       </span>
                     </div>
                   </div>

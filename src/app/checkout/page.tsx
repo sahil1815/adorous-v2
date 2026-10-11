@@ -145,6 +145,29 @@ export default function CheckoutPage() {
     );
   }, [selectedDistrict]);
 
+  // Base subtotal (sum of authentic base/compare prices)
+  const baseSubtotal = useMemo(() => {
+    return (items || []).reduce((sum, item) => {
+      const cp = getItemComparePrice(item);
+      const qty = Number(item.quantity) || 1;
+      return sum + cp * qty;
+    }, 0);
+  }, [items]);
+
+  // Admin discount: difference between base subtotal and selling subtotal
+  const adminDiscountAmount = Math.max(0, Math.round((baseSubtotal - subtotal) * 100) / 100);
+  const adminDiscountPercent = useMemo(() => {
+    if (baseSubtotal <= 0 || adminDiscountAmount <= 0) return 0;
+    if (items.length === 1 && items[0].product.discount && items[0].product.discountType === 'percent') {
+      return Math.round(Number(items[0].product.discount));
+    }
+    return Math.round((adminDiscountAmount / baseSubtotal) * 100);
+  }, [items, baseSubtotal, adminDiscountAmount]);
+
+  const adminDiscountLabel = adminDiscountPercent > 0
+    ? `Adorous Fashion ${adminDiscountPercent}% Discount`
+    : 'Adorous Fashion Discount';
+
   // Shipping Fee & Discount Calculation (৳80 for Dhaka, ৳130 for others)
   const baseDistrictRate = getDistrictDeliveryFee(selectedDistrict);
   const isFreeDelivery = subtotal >= 2000;
@@ -158,16 +181,11 @@ export default function CheckoutPage() {
   // NVO is applied when offer is active, gives savings from compare price, and customer pays <= coupon total
   const useNvo = isOfferActive && nvoDiscount > 0 && nvoPayable <= couponPayable;
 
-  // When first visit offer is applied: show compare price as product price, with discount from compare price.
-  // When not applied: simply show the standard selling price (subtotal).
-  const checkoutSubtotal = useNvo ? compareSubtotal : subtotal;
-  const discountAmount = useNvo ? nvoDiscount : couponDiscount;
-  const discountLabel = useNvo
-    ? `${settings?.timerLabel?.trim() || 'Special Offer'} ${discountPercent}% Off`
-    : appliedCoupon
-      ? `Promo Discount (${appliedCoupon.code})`
-      : '';
-  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - discountAmount + shippingFee) * 100) / 100);
+  const checkoutSubtotal = baseSubtotal;
+  const totalDiscount = useNvo
+    ? nvoDiscount
+    : Math.round((adminDiscountAmount + couponDiscount) * 100) / 100;
+  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - totalDiscount + shippingFee) * 100) / 100);
 
   // Manual and onBlur save trigger
   const triggerDraftSave = useCallback(() => {
@@ -199,8 +217,8 @@ export default function CheckoutPage() {
       })),
       subtotal: checkoutSubtotal,
       shippingFee,
-      discountAmount: discountAmount > 0 ? discountAmount : undefined,
-      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
+      discountAmount: totalDiscount > 0 ? totalDiscount : undefined,
+      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : (adminDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined),
       grandTotal,
     });
   }, [
@@ -216,9 +234,10 @@ export default function CheckoutPage() {
     items,
     checkoutSubtotal,
     shippingFee,
-    discountAmount,
+    totalDiscount,
     useNvo,
     appliedCoupon,
+    adminDiscountAmount,
     grandTotal,
   ]);
 
@@ -354,7 +373,7 @@ export default function CheckoutPage() {
       items,
       subtotal: checkoutSubtotal,
       shippingFee,
-      discountAmount: discountAmount > 0 ? discountAmount : undefined,
+      discountAmount: totalDiscount > 0 ? totalDiscount : undefined,
       couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
       grandTotal,
     };
@@ -662,7 +681,7 @@ export default function CheckoutPage() {
               <div className="divide-y divide-line max-h-96 overflow-y-auto pr-1">
                 {items.map((item, idx) => {
                   const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
-                  const itemUnitPrice = useNvo ? getItemComparePrice(item) : item.product.price;
+                  const itemUnitPrice = getItemComparePrice(item);
                   const lineTotal = itemUnitPrice * item.quantity;
 
                   return (
@@ -908,14 +927,32 @@ export default function CheckoutPage() {
                     <span className="tabular-nums">৳{formatPrice(checkoutSubtotal)}</span>
                   </div>
 
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between items-center text-emerald-700 font-medium">
-                      <span className="flex items-center gap-1">
-                        {useNvo && <Sparkles className="w-3 h-3" />}
-                        {discountLabel}
-                      </span>
-                      <span className="tabular-nums">-৳{formatPrice(discountAmount)}</span>
-                    </div>
+                  {useNvo ? (
+                    nvoDiscount > 0 && (
+                      <div className="flex justify-between items-center text-emerald-700 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          {`${settings?.timerLabel?.trim() || 'Special Offer'} ${discountPercent}% Off`}
+                        </span>
+                        <span className="tabular-nums">-৳{formatPrice(nvoDiscount)}</span>
+                      </div>
+                    )
+                  ) : (
+                    <>
+                      {adminDiscountAmount > 0 && (
+                        <div className="flex justify-between items-center text-emerald-700 font-medium">
+                          <span>{adminDiscountLabel}</span>
+                          <span className="tabular-nums">-৳{formatPrice(adminDiscountAmount)}</span>
+                        </div>
+                      )}
+
+                      {couponDiscount > 0 && appliedCoupon && (
+                        <div className="flex justify-between items-center text-emerald-700 font-medium">
+                          <span>Promo Discount ({appliedCoupon.code})</span>
+                          <span className="tabular-nums">-৳{formatPrice(couponDiscount)}</span>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* Hint when both NVO and coupon exist but NVO wins */}
