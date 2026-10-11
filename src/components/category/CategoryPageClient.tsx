@@ -9,16 +9,7 @@ import { useProductOrdering, PageOrdering } from '@/context/ProductOrderingConte
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews, isReviewForProduct } from '@/context/ReviewsContext';
 import ProductCard from '@/components/ui/ProductCard';
-import {
-  SlidersHorizontal,
-  ChevronDown,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  MessageCircle,
-  Sparkles,
-  HelpCircle
-} from 'lucide-react';
+import { ChevronDown, Truck, MessageCircle } from 'lucide-react';
 
 interface CategoryPageClientProps {
   categorySlug: string;
@@ -169,36 +160,7 @@ export default function CategoryPageClient({
     return list;
   }, [adminSortedProducts, sortBy, filterInStock, selectedColor]);
 
-  // Category specific trust note
-  const categoryHighlights = useMemo(() => {
-    switch (categorySlug) {
-      case 'churi':
-        return [
-          { title: 'Hand Sizing Guaranteed', desc: 'Need size 2-4, 2-6, or 2-8? We offer 7-day doorstep size exchange across Bangladesh.' },
-          { title: 'Plush Velvet Texture', desc: 'Padded velvet cores prevent wrist chafing and maintain lush color richness.' },
-          { title: 'Pre-Packaged Stacks', desc: 'Curated 8-to-24 bangle stacks ready to slip on without styling guesswork.' },
-        ];
-      case 'bags':
-        return [
-          { title: 'Custom Brushed Brass', desc: 'Tarnish-resistant hardware engineered for Dhaka humidity and daily wear.' },
-          { title: 'Structured Bases', desc: 'Reinforced architectural silhouettes that never sag when set down.' },
-          { title: 'Signature Velvet Lining', desc: 'Every bag is lined in our signature champagne or black microsuede.' },
-        ];
-      case 'more':
-      case 'umbrellas':
-        return [
-          { title: 'Curated Lifestyle', desc: 'Curated essentials and premium accessories for everyday elegance.' },
-          { title: 'Monsoon Windproof', desc: 'Reinforced aerodynamic frame and UV50+ canopy tested against intense weather.' },
-          { title: 'Signature Hardware', desc: 'Solid hand-turned chestnut wood handles with custom brass gold ferrule.' },
-        ];
-      default:
-        return [
-          { title: '22k Antique Finish', desc: 'Hand-finished micro-lacquer electroplating that resists tropical oxidation.' },
-          { title: 'Cash on Delivery (COD)', desc: 'Inspect your luxury pieces at your doorstep before handing cash to the courier.' },
-          { title: 'Signature Keepsake Box', desc: 'Arrives in our rigid warm stone box with champagne ribbon and velvet pouch.' },
-        ];
-    }
-  }, [categorySlug]);
+
 
   return (
     <div className="bg-paper min-h-screen">
@@ -369,37 +331,6 @@ export default function CategoryPageClient({
           </div>
         )}
 
-        {/* Category Trust Highlights */}
-        <section className="mt-16 sm:mt-24 pt-12 border-t border-line">
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <span className="text-[11px] font-semibold tracking-[0.2em] text-gold-ink uppercase">
-              The Adorous Guarantee
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-serif text-ink mt-1">
-              Quality & Convenience
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categoryHighlights.map((highlight, idx) => (
-              <div
-                key={idx}
-                className="p-6 bg-[#F8F6F0] border border-line/80 flex flex-col justify-between space-y-3"
-              >
-                <div className="space-y-2">
-                  <div className="w-8 h-8 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold-deep">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-medium text-sm text-ink">{highlight.title}</h3>
-                  <p className="text-xs text-text-muted leading-relaxed">{highlight.desc}</p>
-                </div>
-                <div className="pt-2 text-[10px] uppercase font-semibold text-gold-ink tracking-wider">
-                  Inspected by Adorous
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* WhatsApp Styling Assistance Banner */}
         <section className="mt-12 bg-[#FAF7F0] border border-line p-6 sm:p-10 rounded-[2px] flex flex-col md:flex-row items-center justify-between gap-6">
