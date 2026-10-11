@@ -31,39 +31,41 @@ export async function createOrder(orderData: any) {
           });
           const dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
 
-          let serverSubtotal = 0;
-          let serverFlatDiscount = 0;
+          let serverCompareSubtotal = 0;
+          let serverDiscountFromCompare = 0;
+          let serverSellingSubtotal = 0;
           const pct = settings.discountPercent || 10;
 
           for (const item of orderData.items || []) {
             const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
             const price = dbProd?.price ?? item.product?.price ?? 0;
             const originalPrice = dbProd?.originalPrice ?? item.product?.originalPrice;
-            const baseOriginalPrice = originalPrice && originalPrice > price ? originalPrice : price;
+            const comparePrice = originalPrice && originalPrice > price ? originalPrice : price;
             const qty = Number(item.quantity) || 1;
-            serverSubtotal += price * qty;
+            serverCompareSubtotal += comparePrice * qty;
+            serverSellingSubtotal += price * qty;
 
-            // Flat target price at X% discount from baseOriginalPrice (preserving exact decimals p.q if fractional)
-            const targetPrice = Math.round(baseOriginalPrice * (1 - pct / 100) * 100) / 100;
+            // Target price at flat X% discount from comparePrice (preserving exact decimals p.q if fractional)
+            const targetPrice = Math.round(comparePrice * (1 - pct / 100) * 100) / 100;
+            const effectiveTargetPrice = Math.min(price, targetPrice);
 
-            // If current selling price is higher than targetPrice, discount down to flat X%
-            if (price > targetPrice) {
-              serverFlatDiscount += (price - targetPrice) * qty;
+            // Discount from compare price
+            if (comparePrice > effectiveTargetPrice) {
+              serverDiscountFromCompare += (comparePrice - effectiveTargetPrice) * qty;
             }
-            // Exception: If current price <= targetPrice (product already has >= X% discount),
-            // keep it as is (additional discount = 0).
           }
 
-          serverFlatDiscount = Math.round(serverFlatDiscount * 100) / 100;
+          serverCompareSubtotal = Math.round(serverCompareSubtotal * 100) / 100;
+          serverDiscountFromCompare = Math.round(serverDiscountFromCompare * 100) / 100;
 
-          // Check minOrderAmount threshold
-          if (settings.minOrderAmount && serverSubtotal < settings.minOrderAmount) {
+          // Check minOrderAmount threshold against selling subtotal
+          if (settings.minOrderAmount && serverSellingSubtotal < settings.minOrderAmount) {
             validatedDiscountAmount = undefined;
             validatedCouponCode = undefined;
           } else {
             const maxAllowedDiscount = settings.maxDiscountAmount
-              ? Math.min(serverFlatDiscount, settings.maxDiscountAmount)
-              : serverFlatDiscount;
+              ? Math.min(serverDiscountFromCompare, settings.maxDiscountAmount)
+              : serverDiscountFromCompare;
 
             const claimedDiscount = Number(orderData.discountAmount) || 0;
             // Verify client discount does not exceed authorized calculation (±1 BDT tolerance for rounding)
@@ -116,16 +118,22 @@ export async function createOrder(orderData: any) {
           },
         },
         items: {
-          create: orderData.items.map((item: any) => ({
-            productId: item.product.id,
-            productName: item.product.name,
-            productImage: item.product.featuredImage,
-            price: item.product.price,
-            quantity: item.quantity,
-            colorName: item.selectedColor.name,
-            colorHex: item.selectedColor.hex,
-            selectedSize: item.selectedSize,
-          })),
+          create: (orderData.items || []).map((item: any) => {
+            const isNvo = validatedCouponCode === 'NEW_VISITOR';
+            const orig = item.product?.originalPrice;
+            const sellPrice = item.product?.price ?? 0;
+            const itemPrice = (isNvo && orig && orig > sellPrice) ? orig : sellPrice;
+            return {
+              productId: item.product.id,
+              productName: item.product.name,
+              productImage: item.product.featuredImage,
+              price: itemPrice,
+              quantity: item.quantity,
+              colorName: item.selectedColor.name,
+              colorHex: item.selectedColor.hex,
+              selectedSize: item.selectedSize,
+            };
+          }),
         },
       },
       include: {

@@ -50,6 +50,8 @@ interface OrderData {
   }>;
   subtotal: number;
   shippingFee: number;
+  discountAmount?: number;
+  couponCode?: string;
   grandTotal: number;
 }
 
@@ -250,6 +252,12 @@ export default function OrderSuccessPage() {
                   <span>Subtotal</span>
                   <span className="text-ink tabular-nums">৳{formatPrice(order.subtotal)}</span>
                 </div>
+                {order.discountAmount && order.discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-medium">
+                    <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                    <span className="tabular-nums">-৳{formatPrice(order.discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Delivery ({order.customer.district})</span>
                   <span className="text-ink tabular-nums">

@@ -22,9 +22,8 @@ export default function CartDrawer() {
     freeShippingThreshold,
     remainingForFreeShipping,
   } = useCart();
-  const { isOfferActive, discountPercent, calculateDiscount, settings } = useNewVisitorOffer();
-  // Flat X% discount calculation (keeping items with >X% existing discounts intact)
-  const nvoDiscount = calculateDiscount(items);
+  const { isOfferActive, discountPercent, calculateCompareDiscount, settings } = useNewVisitorOffer();
+  const { compareSubtotal, discountAmount: nvoDiscount, payableSubtotal: nvoPayable } = calculateCompareDiscount(items);
 
   if (!isOpen) return null;
 
@@ -273,7 +272,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-muted font-medium">Estimated Subtotal</span>
               <span className={`font-semibold text-lg tabular-nums ${nvoDiscount > 0 ? 'text-text-muted line-through text-base' : 'text-ink'}`}>
-                ৳{formatPrice(subtotal)}
+                ৳{formatPrice(nvoDiscount > 0 ? compareSubtotal : subtotal)}
               </span>
             </div>
 
@@ -291,7 +290,7 @@ export default function CartDrawer() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-ink font-semibold">You Pay</span>
                   <span className="font-bold text-lg text-ink tabular-nums">
-                    ৳{formatPrice(subtotal - nvoDiscount)}
+                    ৳{formatPrice(nvoPayable)}
                   </span>
                 </div>
               </>

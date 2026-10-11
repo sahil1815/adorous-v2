@@ -36,6 +36,12 @@ export interface DiscountCalculableItem {
   quantity: number;
 }
 
+export function getItemComparePrice(item: { product: { price: number; originalPrice?: number | null } }): number {
+  const price = Number(item.product.price) || 0;
+  const originalPrice = item.product.originalPrice ? Number(item.product.originalPrice) : null;
+  return originalPrice && originalPrice > price ? originalPrice : price;
+}
+
 export interface NewVisitorOfferContextType {
   /** Whether the welcome modal should be visible */
   isModalOpen: boolean;
@@ -53,6 +59,12 @@ export interface NewVisitorOfferContextType {
   dismissModal: () => void;
   /** Calculate flat discount amount for cart items or subtotal */
   calculateDiscount: (itemsOrSubtotal: DiscountCalculableItem[] | number) => number;
+  /** Calculate compare subtotal, discount amount from compare price, and payable subtotal */
+  calculateCompareDiscount: (items: DiscountCalculableItem[]) => {
+    compareSubtotal: number;
+    discountAmount: number;
+    payableSubtotal: number;
+  };
   /** Mark the offer as redeemed (call after successful order) */
   markUsed: () => void;
   /** Force trigger test offer (preview mode helper) */
@@ -379,6 +391,66 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     [isOfferActive, remainingSeconds, settings.discountPercent, settings.minOrderAmount, settings.maxDiscountAmount]
   );
 
+  // ── 6b. Calculate Discount from Compare Price ────────────────────
+  const calculateCompareDiscount = useCallback(
+    (items: DiscountCalculableItem[]): { compareSubtotal: number; discountAmount: number; payableSubtotal: number } => {
+      const sellingSubtotal = (items || []).reduce(
+        (sum, item) => sum + (Number(item.product.price) || 0) * (Number(item.quantity) || 1),
+        0
+      );
+
+      if (!isOfferActive || remainingSeconds <= 0) {
+        return {
+          compareSubtotal: sellingSubtotal,
+          discountAmount: 0,
+          payableSubtotal: sellingSubtotal,
+        };
+      }
+
+      const pct = settings.discountPercent || 10;
+      let compareSubtotal = 0;
+      let totalDiscount = 0;
+
+      for (const item of items || []) {
+        const price = Number(item.product.price) || 0;
+        const cp = getItemComparePrice(item);
+        const qty = Number(item.quantity) || 1;
+        compareSubtotal += cp * qty;
+
+        const targetPrice = Math.round(cp * (1 - pct / 100) * 100) / 100;
+        const effectiveTargetPrice = Math.min(price, targetPrice);
+
+        if (cp > effectiveTargetPrice) {
+          totalDiscount += (cp - effectiveTargetPrice) * qty;
+        }
+      }
+
+      compareSubtotal = Math.round(compareSubtotal * 100) / 100;
+      totalDiscount = Math.round(totalDiscount * 100) / 100;
+
+      if (settings.minOrderAmount && sellingSubtotal < settings.minOrderAmount) {
+        return {
+          compareSubtotal: sellingSubtotal,
+          discountAmount: 0,
+          payableSubtotal: sellingSubtotal,
+        };
+      }
+
+      const finalDiscount = settings.maxDiscountAmount
+        ? Math.min(totalDiscount, settings.maxDiscountAmount)
+        : totalDiscount;
+
+      const payableSubtotal = Math.max(0, Math.round((compareSubtotal - finalDiscount) * 100) / 100);
+
+      return {
+        compareSubtotal,
+        discountAmount: finalDiscount,
+        payableSubtotal,
+      };
+    },
+    [isOfferActive, remainingSeconds, settings.discountPercent, settings.minOrderAmount, settings.maxDiscountAmount]
+  );
+
   // ── 7. Mark Offer as Used (After successful checkout) ────────────
   const markUsed = useCallback(() => {
     setIsOfferActive(false);
@@ -418,6 +490,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         isPreviewMode,
         dismissModal,
         calculateDiscount,
+        calculateCompareDiscount,
         markUsed,
         resetPreviewOffer,
       }}

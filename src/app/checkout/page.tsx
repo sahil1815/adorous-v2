@@ -10,7 +10,7 @@ import { useCoupons } from '@/context/CouponsContext';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { CartItem } from '@/types';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
-import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
+import { useNewVisitorOffer, getItemComparePrice } from '@/context/NewVisitorOfferContext';
 import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
 import { formatPrice } from '@/lib/formatPrice';
@@ -42,7 +42,7 @@ export default function CheckoutPage() {
   const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
-  const { isOfferActive, discountPercent, calculateDiscount, markUsed, settings } = useNewVisitorOffer();
+  const { isOfferActive, discountPercent, calculateDiscount, calculateCompareDiscount, markUsed, settings } = useNewVisitorOffer();
 
   // Persistent session ID for abandoned checkout recovery
   const [draftSessionId, setDraftSessionId] = useState('');
@@ -153,16 +153,21 @@ export default function CheckoutPage() {
 
   // --- New Visitor Offer vs Coupon: better one wins (not stacked) ---
   const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  // Flat X% discount calculation (keeping items with >X% existing discounts intact)
-  const nvoDiscount = calculateDiscount(items);
-  const useNvo = nvoDiscount > 0 && nvoDiscount >= couponDiscount;
+  const { compareSubtotal, discountAmount: nvoDiscount, payableSubtotal: nvoPayable } = calculateCompareDiscount(items);
+  const couponPayable = Math.max(0, subtotal - couponDiscount);
+  // NVO is applied when offer is active, gives savings from compare price, and customer pays <= coupon total
+  const useNvo = isOfferActive && nvoDiscount > 0 && nvoPayable <= couponPayable;
+
+  // When first visit offer is applied: show compare price as product price, with discount from compare price.
+  // When not applied: simply show the standard selling price (subtotal).
+  const checkoutSubtotal = useNvo ? compareSubtotal : subtotal;
   const discountAmount = useNvo ? nvoDiscount : couponDiscount;
   const discountLabel = useNvo
     ? `${settings?.timerLabel?.trim() || 'Special Offer'} ${discountPercent}% Off`
     : appliedCoupon
       ? `Promo Discount (${appliedCoupon.code})`
       : '';
-  const grandTotal = Math.max(0, Math.round((subtotal - discountAmount + shippingFee) * 100) / 100);
+  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - discountAmount + shippingFee) * 100) / 100);
 
   // Manual and onBlur save trigger
   const triggerDraftSave = useCallback(() => {
@@ -185,16 +190,17 @@ export default function CheckoutPage() {
           category: i.product.category,
           slug: i.product.slug,
           price: i.product.price,
+          originalPrice: i.product.originalPrice,
           featuredImage: i.product.featuredImage,
         },
         selectedColor: i.selectedColor,
         selectedSize: i.selectedSize,
         quantity: i.quantity,
       })),
-      subtotal,
+      subtotal: checkoutSubtotal,
       shippingFee,
-      discountAmount: appliedCoupon ? appliedCoupon.discountAmount : undefined,
-      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
+      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
       grandTotal,
     });
   }, [
@@ -208,8 +214,10 @@ export default function CheckoutPage() {
     giftNote,
     paymentMethod,
     items,
-    subtotal,
+    checkoutSubtotal,
     shippingFee,
+    discountAmount,
+    useNvo,
     appliedCoupon,
     grandTotal,
   ]);
@@ -344,7 +352,7 @@ export default function CheckoutPage() {
       },
       paymentMethod,
       items,
-      subtotal,
+      subtotal: checkoutSubtotal,
       shippingFee,
       discountAmount: discountAmount > 0 ? discountAmount : undefined,
       couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
@@ -654,7 +662,8 @@ export default function CheckoutPage() {
               <div className="divide-y divide-line max-h-96 overflow-y-auto pr-1">
                 {items.map((item, idx) => {
                   const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
-                  const lineTotal = item.product.price * item.quantity;
+                  const itemUnitPrice = useNvo ? getItemComparePrice(item) : item.product.price;
+                  const lineTotal = itemUnitPrice * item.quantity;
 
                   return (
                     <div key={itemKey} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0">
@@ -896,7 +905,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between text-ink">
                     <span>Product Price</span>
-                    <span className="tabular-nums">৳{formatPrice(subtotal)}</span>
+                    <span className="tabular-nums">৳{formatPrice(checkoutSubtotal)}</span>
                   </div>
 
                   {discountAmount > 0 && (
@@ -910,15 +919,15 @@ export default function CheckoutPage() {
                   )}
 
                   {/* Hint when both NVO and coupon exist but NVO wins */}
-                  {useNvo && couponDiscount > 0 && couponDiscount < nvoDiscount && appliedCoupon && (
+                  {useNvo && couponDiscount > 0 && appliedCoupon && (
                     <p className="text-[10px] text-text-muted italic">
                       Your {(settings?.timerLabel?.trim() || 'special offer').toLowerCase()} gives a better deal than coupon "{appliedCoupon.code}" (৳{formatPrice(couponDiscount)} off)
                     </p>
                   )}
                   {/* Hint when coupon is better than NVO */}
-                  {!useNvo && nvoDiscount > 0 && couponDiscount > nvoDiscount && (
+                  {!useNvo && isOfferActive && nvoDiscount > 0 && couponDiscount > 0 && appliedCoupon && (
                     <p className="text-[10px] text-text-muted italic">
-                      Your coupon gives a better deal than the {(settings?.timerLabel?.trim() || 'special offer').toLowerCase()} (৳{formatPrice(nvoDiscount)} off)
+                      Your coupon gives a better deal than the {(settings?.timerLabel?.trim() || 'special offer').toLowerCase()}
                     </p>
                   )}
 
