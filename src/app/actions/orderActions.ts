@@ -123,14 +123,14 @@ export async function createOrder(orderData: any) {
             const sellPrice = item.product?.price ?? 0;
             const itemPrice = orig && orig > sellPrice ? orig : sellPrice;
             return {
-              productId: item.product.id,
-              productName: item.product.name,
-              productImage: item.product.featuredImage,
+              productId: item.product?.id || null,
+              productName: item.product?.name || 'Jewelry item',
+              productImage: item.product?.featuredImage || '',
               price: itemPrice,
-              quantity: item.quantity,
-              colorName: item.selectedColor.name,
-              colorHex: item.selectedColor.hex,
-              selectedSize: item.selectedSize,
+              quantity: Number(item.quantity) || 1,
+              colorName: item.selectedColor?.name || (typeof item.selectedColor === 'string' ? item.selectedColor : 'Standard'),
+              colorHex: item.selectedColor?.hex || '#C5A880',
+              selectedSize: item.selectedSize || null,
             };
           }),
         },

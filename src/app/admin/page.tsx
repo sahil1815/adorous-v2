@@ -171,7 +171,9 @@ function AdminOrdersDesk() {
   const searchParams = useSearchParams();
   const statusParam = searchParams.get('status');
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const queryParam = searchParams.get('search') || searchParams.get('q');
+
+  const [searchQuery, setSearchQuery] = useState(queryParam || '');
   const [statusFilter, setStatusFilter] = useState<string>(statusParam || 'all');
   const [regionFilter, setRegionFilter] = useState<string>('all');
   const [editingConsignmentOrderId, setEditingConsignmentOrderId] = useState<string | null>(null);
@@ -183,6 +185,14 @@ function AdminOrdersDesk() {
       setStatusFilter(statusParam);
     }
   }, [statusParam]);
+
+  useEffect(() => {
+    const q = searchParams.get('search') || searchParams.get('q');
+    if (q) {
+      setSearchQuery(q);
+      setStatusFilter('all');
+    }
+  }, [searchParams]);
 
   // Quantity editing state
   const [editingItemQuantity, setEditingItemQuantity] = useState<{
