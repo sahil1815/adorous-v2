@@ -336,18 +336,18 @@ export default function AdminLandingPagesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-serif font-semibold text-gold tracking-wide flex items-center space-x-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gold tracking-tight flex items-center space-x-2">
             <FileText className="w-6 h-6" />
             <span>Landing Pages</span>
           </h1>
-          <p className="text-xs text-paper/50 mt-1 tracking-wide">
+          <p className="text-xs text-zinc-400 mt-1">
             Create unlisted collection pages for Facebook ads &amp; external campaigns
           </p>
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gold text-ink font-semibold rounded-xs hover:bg-gold-light transition-colors shadow-sm text-sm"
+          className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gold text-ink font-bold rounded-xs hover:bg-gold-light transition-colors shadow-sm text-sm"
         >
           <Plus className="w-4 h-4" />
           <span>Create Landing Page</span>
@@ -357,16 +357,16 @@ export default function AdminLandingPagesPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-[#141414] border border-white/10 rounded-sm px-4 py-3">
-          <div className="text-2xl font-serif font-bold text-gold">{pages.length}</div>
-          <div className="text-[10px] uppercase tracking-widest text-paper/50 mt-0.5">Total Pages</div>
+          <div className="text-3xl font-extrabold tabular-nums tracking-tight text-white">{pages.length}</div>
+          <div className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold mt-1">Total Pages</div>
         </div>
         <div className="bg-[#141414] border border-white/10 rounded-sm px-4 py-3">
-          <div className="text-2xl font-serif font-bold text-emerald-400">{activeCount}</div>
-          <div className="text-[10px] uppercase tracking-widest text-paper/50 mt-0.5">Active</div>
+          <div className="text-3xl font-extrabold tabular-nums tracking-tight text-emerald-400">{activeCount}</div>
+          <div className="text-[11px] uppercase tracking-wider text-emerald-400 font-bold mt-1">Active</div>
         </div>
         <div className="bg-[#141414] border border-white/10 rounded-sm px-4 py-3">
-          <div className="text-2xl font-serif font-bold text-blue-400">{totalProducts}</div>
-          <div className="text-[10px] uppercase tracking-widest text-paper/50 mt-0.5">Products Featured</div>
+          <div className="text-3xl font-extrabold tabular-nums tracking-tight text-blue-400">{totalProducts}</div>
+          <div className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold mt-1">Products Featured</div>
         </div>
       </div>
 
@@ -387,11 +387,11 @@ export default function AdminLandingPagesPage() {
       {/* Pages List */}
       {filteredPages.length === 0 ? (
         <div className="text-center py-16 bg-[#141414] border border-white/10 rounded-sm">
-          <FileText className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-          <h3 className="text-lg font-serif text-paper/60 mb-1">
+          <FileText className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+          <h3 className="text-base font-bold text-white mb-1">
             {pages.length === 0 ? 'No landing pages yet' : 'No results found'}
           </h3>
-          <p className="text-xs text-paper/40 mb-6">
+          <p className="text-xs text-zinc-400 mb-6">
             {pages.length === 0
               ? 'Create your first collection page for Facebook ad campaigns.'
               : 'Try a different search term.'}
@@ -400,7 +400,7 @@ export default function AdminLandingPagesPage() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gold/15 text-gold border border-gold/30 rounded-xs hover:bg-gold/25 transition-colors text-sm"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gold/15 text-gold border border-gold/30 rounded-xs hover:bg-gold/25 transition-colors text-sm font-semibold"
             >
               <Plus className="w-4 h-4" />
               <span>Create Your First Page</span>
@@ -427,7 +427,7 @@ export default function AdminLandingPagesPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-serif text-lg text-paper font-semibold truncate">
+                        <h3 className="text-base sm:text-lg text-white font-bold tracking-tight truncate">
                           {page.title}
                         </h3>
                         <span
@@ -550,9 +550,9 @@ export default function AdminLandingPagesPage() {
 
                   {/* Headline preview */}
                   <div className="mt-3 px-3 py-2 bg-[#0E0E0E] border border-white/5 rounded-xs">
-                    <p className="text-sm text-paper/70 font-serif italic">&ldquo;{page.headline}&rdquo;</p>
+                    <p className="text-sm text-zinc-300 font-medium italic">&ldquo;{page.headline}&rdquo;</p>
                     {page.subtitle && (
-                      <p className="text-[11px] text-paper/40 mt-0.5">{page.subtitle}</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">{page.subtitle}</p>
                     )}
                   </div>
 
@@ -575,7 +575,7 @@ export default function AdminLandingPagesPage() {
                         </div>
                       ))}
                       {pageProducts.length > 6 && (
-                        <div className="shrink-0 w-10 h-10 rounded-xs border border-white/10 bg-[#1C1C1C] flex items-center justify-center text-[10px] text-paper/50 font-bold">
+                        <div className="shrink-0 w-10 h-10 rounded-xs border border-white/10 bg-[#1C1C1C] flex items-center justify-center text-[10px] text-zinc-400 font-bold">
                           +{pageProducts.length - 6}
                         </div>
                       )}
@@ -595,10 +595,10 @@ export default function AdminLandingPagesPage() {
             {/* Modal Header */}
             <div className="sticky top-0 bg-[#141414] border-b border-white/10 px-6 py-4 flex items-center justify-between z-10">
               <div>
-                <h2 className="text-lg font-serif font-semibold text-gold">
+                <h2 className="text-lg font-bold text-white tracking-tight">
                   {editingPage ? 'Edit Landing Page' : 'Create Landing Page'}
                 </h2>
-                <p className="text-[11px] text-paper/40 mt-0.5">
+                <p className="text-xs text-zinc-400 mt-0.5 font-medium">
                   {editingPage
                     ? 'Update page settings and products'
                     : 'Build an unlisted collection page for external campaigns'}

@@ -286,14 +286,14 @@ export default function ChangeOrderedProductModal({
               <RefreshCw className="w-4 h-4 text-gold" />
             </div>
             <div>
-              <h3 className="font-serif text-base sm:text-lg text-paper font-normal flex items-center gap-2">
+              <h3 className="text-base sm:text-lg text-white font-bold tracking-tight flex items-center gap-2">
                 <span>Change Ordered Product</span>
-                <span className="text-xs font-mono text-gold-light bg-gold/10 px-2 py-0.5 rounded-xs border border-gold/20">
+                <span className="text-xs font-mono text-gold-light bg-gold/15 px-2 py-0.5 rounded-xs border border-gold/30 font-bold">
                   {order.orderId}
                 </span>
               </h3>
-              <p className="text-[11px] text-paper/50">
-                Patron: <span className="text-paper/80 font-medium">{order.customer.fullName}</span> ({order.customer.phone})
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Patron: <span className="text-white font-bold">{order.customer.fullName}</span> ({order.customer.phone})
               </p>
             </div>
           </div>
@@ -333,13 +333,13 @@ export default function ChangeOrderedProductModal({
                 )}
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] uppercase font-semibold text-paper/40 tracking-wider block">
+                <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider block">
                   Current Ordered Item:
                 </span>
-                <p className="text-xs font-medium text-paper line-clamp-1">
+                <p className="text-sm font-bold text-white line-clamp-1 tracking-tight">
                   {targetItem.product.name}
                 </p>
-                <div className="text-[11px] text-paper/60 flex items-center gap-1.5 flex-wrap mt-0.5">
+                <div className="text-xs text-zinc-400 flex items-center gap-1.5 flex-wrap mt-0.5">
                   <span
                     className="w-2.5 h-2.5 rounded-full border border-black/40"
                     style={{ backgroundColor: targetItem.selectedColor.hex }}
@@ -347,13 +347,13 @@ export default function ChangeOrderedProductModal({
                   <span>{targetItem.selectedColor.name}</span>
                   {targetItem.selectedSize && <span>· Size {targetItem.selectedSize}</span>}
                   <span>· Qty: {targetItem.quantity}</span>
-                  <span className="text-gold font-medium">· ৳{formatPrice(targetItem.product.price)} each</span>
+                  <span className="text-gold font-bold">· ৳{formatPrice(targetItem.product.price)} each</span>
                 </div>
               </div>
             </div>
             <div className="text-right sm:border-l sm:border-white/10 sm:pl-4 shrink-0">
-              <span className="text-[10px] text-paper/40 uppercase block">Current Item Total</span>
-              <span className="text-sm font-semibold text-paper/90 tabular-nums">
+              <span className="text-[11px] text-zinc-400 uppercase font-semibold block">Current Item Total</span>
+              <span className="text-base font-extrabold text-white tabular-nums">
                 ৳{formatPrice(oldItemTotal)}
               </span>
             </div>
@@ -686,11 +686,11 @@ export default function ChangeOrderedProductModal({
                   <span>Delivery Charge:</span>
                   <span className="tabular-nums">৳{formatPrice(shippingFee)}</span>
                 </div>
-                <div className="flex justify-between items-center text-gold pt-1.5 border-t border-gold/20">
-                  <span className="font-semibold text-xs uppercase tracking-wide">
+                <div className="flex justify-between items-center text-gold pt-2 border-t border-gold/30">
+                  <span className="font-bold text-xs uppercase tracking-wider">
                     New Total COD Collection:
                   </span>
-                  <span className="font-bold text-sm sm:text-base tabular-nums">
+                  <span className="font-extrabold text-base sm:text-lg tabular-nums">
                     ৳{formatPrice(finalGrandTotal)}
                   </span>
                 </div>

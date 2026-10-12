@@ -604,10 +604,10 @@ export default function AdminInventoryPage() {
       {/* Top Header & Stock Metrics */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Inventory & Catalogue Controls
           </h1>
-          <p className="text-xs text-paper/60 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             Manage real-time inventory quantities, stock status, seasonal prices, badge ribbons, and catalogue deletions.
           </p>
         </div>
@@ -615,7 +615,7 @@ export default function AdminInventoryPage() {
         <div className="flex items-center space-x-3">
           <Link
             href="/admin/inventory/new"
-            className="px-4 py-2 bg-gold hover:bg-gold-light text-ink font-semibold rounded-xs transition-colors flex items-center space-x-2 text-xs shadow-sm"
+            className="px-4 py-2 bg-gold hover:bg-gold-light text-ink font-bold rounded-xs transition-colors flex items-center space-x-2 text-xs shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Product</span>
@@ -626,37 +626,37 @@ export default function AdminInventoryPage() {
       {/* Stock & Visibility Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
         <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-paper/50 block font-medium">Total Designs</span>
-          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">{totalItems}</span>
-          <span className="text-[10px] text-paper/40">Active catalog</span>
+          <span className="text-[11px] uppercase tracking-wider text-zinc-400 block font-bold">Total Designs</span>
+          <span className="text-3xl font-extrabold tabular-nums tracking-tight text-white mt-1 block">{totalItems}</span>
+          <span className="text-xs text-zinc-400 font-medium">Active catalog</span>
         </div>
 
-        <div className="bg-[#171717] border border-emerald-600/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-emerald-400 block font-medium flex items-center gap-1">
-            <Eye className="w-3 h-3" /> Live on Store
+        <div className="bg-[#171717] border border-emerald-600/40 p-4 rounded-xs">
+          <span className="text-[11px] uppercase tracking-wider text-emerald-400 block font-bold flex items-center gap-1.5">
+            <Eye className="w-3.5 h-3.5" /> Live on Store
           </span>
-          <span className="text-2xl font-serif text-emerald-300 font-semibold mt-0.5 block">{visibleCount}</span>
-          <span className="text-[10px] text-emerald-200/50">Discoverable to shoppers</span>
+          <span className="text-3xl font-extrabold tabular-nums tracking-tight text-emerald-400 mt-1 block">{visibleCount}</span>
+          <span className="text-xs text-emerald-300/80 font-medium">Discoverable to shoppers</span>
         </div>
 
-        <div className="bg-[#171717] border border-amber-600/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-amber-400 block font-medium flex items-center gap-1">
-            <EyeOff className="w-3 h-3" /> Hidden from Store
+        <div className="bg-[#171717] border border-amber-600/40 p-4 rounded-xs">
+          <span className="text-[11px] uppercase tracking-wider text-amber-400 block font-bold flex items-center gap-1.5">
+            <EyeOff className="w-3.5 h-3.5" /> Hidden from Store
           </span>
-          <span className="text-2xl font-serif text-amber-300 font-semibold mt-0.5 block">{hiddenCount}</span>
-          <span className="text-[10px] text-amber-200/50">Private / draft pieces</span>
+          <span className="text-3xl font-extrabold tabular-nums tracking-tight text-amber-400 mt-1 block">{hiddenCount}</span>
+          <span className="text-xs text-amber-300/80 font-medium">Private / draft pieces</span>
         </div>
 
         <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-paper/50 block font-medium">In Stock</span>
-          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">{inStockCount}</span>
-          <span className="text-[10px] text-paper/40">Ready for dispatch</span>
+          <span className="text-[11px] uppercase tracking-wider text-zinc-400 block font-bold">In Stock</span>
+          <span className="text-3xl font-extrabold tabular-nums tracking-tight text-white mt-1 block">{inStockCount}</span>
+          <span className="text-xs text-zinc-400 font-medium">Ready for dispatch</span>
         </div>
 
-        <div className="bg-[#171717] border border-red-600/30 p-4 rounded-xs col-span-2 sm:col-span-1">
-          <span className="text-[10px] uppercase text-red-400 block font-medium">Stock Alert</span>
-          <span className="text-2xl font-serif text-red-300 font-semibold mt-0.5 block">{lowStockCount + soldOutCount}</span>
-          <span className="text-[10px] text-red-200/50">{lowStockCount} low · {soldOutCount} sold out</span>
+        <div className="bg-[#171717] border border-rose-600/40 p-4 rounded-xs col-span-2 sm:col-span-1">
+          <span className="text-[11px] uppercase tracking-wider text-rose-400 block font-bold">Stock Alert</span>
+          <span className="text-3xl font-extrabold tabular-nums tracking-tight text-rose-400 mt-1 block">{lowStockCount + soldOutCount}</span>
+          <span className="text-xs text-rose-300/80 font-medium">{lowStockCount} low · {soldOutCount} sold out</span>
         </div>
       </div>
 
@@ -893,7 +893,7 @@ export default function AdminInventoryPage() {
                         })()}
                       </div>
 
-                      <h3 className="font-serif text-base text-paper font-medium truncate block max-w-md">
+                      <h3 className="text-base font-bold text-white tracking-tight truncate block max-w-md hover:text-gold transition-colors">
                         {prod.name}
                       </h3>
 
@@ -960,16 +960,16 @@ export default function AdminInventoryPage() {
                           })()
                         ) : (
                           <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-paper tabular-nums">
+                            <span className="font-extrabold text-sm text-gold tabular-nums tracking-tight">
                               ৳{formatPrice(effective.price)}
                             </span>
                             {effective.originalPrice && effective.originalPrice > effective.price && (
                               <>
-                                <span className="text-[11px] text-paper/40 line-through tabular-nums">
+                                <span className="text-xs text-zinc-400 line-through tabular-nums font-semibold">
                                   ৳{formatPrice(effective.originalPrice)}
                                 </span>
                                 {effective.discount && (
-                                  <span className="text-[9px] px-1 py-0.2 rounded-xs bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 font-semibold font-mono">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 font-bold font-mono">
                                     {effective.discountType === 'flat' ? `৳${effective.discount} OFF` : `${effective.discount}% OFF`}
                                   </span>
                                 )}
@@ -1224,14 +1224,14 @@ export default function AdminInventoryPage() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-[#171717] border border-white/15 max-w-md w-full p-6 rounded-xs shadow-2xl space-y-5">
             <div className="flex items-start justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center space-x-2.5 text-red-400">
+              <div className="flex items-center space-x-2.5 text-rose-400">
                 <ShieldAlert className="w-5 h-5 shrink-0" />
-                <h3 className="font-serif text-lg text-paper font-medium">Delete Product</h3>
+                <h3 className="text-lg font-bold text-white tracking-tight">Delete Product</h3>
               </div>
               <button
                 type="button"
                 onClick={() => !isDeleting && setDeleteModalProduct(null)}
-                className="text-paper/40 hover:text-paper transition-colors p-1"
+                className="text-zinc-400 hover:text-white transition-colors p-1"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1258,19 +1258,19 @@ export default function AdminInventoryPage() {
                 )}
               </div>
               <div className="min-w-0 flex-1 space-y-0.5">
-                <span className="text-[10px] uppercase font-semibold text-gold tracking-wider block">
+                <span className="text-[10px] uppercase font-bold text-gold tracking-wider block">
                   {deleteModalProduct.categoryLabel}
                 </span>
-                <p className="text-xs text-paper font-serif font-medium truncate">
+                <p className="text-sm text-white font-bold truncate">
                   {deleteModalProduct.name}
                 </p>
-                <p className="text-[11px] text-paper/60 font-mono">
+                <p className="text-xs text-gold font-extrabold tabular-nums font-mono">
                   ৳{formatPrice(deleteModalProduct.price)}
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-paper/70 leading-relaxed">
+            <p className="text-xs text-zinc-300 leading-relaxed font-medium">
               Are you sure you want to permanently remove this piece from the Adorous catalogue and live storefront?
             </p>
 

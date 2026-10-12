@@ -387,14 +387,14 @@ export default function AdminLookbookPage() {
       {/* Top Banner & Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <div className="flex items-center space-x-2 text-xs uppercase tracking-widest text-gold font-medium mb-1">
+          <div className="flex items-center space-x-2 text-xs uppercase tracking-widest text-gold font-bold mb-1">
             <BookOpen className="w-4 h-4" />
             <span>Storefront Visual Curation</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-medium text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Lookbook & Editorial Management
           </h1>
-          <p className="text-xs text-white/60 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
             Curate multi-piece still-life ensembles for the dedicated Lookbook atelier, configure color palettes, attach catalogue pieces, and edit the homepage lookbook editorial band.
           </p>
         </div>
@@ -403,16 +403,16 @@ export default function AdminLookbookPage() {
           <Link
             href="/lookbook"
             target="_blank"
-            className="inline-flex items-center space-x-1.5 px-3 py-2 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-white/80 hover:text-white rounded-xs text-xs font-medium transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-2 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-zinc-300 hover:text-white rounded-xs text-xs font-semibold transition-colors"
           >
             <span>Live Lookbook</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 text-gold" />
           </Link>
           <button
             type="button"
             onClick={loadAll}
             disabled={isLoading}
-            className="p-2 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-white/70 hover:text-gold rounded-xs transition-colors"
+            className="p-2 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-zinc-400 hover:text-gold rounded-xs transition-colors"
             title="Refresh Data"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -421,7 +421,7 @@ export default function AdminLookbookPage() {
             <button
               type="button"
               onClick={handleOpenCreateModal}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gold hover:bg-gold-light text-ink font-semibold rounded-xs text-xs tracking-wider uppercase transition-all shadow-md"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gold hover:bg-gold-light text-ink font-bold rounded-xs text-xs tracking-wider uppercase transition-all shadow-md"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Look</span>
@@ -432,14 +432,14 @@ export default function AdminLookbookPage() {
 
       {/* Notifications */}
       {successMessage && (
-        <div className="p-3 bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs rounded-xs flex items-center space-x-2 animate-in fade-in duration-200">
+        <div className="p-3 bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs rounded-xs flex items-center space-x-2 animate-in fade-in duration-200 font-semibold">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
           <span>{successMessage}</span>
         </div>
       )}
       {errorMessage && (
-        <div className="p-3 bg-red-950/60 border border-red-500/30 text-red-300 text-xs rounded-xs flex items-center space-x-2 animate-in fade-in duration-200">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+        <div className="p-3 bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs rounded-xs flex items-center space-x-2 animate-in fade-in duration-200 font-semibold">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -449,10 +449,10 @@ export default function AdminLookbookPage() {
         <button
           type="button"
           onClick={() => setActiveTab('looks')}
-          className={`pb-3 px-4 font-medium transition-colors flex items-center space-x-2 border-b-2 ${
+          className={`pb-3 px-4 font-bold transition-colors flex items-center space-x-2 border-b-2 ${
             activeTab === 'looks'
-              ? 'border-gold text-gold font-semibold'
-              : 'border-transparent text-white/60 hover:text-white'
+              ? 'border-gold text-gold'
+              : 'border-transparent text-zinc-400 hover:text-white'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -461,10 +461,10 @@ export default function AdminLookbookPage() {
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
-          className={`pb-3 px-4 font-medium transition-colors flex items-center space-x-2 border-b-2 ${
+          className={`pb-3 px-4 font-bold transition-colors flex items-center space-x-2 border-b-2 ${
             activeTab === 'settings'
-              ? 'border-gold text-gold font-semibold'
-              : 'border-transparent text-white/60 hover:text-white'
+              ? 'border-gold text-gold'
+              : 'border-transparent text-zinc-400 hover:text-white'
           }`}
         >
           <Sliders className="w-4 h-4" />
@@ -476,7 +476,7 @@ export default function AdminLookbookPage() {
       {isLoading && (
         <div className="py-20 text-center space-y-3">
           <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs uppercase tracking-widest text-gold font-medium">
+          <p className="text-xs uppercase tracking-widest text-gold font-bold">
             Loading Lookbook Atelier Data...
           </p>
         </div>
@@ -488,24 +488,24 @@ export default function AdminLookbookPage() {
           {/* Quick Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-[#141414] border border-white/10 p-4 rounded-xs">
-              <span className="text-[10px] uppercase tracking-wider text-white/50 block">Total Curated Looks</span>
-              <span className="text-2xl font-serif font-semibold text-white mt-1 block">{looks.length}</span>
+              <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Total Curated Looks</span>
+              <span className="text-3xl font-extrabold tabular-nums tracking-tight text-white mt-1 block">{looks.length}</span>
             </div>
             <div className="bg-[#141414] border border-white/10 p-4 rounded-xs">
-              <span className="text-[10px] uppercase tracking-wider text-white/50 block">Published on Storefront</span>
-              <span className="text-2xl font-serif font-semibold text-emerald-400 mt-1 block">
+              <span className="text-[11px] uppercase tracking-wider text-emerald-400 font-bold block">Published on Storefront</span>
+              <span className="text-3xl font-extrabold tabular-nums tracking-tight text-emerald-400 mt-1 block">
                 {looks.filter((l) => l.isActive).length}
               </span>
             </div>
             <div className="bg-[#141414] border border-white/10 p-4 rounded-xs">
-              <span className="text-[10px] uppercase tracking-wider text-white/50 block">Hidden / Draft</span>
-              <span className="text-2xl font-serif font-semibold text-white/40 mt-1 block">
+              <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Hidden / Draft</span>
+              <span className="text-3xl font-extrabold tabular-nums tracking-tight text-zinc-400 mt-1 block">
                 {looks.filter((l) => !l.isActive).length}
               </span>
             </div>
             <div className="bg-[#141414] border border-white/10 p-4 rounded-xs">
-              <span className="text-[10px] uppercase tracking-wider text-white/50 block">Catalogue Products In Looks</span>
-              <span className="text-2xl font-serif font-semibold text-gold mt-1 block">
+              <span className="text-[11px] uppercase tracking-wider text-gold font-bold block">Catalogue Products In Looks</span>
+              <span className="text-3xl font-extrabold tabular-nums tracking-tight text-gold mt-1 block">
                 {new Set(looks.flatMap((l) => l.itemIds)).size}
               </span>
             </div>
@@ -516,8 +516,8 @@ export default function AdminLookbookPage() {
             <div className="bg-[#141414] border border-white/10 p-12 text-center rounded-xs space-y-4">
               <BookOpen className="w-12 h-12 text-gold/40 mx-auto" />
               <div className="space-y-1">
-                <h3 className="text-lg font-serif text-white">No Looks Found</h3>
-                <p className="text-xs text-white/50 max-w-md mx-auto leading-relaxed">
+                <h3 className="text-base font-bold text-white">No Looks Found</h3>
+                <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
                   Start curating your first still-life ensemble. Group luxury jewelry, bangles, and boutique bags into an editorial look.
                 </p>
               </div>
@@ -580,7 +580,7 @@ export default function AdminLookbookPage() {
                               {look.isActive ? 'Active' : 'Hidden'}
                             </span>
                           </div>
-                          <h3 className="font-serif text-base sm:text-lg text-white font-medium truncate">
+                          <h3 className="text-base sm:text-lg text-white font-bold tracking-tight truncate">
                             {look.title}
                           </h3>
                           <p className="text-[11px] text-white/50 truncate">
@@ -732,7 +732,7 @@ export default function AdminLookbookPage() {
                 <BookOpen className="w-4 h-4" />
                 <span>Dedicated Lookbook Atelier Page (/lookbook)</span>
               </div>
-              <h2 className="text-lg font-serif text-white font-medium mt-1">
+              <h2 className="text-lg font-bold text-white tracking-tight mt-1">
                 Header Hero & Editorial Intro
               </h2>
             </div>
@@ -786,7 +786,7 @@ export default function AdminLookbookPage() {
                 <Layers className="w-4 h-4" />
                 <span>Homepage Editorial Lookbook Section</span>
               </div>
-              <h2 className="text-lg font-serif text-white font-medium mt-1">
+              <h2 className="text-lg font-bold text-white tracking-tight mt-1">
                 Editorial Banner & Featured Visuals
               </h2>
             </div>
@@ -928,7 +928,7 @@ export default function AdminLookbookPage() {
                 <span className="text-[10px] uppercase tracking-widest text-gold font-semibold">
                   {editingLookId ? 'Modify Look' : 'Curate New Ensemble'}
                 </span>
-                <h2 className="text-xl font-serif font-medium mt-0.5">
+                <h2 className="text-xl font-bold text-white tracking-tight mt-0.5">
                   {editingLookId ? `Edit ${formNumeral}: ${formTitle || 'Ensemble'}` : 'New Lookbook Look'}
                 </h2>
               </div>
@@ -1245,7 +1245,7 @@ export default function AdminLookbookPage() {
           <div className="bg-[#141414] border border-red-500/30 rounded-xs max-w-sm w-full p-6 text-white space-y-4 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center space-x-3 text-red-400">
               <AlertCircle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-serif font-medium">Delete Look?</h3>
+              <h3 className="text-base font-bold text-white tracking-tight">Delete Look?</h3>
             </div>
             <p className="text-xs text-white/70 leading-relaxed">
               Are you sure you want to permanently remove this look from the Atelier Lookbook? This action cannot be undone.

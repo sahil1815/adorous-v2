@@ -47,10 +47,10 @@ export default function AdminLogisticsPage() {
       {/* Top Header & Manifest Trigger */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Courier Dispatch Manifest
           </h1>
-          <p className="text-xs text-paper/60 mt-1">
+          <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1">
             Generate and print daily handover manifests for CarryBee, Pathao & Steadfast courier pickup riders across Bangladesh.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function AdminLogisticsPage() {
         <button
           type="button"
           onClick={handlePrint}
-          className="px-5 py-2.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shadow-sm shrink-0"
+          className="px-5 py-2.5 bg-gold hover:bg-gold-light text-ink font-bold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center space-x-2 shadow-sm shrink-0 cursor-pointer"
         >
           <Printer className="w-4 h-4" />
           <span>Print Daily Manifest</span>
@@ -67,36 +67,36 @@ export default function AdminLogisticsPage() {
 
       {/* Logistics Overview Cards (Hidden on Print) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 print:hidden">
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-paper/50 block font-medium">Manifest Parcels</span>
-          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
+          <span className="text-[11px] uppercase text-zinc-300 block font-bold tracking-wider">Manifest Parcels</span>
+          <span className="text-3xl font-extrabold text-white tabular-nums tracking-tight mt-1 block">
             {dispatchOrders.length}
           </span>
-          <span className="text-[10px] text-paper/40">Ready for pickup</span>
+          <span className="text-xs text-zinc-400 font-medium block">Ready for pickup</span>
         </div>
 
-        <div className="bg-[#171717] border border-gold/30 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-gold block font-medium">Total COD to Collect</span>
-          <span className="text-2xl font-serif text-gold-light font-semibold mt-0.5 block">
+        <div className="bg-[#171717] border border-gold/40 p-4 rounded-xs space-y-1">
+          <span className="text-[11px] uppercase text-gold-light block font-bold tracking-wider">Total COD to Collect</span>
+          <span className="text-3xl font-extrabold text-gold-light tabular-nums tracking-tight mt-1 block">
             ৳{totalCodValue.toLocaleString('en-US')}
           </span>
-          <span className="text-[10px] text-gold/50">Courier remittance</span>
+          <span className="text-xs text-gold/80 font-medium block">Courier remittance</span>
         </div>
 
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-paper/50 block font-medium">Rajshahi Metro</span>
-          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
+          <span className="text-[11px] uppercase text-zinc-300 block font-bold tracking-wider">Rajshahi Metro</span>
+          <span className="text-3xl font-extrabold text-white tabular-nums tracking-tight mt-1 block">
             {dhakaCount}
           </span>
-          <span className="text-[10px] text-paper/40">24–48h delivery</span>
+          <span className="text-xs text-zinc-400 font-medium block">24–48h delivery</span>
         </div>
 
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
-          <span className="text-[10px] uppercase text-paper/50 block font-medium">Outside Dhaka</span>
-          <span className="text-2xl font-serif text-paper font-semibold mt-0.5 block">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
+          <span className="text-[11px] uppercase text-zinc-300 block font-bold tracking-wider">Outside Dhaka</span>
+          <span className="text-3xl font-extrabold text-white tabular-nums tracking-tight mt-1 block">
             {outsideCount}
           </span>
-          <span className="text-[10px] text-paper/40">63 Districts (Steadfast)</span>
+          <span className="text-xs text-zinc-400 font-medium block">63 Districts (Steadfast)</span>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function AdminLogisticsPage() {
         <div className="border-b border-white/10 print:border-black/20 pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-serif text-xl sm:text-2xl tracking-[0.16em] uppercase text-gold print:text-black font-semibold">
+              <span className="font-extrabold text-xl sm:text-2xl tracking-[0.16em] uppercase text-gold print:text-black">
                 Adorous Fashion Dhaka
               </span>
               <span className="px-2 py-0.5 bg-sand print:bg-gray-100 text-ink text-[10px] uppercase font-bold rounded-xs">

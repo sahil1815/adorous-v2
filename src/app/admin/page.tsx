@@ -492,121 +492,127 @@ function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => setStatusFilter('all')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'all' ? 'border-gold bg-[#1c1a15]' : 'border-white/10 hover:border-white/30'
-              }`}
+            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
+              statusFilter === 'all' ? 'border-gold bg-[#1c1a15] shadow-sm' : 'border-white/10 hover:border-gold/50'
+            }`}
           >
-            <span className="text-[10px] uppercase tracking-wider text-paper/50 block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-zinc-300 block font-bold">
               Total Orders
             </span>
-            <div className="text-2xl font-serif text-paper font-semibold">{totalOrders}</div>
-            <span className="text-[10px] text-paper/40">Logged in System</span>
+            <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight">{totalOrders}</div>
+            <span className="text-xs text-zinc-400 font-medium block">Logged in System</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStatusFilter('pending')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/20' : 'border-amber-600/30 hover:border-amber-500/60'
-              }`}
+            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
+              statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/30 shadow-sm' : 'border-amber-600/30 hover:border-amber-400/70'
+            }`}
           >
-            <span className="text-[10px] uppercase tracking-wider text-amber-400 block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-amber-300 block font-bold">
               Pending Call
             </span>
-            <div className="text-2xl font-serif text-amber-300 font-semibold">{pendingCount}</div>
-            <span className="text-[10px] text-amber-200/50">Needs verification</span>
+            <div className="text-3xl font-extrabold text-amber-300 tabular-nums tracking-tight">{pendingCount}</div>
+            <span className="text-xs text-amber-200/90 font-medium block">Needs verification</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStatusFilter('packaging')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/20' : 'border-purple-600/30 hover:border-purple-500/60'
-              }`}
+            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
+              statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/30 shadow-sm' : 'border-purple-600/30 hover:border-purple-400/70'
+            }`}
           >
-            <span className="text-[10px] uppercase tracking-wider text-purple-400 block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-purple-300 block font-bold">
               In Packaging
             </span>
-            <div className="text-2xl font-serif text-purple-300 font-semibold">{packagingCount}</div>
-            <span className="text-[10px] text-purple-200/50">Inspecting & sealing</span>
+            <div className="text-3xl font-extrabold text-purple-200 tabular-nums tracking-tight">{packagingCount}</div>
+            <span className="text-xs text-purple-200/90 font-medium block">Inspecting & sealing</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStatusFilter('handed_to_courier')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'handed_to_courier' ? 'border-blue-400 bg-blue-950/20' : 'border-blue-600/30 hover:border-blue-500/60'
-              }`}
+            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
+              statusFilter === 'handed_to_courier' ? 'border-sky-400 bg-sky-950/30 shadow-sm' : 'border-sky-600/30 hover:border-sky-400/70'
+            }`}
           >
-            <span className="text-[10px] uppercase tracking-wider text-blue-400 block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-sky-300 block font-bold">
               With Courier
             </span>
-            <div className="text-2xl font-serif text-blue-300 font-semibold">{courierCount}</div>
-            <span className="text-[10px] text-blue-200/50">In active delivery</span>
+            <div className="text-3xl font-extrabold text-sky-200 tabular-nums tracking-tight">{courierCount}</div>
+            <span className="text-xs text-sky-200/90 font-medium block">In active delivery</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStatusFilter('delivered')}
-            className={`text-left bg-[#171717] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer ${statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/20' : 'border-emerald-600/30 hover:border-emerald-500/60'
-              }`}
+            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
+              statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/30 shadow-sm' : 'border-emerald-600/30 hover:border-emerald-400/70'
+            }`}
           >
-            <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-emerald-300 block font-bold">
               Delivered & Paid
             </span>
-            <div className="text-2xl font-serif text-emerald-300 font-semibold">{deliveredCount}</div>
-            <span className="text-[10px] text-emerald-200/50">Completed & Remitted</span>
+            <div className="text-3xl font-extrabold text-emerald-300 tabular-nums tracking-tight">{deliveredCount}</div>
+            <span className="text-xs text-emerald-200/90 font-medium block">Completed & Remitted</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStatusFilter('returned_and_cancelled')}
-            className={`text-left bg-[#181212] border p-3.5 rounded-xs space-y-1 transition-all cursor-pointer group ${['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
-              ? 'border-red-500 bg-red-950/40 shadow-xs'
-              : 'border-red-600/40 hover:border-red-500/80 hover:bg-[#201515]'
-              }`}
+            className={`text-left bg-[#181212] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer group ${
+              ['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
+                ? 'border-rose-500 bg-rose-950/50 shadow-sm'
+                : 'border-rose-600/40 hover:border-rose-500 hover:bg-[#201515]'
+            }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider text-red-400 block font-medium group-hover:text-red-300">
+              <span className="text-[11px] uppercase tracking-wider text-rose-300 block font-bold group-hover:text-rose-200">
                 Returned & Cancelled
               </span>
-              <RotateCcw className="w-3 h-3 text-red-400/70 group-hover:text-red-300" />
+              <RotateCcw className="w-3.5 h-3.5 text-rose-300 group-hover:rotate-180 transition-transform" />
             </div>
-            <div className="text-2xl font-serif text-red-300 font-semibold">{returnedAndCancelledCount}</div>
-            <span className="text-[10px] text-red-200/60 block">
+            <div className="text-3xl font-extrabold text-rose-200 tabular-nums tracking-tight">{returnedAndCancelledCount}</div>
+            <span className="text-xs text-rose-200/90 block font-medium">
               {returnedCount} Ret · {cancelledCount} Canc
             </span>
           </button>
         </div>
 
         {/* Financial Pipeline Strip */}
-        <div className="bg-[#141414] border border-white/10 p-3.5 rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs">
-          <div className="flex flex-wrap items-center gap-6">
+        <div className="bg-[#141414] border border-white/10 p-4 rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-6 sm:gap-8">
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-gold/70 block font-medium">
+              <span className="text-[11px] uppercase tracking-wider text-gold-light block font-bold">
                 Total Order Pipeline
               </span>
-              <div className="text-base font-serif text-gold-light font-semibold">
+              <div className="text-lg sm:text-xl font-extrabold text-gold-light tabular-nums tracking-tight mt-0.5">
                 ৳{totalRevenue.toLocaleString('en-US')}
               </div>
             </div>
-            <div className="h-7 w-px bg-white/10 hidden sm:block" />
+            <div className="h-8 w-px bg-white/10 hidden sm:block" />
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-emerald-400/70 block font-medium">
+              <span className="text-[11px] uppercase tracking-wider text-emerald-300 block font-bold">
                 Delivered & Collected
               </span>
-              <div className="text-base font-serif text-emerald-300 font-semibold">
+              <div className="text-lg sm:text-xl font-extrabold text-emerald-300 tabular-nums tracking-tight mt-0.5">
                 ৳{deliveredRevenue.toLocaleString('en-US')}
               </div>
             </div>
-            <div className="h-7 w-px bg-white/10 hidden sm:block" />
+            <div className="h-8 w-px bg-white/10 hidden sm:block" />
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-red-400/70 block font-medium">
+              <span className="text-[11px] uppercase tracking-wider text-rose-300 block font-bold">
                 Returned / Cancelled Value
               </span>
-              <div className="text-base font-serif text-red-300 font-semibold">
+              <div className="text-lg sm:text-xl font-extrabold text-rose-200 tabular-nums tracking-tight mt-0.5">
                 ৳{returnedAndCancelledRevenue.toLocaleString('en-US')}
               </div>
             </div>
           </div>
 
-          <div className="text-right text-[11px] text-paper/40">
+          <div className="text-right text-xs text-zinc-400 font-medium">
             <span>Cash on Delivery · Real-time Database Sync</span>
           </div>
         </div>
@@ -754,8 +760,8 @@ function AdminOrdersDesk() {
         {filteredOrders.length === 0 ? (
           <div className="bg-[#171717] border border-white/10 p-12 text-center rounded-xs space-y-3">
             <Package className="w-10 h-10 text-paper/30 mx-auto" />
-            <h3 className="font-serif text-lg text-paper">No Orders Match Filter Criteria</h3>
-            <p className="text-xs text-paper/50 max-w-sm mx-auto">
+            <h3 className="text-lg font-bold text-white tracking-tight">No Orders Match Filter Criteria</h3>
+            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
               {statusFilter === 'returned_and_cancelled'
                 ? 'No returned or cancelled orders found in system.'
                 : statusFilter === 'returned'
@@ -784,18 +790,18 @@ function AdminOrdersDesk() {
 
                     {/* Status Badge */}
                     <span
-                      className={`px-2.5 py-1 rounded-xs text-[11px] font-semibold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}
+                      className={`px-2.5 py-1 rounded-xs text-[11px] font-bold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}
                     >
                       {statusConfig.label}
                     </span>
 
                     {/* Region Pill */}
-                    <span className="text-[11px] px-2 py-0.5 bg-[#222222] text-paper/70 rounded-xs border border-white/5">
+                    <span className="text-[11px] px-2 py-0.5 bg-[#222222] text-zinc-200 font-semibold rounded-xs border border-white/10">
                       {order.customer.district}
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-xs text-paper/50">
+                  <div className="flex items-center space-x-2 text-xs text-zinc-400 font-medium">
                     <Clock className="w-3.5 h-3.5" />
                     <span>{new Date(order.createdAt).toLocaleDateString('en-US', {
                       month: 'short',
@@ -809,15 +815,15 @@ function AdminOrdersDesk() {
                 {/* Main 3-Column Content */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs">
                   {/* Left: Customer & Address */}
-                  <div className="md:col-span-4 space-y-2 bg-[#1C1C1C] p-3.5 rounded-xs border border-white/5">
+                  <div className="md:col-span-4 space-y-2.5 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider">
+                      <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
                         Recipient Information
                       </span>
                       <button
                         type="button"
                         onClick={() => handleCopyOrderInfo(order)}
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-medium tracking-wide transition-all border cursor-pointer shrink-0 ${copiedOrderId === order.orderId
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-semibold tracking-wide transition-all border cursor-pointer shrink-0 ${copiedOrderId === order.orderId
                           ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs'
                           : 'bg-gold/10 hover:bg-gold/20 text-gold-light hover:text-gold border-gold/30 hover:border-gold/50'
                           }`}
@@ -827,7 +833,7 @@ function AdminOrdersDesk() {
                         {copiedOrderId === order.orderId ? (
                           <>
                             <Check className="w-3 h-3 text-emerald-400" />
-                            <span className="font-semibold text-emerald-300">Copied!</span>
+                            <span className="font-bold text-emerald-300">Copied!</span>
                           </>
                         ) : (
                           <>
@@ -838,28 +844,28 @@ function AdminOrdersDesk() {
                       </button>
                     </div>
                     <div>
-                      <strong className="text-sm font-serif text-paper block">
+                      <strong className="text-base font-bold text-white block tracking-tight">
                         {order.customer.fullName}
                       </strong>
                       <a
                         href={`tel:${order.customer.phone}`}
-                        className="text-gold-light hover:underline font-mono text-xs flex items-center gap-1 mt-0.5"
+                        className="text-sm font-bold text-gold-light hover:text-white tabular-nums tracking-wide flex items-center gap-1.5 mt-1 transition-colors"
                       >
-                        <Phone className="w-3 h-3 text-gold" />
+                        <Phone className="w-3.5 h-3.5 text-gold shrink-0" />
                         <span>{order.customer.phone}</span>
                       </a>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase text-paper/40 block">Address:</span>
-                      <p className="text-paper/80 leading-relaxed mt-0.5">
-                        {order.customer.address}, <strong className="text-gold-light">{order.customer.district}</strong>
+                      <span className="text-[11px] uppercase text-zinc-400 font-bold block tracking-wider">Address:</span>
+                      <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-relaxed mt-0.5">
+                        {order.customer.address}, <strong className="text-gold-light font-bold">{order.customer.district}</strong>
                       </p>
                     </div>
 
                     {order.customer.giftNote && (
                       <div className="pt-2 border-t border-white/10">
-                        <span className="text-[10px] uppercase text-gold/70 block font-medium">Gift Note:</span>
-                        <p className="italic text-paper/70 mt-0.5 bg-black/30 p-2 rounded-xs">
+                        <span className="text-[11px] uppercase text-gold font-bold block tracking-wider">Gift Note:</span>
+                        <p className="italic text-zinc-200 mt-0.5 bg-black/40 p-2 rounded-xs border border-white/5">
                           "{order.customer.giftNote}"
                         </p>
                       </div>
@@ -867,8 +873,8 @@ function AdminOrdersDesk() {
                   </div>
 
                   {/* Middle: Items List */}
-                  <div className="md:col-span-4 space-y-2.5 bg-[#1C1C1C] p-3.5 rounded-xs border border-white/5">
-                    <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider block">
+                  <div className="md:col-span-4 space-y-2.5 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
+                    <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider block">
                       Package Items ({order.items.reduce((s, i) => s + i.quantity, 0)})
                     </span>
                     <div className="space-y-2 divide-y divide-white/5">
@@ -895,23 +901,23 @@ function AdminOrdersDesk() {
                                   )}
                                 </div>
                                 <div className="min-w-0">
-                                  <span className="font-medium text-paper text-xs line-clamp-1 block">
+                                  <span className="font-bold text-white text-xs sm:text-sm line-clamp-1 block tracking-tight">
                                     {item.product.name}
                                   </span>
-                                  <div className="text-[10px] text-paper/50 flex items-center gap-1.5 flex-wrap">
+                                  <div className="text-[11px] text-zinc-300 font-medium flex items-center gap-1.5 flex-wrap mt-0.5">
                                     <span
-                                      className="w-2 h-2 rounded-full border border-black/30"
+                                      className="w-2.5 h-2.5 rounded-full border border-black/40"
                                       style={{ backgroundColor: item.selectedColor.hex }}
                                     />
-                                    <span>{item.selectedColor.name}</span>
-                                    {item.selectedSize && <span>· {item.selectedSize}</span>}
-                                    <span className="font-semibold text-paper/90">· Qty: {item.quantity}</span>
+                                    <span className="text-zinc-200">{item.selectedColor.name}</span>
+                                    {item.selectedSize && <span className="text-zinc-300">· {item.selectedSize}</span>}
+                                    <span className="font-bold text-white">· Qty: {item.quantity}</span>
                                     {!isEditingThis && (
                                       <div className="flex items-center gap-1.5 ml-1">
                                         <button
                                           type="button"
                                           onClick={() => handleStartEditQuantity(order, item, idx)}
-                                          className="text-[10px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 font-semibold transition-colors"
+                                          className="text-[11px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 font-bold transition-colors"
                                           title="Change ordered quantity"
                                         >
                                           <Edit2 className="w-2.5 h-2.5" />
@@ -921,7 +927,7 @@ function AdminOrdersDesk() {
                                         <button
                                           type="button"
                                           onClick={() => setSwappingProductState({ order, item, index: idx })}
-                                          className="text-[10px] text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-0.5 font-semibold transition-colors"
+                                          className="text-[11px] text-amber-300 hover:text-amber-200 hover:underline flex items-center gap-0.5 font-bold transition-colors"
                                           title="Customer called & changed product: Swap ordered piece"
                                         >
                                           <RefreshCw className="w-2.5 h-2.5" />
@@ -932,7 +938,7 @@ function AdminOrdersDesk() {
                                   </div>
                                 </div>
                               </div>
-                              <span className="font-semibold text-gold-light tabular-nums shrink-0 text-xs">
+                              <span className="font-extrabold text-gold-light tabular-nums shrink-0 text-xs sm:text-sm">
                                 ৳{formatPrice(item.product.price * item.quantity)}
                               </span>
                             </div>
@@ -1224,13 +1230,13 @@ function AdminOrdersDesk() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <strong className="text-sm font-semibold text-gold tabular-nums">
+                            <strong className="text-base font-extrabold text-gold tabular-nums tracking-tight">
                               ৳{formatPrice(order.grandTotal)}
                             </strong>
                             <button
                               type="button"
                               onClick={() => setEditingOrderCod({ orderId: order.orderId, amount: order.grandTotal })}
-                              className="text-[10px] text-paper/40 hover:text-gold flex items-center gap-0.5"
+                              className="text-[11px] text-zinc-400 hover:text-gold flex items-center gap-0.5"
                               title="Manually adjust COD collection amount"
                             >
                               <Edit2 className="w-2.5 h-2.5" />
@@ -1242,8 +1248,8 @@ function AdminOrdersDesk() {
                   </div>
 
                   {/* Right: Courier Assignment & Status Controller */}
-                  <div className="md:col-span-4 space-y-3 bg-[#1C1C1C] p-3.5 rounded-xs border border-white/5">
-                    <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider block">
+                  <div className="md:col-span-4 space-y-3 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
+                    <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider block">
                       Logistics & Courier Action
                     </span>
 

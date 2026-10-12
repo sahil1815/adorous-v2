@@ -215,11 +215,11 @@ export default function AdminCustomersPage() {
             <span className="p-1.5 bg-gold/10 text-gold rounded-xs border border-gold/30">
               <Users className="w-4 h-4" />
             </span>
-            <h1 className="font-serif text-2xl tracking-[0.12em] uppercase text-gold font-semibold">
+            <h1 className="text-2xl font-extrabold tracking-[0.12em] uppercase text-gold">
               Customers & Patrons
             </h1>
           </div>
-          <p className="text-xs text-paper/60 mt-1 max-w-xl">
+          <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1 max-w-xl">
             Complete database of signed-in account holders and guest customers across all 64 districts in Bangladesh.
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function AdminCustomersPage() {
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 hover:border-gold/40 text-paper/80 hover:text-gold text-xs rounded-xs transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 hover:border-gold/40 text-zinc-200 hover:text-gold text-xs font-semibold rounded-xs transition-colors cursor-pointer"
             title="Download CSV report"
           >
             <Download className="w-3.5 h-3.5" />
@@ -239,7 +239,7 @@ export default function AdminCustomersPage() {
             type="button"
             onClick={loadData}
             disabled={isLoading}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs rounded-xs transition-colors disabled:opacity-50"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gold hover:bg-gold-light text-ink font-bold text-xs rounded-xs transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -250,85 +250,85 @@ export default function AdminCustomersPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Registered Patrons */}
-        <div className="bg-[#171717] border border-gold/30 p-4 rounded-xs">
+        <div className="bg-[#171717] border border-gold/40 p-4 rounded-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-paper/60 uppercase">
+            <span className="text-[11px] font-bold tracking-wider text-gold-light uppercase">
               Registered Patrons
             </span>
             <span className="p-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-700/40">
               <UserCheck className="w-3.5 h-3.5" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-gold font-semibold mt-2">
+          <div className="text-3xl font-extrabold text-gold tabular-nums tracking-tight mt-1.5">
             {stats ? stats.registeredCount : '—'}
           </div>
-          <div className="text-[10px] text-paper/50 mt-1">
+          <div className="text-xs text-zinc-400 font-medium mt-1">
             Accounts with password & saved addresses
           </div>
-          <div className="mt-2 text-[11px] text-emerald-400/90 font-medium">
+          <div className="mt-2 text-xs text-emerald-300 font-bold">
             ৳{stats ? stats.registeredRevenue.toLocaleString('en-US') : '0'} Lifetime Spend
           </div>
         </div>
 
         {/* Card 2: Guest Buyers */}
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-paper/60 uppercase">
+            <span className="text-[11px] font-bold tracking-wider text-zinc-300 uppercase">
               Guest Order Buyers
             </span>
             <span className="p-1 rounded-full bg-amber-950/60 text-amber-400 border border-amber-700/40">
               <UserX className="w-3.5 h-3.5" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-paper font-semibold mt-2">
+          <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight mt-1.5">
             {stats ? stats.guestCount : '—'}
           </div>
-          <div className="text-[10px] text-paper/50 mt-1">
+          <div className="text-xs text-zinc-400 font-medium mt-1">
             Checked out without creating an account
           </div>
-          <div className="mt-2 text-[11px] text-amber-400/90 font-medium">
+          <div className="mt-2 text-xs text-amber-300 font-bold">
             ৳{stats ? stats.guestRevenue.toLocaleString('en-US') : '0'} Lifetime Spend
           </div>
         </div>
 
         {/* Card 3: Total Unique Customers */}
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-paper/60 uppercase">
+            <span className="text-[11px] font-bold tracking-wider text-zinc-300 uppercase">
               Total Patron Reach
             </span>
             <span className="p-1 rounded-full bg-gold/10 text-gold border border-gold/30">
               <Users className="w-3.5 h-3.5" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-paper font-semibold mt-2">
+          <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight mt-1.5">
             {stats ? stats.totalUniqueBuyers : '—'}
           </div>
-          <div className="text-[10px] text-paper/50 mt-1">
+          <div className="text-xs text-zinc-400 font-medium mt-1">
             Combined unique customer base
           </div>
-          <div className="mt-2 text-[11px] text-gold-light/90 font-medium">
+          <div className="mt-2 text-xs text-gold-light font-bold">
             ৳{stats ? stats.totalRevenue.toLocaleString('en-US') : '0'} Total Orders Value
           </div>
         </div>
 
         {/* Card 4: Repeat Guest Buyers */}
-        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs">
+        <div className="bg-[#171717] border border-white/10 p-4 rounded-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-paper/60 uppercase">
+            <span className="text-[11px] font-bold tracking-wider text-sky-300 uppercase">
               Repeat Guest Buyers
             </span>
-            <span className="p-1 rounded-full bg-blue-950/60 text-blue-400 border border-blue-700/40">
+            <span className="p-1 rounded-full bg-sky-950/60 text-sky-400 border border-sky-700/40">
               <Sparkles className="w-3.5 h-3.5" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-blue-300 font-semibold mt-2">
+          <div className="text-3xl font-extrabold text-sky-200 tabular-nums tracking-tight mt-1.5">
             {stats ? stats.repeatGuestCount : '—'}
           </div>
-          <div className="text-[10px] text-paper/50 mt-1">
+          <div className="text-xs text-zinc-400 font-medium mt-1">
             Guests with 2+ orders (VIP conversion candidates)
           </div>
-          <div className="mt-2 text-[11px] text-blue-400/90 font-medium">
+          <div className="mt-2 text-xs text-sky-300 font-bold">
             Prime candidates for loyalty invite
           </div>
         </div>
@@ -443,9 +443,9 @@ export default function AdminCustomersPage() {
               </div>
             ) : filteredRegistered.length === 0 ? (
               <div className="py-16 text-center text-paper/50 space-y-2">
-                <UserCheck className="w-8 h-8 text-paper/30 mx-auto" />
-                <p className="text-sm font-serif text-paper/70">No registered patrons match your filter</p>
-                <p className="text-xs text-paper/40">Try adjusting your search query or district selection.</p>
+                <UserCheck className="w-8 h-8 text-zinc-600 mx-auto" />
+                <p className="text-sm font-bold text-white">No registered patrons match your filter</p>
+                <p className="text-xs text-zinc-400">Try adjusting your search query or district selection.</p>
               </div>
             ) : (
               <table className="w-full text-left text-xs">
@@ -470,7 +470,7 @@ export default function AdminCustomersPage() {
                       {/* Name & Badge */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-serif text-xs font-semibold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-gold/15 text-gold border border-gold/30 flex items-center justify-center text-xs font-bold shrink-0">
                             {user.fullName.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -604,9 +604,9 @@ export default function AdminCustomersPage() {
               </div>
             ) : filteredGuests.length === 0 ? (
               <div className="py-16 text-center text-paper/50 space-y-2">
-                <UserX className="w-8 h-8 text-paper/30 mx-auto" />
-                <p className="text-sm font-serif text-paper/70">No guest customers found</p>
-                <p className="text-xs text-paper/40">
+                <UserX className="w-8 h-8 text-zinc-600 mx-auto" />
+                <p className="text-sm font-bold text-white">No guest customers found</p>
+                <p className="text-xs text-zinc-400">
                   When visitors place orders without signing in, their details will appear right here.
                 </p>
               </div>
@@ -633,7 +633,7 @@ export default function AdminCustomersPage() {
                       {/* Name & Badge */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-amber-950/60 text-amber-300 border border-amber-700/40 flex items-center justify-center font-serif text-xs font-semibold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-amber-950/60 text-amber-300 border border-amber-700/40 flex items-center justify-center text-xs font-bold shrink-0">
                             {guest.fullName.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -754,12 +754,12 @@ export default function AdminCustomersPage() {
             {/* Drawer Header */}
             <div className="p-5 border-b border-white/10 flex items-start justify-between bg-[#1F1F1F]">
               <div className="flex items-center space-x-3.5">
-                <div className="w-12 h-12 rounded-full bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-serif text-lg font-semibold shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gold/15 text-gold border border-gold/30 flex items-center justify-center text-lg font-bold shrink-0">
                   {selectedCustomer.data.fullName.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-lg font-serif text-paper font-semibold">
+                    <h2 className="text-lg font-bold text-white tracking-tight">
                       {selectedCustomer.data.fullName}
                     </h2>
                     {selectedCustomer.type === 'registered' ? (
@@ -826,14 +826,14 @@ export default function AdminCustomersPage() {
               {/* Profile Summary Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#1B1B1B] p-4 rounded-xs border border-white/5">
                 <div>
-                  <span className="text-[10px] text-paper/40 uppercase tracking-wider block">Total Spent</span>
-                  <span className="text-base font-semibold text-gold font-serif tabular-nums">
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">Total Spent</span>
+                  <span className="text-base font-extrabold text-gold tabular-nums">
                     ৳{selectedCustomer.data.totalSpent.toLocaleString('en-US')}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-paper/40 uppercase tracking-wider block">Total Orders</span>
-                  <span className="text-base font-semibold text-paper font-serif tabular-nums">
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">Total Orders</span>
+                  <span className="text-base font-extrabold text-white tabular-nums">
                     {selectedCustomer.data.orderCount}
                   </span>
                 </div>
@@ -953,7 +953,7 @@ export default function AdminCustomersPage() {
                         </div>
 
                         <div className="text-right">
-                          <span className="text-xs font-semibold text-gold font-serif tabular-nums">
+                          <span className="text-xs font-extrabold text-gold tabular-nums">
                             ৳{ord.grandTotal.toLocaleString('en-US')}
                           </span>
                         </div>

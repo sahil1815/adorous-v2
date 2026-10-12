@@ -430,9 +430,9 @@ export default function EditProductPage() {
   if (notFound) {
     return (
       <div className="max-w-xl mx-auto py-24 text-center space-y-4">
-        <AlertCircle className="w-12 h-12 text-red-400 mx-auto" />
-        <h1 className="font-serif text-2xl text-paper">Product Not Found</h1>
-        <p className="text-xs text-paper/60">This product does not exist in the database. Only admin-created products can be edited.</p>
+        <AlertCircle className="w-12 h-12 text-rose-400 mx-auto" />
+        <h1 className="text-2xl font-bold text-white tracking-tight">Product Not Found</h1>
+        <p className="text-xs text-zinc-400">This product does not exist in the database. Only admin-created products can be edited.</p>
         <Link href="/admin/inventory" className="inline-flex items-center space-x-2 text-gold text-xs hover:underline">
           <ArrowLeft className="w-4 h-4" /><span>Back to Inventory</span>
         </Link>
@@ -453,8 +453,8 @@ export default function EditProductPage() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">Edit Product</h1>
-            <p className="text-xs text-paper/60 mt-0.5 font-mono">{slug}</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Edit Product</h1>
+            <p className="text-xs text-zinc-400 mt-0.5 font-mono">{slug}</p>
           </div>
         </div>
 
@@ -505,7 +505,7 @@ export default function EditProductPage() {
             ) : (
               <Eye className="w-4 h-4 text-emerald-400" />
             )}
-            <h2 className="font-serif text-base text-paper font-normal">Frontend Visibility</h2>
+            <h2 className="text-base font-bold text-white tracking-tight">Frontend Visibility</h2>
           </div>
           <span
             className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-xs border ${
@@ -573,7 +573,7 @@ export default function EditProductPage() {
 
       {/* ── Stock Management ─────────────────────────────────────────────── */}
       <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
-        <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+        <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
           <Package className="w-4 h-4 text-gold" />
           <span>Stock Management</span>
         </h2>
@@ -653,7 +653,7 @@ export default function EditProductPage() {
       <form onSubmit={handleSubmit} className="space-y-8 text-xs">
         {/* Section 1: Identity */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <Tag className="w-4 h-4 text-gold" />
             <span>1. Identity & Classification</span>
           </h2>
@@ -704,7 +704,7 @@ export default function EditProductPage() {
 
         {/* Section 2: Pricing */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <Sparkles className="w-4 h-4 text-gold" />
             <span>2. BDT (৳) Pricing & Merchandising</span>
           </h2>
@@ -836,7 +836,7 @@ export default function EditProductPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
             <div className="flex items-center space-x-2">
               <ImageIcon className="w-4 h-4 text-gold" />
-              <h2 className="font-serif text-base text-paper font-normal">
+              <h2 className="text-base font-bold text-white tracking-tight">
                 3. Still-Life Photography Showcase & Gallery
               </h2>
               <span className="text-[11px] px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 rounded-xs font-mono font-medium">
@@ -1193,7 +1193,7 @@ export default function EditProductPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-white/10 pb-3">
             <div className="flex items-center space-x-2">
               <Palette className="w-4 h-4 text-gold" />
-              <h2 className="font-serif text-base text-paper font-normal">
+              <h2 className="text-base font-bold text-white tracking-tight">
                 4. Colorways & Finishes ({colorways.length})
               </h2>
             </div>
@@ -1356,7 +1356,7 @@ export default function EditProductPage() {
 
         {/* Section 5: Story & Specs */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-5">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <span>5. Story, Craft Specifications & Piece Breakdown</span>
           </h2>
 

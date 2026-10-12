@@ -19,11 +19,13 @@
 
   --font-serif: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
   --font-sans: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-admin: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 :root {
   --font-cormorant: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
   --font-jost: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-admin: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --bg-paper: #FAF8F4;
   --text-ink: #22262B;
 }
@@ -180,4 +182,56 @@ body {
   box-shadow: 0 0 10px rgba(198, 169, 110, 0.8);
   animation: gold-bar-indeterminate 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+
+/* ============================================================
+   ADMIN HIGH-LEGIBILITY EXECUTIVE THEME
+   - Ultra-crisp Plus Jakarta Sans typography
+   - Tabular lining numbers for first-glance readability
+   - Guaranteed contrast for all data, metrics, phones & addresses
+   ============================================================ */
+.admin-theme {
+  font-family: var(--font-admin);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+}
+
+/* Ensure all numeric figures, table cells, and mono elements use lining & tabular numbers */
+.admin-theme .tabular-nums,
+.admin-theme [data-metric],
+.admin-theme table td,
+.admin-theme table th,
+.admin-theme .font-mono,
+.admin-theme input,
+.admin-theme select {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Safety override: never let Cormorant Garamond / font-serif distort numbers or operational text inside admin */
+.admin-theme .font-serif {
+  font-family: var(--font-admin);
+}
+
+/* Allow explicit serif branding only if explicitly specified with .admin-brand-serif */
+.admin-theme .admin-brand-serif {
+  font-family: var(--font-cormorant);
+}
+
+/* Admin high-contrast micro-typography helpers */
+.admin-theme .admin-kpi-num {
+  font-family: var(--font-admin);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+}
+
+.admin-theme .admin-label {
+  font-family: var(--font-admin);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
 

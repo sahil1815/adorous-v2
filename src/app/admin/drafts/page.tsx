@@ -416,14 +416,14 @@ export default function AdminDraftsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="font-serif text-2xl sm:text-3xl text-paper font-semibold tracking-wide">
+            <h1 className="text-2xl sm:text-3xl text-white font-extrabold tracking-tight">
               Drafts & Abandoned Leads
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
               Live Recovery
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-paper/60 mt-1">
+          <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1">
             Real-time abandoned checkouts and incomplete sign-up forms with 1-click WhatsApp recovery
           </p>
         </div>
@@ -431,7 +431,7 @@ export default function AdminDraftsPage() {
         <button
           onClick={loadData}
           disabled={isLoading}
-          className="inline-flex items-center space-x-2 px-3.5 py-2 bg-[#1C1C1C] hover:bg-[#252525] border border-gold/30 hover:border-gold text-gold rounded-xs text-xs font-medium transition-all shadow-xs disabled:opacity-50 self-start sm:self-auto"
+          className="inline-flex items-center space-x-2 px-3.5 py-2 bg-[#1C1C1C] hover:bg-[#252525] border border-gold/30 hover:border-gold text-gold rounded-xs text-xs font-semibold transition-all shadow-xs disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           <span>Refresh Leads</span>
@@ -441,9 +441,9 @@ export default function AdminDraftsPage() {
       {/* Top 4 KPI Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1 */}
-        <div className="bg-[#141414] border border-amber-500/20 p-4 rounded-xs shadow-sm">
+        <div className="bg-[#141414] border border-amber-500/30 p-4 rounded-xs shadow-sm space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-paper/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
               Abandoned Checkouts
             </span>
             <div className="p-1.5 bg-amber-500/10 text-amber-400 rounded-xs">
@@ -451,17 +451,17 @@ export default function AdminDraftsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">
+            <span className="text-3xl font-extrabold text-amber-300 tabular-nums tracking-tight">
               {totalAbandonedCheckouts}
             </span>
-            <span className="text-[11px] text-paper/50">waiting recovery</span>
+            <span className="text-xs text-amber-200/90 font-medium">waiting recovery</span>
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-[#141414] border border-gold/25 p-4 rounded-xs shadow-sm">
+        <div className="bg-[#141414] border border-gold/30 p-4 rounded-xs shadow-sm space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-paper/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-gold-light">
               Recoverable Pipeline
             </span>
             <div className="p-1.5 bg-gold/10 text-gold rounded-xs">
@@ -469,16 +469,16 @@ export default function AdminDraftsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline space-x-1">
-            <span className="text-2xl sm:text-3xl font-serif font-bold text-gold">
+            <span className="text-3xl font-extrabold text-gold tabular-nums tracking-tight">
               ৳{potentialRecoverableRevenue.toLocaleString('en-US')}
             </span>
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-[#141414] border border-emerald-500/20 p-4 rounded-xs shadow-sm">
+        <div className="bg-[#141414] border border-emerald-500/30 p-4 rounded-xs shadow-sm space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-paper/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">
               Converted Orders
             </span>
             <div className="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-xs">
@@ -486,28 +486,28 @@ export default function AdminDraftsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl sm:text-3xl font-serif font-bold text-emerald-400">
+            <span className="text-3xl font-extrabold text-emerald-300 tabular-nums tracking-tight">
               {totalConvertedCheckouts}
             </span>
-            <span className="text-[11px] text-emerald-400/80">purchased</span>
+            <span className="text-xs text-emerald-200/90 font-medium">purchased</span>
           </div>
         </div>
 
         {/* Metric 4 */}
-        <div className="bg-[#141414] border border-blue-500/20 p-4 rounded-xs shadow-sm">
+        <div className="bg-[#141414] border border-sky-500/30 p-4 rounded-xs shadow-sm space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-paper/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-300">
               Incomplete Sign-ins
             </span>
-            <div className="p-1.5 bg-blue-500/10 text-blue-400 rounded-xs">
+            <div className="p-1.5 bg-sky-500/10 text-sky-400 rounded-xs">
               <UserX className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl sm:text-3xl font-serif font-bold text-blue-400">
+            <span className="text-3xl font-extrabold text-sky-200 tabular-nums tracking-tight">
               {totalIncompleteSignIns}
             </span>
-            <span className="text-[11px] text-paper/50">warm leads</span>
+            <span className="text-xs text-sky-200/90 font-medium">warm leads</span>
           </div>
         </div>
       </div>
@@ -586,9 +586,9 @@ export default function AdminDraftsPage() {
         <div className="space-y-3">
           {filteredCheckouts.length === 0 ? (
             <div className="bg-[#141414] border border-white/10 rounded-xs p-12 text-center space-y-3">
-              <ShoppingBag className="w-10 h-10 text-paper/30 mx-auto" />
-              <h3 className="font-serif text-lg text-paper font-semibold">No Draft Checkouts Found</h3>
-              <p className="text-xs text-paper/50 max-w-sm mx-auto">
+              <ShoppingBag className="w-10 h-10 text-zinc-600 mx-auto" />
+              <h3 className="text-base font-bold text-white tracking-tight">No Draft Checkouts Found</h3>
+              <p className="text-xs text-zinc-400 max-w-sm mx-auto">
                 When customers begin typing on the checkout page but leave before completing, their carts and contact details will appear here automatically.
               </p>
             </div>
@@ -618,7 +618,7 @@ export default function AdminDraftsPage() {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-serif text-base text-paper font-semibold">
+                          <span className="text-base sm:text-lg font-bold text-white tracking-tight">
                             {draft.fullName}
                           </span>
                           {/* Status Badge with Interactive Dropdown */}
@@ -627,7 +627,7 @@ export default function AdminDraftsPage() {
                               type="button"
                               onClick={() => setOpenStatusMenuId(openStatusMenuId === draft.id ? null : draft.id)}
                               disabled={updatingStatusId === draft.id}
-                              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all cursor-pointer shadow-xs ${
+                              className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer shadow-xs ${
                                 isConverted
                                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 hover:bg-emerald-500/30'
                                   : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/30'
@@ -662,23 +662,23 @@ export default function AdminDraftsPage() {
                                       <button
                                         type="button"
                                         onClick={() => handleOpenConvertModal(draft)}
-                                        className="w-full text-left px-3.5 py-2.5 text-gold hover:bg-white/5 flex items-start space-x-2.5 font-medium transition-colors cursor-pointer"
+                                        className="w-full text-left px-3.5 py-2.5 text-gold hover:bg-white/5 flex items-start space-x-2.5 font-semibold transition-colors cursor-pointer"
                                       >
                                         <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
                                         <div>
-                                          <span className="block font-semibold">Convert to Official Order</span>
-                                          <span className="text-[10px] text-paper/50 block font-normal">Creates Order ID & deducts stock</span>
+                                          <span className="block font-bold">Convert to Official Order</span>
+                                          <span className="text-[10px] text-zinc-400 block font-normal">Creates Order ID & deducts stock</span>
                                         </div>
                                       </button>
                                       <button
                                         type="button"
                                         onClick={() => handleQuickToggleStatus(draft.id, 'converted')}
-                                        className="w-full text-left px-3.5 py-2.5 text-paper/90 hover:bg-white/5 flex items-start space-x-2.5 transition-colors cursor-pointer"
+                                        className="w-full text-left px-3.5 py-2.5 text-white hover:bg-white/5 flex items-start space-x-2.5 transition-colors cursor-pointer"
                                       >
                                         <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                                         <div>
-                                          <span className="block font-medium">Mark as Converted Only</span>
-                                          <span className="text-[10px] text-paper/50 block">Status change without new order</span>
+                                          <span className="block font-semibold">Mark as Converted Only</span>
+                                          <span className="text-[10px] text-zinc-400 block">Status change without new order</span>
                                         </div>
                                       </button>
                                     </>
@@ -687,13 +687,13 @@ export default function AdminDraftsPage() {
                                       {draft.convertedOrderId && (
                                         <Link
                                           href={`/admin?search=${encodeURIComponent(draft.convertedOrderId)}`}
-                                          className="w-full text-left px-3.5 py-2.5 text-emerald-300 hover:bg-white/5 flex items-start space-x-2.5 font-medium transition-colors"
+                                          className="w-full text-left px-3.5 py-2.5 text-emerald-300 hover:bg-white/5 flex items-start space-x-2.5 font-semibold transition-colors"
                                           onClick={() => setOpenStatusMenuId(null)}
                                         >
                                           <ExternalLink className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                                           <div>
-                                            <span className="block font-semibold">View in Orders Dashboard</span>
-                                            <span className="text-[10px] text-paper/50 block">Order #{draft.convertedOrderId}</span>
+                                            <span className="block font-bold">View in Orders Dashboard</span>
+                                            <span className="text-[10px] text-zinc-400 block">Order #{draft.convertedOrderId}</span>
                                           </div>
                                         </Link>
                                       )}
@@ -704,8 +704,8 @@ export default function AdminDraftsPage() {
                                       >
                                         <RotateCcw className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                                         <div>
-                                          <span className="block font-medium">Revert to Abandoned Cart</span>
-                                          <span className="text-[10px] text-paper/50 block">Mark as unrecovered checkout</span>
+                                          <span className="block font-semibold">Revert to Abandoned Cart</span>
+                                          <span className="text-[10px] text-zinc-400 block">Mark as unrecovered checkout</span>
                                         </div>
                                       </button>
                                     </>
@@ -715,8 +715,8 @@ export default function AdminDraftsPage() {
                             )}
                           </div>
                         </div>
-                        <span className="text-[11px] text-paper/50 flex items-center space-x-1 mt-0.5">
-                          <Clock className="w-3 h-3" />
+                        <span className="text-xs text-zinc-400 font-medium flex items-center space-x-1 mt-0.5">
+                          <Clock className="w-3.5 h-3.5 text-zinc-400" />
                           <span>Last active: {formatRelativeTime(draft.updatedAt)}</span>
                           <span>•</span>
                           <span>{new Date(draft.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -726,8 +726,8 @@ export default function AdminDraftsPage() {
 
                     {/* Total Value */}
                     <div className="sm:text-right mt-1 sm:mt-0">
-                      <span className="text-[11px] text-paper/50 block">Potential Value</span>
-                      <span className="font-serif text-lg font-bold text-gold">
+                      <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold block">Potential Value</span>
+                      <span className="text-lg sm:text-xl font-extrabold text-gold tabular-nums tracking-tight">
                         ৳{formatPrice(draft.grandTotal)}
                       </span>
                     </div>
@@ -736,43 +736,43 @@ export default function AdminDraftsPage() {
                   {/* Middle Section: Contact & Cart Items */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     {/* Customer Info Left */}
-                    <div className="lg:col-span-4 space-y-2 text-xs">
-                      <span className="text-[10px] uppercase tracking-wider text-paper/40 font-semibold block">
+                    <div className="lg:col-span-4 space-y-2.5 text-xs bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
+                      <span className="text-[11px] uppercase tracking-wider text-gold-light font-bold block">
                         Customer Coordinates
                       </span>
 
                       {draft.phone ? (
-                        <div className="flex items-center space-x-2 text-paper">
+                        <div className="flex items-center space-x-2 text-white">
                           <Phone className="w-3.5 h-3.5 text-gold shrink-0" />
                           <a
                             href={`tel:${draft.phone}`}
-                            className="hover:text-gold transition-colors font-medium tabular-nums underline underline-offset-2"
+                            className="hover:text-gold transition-colors font-bold text-sm tabular-nums tracking-wide underline underline-offset-2"
                           >
                             {draft.phone}
                           </a>
                         </div>
                       ) : (
-                        <div className="text-paper/40 italic">No phone entered yet</div>
+                        <div className="text-zinc-500 italic">No phone entered yet</div>
                       )}
 
                       {draft.email && (
-                        <div className="flex items-center space-x-2 text-paper/80">
-                          <Mail className="w-3.5 h-3.5 text-paper/40 shrink-0" />
-                          <span className="truncate">{draft.email}</span>
+                        <div className="flex items-center space-x-2 text-zinc-200">
+                          <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                          <span className="truncate font-medium">{draft.email}</span>
                         </div>
                       )}
 
                       {(draft.district || draft.address) && (
-                        <div className="flex items-start space-x-2 text-paper/80 pt-1">
-                          <MapPin className="w-3.5 h-3.5 text-paper/40 shrink-0 mt-0.5" />
+                        <div className="flex items-start space-x-2 text-zinc-100 pt-1 border-t border-white/5">
+                          <MapPin className="w-3.5 h-3.5 text-gold shrink-0 mt-0.5" />
                           <div>
                             {draft.district && (
-                              <span className="font-semibold text-gold-light block">
+                              <span className="font-bold text-sm text-gold-light block">
                                 {draft.district}
                               </span>
                             )}
                             {draft.address && (
-                              <span className="text-paper/60 text-[11px] block leading-snug">
+                              <span className="text-xs text-zinc-200 font-medium block leading-relaxed mt-0.5">
                                 {draft.address}
                               </span>
                             )}
@@ -781,15 +781,15 @@ export default function AdminDraftsPage() {
                       )}
 
                       {draft.giftNote && (
-                        <div className="bg-[#1C1C1C] p-2 rounded-xs border border-white/5 text-[11px] text-paper/70 italic">
+                        <div className="bg-black/40 p-2.5 rounded-xs border border-white/5 text-xs text-zinc-200 italic">
                           "{draft.giftNote}"
                         </div>
                       )}
                     </div>
 
                     {/* Cart Items Preview Right */}
-                    <div className="lg:col-span-8 space-y-2">
-                      <span className="text-[10px] uppercase tracking-wider text-paper/40 font-semibold block">
+                    <div className="lg:col-span-8 space-y-2.5 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
+                      <span className="text-[11px] uppercase tracking-wider text-gold-light font-bold block">
                         Selected Products ({draft.cartItems?.length || 0})
                       </span>
 
@@ -797,9 +797,9 @@ export default function AdminDraftsPage() {
                         {draft.cartItems?.map((item: any, idx: number) => (
                           <div
                             key={idx}
-                            className="flex items-center space-x-2.5 bg-[#1C1C1C] border border-white/5 p-2 rounded-xs max-w-sm"
+                            className="flex items-center space-x-2.5 bg-[#141414] border border-white/10 p-2 rounded-xs max-w-sm"
                           >
-                            <div className="w-12 h-14 bg-stone border border-line rounded-xs relative overflow-hidden shrink-0">
+                            <div className="w-12 h-14 bg-stone border border-white/10 rounded-xs relative overflow-hidden shrink-0">
                               {item.product?.featuredImage ? (
                                 <img
                                   src={item.product.featuredImage}
@@ -814,23 +814,23 @@ export default function AdminDraftsPage() {
                             </div>
 
                             <div className="min-w-0 text-xs">
-                              <span className="font-medium text-paper block truncate">
+                              <span className="font-bold text-white block truncate text-xs sm:text-sm">
                                 {item.product?.name}
                               </span>
-                              <div className="flex items-center space-x-1.5 text-[11px] text-paper/50 mt-0.5">
+                              <div className="flex items-center space-x-1.5 text-[11px] text-zinc-300 font-medium mt-0.5">
                                 {item.selectedColor && (
                                   <span className="flex items-center gap-1">
                                     <span
-                                      className="w-2 h-2 rounded-full inline-block border border-white/20"
+                                      className="w-2.5 h-2.5 rounded-full inline-block border border-white/30"
                                       style={{ backgroundColor: item.selectedColor.hex }}
                                     />
-                                    <span>{item.selectedColor.name}</span>
+                                    <span className="text-zinc-200">{item.selectedColor.name}</span>
                                   </span>
                                 )}
                                 {item.selectedSize && <span>• {item.selectedSize}</span>}
-                                <span>• Qty: {item.quantity}</span>
+                                <span className="font-bold text-white">• Qty: {item.quantity}</span>
                               </div>
-                              <span className="text-gold font-medium text-[11px] block mt-0.5">
+                              <span className="text-gold-light font-extrabold text-xs sm:text-sm tabular-nums block mt-0.5">
                                 ৳{formatPrice(item.product?.price * item.quantity)}
                               </span>
                             </div>
@@ -841,12 +841,15 @@ export default function AdminDraftsPage() {
                   </div>
 
                   {/* Bottom Actions Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5 text-xs">
-                    <div className="text-[11px] text-paper/40">
-                      Payment intent: <strong className="text-paper/70 font-medium">{draft.paymentMethod}</strong>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs">
+                    <div className="text-xs text-zinc-300 font-medium flex items-center gap-2">
+                      <span>Payment intent:</span>
+                      <strong className="text-white font-bold bg-white/10 px-2 py-0.5 rounded-xs uppercase text-[10px] tracking-wider border border-white/10">
+                        {draft.paymentMethod}
+                      </strong>
                       {draft.couponCode && (
-                        <span className="ml-2 inline-flex items-center gap-1 text-gold-light">
-                          <Tag className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 text-gold-light font-bold bg-gold/15 px-2 py-0.5 rounded-xs border border-gold/30 text-xs">
+                          <Tag className="w-3 h-3 text-gold" />
                           <span>Coupon: {draft.couponCode}</span>
                         </span>
                       )}
@@ -953,8 +956,8 @@ export default function AdminDraftsPage() {
           {filteredSignIns.length === 0 ? (
             <div className="bg-[#141414] border border-white/10 rounded-xs p-12 text-center space-y-3">
               <UserCheck className="w-10 h-10 text-paper/30 mx-auto" />
-              <h3 className="font-serif text-lg text-paper font-semibold">No Draft Sign-ins Recorded</h3>
-              <p className="text-xs text-paper/50 max-w-sm mx-auto">
+              <h3 className="text-lg font-bold text-white tracking-tight">No Draft Sign-ins Recorded</h3>
+              <p className="text-xs text-zinc-400 max-w-sm mx-auto">
                 When prospective customers start creating an account or signing in but do not finish, their leads will appear here for proactive concierge support.
               </p>
             </div>
@@ -983,7 +986,7 @@ export default function AdminDraftsPage() {
 
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-serif text-base text-paper font-semibold">
+                        <span className="text-base font-bold text-white tracking-tight">
                           {lead.fullName}
                         </span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-paper/70 uppercase tracking-wider">
@@ -1098,11 +1101,11 @@ export default function AdminDraftsPage() {
             <div className="flex items-start justify-between border-b border-white/10 pb-4">
               <div>
                 <div className="flex items-center space-x-2">
-                  <h3 className="font-serif text-lg sm:text-xl font-semibold text-paper flex items-center gap-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 tracking-tight">
                     <Sparkles className="w-4 h-4 text-gold" />
                     <span>Convert to Official Order</span>
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold/20 text-gold border border-gold/30">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold/20 text-gold-light border border-gold/30">
                     Live Concierge
                   </span>
                 </div>
@@ -1281,9 +1284,9 @@ export default function AdminDraftsPage() {
                     <span>Delivery Charge</span>
                     <span className="tabular-nums">৳{formatPrice(convertModalForm.shippingFee)}</span>
                   </div>
-                  <div className="flex justify-between text-sm font-semibold text-paper pt-1 border-t border-white/5">
-                    <span className="font-serif">Grand Total Payable</span>
-                    <span className="font-serif text-gold text-base tabular-nums">
+                  <div className="flex justify-between text-sm sm:text-base font-bold text-white pt-2 border-t border-white/10">
+                    <span>Grand Total Payable</span>
+                    <span className="font-extrabold text-gold text-base sm:text-lg tabular-nums">
                       ৳{formatPrice(
                         Math.max(
                           0,

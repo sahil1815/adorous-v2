@@ -325,15 +325,15 @@ export default function AdminProductOrderingPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gold/20 pb-5">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="font-serif text-2xl sm:text-3xl text-gold font-semibold tracking-wide">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gold tracking-tight">
               Product Display Ordering
             </h1>
-            <span className="bg-gold/20 text-gold-light text-[10px] uppercase font-semibold px-2 py-0.5 rounded-xs border border-gold/30">
+            <span className="bg-gold/20 text-gold-light text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border border-gold/30">
               Shopify Feature
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-paper/60 mt-1">
-            Control the exact order products appear under <strong className="text-paper">"Featured"</strong> on each storefront category & landing collection.
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Control the exact order products appear under <strong className="text-white">"Featured"</strong> on each storefront category & landing collection.
           </p>
         </div>
 
@@ -586,24 +586,24 @@ export default function AdminProductOrderingPage() {
                     {/* Product Metadata */}
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                        <span className="text-xs sm:text-sm font-medium text-paper truncate">
+                        <span className="text-sm font-bold text-white tracking-tight truncate">
                           {product.name}
                         </span>
                         {product.isNewDrop && (
-                          <span className="px-1.5 py-0.2 bg-emerald-950/60 text-emerald-300 border border-emerald-600/30 text-[9px] font-semibold uppercase rounded-xs">
+                          <span className="px-1.5 py-0.2 bg-emerald-950/60 text-emerald-300 border border-emerald-600/30 text-[9px] font-bold uppercase rounded-xs">
                             New Drop
                           </span>
                         )}
                         {product.isHidden && (
-                          <span className="px-1.5 py-0.2 bg-amber-950/60 text-amber-300 border border-amber-600/30 text-[9px] font-semibold uppercase rounded-xs">
+                          <span className="px-1.5 py-0.2 bg-amber-950/60 text-amber-300 border border-amber-600/30 text-[9px] font-bold uppercase rounded-xs">
                             Hidden
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center space-x-3 text-[11px] text-paper/40 mt-0.5">
-                        <span className="capitalize">{product.categoryLabel || product.category}</span>
+                      <div className="flex items-center space-x-3 text-xs text-zinc-400 mt-0.5">
+                        <span className="capitalize font-medium">{product.categoryLabel || product.category}</span>
                         <span>•</span>
-                        <span className="text-paper/70 font-semibold font-mono">৳{formatPrice(product.price)}</span>
+                        <span className="text-gold font-extrabold tabular-nums font-mono">৳{formatPrice(product.price)}</span>
                       </div>
                     </div>
                   </div>

@@ -537,10 +537,10 @@ function AddProductContent() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Add New Product
             </h1>
-            <p className="text-xs text-paper/60 mt-0.5">
+            <p className="text-xs text-zinc-400 mt-0.5">
               Publish a new luxury design to the Adorous catalogue and live storefront.
             </p>
           </div>
@@ -575,8 +575,8 @@ function AddProductContent() {
               <Copy className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-paper">
-                Duplicating from <span className="text-gold font-serif italic">"{duplicatedFrom.name}"</span>
+              <h4 className="text-sm font-bold text-white">
+                Duplicating from <span className="text-gold font-bold italic">"{duplicatedFrom.name}"</span>
               </h4>
               <p className="text-xs text-paper/60 mt-0.5">
                 All specifications, images, colorways, and descriptions have been copied. You can publish directly or customize any details below.
@@ -614,7 +614,7 @@ function AddProductContent() {
               ) : (
                 <Eye className="w-4 h-4 text-emerald-400" />
               )}
-              <h2 className="font-serif text-base text-paper font-normal">
+              <h2 className="text-base font-bold text-white tracking-tight">
                 Frontend Visibility Status
               </h2>
             </div>
@@ -678,7 +678,7 @@ function AddProductContent() {
 
         {/* Section 1: Title & Category */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <Tag className="w-4 h-4 text-gold" />
             <span>1. Identity & Classification</span>
           </h2>
@@ -765,7 +765,7 @@ function AddProductContent() {
 
         {/* Section 2: Pricing & Badges */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-4">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <Sparkles className="w-4 h-4 text-gold" />
             <span>2. BDT (৳) Pricing & Merchandising Ribbons</span>
           </h2>
@@ -917,7 +917,7 @@ function AddProductContent() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
             <div className="flex items-center space-x-2">
               <ImageIcon className="w-4 h-4 text-gold" />
-              <h2 className="font-serif text-base text-paper font-normal">
+              <h2 className="text-base font-bold text-white tracking-tight">
                 3. Still-Life Photography Showcase & Gallery
               </h2>
               <span className="text-[11px] px-2 py-0.5 bg-gold/15 text-gold border border-gold/30 rounded-xs font-mono font-medium">
@@ -1254,7 +1254,7 @@ function AddProductContent() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-white/10 pb-3">
             <div className="flex items-center space-x-2">
               <Palette className="w-4 h-4 text-gold" />
-              <h2 className="font-serif text-base text-paper font-normal">
+              <h2 className="text-base font-bold text-white tracking-tight">
                 4. Colorways & Finishes ({colorways.length})
               </h2>
             </div>
@@ -1417,7 +1417,7 @@ function AddProductContent() {
 
         {/* Section 5: Story, Specifications & Pieces Included */}
         <div className="bg-[#141414] border border-gold/20 p-5 sm:p-6 rounded-xs space-y-5">
-          <h2 className="font-serif text-base text-paper font-normal flex items-center space-x-2 border-b border-white/10 pb-3">
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2 border-b border-white/10 pb-3">
             <span>5. Story, Craft Specifications & Piece Breakdown</span>
           </h2>
 

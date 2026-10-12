@@ -125,66 +125,66 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-8 pb-12">
       {/* Top Header */}
       <div>
-        <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           Performance & Cash Flow
         </h1>
-        <p className="text-xs text-paper/60 mt-1">
+        <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1">
           Financial health, Cash on Delivery courier remittances, and regional demand analytics.
         </p>
       </div>
 
       {/* 4 Financial Headline Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#171717] border border-gold/30 p-5 rounded-xs space-y-2">
+        <div className="bg-[#171717] border border-gold/40 p-5 rounded-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-gold tracking-wider">
+            <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
               Gross Pipeline Revenue
             </span>
             <TrendingUp className="w-4 h-4 text-gold" />
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-gold-light font-bold tabular-nums">
+          <div className="text-3xl font-extrabold text-gold-light tabular-nums tracking-tight">
             ৳{totalGrossRevenue.toLocaleString('en-US')}
           </div>
-          <span className="text-[10px] text-paper/40 block">Total order value logged</span>
+          <span className="text-xs text-zinc-400 font-medium block">Total order value logged</span>
         </div>
 
-        <div className="bg-[#171717] border border-emerald-600/30 p-5 rounded-xs space-y-2">
+        <div className="bg-[#171717] border border-emerald-600/40 p-5 rounded-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">
+            <span className="text-[11px] uppercase font-bold text-emerald-300 tracking-wider">
               Collected Remittance
             </span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-emerald-300 font-bold tabular-nums">
+          <div className="text-3xl font-extrabold text-emerald-300 tabular-nums tracking-tight">
             ৳{deliveredRevenue.toLocaleString('en-US')}
           </div>
-          <span className="text-[10px] text-emerald-200/50 block">Remitted by courier</span>
+          <span className="text-xs text-emerald-200/90 font-medium block">Remitted by courier</span>
         </div>
 
-        <div className="bg-[#171717] border border-amber-600/30 p-5 rounded-xs space-y-2">
+        <div className="bg-[#171717] border border-amber-600/40 p-5 rounded-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-amber-400 tracking-wider">
+            <span className="text-[11px] uppercase font-bold text-amber-300 tracking-wider">
               COD in Transit
             </span>
             <Truck className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-amber-300 font-bold tabular-nums">
+          <div className="text-3xl font-extrabold text-amber-300 tabular-nums tracking-tight">
             ৳{inTransitRevenue.toLocaleString('en-US')}
           </div>
-          <span className="text-[10px] text-amber-200/50 block">With Steadfast riders</span>
+          <span className="text-xs text-amber-200/90 font-medium block">With Steadfast riders</span>
         </div>
 
         <div className="bg-[#171717] border border-white/10 p-5 rounded-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-paper/50 tracking-wider">
+            <span className="text-[11px] uppercase font-bold text-zinc-300 tracking-wider">
               Average Order Value (AOV)
             </span>
-            <DollarSign className="w-4 h-4 text-paper/40" />
+            <DollarSign className="w-4 h-4 text-zinc-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-serif text-paper font-bold tabular-nums">
+          <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight">
             ৳{aov.toLocaleString('en-US')}
           </div>
-          <span className="text-[10px] text-paper/40 block">Per patron checkout</span>
+          <span className="text-xs text-zinc-400 font-medium block">Per patron checkout</span>
         </div>
       </div>
 
@@ -192,8 +192,8 @@ export default function AdminAnalyticsPage() {
       <div className="bg-[#171717] border border-white/10 p-6 rounded-xs space-y-5">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div>
-            <h3 className="font-serif text-base text-paper font-medium">Revenue Trend</h3>
-            <span className="text-[11px] text-paper/50">Gross pipeline revenue over the last 7 days</span>
+            <h3 className="text-base font-bold text-white tracking-tight">Revenue Trend</h3>
+            <span className="text-xs text-zinc-400 font-medium">Gross pipeline revenue over the last 7 days</span>
           </div>
           <LineChartIcon className="w-4 h-4 text-gold" />
         </div>
@@ -236,15 +236,15 @@ export default function AdminAnalyticsPage() {
         <div className="bg-[#171717] border border-white/10 p-6 rounded-xs space-y-5 flex flex-col">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>
-              <h3 className="font-serif text-base text-paper font-medium">Regional Delivery Demand</h3>
-              <span className="text-[11px] text-paper/50">Rajshahi Metro vs. 63 Outside Districts</span>
+              <h3 className="text-base font-bold text-white tracking-tight">Regional Delivery Demand</h3>
+              <span className="text-xs text-zinc-400 font-medium">Rajshahi Metro vs. 63 Outside Districts</span>
             </div>
             <PieChartIcon className="w-4 h-4 text-emerald-400" />
           </div>
           
           <div className="h-64 w-full flex-grow relative flex items-center justify-center">
             {totalOrdersCount === 0 ? (
-              <p className="text-text-muted text-xs">No order data available</p>
+              <p className="text-zinc-400 text-xs font-medium">No order data available</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -267,7 +267,7 @@ export default function AdminAnalyticsPage() {
                     verticalAlign="bottom" 
                     height={36} 
                     iconType="circle"
-                    formatter={(value, entry, index) => <span className="text-paper/80 text-xs">{value}</span>}
+                    formatter={(value, entry, index) => <span className="text-zinc-200 text-xs font-medium">{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -276,13 +276,13 @@ export default function AdminAnalyticsPage() {
             {totalOrdersCount > 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none mb-8">
                 <div className="text-center">
-                  <span className="block text-2xl font-serif text-paper">{totalOrdersCount}</span>
-                  <span className="block text-[9px] uppercase tracking-wider text-paper/50">Orders</span>
+                  <span className="block text-3xl font-extrabold text-white tabular-nums tracking-tight">{totalOrdersCount}</span>
+                  <span className="block text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Orders</span>
                 </div>
               </div>
             )}
           </div>
-          <div className="pt-2 border-t border-white/5 text-[11px] text-paper/50 text-center">
+          <div className="pt-2 border-t border-white/5 text-xs text-zinc-400 font-medium text-center">
             Free shipping threshold of ৳2,000 drives higher basket sizes outside Dhaka.
           </div>
         </div>
@@ -291,8 +291,8 @@ export default function AdminAnalyticsPage() {
         <div className="bg-[#171717] border border-white/10 p-6 rounded-xs space-y-5 flex flex-col">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>
-              <h3 className="font-serif text-base text-paper font-medium">Category Unit Demand</h3>
-              <span className="text-[11px] text-paper/50">Total units sold per category</span>
+              <h3 className="text-base font-bold text-white tracking-tight">Category Unit Demand</h3>
+              <span className="text-xs text-zinc-400 font-medium">Total units sold per category</span>
             </div>
             <Layers className="w-4 h-4 text-gold" />
           </div>

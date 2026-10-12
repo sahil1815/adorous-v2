@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
 
       {/* Main Login Card */}
       <div className="max-w-md mx-auto w-full my-auto">
-        <div className="bg-[#171717] border border-gold/30 p-8 sm:p-10 rounded-[2px] shadow-2xl relative space-y-6">
+        <div className="bg-[#171717] border border-gold/40 p-8 sm:p-10 rounded-xs shadow-2xl relative space-y-6">
           {/* Logo & Seal */}
           <div className="text-center space-y-3">
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gold/40 mx-auto bg-black p-1 shadow-lg">
@@ -84,10 +84,10 @@ export default function AdminLoginPage() {
               />
             </div>
             <div>
-              <h1 className="font-serif text-2xl tracking-[0.16em] uppercase text-gold font-semibold">
+              <h1 className="text-2xl font-extrabold tracking-[0.18em] uppercase text-gold">
                 Adorous Admin
               </h1>
-              <span className="text-[11px] font-sans tracking-[0.2em] text-paper/60 uppercase block mt-1">
+              <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase block mt-1">
                 Dhaka Operations & Dispatch Desk
               </span>
             </div>
@@ -95,8 +95,8 @@ export default function AdminLoginPage() {
 
           {/* Error Alert */}
           {errorMsg && (
-            <div className="p-3.5 bg-red-950/80 border border-red-800/80 text-red-200 text-xs rounded-xs flex items-start space-x-2.5 animate-shake">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+            <div className="p-3.5 bg-rose-950/80 border border-rose-800/80 text-rose-200 text-xs rounded-xs flex items-start space-x-2.5 animate-shake font-semibold">
+              <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-paper/70 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
                 Admin Staff ID
               </label>
               <div className="relative">
@@ -114,13 +114,13 @@ export default function AdminLoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter username"
-                  className="w-full h-11 px-3.5 bg-[#222222] border border-gold/30 rounded-xs text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold text-xs transition-colors"
+                  className="w-full h-11 px-3.5 bg-[#222222] border border-gold/30 rounded-xs text-white font-medium placeholder:text-zinc-500 focus:outline-none focus:border-gold text-xs transition-colors"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-paper/70 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
                 Master Security Passcode / PIN
               </label>
               <div className="relative">
@@ -130,15 +130,15 @@ export default function AdminLoginPage() {
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-11 pl-3.5 pr-10 bg-[#222222] border border-gold/30 rounded-xs text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold text-xs font-mono tracking-widest transition-colors"
+                  className="w-full h-11 pl-3.5 pr-10 bg-[#222222] border border-gold/30 rounded-xs text-white font-mono tracking-widest placeholder:text-zinc-500 focus:outline-none focus:border-gold text-xs transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPin(!showPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-paper/50 hover:text-gold transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-gold transition-colors"
                   aria-label={showPin ? 'Hide PIN' : 'Show PIN'}
                 >
-                  {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-zinc-400" />}
                 </button>
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-11 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 mt-2 shadow-md disabled:opacity-50"
+              className="w-full h-11 bg-gold hover:bg-gold-light text-ink font-bold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 mt-2 shadow-md disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span>Authorizing Session...</span>
@@ -163,9 +163,9 @@ export default function AdminLoginPage() {
       </div>
 
       {/* Bottom Legal / Security Notice */}
-      <div className="max-w-md mx-auto w-full text-center text-[10px] text-paper/40 space-y-1">
+      <div className="max-w-md mx-auto w-full text-center text-xs text-zinc-500 space-y-1">
         <p>© {new Date().getFullYear()} Adorous Fashion Ltd. Restricted Admin Access.</p>
-        <p className="text-paper/30">
+        <p className="text-zinc-600">
           Unauthorized inspection or penetration testing attempts are logged.
         </p>
       </div>

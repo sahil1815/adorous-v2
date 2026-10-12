@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pendingReviewCount = reviews.filter((r) => r.status === 'pending').length;
 
   return (
-    <div className="min-h-screen bg-[#0E0E0E] text-paper flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0E0E0E] text-paper flex flex-col admin-theme">
       {/* Top Operations Header Bar */}
       <header className="bg-[#141414] border-b border-gold/25 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -83,14 +83,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-serif text-lg tracking-[0.16em] uppercase text-gold font-semibold leading-none">
+                <span className="font-extrabold text-base sm:text-lg tracking-[0.18em] uppercase text-gold leading-none">
                   Adorous Admin
                 </span>
-                <span className="bg-gold/20 text-gold-light text-[9px] uppercase px-1.5 py-0.5 rounded-xs font-semibold border border-gold/30">
+                <span className="bg-gold/20 text-gold-light text-[9px] uppercase px-1.5 py-0.5 rounded-xs font-bold border border-gold/40 tracking-wider">
                   Internal
                 </span>
               </div>
-              <span className="text-[10px] text-paper/50 uppercase tracking-widest block mt-0.5">
+              <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block mt-0.5">
                 Rajshahi Headquarters Desk
               </span>
             </div>
@@ -153,15 +153,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
             <span>Orders & COD Desk</span>
             {pendingCount > 0 && (
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                pathname === '/admin' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold'
+                pathname === '/admin' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold-light'
               }`}>
                 {pendingCount}
               </span>
@@ -172,8 +172,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/customers"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/customers'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -184,8 +184,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/drafts"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/drafts'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
@@ -196,8 +196,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/inventory"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/inventory'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -208,8 +208,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/product-ordering"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/product-ordering'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <ArrowUpDown className="w-3.5 h-3.5" />
@@ -220,8 +220,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/logistics"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/logistics'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Truck className="w-3.5 h-3.5" />
@@ -232,8 +232,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/analytics"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/analytics'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -244,8 +244,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/coupons"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/coupons'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Tag className="w-3.5 h-3.5" />
@@ -256,8 +256,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/landing-pages"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/landing-pages'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -268,15 +268,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/reviews"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/reviews'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Reviews</span>
             {pendingReviewCount > 0 && (
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                pathname === '/admin/reviews' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold'
+                pathname === '/admin/reviews' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold-light'
               }`}>
                 {pendingReviewCount}
               </span>
@@ -287,8 +287,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/welcome-offer"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/welcome-offer'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -299,8 +299,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/lookbook"
             className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
               pathname === '/admin/lookbook'
-                ? 'bg-gold text-ink font-semibold shadow-sm'
-                : 'text-paper/70 hover:text-gold hover:bg-[#1C1C1C]'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />

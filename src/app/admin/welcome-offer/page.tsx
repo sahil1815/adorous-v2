@@ -181,11 +181,11 @@ export default function AdminWelcomeOfferPage() {
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-ink shadow-sm">
               <Sparkles className="w-4 h-4" />
             </div>
-            <h1 className="font-serif text-2xl text-paper font-semibold tracking-wide">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               First-Visit Welcome Offer
             </h1>
           </div>
-          <p className="text-xs text-paper/60 mt-1 max-w-2xl">
+          <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
             Configure the automated first-time visitor discount popup, delay trigger timer, live modal copy, and simulate tests on the live store without polluting visitor history.
           </p>
         </div>
@@ -613,7 +613,7 @@ export default function AdminWelcomeOfferPage() {
                   </div>
 
                   {/* Title */}
-                  <h4 className="font-serif text-xl font-semibold text-gold-light leading-tight">
+                  <h4 className="text-xl font-bold text-gold-light leading-tight tracking-tight">
                     {welcomeTitle || 'Welcome to Adorous Fashion ✨'}
                   </h4>
 
@@ -625,7 +625,7 @@ export default function AdminWelcomeOfferPage() {
                   {/* Discount percentage */}
                   <div className="py-1">
                     <div className="inline-flex items-baseline gap-1">
-                      <span className="text-4xl font-serif font-bold gold-gradient-text">
+                      <span className="text-4xl font-extrabold gold-gradient-text tabular-nums tracking-tight">
                         {discountPercent}%
                       </span>
                       <span className="text-sm text-gold/80 font-sans font-medium uppercase tracking-wider">

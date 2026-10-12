@@ -118,10 +118,10 @@ export default function AdminCouponsPage() {
       {/* Top Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl text-paper font-normal">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Promotions & Coupons Desk
           </h1>
-          <p className="text-xs text-paper/60 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             Create, govern, and track luxury atelier vouchers, seasonal discounts, and free shipping allowances across Bangladesh.
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function AdminCouponsPage() {
                 resetToDefaultCoupons();
               }
             }}
-            className="px-3 py-1.5 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-paper/60 hover:text-paper rounded-xs transition-colors flex items-center space-x-1.5 text-xs"
+            className="px-3 py-1.5 bg-[#1C1C1C] hover:bg-[#252525] border border-white/10 text-zinc-300 hover:text-white rounded-xs transition-colors flex items-center space-x-1.5 text-xs font-semibold"
             title="Reset to factory promo codes"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -144,7 +144,7 @@ export default function AdminCouponsPage() {
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-gold hover:bg-gold-light text-ink font-semibold rounded-xs transition-colors flex items-center space-x-2 text-xs shadow-sm"
+            className="px-4 py-2 bg-gold hover:bg-gold-light text-ink font-bold rounded-xs transition-colors flex items-center space-x-2 text-xs shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Create Promo Code</span>
@@ -154,7 +154,7 @@ export default function AdminCouponsPage() {
 
       {/* Success Notification */}
       {successMessage && (
-        <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-xs flex items-center justify-between text-xs text-emerald-300">
+        <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-xs flex items-center justify-between text-xs text-emerald-300 font-semibold">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span>{successMessage}</span>
@@ -167,37 +167,37 @@ export default function AdminCouponsPage() {
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-[#141414] border border-gold/15 rounded-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-paper/50">
+        <div className="p-4 bg-[#141414] border border-gold/25 rounded-xs space-y-1">
+          <div className="flex items-center justify-between text-xs text-zinc-400 font-semibold uppercase tracking-wider">
             <span>Active Promotions</span>
-            <Tag className="w-3.5 h-3.5 text-gold" />
+            <Tag className="w-4 h-4 text-gold" />
           </div>
-          <p className="text-2xl font-serif text-paper font-normal">
-            {activeCount} <span className="text-xs text-paper/40 font-sans">/ {coupons.length} total</span>
+          <p className="text-3xl font-extrabold text-white tabular-nums tracking-tight">
+            {activeCount} <span className="text-sm text-zinc-400 font-semibold">/ {coupons.length} total</span>
           </p>
-          <p className="text-[11px] text-paper/40">Ready to apply at checkout</p>
+          <p className="text-xs text-zinc-400 font-medium">Ready to apply at checkout</p>
         </div>
 
-        <div className="p-4 bg-[#141414] border border-gold/15 rounded-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-paper/50">
+        <div className="p-4 bg-[#141414] border border-gold/25 rounded-xs space-y-1">
+          <div className="flex items-center justify-between text-xs text-emerald-400 font-semibold uppercase tracking-wider">
             <span>Total Redemptions</span>
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-serif text-emerald-300 font-normal">
-            {totalRedemptions} <span className="text-xs text-paper/40 font-sans">times</span>
+          <p className="text-3xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+            {totalRedemptions} <span className="text-sm text-zinc-400 font-semibold">times</span>
           </p>
-          <p className="text-[11px] text-paper/40">Verified orders with voucher discount</p>
+          <p className="text-xs text-zinc-400 font-medium">Verified orders with voucher discount</p>
         </div>
 
-        <div className="p-4 bg-[#141414] border border-gold/15 rounded-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-paper/50">
+        <div className="p-4 bg-[#141414] border border-gold/25 rounded-xs space-y-1">
+          <div className="flex items-center justify-between text-xs text-gold font-semibold uppercase tracking-wider">
             <span>Patron Value Granted</span>
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-gold" />
           </div>
-          <p className="text-2xl font-serif text-gold font-normal">
+          <p className="text-3xl font-extrabold text-gold tabular-nums tracking-tight">
             ৳{formatPrice(estimatedSavings)}
           </p>
-          <p className="text-[11px] text-paper/40">Cumulative discount savings in BDT</p>
+          <p className="text-xs text-zinc-400 font-medium">Cumulative discount savings in BDT</p>
         </div>
       </div>
 
@@ -206,11 +206,11 @@ export default function AdminCouponsPage() {
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Tag className="w-4 h-4 text-gold" />
-            <h2 className="font-serif text-base text-paper font-normal">
+            <h2 className="text-base font-bold text-white tracking-tight">
               Active Vouchers & Promotional Codes ({coupons.length})
             </h2>
           </div>
-          <span className="text-[11px] text-paper/40">
+          <span className="text-xs text-zinc-400 font-medium">
             Validated in real time against client shopping bag
           </span>
         </div>
@@ -367,7 +367,7 @@ export default function AdminCouponsPage() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center space-x-2">
                 <Tag className="w-4 h-4 text-gold" />
-                <h3 className="font-serif text-lg text-paper font-normal">
+                <h3 className="text-lg font-bold text-white tracking-tight">
                   Create New Atelier Promo Code
                 </h3>
               </div>
