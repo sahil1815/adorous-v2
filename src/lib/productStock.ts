@@ -11,12 +11,21 @@ export function isProductOutOfStock(product?: Product | null): boolean {
   if (!product) return false;
   if (product.inStock === false) return true;
   if (typeof product.stockQty === 'number' && product.stockQty <= 0) return true;
-  if (
-    Array.isArray(product.colorways) &&
-    product.colorways.length > 0 &&
-    product.colorways.every((c) => c.inStock === false)
-  ) {
-    return true;
+
+  const hasColorways = Array.isArray(product.colorways) && product.colorways.length > 0;
+  if (hasColorways) {
+    // Single-colorway products match the product's overall stock directly
+    if (product.colorways.length === 1) {
+      return false;
+    }
+    // If every colorway is marked out of stock:
+    // If the admin explicitly gave this product positive stock, do not treat it as out of stock
+    if (product.colorways.every((c) => c.inStock === false)) {
+      if (typeof product.stockQty === 'number' && product.stockQty > 0) {
+        return false;
+      }
+      return true;
+    }
   }
   return false;
 }
@@ -32,6 +41,18 @@ export function isColorwayOutOfStock(
 ): boolean {
   if (!product) return false;
   if (isProductOutOfStock(product)) return true;
+
+  // Single-colorway products follow the overall product stock (already verified in-stock above)
+  if (!product.colorways || product.colorways.length <= 1) {
+    return false;
+  }
+
+  // If all colorways are marked false but the product itself is in stock with positive inventory,
+  // do not lock customers out of selecting the colorway
+  if (product.colorways.every((c) => c.inStock === false)) {
+    return false;
+  }
+
   if (colorway && colorway.inStock === false) return true;
   return false;
 }

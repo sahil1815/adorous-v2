@@ -202,7 +202,7 @@ function AddProductContent() {
             id: `cw-copy-${Date.now()}-${idx}`,
             name: cw.name,
             hex: cw.hex,
-            inStock: cw.inStock ?? true,
+            inStock: true, // Duplicated piece starts with active in-stock variant
             image: cw.image || null,
           }))
         );
@@ -1357,6 +1357,23 @@ function AddProductContent() {
 
                   {/* Right: Actions */}
                   <div className="flex items-center space-x-2 shrink-0 justify-end" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setColorways((prev) =>
+                          prev.map((c, i) => (i === idx ? { ...c, inStock: c.inStock === false ? true : false } : c))
+                        );
+                      }}
+                      className={`px-2 py-1 text-[10px] font-semibold rounded-xs border transition-colors flex items-center gap-1.5 ${
+                        cw.inStock !== false
+                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40 hover:bg-emerald-900/60'
+                          : 'bg-red-950/60 text-red-300 border-red-800/40 hover:bg-red-900/60'
+                      }`}
+                      title="Toggle variant in-stock status"
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${cw.inStock !== false ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                      <span>{cw.inStock !== false ? 'In Stock' : 'Sold Out'}</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleRemoveColorway(idx)}

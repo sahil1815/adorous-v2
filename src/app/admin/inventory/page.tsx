@@ -37,6 +37,10 @@ import { formatPrice } from '@/lib/formatPrice';
 import { calculateSellingPrice } from '@/lib/pricing';
 
 function fromDbProduct(p: any): Product {
+  const isProdInStock = (p.inStock ?? true) && (p.stockQty === null || p.stockQty === undefined || p.stockQty > 0);
+  const rawColorways = p.colorways || [];
+  const singleOrAllFalse = rawColorways.length <= 1 || rawColorways.every((c: any) => !c.inStock);
+
   return {
     id: p.id,
     slug: p.slug,
@@ -57,11 +61,11 @@ function fromDbProduct(p: any): Product {
     piecesIncluded: Array.isArray(p.piecesIncluded)
       ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
       : [],
-    colorways: (p.colorways || []).map((cw: any) => ({
+    colorways: rawColorways.map((cw: any) => ({
       id: cw.colorId || cw.id,
       name: cw.name,
       hex: cw.hex,
-      inStock: cw.inStock ?? true,
+      inStock: isProdInStock && singleOrAllFalse ? true : (cw.inStock ?? true),
       image: cw.image || null,
     })),
     sizes: p.sizes,
@@ -285,11 +289,22 @@ export default function AdminInventoryPage() {
 
     if (res.success) {
       // Update local state in dbProducts
+      const isNowInStock = qty === null || qty > 0;
       setDbProducts((prev) =>
         prev
           ? prev.map((p) =>
               p.id === prod.id || p.slug === prod.slug
-                ? { ...p, stockQty: qty, inStock: qty === null || qty > 0 }
+                ? {
+                    ...p,
+                    stockQty: qty,
+                    inStock: isNowInStock,
+                    colorways: (p.colorways || []).map((cw) => ({
+                      ...cw,
+                      inStock: isNowInStock
+                        ? (p.colorways.length <= 1 || p.colorways.every((c) => !c.inStock) ? true : cw.inStock)
+                        : false,
+                    })),
+                  }
                 : p
             )
           : null
@@ -355,11 +370,22 @@ export default function AdminInventoryPage() {
 
     const res = await updateStockAction(prod.id, newQty);
     if (res.success) {
+      const isNowInStock = newQty === null || newQty > 0;
       setDbProducts((prev) =>
         prev
           ? prev.map((p) =>
               p.id === prod.id || p.slug === prod.slug
-                ? { ...p, stockQty: newQty, inStock: newQty === null || newQty > 0 }
+                ? {
+                    ...p,
+                    stockQty: newQty,
+                    inStock: isNowInStock,
+                    colorways: (p.colorways || []).map((cw) => ({
+                      ...cw,
+                      inStock: isNowInStock
+                        ? (p.colorways.length <= 1 || p.colorways.every((c) => !c.inStock) ? true : cw.inStock)
+                        : false,
+                    })),
+                  }
                 : p
             )
           : null

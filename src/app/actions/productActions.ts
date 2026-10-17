@@ -6,8 +6,32 @@ import { Product } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { calculateSellingPrice } from '@/lib/pricing';
 
+// Helper to normalize colorway inStock flags against overall product stock
+function normalizeProductColorways<T extends { inStock?: boolean; stockQty?: number | null; colorways?: any[] }>(p: T): T {
+  if (!p) return p;
+  const isProdInStock = (p.inStock ?? true) && (p.stockQty === null || p.stockQty === undefined || p.stockQty > 0);
+  if (isProdInStock && Array.isArray(p.colorways) && p.colorways.length > 0) {
+    const singleOrAllFalse = p.colorways.length === 1 || p.colorways.every((c: any) => !c.inStock);
+    if (singleOrAllFalse) {
+      return {
+        ...p,
+        colorways: p.colorways.map((cw: any) => ({ ...cw, inStock: true })),
+      };
+    }
+  } else if ((p.inStock === false || p.stockQty === 0) && Array.isArray(p.colorways)) {
+    return {
+      ...p,
+      colorways: p.colorways.map((cw: any) => ({ ...cw, inStock: false })),
+    };
+  }
+  return p;
+}
+
 // Helper to convert static Product to the shape expected by frontend PDP & Category pages
 function toDbShape(product: Product) {
+  const isProdInStock = (product.inStock ?? true) && ((product as any).stockQty === null || (product as any).stockQty === undefined || (product as any).stockQty > 0);
+  const singleOrAllFalse = (product.colorways?.length || 0) <= 1 || (product.colorways || []).every((c) => !c.inStock);
+
   return {
     id: product.id,
     slug: product.slug,
@@ -38,7 +62,7 @@ function toDbShape(product: Product) {
       colorId: cw.id,
       name: cw.name,
       hex: cw.hex,
-      inStock: cw.inStock,
+      inStock: isProdInStock && singleOrAllFalse ? true : (cw.inStock ?? true),
       image: cw.image ?? null,
       productId: product.id,
     })),
@@ -72,7 +96,7 @@ export async function getProductsByCategory(category: string, includeHidden = fa
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: [{ featuredRank: 'asc' }, { createdAt: 'asc' }],
     });
-    return products || [];
+    return (products || []).map(normalizeProductColorways);
   } catch (error) {
     console.warn(`[getProductsByCategory] Falling back to static catalogue for category "${category}":`, error);
     const isMoreCategory = category.toLowerCase() === 'more';
@@ -95,7 +119,7 @@ export async function getProductBySlug(slug: string, allowHidden = false) {
     });
     if (!product) return null;
     if (product.isHidden && !allowHidden) return null;
-    return product;
+    return normalizeProductColorways(product);
   } catch (error) {
     console.warn(`[getProductBySlug] Falling back to static catalogue for slug "${slug}":`, error);
     const match = PRODUCTS.find((p) => p.slug === slug && (allowHidden || !p.isHidden));
@@ -128,7 +152,7 @@ export async function getAllProducts(
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       orderBy: orderByClause,
     });
-    return products || [];
+    return (products || []).map(normalizeProductColorways);
   } catch (error) {
     console.warn('[getAllProducts] Database unavailable. Falling back to static catalogue:', error);
     const list = PRODUCTS.filter((p) => includeHidden || !p.isHidden).map(toDbShape);
@@ -146,7 +170,7 @@ export async function getProductById(id: string) {
         where: { id },
         include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
       });
-      if (product) return product;
+      if (product) return normalizeProductColorways(product);
     }
   } catch (error) {
     console.warn(`[getProductById] Error fetching product ${id} from DB:`, error);
@@ -205,13 +229,19 @@ export async function createProductAction(productData: Product) {
         details: { create: (productData.details || []).map((text) => ({ text })) },
         piecesIncluded: { create: (productData.piecesIncluded || []).map((text) => ({ text })) },
         colorways: {
-          create: (productData.colorways || []).map((cw) => ({
-            colorId: cw.id,
-            name: cw.name,
-            hex: cw.hex,
-            inStock: cw.inStock ?? true,
-            image: cw.image || null,
-          })),
+          create: (productData.colorways || []).map((cw) => {
+            const isProdInStock = productData.inStock ?? true;
+            const singleOrAllFalse =
+              (productData.colorways?.length || 0) <= 1 ||
+              (productData.colorways || []).every((c) => c.inStock === false);
+            return {
+              colorId: cw.id,
+              name: cw.name,
+              hex: cw.hex,
+              inStock: isProdInStock && singleOrAllFalse ? true : (cw.inStock ?? true),
+              image: cw.image || null,
+            };
+          }),
         },
         galleryImages: {
           create: (productData.galleryImages && productData.galleryImages.length > 0
@@ -291,6 +321,18 @@ export async function updateProductAction(
       productData.discountType
     );
 
+    const isProdInStock = productData.inStock ?? true;
+    const singleOrAllFalse =
+      productData.colorways.length <= 1 ||
+      productData.colorways.every((c) => c.inStock === false);
+    const mappedColorways = productData.colorways.map((cw) => ({
+      colorId: cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: isProdInStock && singleOrAllFalse ? true : (cw.inStock ?? true),
+      image: cw.image || null,
+    }));
+
     await prisma.$transaction([
       prisma.productDetail.deleteMany({ where: { productId: id } }),
       prisma.productPiece.deleteMany({ where: { productId: id } }),
@@ -322,13 +364,7 @@ export async function updateProductAction(
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
           colorways: {
-            create: productData.colorways.map((cw) => ({
-              colorId: cw.id,
-              name: cw.name,
-              hex: cw.hex,
-              inStock: cw.inStock,
-              image: cw.image || null,
-            })),
+            create: mappedColorways,
           },
           galleryImages: {
             create: (productData.galleryImages.length > 0
@@ -360,13 +396,7 @@ export async function updateProductAction(
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
           colorways: {
-            create: productData.colorways.map((cw) => ({
-              colorId: cw.id,
-              name: cw.name,
-              hex: cw.hex,
-              inStock: cw.inStock,
-              image: cw.image || null,
-            })),
+            create: mappedColorways,
           },
           galleryImages: {
             create: (productData.galleryImages.length > 0
@@ -408,6 +438,7 @@ export async function updateStockAction(productIdOrSlug: string, stockQty: numbe
           { slug: productIdOrSlug.trim().toLowerCase() },
         ],
       },
+      include: { colorways: true },
     });
 
     if (!existing) {
@@ -419,12 +450,35 @@ export async function updateStockAction(productIdOrSlug: string, stockQty: numbe
       data: { stockQty, inStock },
     });
 
+    // Synchronize variant (colorway) inventory in database
+    if (!inStock) {
+      // If product as a whole is sold out (0 pcs), mark all variants sold out
+      await prisma.productColorway.updateMany({
+        where: { productId: existing.id },
+        data: { inStock: false },
+      });
+    } else {
+      // If product is marked in stock:
+      // If single-variant product or if all variants were marked out of stock, mark them in stock
+      const allVariantsOutOfStock =
+        existing.colorways.length > 0 &&
+        existing.colorways.every((c) => !c.inStock);
+
+      if (existing.colorways.length === 1 || allVariantsOutOfStock) {
+        await prisma.productColorway.updateMany({
+          where: { productId: existing.id },
+          data: { inStock: true },
+        });
+      }
+    }
+
     try {
       revalidatePath('/admin/inventory');
       revalidatePath('/shop');
       revalidatePath(`/${existing.category}`);
       revalidatePath(`/${existing.category}/${existing.slug}`);
       revalidatePath('/');
+      revalidatePath('/', 'layout');
     } catch {}
 
     return { success: true, inStock, stockQty };

@@ -85,7 +85,7 @@ export const PRODUCTS_TO_IMPORT: FullProductDefinition[] = [
         id: 'teal-antique-silver',
         name: 'Teal & Antique Silver',
         hex: '#008080',
-        inStock: false,
+        inStock: true,
         image: 'https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177',
       },
     ],
@@ -951,7 +951,7 @@ export const PRODUCTS_TO_IMPORT: FullProductDefinition[] = [
         id: 'pristine-ivory',
         name: 'Pristine Ivory',
         hex: '#FFFFF0',
-        inStock: false,
+        inStock: true,
         image: 'https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-white-1.png?v=1782911196',
       },
       {

@@ -40,6 +40,10 @@ interface InventoryContextType {
 }
 
 function fromDbProduct(p: any): Product {
+  const isProdInStock = (p.inStock ?? true) && (p.stockQty === null || p.stockQty === undefined || p.stockQty > 0);
+  const rawColorways = p.colorways || [];
+  const singleOrAllFalse = rawColorways.length <= 1 || rawColorways.every((c: any) => !c.inStock);
+
   return {
     id: p.id,
     slug: p.slug,
@@ -65,11 +69,11 @@ function fromDbProduct(p: any): Product {
       ? p.piecesIncluded.map((pi: any) => (typeof pi === 'string' ? pi : pi.text))
       : [],
     complimentaryItem: p.complimentaryItem ?? null,
-    colorways: (p.colorways || []).map((cw: any) => ({
+    colorways: rawColorways.map((cw: any) => ({
       id: cw.colorId || cw.id,
       name: cw.name,
       hex: cw.hex,
-      inStock: cw.inStock ?? true,
+      inStock: isProdInStock && singleOrAllFalse ? true : (cw.inStock ?? true),
       image: cw.image || null,
     })),
     sizes: p.sizes,
@@ -285,20 +289,45 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   const getEffectiveProduct = (product: Product): Product => {
     const override = overrides[product.id];
-    if (!override) return product;
+    let effective = product;
+    if (override) {
+      effective = {
+        ...product,
+        price: override.price !== undefined ? override.price : product.price,
+        originalPrice: override.originalPrice !== undefined ? override.originalPrice : product.originalPrice,
+        discount: override.discount !== undefined ? override.discount : product.discount,
+        discountType: override.discountType !== undefined ? override.discountType : product.discountType,
+        isNewDrop: override.isNewDrop !== undefined ? override.isNewDrop : product.isNewDrop,
+        isBestseller: override.isBestseller !== undefined ? override.isBestseller : product.isBestseller,
+        inStock: override.stockStatus !== 'sold_out',
+        stockQty: override.stockStatus === 'sold_out' ? 0 : product.stockQty,
+        isHidden: override.isHidden !== undefined ? override.isHidden : product.isHidden,
+      };
+    }
 
-    return {
-      ...product,
-      price: override.price !== undefined ? override.price : product.price,
-      originalPrice: override.originalPrice !== undefined ? override.originalPrice : product.originalPrice,
-      discount: override.discount !== undefined ? override.discount : product.discount,
-      discountType: override.discountType !== undefined ? override.discountType : product.discountType,
-      isNewDrop: override.isNewDrop !== undefined ? override.isNewDrop : product.isNewDrop,
-      isBestseller: override.isBestseller !== undefined ? override.isBestseller : product.isBestseller,
-      inStock: override.stockStatus !== 'sold_out',
-      stockQty: override.stockStatus === 'sold_out' ? 0 : product.stockQty,
-      isHidden: override.isHidden !== undefined ? override.isHidden : product.isHidden,
-    };
+    // Ensure colorways stay synchronized with overall product stock state
+    if (effective.inStock && (effective.stockQty === null || effective.stockQty === undefined || effective.stockQty > 0)) {
+      if (effective.colorways && effective.colorways.length === 1 && !effective.colorways[0].inStock) {
+        effective = {
+          ...effective,
+          colorways: effective.colorways.map((cw) => ({ ...cw, inStock: true })),
+        };
+      } else if (effective.colorways && effective.colorways.length > 1 && effective.colorways.every((c) => !c.inStock)) {
+        effective = {
+          ...effective,
+          colorways: effective.colorways.map((cw) => ({ ...cw, inStock: true })),
+        };
+      }
+    } else if (!effective.inStock || effective.stockQty === 0) {
+      if (effective.colorways && effective.colorways.some((c) => c.inStock)) {
+        effective = {
+          ...effective,
+          colorways: effective.colorways.map((cw) => ({ ...cw, inStock: false })),
+        };
+      }
+    }
+
+    return effective;
   };
 
   const [dbProducts, setDbProducts] = useState<Product[] | null>(null);
