@@ -118,12 +118,33 @@ model CustomerUser {
   district        String?
   address         String?
   whatsappUpdates Boolean        @default(true)
+  status          String         @default("APPROVED") // APPROVED, PENDING, REJECTED
+  approvedAt      DateTime?
+  inviteToken     String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
   orders          Order[]
   savedAddresses  SavedAddress[]
+  invitation      Invitation?    @relation("UserInvitation")
 }
+
+model Invitation {
+  id              String        @id @default(uuid())
+  token           String        @unique
+  inviteeName     String
+  inviteeEmail    String
+  note            String?
+  status          String        @default("PENDING") // PENDING, ACCEPTED, MODIFIED_PENDING, REVOKED
+  claimedByUserId String?       @unique
+  claimedByUser   CustomerUser? @relation("UserInvitation", fields: [claimedByUserId], references: [id], onDelete: SetNull)
+  registeredEmail String?
+  registeredName  String?
+  expiresAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
 
 model SavedAddress {
   id             String       @id @default(uuid())

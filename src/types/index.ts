@@ -78,6 +78,35 @@ export interface CustomerProfile {
   district?: string | null;
   address?: string | null;
   whatsappUpdates: boolean;
+  status: 'APPROVED' | 'PENDING' | 'REJECTED' | string;
+  approvedAt?: string | null;
+  inviteToken?: string | null;
   createdAt: string;
   savedAddresses?: SavedAddress[];
 }
+
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'MODIFIED_PENDING' | 'REVOKED';
+
+export interface InvitationData {
+  id: string;
+  token: string;
+  inviteeName: string;
+  inviteeEmail: string;
+  note?: string | null;
+  status: InvitationStatus;
+  claimedByUserId?: string | null;
+  registeredEmail?: string | null;
+  registeredName?: string | null;
+  expiresAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  claimedByUser?: {
+    id: string;
+    fullName: string;
+    phone?: string | null;
+    email?: string | null;
+    status: string;
+    createdAt: string;
+  } | null;
+}
+

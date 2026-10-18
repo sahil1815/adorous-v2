@@ -19,6 +19,8 @@ export interface AdminRegisteredCustomer {
   district: string | null;
   address: string | null;
   whatsappUpdates: boolean;
+  status?: string;
+  inviteToken?: string | null;
   createdAt: string;
   orderCount: number;
   totalSpent: number;
@@ -97,6 +99,8 @@ export async function getAdminRegisteredUsersAction(): Promise<AdminRegisteredCu
         district: user.district,
         address: user.address,
         whatsappUpdates: user.whatsappUpdates,
+        status: user.status || 'APPROVED',
+        inviteToken: user.inviteToken,
         createdAt: user.createdAt.toISOString(),
         orderCount: user.orders.length,
         totalSpent,
