@@ -347,37 +347,15 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     refreshProducts();
   }, []);
 
-  // Combined list: if database has loaded, it is the primary source of truth!
-  // When dbProducts is still loading, start with empty list to prevent ghost dummy items from resurrecting
-  const baseProducts = dbProducts !== null ? dbProducts : [];
-
-  // Combine DB products and custom products, deduplicating by id and slug
-  const seen = new Set<string>();
-  const combined: Product[] = [];
-
-  for (const p of baseProducts) {
-    if (!deletedIds.includes(p.id) && !deletedIds.includes(p.slug)) {
-      seen.add(p.id);
-      seen.add(p.slug);
-      combined.push(p);
-    }
-  }
-
-  for (const p of customProducts) {
-    if (!seen.has(p.id) && !seen.has(p.slug) && !deletedIds.includes(p.id) && !deletedIds.includes(p.slug)) {
-      seen.add(p.id);
-      seen.add(p.slug);
-      combined.push(p);
-    }
-  }
-
-  const allProducts = combined;
+  // Authoritative list: when PostgreSQL products have loaded, they are the primary source of truth!
+  // Fall back to PRODUCTS catalogue while dbProducts is still loading or offline
+  const allProducts: Product[] = dbProducts !== null && dbProducts.length > 0 ? dbProducts : PRODUCTS;
 
   const getProductBySlug = (category: string, slug: string, allowHidden = false): Product | undefined => {
     const cleanSlug = slug ? slug.toLowerCase().trim() : '';
     const cleanCategory = category ? category.toLowerCase().trim() : '';
 
-    const found = allProducts.find((p) => {
+    const found = allProducts.find((p: Product) => {
       const pSlug = p.slug.toLowerCase().trim();
       const pCat = p.category.toLowerCase().trim();
       const catMatches =

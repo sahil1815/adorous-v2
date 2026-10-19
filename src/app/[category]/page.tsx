@@ -85,7 +85,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     details: p.details.map(d => d.text),
     piecesIncluded: p.piecesIncluded.map(pi => pi.text),
     galleryImages: p.galleryImages.map(gi => gi.url),
-    seoKeywords: p.seoKeywords ? p.seoKeywords.split(',') : []
+    seoKeywords: p.seoKeywords ? p.seoKeywords.split(',') : [],
+    colorways: (p.colorways || []).map((cw: any) => ({
+      id: cw.colorId || cw.id,
+      name: cw.name,
+      hex: cw.hex,
+      inStock: cw.inStock ?? true,
+      image: cw.image || null,
+    })),
   }));
 
   // If manual order exists in database, sort categoryProducts on the server
