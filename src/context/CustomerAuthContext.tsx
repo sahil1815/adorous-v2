@@ -12,11 +12,7 @@ import {
 interface CustomerAuthContextType {
   customer: CustomerProfile | null;
   isLoading: boolean;
-  login: (identifier: string, password: string) => Promise<{
-    success: boolean;
-    error?: string;
-    pending?: boolean;
-  }>;
+  login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: {
     fullName: string;
     phone: string;
@@ -25,16 +21,7 @@ interface CustomerAuthContextType {
     district?: string;
     address?: string;
     whatsappUpdates?: boolean;
-    inviteToken?: string;
-  }) => Promise<{
-    success: boolean;
-    error?: string;
-    pendingApproval?: boolean;
-    autoApproved?: boolean;
-    reason?: string;
-    originalEmail?: string;
-    message?: string;
-  }>;
+  }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshCustomer: () => Promise<void>;
 }
@@ -70,11 +57,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       return { success: true };
     }
     setIsLoading(false);
-    return {
-      success: false,
-      error: res.error || 'Login failed.',
-      pending: (res as any).pending,
-    };
+    return { success: false, error: res.error || 'Login failed.' };
   };
 
   const register = async (data: {
@@ -85,28 +68,17 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     district?: string;
     address?: string;
     whatsappUpdates?: boolean;
-    inviteToken?: string;
   }) => {
     setIsLoading(true);
     const res = await customerRegisterAction(data);
-    if (res.success) {
-      if (res.autoApproved && res.customer) {
-        setCustomer(res.customer);
-      }
+    if (res.success && res.customer) {
+      setCustomer(res.customer);
       setIsLoading(false);
-      return {
-        success: true,
-        autoApproved: res.autoApproved,
-        pendingApproval: res.pendingApproval,
-        reason: res.reason,
-        originalEmail: res.originalEmail,
-        message: res.message,
-      };
+      return { success: true };
     }
     setIsLoading(false);
     return { success: false, error: res.error || 'Registration failed.' };
   };
-
 
   const logout = async () => {
     setIsLoading(true);

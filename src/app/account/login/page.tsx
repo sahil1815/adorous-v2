@@ -19,15 +19,12 @@ import {
   Loader2,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
 } from 'lucide-react';
-import { getInvitationByTokenAction } from '@/app/actions/accessActions';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/account';
-  const inviteToken = searchParams.get('invite');
 
   const { customer, login, register, isLoading } = useCustomerAuth();
 
@@ -35,15 +32,6 @@ function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // Invitation State
-  const [invitationData, setInvitationData] = useState<{
-    token: string;
-    inviteeName: string;
-    inviteeEmail: string;
-  } | null>(null);
-  const [originalInvitedEmail, setOriginalInvitedEmail] = useState('');
-  const [isVerifyingInvite, setIsVerifyingInvite] = useState(false);
 
   // Sign In Form State
   const [signInIdentifier, setSignInIdentifier] = useState('');
@@ -57,37 +45,6 @@ function LoginFormContent() {
   const [regDistrict, setRegDistrict] = useState('Dhaka');
   const [regAddress, setRegAddress] = useState('');
   const [regWhatsapp, setRegWhatsapp] = useState(true);
-
-  // Verify and load invitation if token in URL
-  useEffect(() => {
-    if (!inviteToken) return;
-
-    let isMounted = true;
-    setIsVerifyingInvite(true);
-
-    getInvitationByTokenAction(inviteToken).then((res) => {
-      if (!isMounted) return;
-      setIsVerifyingInvite(false);
-
-      if (res.success && res.invitation) {
-        setInvitationData({
-          token: res.invitation.token,
-          inviteeName: res.invitation.inviteeName,
-          inviteeEmail: res.invitation.inviteeEmail,
-        });
-        setOriginalInvitedEmail(res.invitation.inviteeEmail.trim().toLowerCase());
-        setMode('register');
-        setRegFullName(res.invitation.inviteeName);
-        setRegEmail(res.invitation.inviteeEmail);
-      } else {
-        setErrorMsg(res.error || 'The invitation link is invalid or expired.');
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [inviteToken]);
 
   // Persistent session ID for abandoned sign-in / registration recovery
   const [draftSessionId, setDraftSessionId] = useState('');
@@ -152,13 +109,6 @@ function LoginFormContent() {
     }
   }, [customer, isLoading, redirectPath, router]);
 
-  // Detect whether the invitee modified the email from the invitation
-  const isEmailModified = Boolean(
-    originalInvitedEmail &&
-    regEmail.trim() &&
-    regEmail.trim().toLowerCase() !== originalInvitedEmail
-  );
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -183,11 +133,6 @@ function LoginFormContent() {
         sessionStorage.removeItem('adorous_draft_signin_session');
       }
       router.push(redirectPath);
-    } else if (res.pending) {
-      // User is pending approval!
-      router.push(
-        `/account/pending?reason=public_signup&email=${encodeURIComponent(signInIdentifier.trim())}`
-      );
     } else {
       setErrorMsg(res.error || 'Invalid credentials. Please try again.');
     }
@@ -219,7 +164,6 @@ function LoginFormContent() {
       district: regDistrict,
       address: regAddress.trim() || undefined,
       whatsappUpdates: regWhatsapp,
-      inviteToken: inviteToken || undefined,
     });
     setIsSubmitting(false);
 
@@ -229,23 +173,11 @@ function LoginFormContent() {
         markDraftSignInConvertedAction(activeSid);
         sessionStorage.removeItem('adorous_draft_signin_session');
       }
-
-      if (res.autoApproved) {
-        // Immediate entry for verified invitation with untouched email!
-        router.push(redirectPath);
-      } else if (res.pendingApproval) {
-        // Redirect to pending approval notification screen
-        router.push(
-          `/account/pending?reason=${encodeURIComponent(res.reason || 'public_signup')}&email=${encodeURIComponent(regEmail.trim())}&originalEmail=${encodeURIComponent(res.originalEmail || '')}&name=${encodeURIComponent(regFullName.trim())}`
-        );
-      } else {
-        router.push(redirectPath);
-      }
+      router.push(redirectPath);
     } else {
       setErrorMsg(res.error || 'Failed to create your account.');
     }
   };
-
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-paper">
@@ -276,27 +208,6 @@ function LoginFormContent() {
               : 'Create an Adorous account for 1-click fast checkout and real-time delivery status.'}
           </p>
         </div>
-
-        {/* VIP Invitation Active Banner */}
-        {invitationData && (
-          <div className="p-4 bg-gradient-to-br from-amber-500/10 via-sand to-sand border border-gold/50 rounded-[2px] shadow-xs text-left space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-gold-deep uppercase tracking-widest flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
-                <span>Atelier VIP Invitation</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full font-semibold">
-                Pre-Approved Access
-              </span>
-            </div>
-            <p className="text-xs text-ink font-medium leading-snug">
-              Welcome, <strong className="font-bold">{invitationData.inviteeName}</strong>! You have been granted pre-approved access under email <strong className="font-mono text-gold-deep">{invitationData.inviteeEmail}</strong>.
-            </p>
-            <p className="text-[11px] text-text-muted leading-relaxed">
-              Your details are pre-filled below. You can edit your display name and email if desired. <em>(Note: changing the invited email address will place your account into pending review until approved by the owner).</em>
-            </p>
-          </div>
-        )}
 
         {/* Auth Mode Tabs */}
         <div className="grid grid-cols-2 p-1 bg-sand/80 border border-line rounded-[2px] text-xs font-medium">
@@ -468,16 +379,9 @@ function LoginFormContent() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-ink">
-                  Email Address <span className="text-text-muted text-[10px] font-normal lowercase">(optional)</span>
-                </label>
-                {invitationData && (
-                  <span className="text-[10px] text-text-muted">
-                    Pre-filled from invitation
-                  </span>
-                )}
-              </div>
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-ink mb-1.5">
+                Email Address <span className="text-text-muted text-[10px] font-normal lowercase">(optional)</span>
+              </label>
               <div className="relative">
                 <input
                   type="email"
@@ -486,36 +390,10 @@ function LoginFormContent() {
                   onBlur={triggerDraftSave}
                   placeholder="nusrat@example.com"
                   autoComplete="email"
-                  className={`w-full h-11 pl-3.5 pr-10 bg-paper border rounded-[2px] text-xs text-ink placeholder:text-text-muted focus:outline-none transition-colors ${
-                    isEmailModified
-                      ? 'border-amber-500 focus:border-amber-600 bg-amber-50/20'
-                      : 'border-line focus:border-gold'
-                  }`}
+                  className="w-full h-11 pl-3.5 pr-10 bg-paper border border-line rounded-[2px] text-xs text-ink placeholder:text-text-muted focus:outline-none focus:border-gold transition-colors"
                 />
                 <Mail className="w-4 h-4 text-text-muted absolute right-3.5 top-1/2 -translate-y-1/2" />
               </div>
-
-              {/* Dynamic Warning or Confirmation for Email Modification */}
-              {isEmailModified ? (
-                <div className="p-2.5 bg-amber-50 border border-amber-300 text-amber-900 text-[11px] rounded-[2px] flex items-start space-x-2 mt-2 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-amber-950">Email changed from invitation</p>
-                    <p className="text-[10px] text-amber-800 leading-normal">
-                      The invitation was authorized for <span className="font-mono underline">{originalInvitedEmail}</span>. Because you changed the email to <span className="font-mono font-medium">{regEmail}</span>, your account will be placed in <strong>pending review until the owner approves it</strong>.
-                    </p>
-                  </div>
-                </div>
-              ) : invitationData ? (
-                <div className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] rounded-[2px] flex items-center space-x-1.5 mt-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Matches invitation: Immediate automatic access granted upon registration.</span>
-                </div>
-              ) : (
-                <span className="text-[10px] text-text-muted mt-1 block">
-                  New registrations require owner approval before client portal access is granted.
-                </span>
-              )}
             </div>
 
             <div>
@@ -608,26 +486,16 @@ function LoginFormContent() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full h-11 font-semibold text-xs uppercase tracking-widest rounded-[2px] transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 shadow-sm mt-2 ${
-                isEmailModified
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                  : 'bg-gold hover:bg-gold-light text-ink'
-              }`}
+              className="w-full h-11 bg-gold hover:bg-gold-light text-ink font-semibold text-xs uppercase tracking-widest rounded-[2px] transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 shadow-sm mt-2"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-ink" />
-                  <span>Processing Registration...</span>
+                  <span>Creating Account...</span>
                 </>
               ) : (
                 <>
-                  <span>
-                    {invitationData && !isEmailModified
-                      ? 'Complete & Enter Atelier'
-                      : isEmailModified
-                      ? 'Submit for Owner Approval'
-                      : 'Submit Registration for Approval'}
-                  </span>
+                  <span>Complete Registration</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

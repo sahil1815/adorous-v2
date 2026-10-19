@@ -12,14 +12,6 @@ import {
 import { CustomerProfile, SavedAddress } from '@/types';
 import { revalidatePath } from 'next/cache';
 
-function safeRevalidate(path: string) {
-  try {
-    revalidatePath(path);
-  } catch {
-    // Gracefully handle outside Next request context
-  }
-}
-
 // Helper to sanitize phone number (ensures 11-digit BD standard like 017XXXXXXXX)
 function sanitizeBdPhone(raw: string): string {
   let cleaned = raw.replace(/[^\d+]/g, '');
@@ -40,9 +32,6 @@ function sanitizeProfile(user: any): CustomerProfile {
     district: user.district ?? null,
     address: user.address ?? null,
     whatsappUpdates: Boolean(user.whatsappUpdates),
-    status: user.status || 'APPROVED',
-    approvedAt: user.approvedAt ? user.approvedAt.toISOString() : null,
-    inviteToken: user.inviteToken ?? null,
     createdAt: user.createdAt.toISOString(),
     savedAddresses: (user.savedAddresses || []).map((addr: any) => ({
       id: addr.id,
@@ -65,7 +54,6 @@ export async function customerRegisterAction(data: {
   district?: string;
   address?: string;
   whatsappUpdates?: boolean;
-  inviteToken?: string;
 }) {
   try {
     const fullName = data.fullName.trim();
@@ -114,34 +102,6 @@ export async function customerRegisterAction(data: {
       }
     }
 
-    // ── Invitation & Approval Verification ──
-    let userStatus = 'PENDING';
-    let approvedAt: Date | null = null;
-    let matchedInvitation: any = null;
-    let isEmailAlteredFromInvite = false;
-    let originalInviteEmail = '';
-
-    if (data.inviteToken?.trim()) {
-      matchedInvitation = await prisma.invitation.findUnique({
-        where: { token: data.inviteToken.trim() },
-      });
-
-      if (matchedInvitation && matchedInvitation.status !== 'REVOKED') {
-        originalInviteEmail = matchedInvitation.inviteeEmail.trim().toLowerCase();
-
-        // Check if the recipient kept the original email specified by sender
-        if (cleanEmail && cleanEmail === originalInviteEmail) {
-          // Pre-approved! Owner sent the invitation to this email
-          userStatus = 'APPROVED';
-          approvedAt = new Date();
-        } else {
-          // Changed email! Needs owner manual approval
-          userStatus = 'PENDING';
-          isEmailAlteredFromInvite = true;
-        }
-      }
-    }
-
     const passwordHash = hashPassword(data.password);
 
     // Create user and initial address if provided
@@ -154,9 +114,6 @@ export async function customerRegisterAction(data: {
         district: data.district?.trim() || null,
         address: data.address?.trim() || null,
         whatsappUpdates: data.whatsappUpdates ?? true,
-        status: userStatus,
-        approvedAt,
-        inviteToken: matchedInvitation ? matchedInvitation.token : null,
         savedAddresses:
           data.address?.trim() && data.district?.trim()
             ? {
@@ -173,19 +130,6 @@ export async function customerRegisterAction(data: {
       },
       include: { savedAddresses: true },
     });
-
-    // Update invitation record if an invitation was used
-    if (matchedInvitation) {
-      await prisma.invitation.update({
-        where: { id: matchedInvitation.id },
-        data: {
-          status: userStatus === 'APPROVED' ? 'ACCEPTED' : 'MODIFIED_PENDING',
-          claimedByUserId: user.id,
-          registeredEmail: cleanEmail,
-          registeredName: fullName,
-        },
-      });
-    }
 
     // Retroactively link past guest orders placed with this phone number
     try {
@@ -205,40 +149,19 @@ export async function customerRegisterAction(data: {
       console.warn('[customerRegisterAction] Could not link past orders:', e);
     }
 
-    safeRevalidate('/account');
-    safeRevalidate('/checkout');
-    safeRevalidate('/admin/access');
-    safeRevalidate('/admin/customers');
+    // Generate JWT and set secure cookie
+    const token = await signCustomerToken({
+      sub: user.id,
+      phone: user.phone || null,
+      name: user.fullName,
+      email: user.email,
+    });
+    await setCustomerSessionCookie(token);
 
-    // If account is approved (because invited email was kept), log user in immediately
-    if (userStatus === 'APPROVED') {
-      const token = await signCustomerToken({
-        sub: user.id,
-        phone: user.phone || null,
-        name: user.fullName,
-        email: user.email,
-      });
-      await setCustomerSessionCookie(token);
+    revalidatePath('/account');
+    revalidatePath('/checkout');
 
-      return {
-        success: true,
-        autoApproved: true,
-        customer: sanitizeProfile(user),
-        message: 'Welcome to Adorous! Your exclusive patron access is now active.',
-      };
-    }
-
-    // Otherwise account is pending owner approval (changed email or public registration)
-    return {
-      success: true,
-      pendingApproval: true,
-      reason: isEmailAlteredFromInvite ? 'email_modified' : 'public_signup',
-      originalEmail: originalInviteEmail || undefined,
-      customer: sanitizeProfile(user),
-      message: isEmailAlteredFromInvite
-        ? 'Because your email was changed from the invitation, your account is pending owner review.'
-        : 'Your account has been submitted and is pending review and approval by the owner.',
-    };
+    return { success: true, customer: sanitizeProfile(user) };
   } catch (error: any) {
     console.error('[customerRegisterAction] Error registering customer:', error);
     return { success: false, error: error?.message || 'Failed to create your account. Please try again.' };
@@ -286,24 +209,7 @@ export async function customerLoginAction(data: {
       return { success: false, error: 'Incorrect password. Please try again.' };
     }
 
-    // Check account approval status
-    if (user.status === 'PENDING') {
-      return {
-        success: false,
-        pending: true,
-        error: 'Your account is currently pending owner review and approval. You will be able to access the boutique portal once accepted.',
-      };
-    }
-
-    if (user.status === 'REJECTED') {
-      return {
-        success: false,
-        rejected: true,
-        error: 'Your account request was not approved by the atelier owner. Please contact Adorous if this was in error.',
-      };
-    }
-
-    // Issue session token for approved user
+    // Issue session token
     const token = await signCustomerToken({
       sub: user.id,
       phone: user.phone || null,
@@ -342,7 +248,7 @@ export async function getCurrentCustomerAction(): Promise<CustomerProfile | null
       include: { savedAddresses: { orderBy: { isDefault: 'desc' } } },
     });
 
-    if (!user || user.status !== 'APPROVED') {
+    if (!user) {
       await clearCustomerSessionCookie();
       return null;
     }
