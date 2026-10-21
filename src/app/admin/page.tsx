@@ -102,13 +102,14 @@ const getCourierPortalUrl = (courierPartner: string | null | undefined, consignm
 
 const STATUS_CONFIG: Record<
   OrderStatus,
-  { label: string; bg: string; text: string; border: string; step: number }
+  { label: string; bg: string; text: string; border: string; step: number; accentBorder: string }
 > = {
   pending: {
     label: 'Pending Verification',
     bg: 'bg-amber-950/60',
     text: 'text-amber-300',
     border: 'border-amber-600/40',
+    accentBorder: 'border-l-amber-500',
     step: 1,
   },
   verified: {
@@ -116,6 +117,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-blue-950/60',
     text: 'text-blue-300',
     border: 'border-blue-600/40',
+    accentBorder: 'border-l-blue-500',
     step: 2,
   },
   packaging: {
@@ -123,6 +125,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-purple-950/60',
     text: 'text-purple-300',
     border: 'border-purple-600/40',
+    accentBorder: 'border-l-purple-500',
     step: 3,
   },
   handed_to_courier: {
@@ -130,6 +133,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-emerald-950/60',
     text: 'text-emerald-300',
     border: 'border-emerald-600/40',
+    accentBorder: 'border-l-emerald-500',
     step: 4,
   },
   delivered: {
@@ -137,6 +141,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-green-950/60',
     text: 'text-green-300',
     border: 'border-green-600/40',
+    accentBorder: 'border-l-green-500',
     step: 5,
   },
   returned: {
@@ -144,6 +149,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-rose-950/60',
     text: 'text-rose-300',
     border: 'border-rose-600/40',
+    accentBorder: 'border-l-rose-500',
     step: 0,
   },
   cancelled: {
@@ -151,6 +157,7 @@ const STATUS_CONFIG: Record<
     bg: 'bg-red-950/60',
     text: 'text-red-300',
     border: 'border-red-600/40',
+    accentBorder: 'border-l-red-500',
     step: 0,
   },
 };
@@ -711,7 +718,7 @@ function AdminOrdersDesk() {
       </div>
 
       {/* Orders List */}
-      <div className="space-y-4">
+      <div className="space-y-8 sm:space-y-6 md:space-y-4">
         {/* Returned & Cancelled Context Alert */}
         {['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter) && (
           <div className="bg-[#1C1414] border border-red-700/40 p-4 rounded-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -779,13 +786,19 @@ function AdminOrdersDesk() {
             return (
               <div
                 key={order.orderId}
-                className="bg-[#171717] border border-white/10 hover:border-gold/40 transition-colors p-5 sm:p-6 rounded-xs space-y-5"
+                className={`bg-[#171717] border border-white/10 hover:border-gold/40 transition-colors p-4 sm:p-5 md:p-6 rounded-sm md:rounded-xs space-y-4 md:space-y-5 border-l-4 md:border-l ${statusConfig.accentBorder || 'border-l-gold'} shadow-lg shadow-black/40 md:shadow-none`}
               >
                 {/* Order Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="font-mono text-base text-gold font-bold tracking-wider">
-                      {order.orderId}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-b border-white/10 pb-3.5 sm:pb-4">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    {/* Distinct Order Tag on Mobile */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="md:hidden text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-gold/15 text-gold rounded-xs border border-gold/30">
+                        ORDER
+                      </span>
+                      <div className="font-mono text-base sm:text-lg text-gold font-bold tracking-wider">
+                        {order.orderId}
+                      </div>
                     </div>
 
                     {/* Status Badge */}
@@ -799,9 +812,19 @@ function AdminOrdersDesk() {
                     <span className="text-[11px] px-2 py-0.5 bg-[#222222] text-zinc-200 font-semibold rounded-xs border border-white/10">
                       {order.customer.district}
                     </span>
+
+                    {/* Mobile Quick Summary Pill */}
+                    <div className="md:hidden inline-flex items-center gap-1.5 px-2 py-0.5 bg-black/40 rounded-xs border border-white/10 text-[11px]">
+                      <span className="text-zinc-400 font-medium">Total:</span>
+                      <strong className="text-gold font-extrabold tabular-nums">৳{formatPrice(order.grandTotal)}</strong>
+                      <span className="text-white/20">·</span>
+                      <span className="text-zinc-300">
+                        {order.items.reduce((s, i) => s + i.quantity, 0)} {order.items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-xs text-zinc-400 font-medium">
+                  <div className="flex items-center space-x-2 text-xs text-zinc-400 font-medium shrink-0">
                     <Clock className="w-3.5 h-3.5" />
                     <span>{new Date(order.createdAt).toLocaleDateString('en-US', {
                       month: 'short',
@@ -812,14 +835,19 @@ function AdminOrdersDesk() {
                   </div>
                 </div>
 
-                {/* Main 3-Column Content */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs">
+                {/* Main 3-Column Content (Unified cohesive panel on mobile, 3 independent columns on desktop) */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-6 text-xs bg-[#191919] md:bg-transparent rounded-sm md:rounded-none border border-white/10 md:border-none divide-y divide-white/10 md:divide-y-0 overflow-hidden">
                   {/* Left: Customer & Address */}
-                  <div className="md:col-span-4 space-y-2.5 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
+                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10 md:space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
-                        Recipient Information
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
+                          1
+                        </span>
+                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
+                          Recipient Information
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleCopyOrderInfo(order)}
@@ -873,10 +901,22 @@ function AdminOrdersDesk() {
                   </div>
 
                   {/* Middle: Items List */}
-                  <div className="md:col-span-4 space-y-2.5 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
-                    <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider block">
-                      Package Items ({order.items.reduce((s, i) => s + i.quantity, 0)})
-                    </span>
+                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10 md:space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
+                          2
+                        </span>
+                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
+                          Package Items ({order.items.reduce((s, i) => s + i.quantity, 0)})
+                        </span>
+                      </div>
+                      {/* Mobile-only Order ID tag to prevent confusion during scrolling */}
+                      <div className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-xs bg-gold/10 border border-gold/30 text-[10px] font-mono shrink-0">
+                        <span className="text-gold/70 text-[9px] uppercase font-semibold">Order</span>
+                        <span className="text-gold font-bold">{order.orderId}</span>
+                      </div>
+                    </div>
                     <div className="space-y-2 divide-y divide-white/5">
                       {order.items.map((item, idx) => {
                         const isEditingThis =
@@ -1248,10 +1288,22 @@ function AdminOrdersDesk() {
                   </div>
 
                   {/* Right: Courier Assignment & Status Controller */}
-                  <div className="md:col-span-4 space-y-3 bg-[#1C1C1C] p-4 rounded-xs border border-white/10">
-                    <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider block">
-                      Logistics & Courier Action
-                    </span>
+                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
+                          3
+                        </span>
+                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
+                          Logistics & Courier Action
+                        </span>
+                      </div>
+                      {/* Mobile-only Order ID tag to prevent confusion during scrolling */}
+                      <div className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-xs bg-gold/10 border border-gold/30 text-[10px] font-mono shrink-0">
+                        <span className="text-gold/70 text-[9px] uppercase font-semibold">Order</span>
+                        <span className="text-gold font-bold">{order.orderId}</span>
+                      </div>
+                    </div>
 
                     {/* Consignment Assignment */}
                     <div className="space-y-1.5">
@@ -1397,7 +1449,7 @@ function AdminOrdersDesk() {
                 </div>
 
                 {/* Bottom Row Actions */}
-                <div className="pt-3 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <div className="pt-3 border-t border-white/10 md:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                   {/* Internal Staff Notes */}
                   <div className="flex items-center space-x-2 w-full sm:w-auto">
                     <FileText className="w-3.5 h-3.5 text-paper/40 shrink-0" />
