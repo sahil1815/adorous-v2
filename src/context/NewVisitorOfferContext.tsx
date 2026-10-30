@@ -20,11 +20,11 @@ const LS_SHOWN      = 'adorous_nvo_shown';            // offer was shown & activ
 const LS_DISMISSED  = 'adorous_nvo_dismissed';        // modal was closed/dismissed
 const LS_USED       = 'adorous_nvo_used';             // offer was redeemed (one-time)
 
-// ── Session Storage Keys (Every Visit Mode) ────────────────────────
-const SS_EVO_START_TS   = 'adorous_evo_start_ts';     // epoch ms when offer countdown started for this visit
-const SS_EVO_SHOWN      = 'adorous_evo_shown';        // offer was shown & activated in this visit
-const SS_EVO_DISMISSED  = 'adorous_evo_dismissed';    // modal was closed/dismissed in this visit
-const SS_EVO_USED       = 'adorous_evo_used';         // offer was redeemed in this visit
+// ── Persistent Storage Keys (Every Visit Mode - Wall-clock timed) ─
+const LS_EVO_START_TS   = 'adorous_evo_start_ts';     // epoch ms when offer countdown started
+const LS_EVO_SHOWN      = 'adorous_evo_shown';        // offer was shown & activated
+const LS_EVO_DISMISSED  = 'adorous_evo_dismissed';    // modal was closed/dismissed
+const LS_EVO_USED       = 'adorous_evo_used';         // offer was redeemed (during this window)
 
 // ── Shared Session Keys ───────────────────────────────────────────
 const SS_ACTIVE_MS           = 'adorous_nvo_session_active_ms';     // active continuous ms accumulated
@@ -93,15 +93,20 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
   const delayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const settingsLoadedRef = useRef(false);
 
-  // ── Helper: Clear expired or reset session offer state ─────────
-  const clearSessionOfferState = () => {
+  // ── Helper: Clear expired or reset Every Visit offer state ───────
+  const clearEvoOfferState = () => {
     if (typeof window === 'undefined') return;
     try {
-      sessionStorage.removeItem(SS_EVO_SHOWN);
-      sessionStorage.removeItem(SS_EVO_START_TS);
-      sessionStorage.removeItem(SS_EVO_DISMISSED);
-      sessionStorage.removeItem(SS_EVO_USED);
+      localStorage.removeItem(LS_EVO_SHOWN);
+      localStorage.removeItem(LS_EVO_START_TS);
+      localStorage.removeItem(LS_EVO_DISMISSED);
+      localStorage.removeItem(LS_EVO_USED);
       sessionStorage.removeItem(SS_ACTIVE_MS);
+      // Clean legacy session keys if present
+      sessionStorage.removeItem('adorous_evo_shown');
+      sessionStorage.removeItem('adorous_evo_start_ts');
+      sessionStorage.removeItem('adorous_evo_dismissed');
+      sessionStorage.removeItem('adorous_evo_used');
     } catch {}
   };
 
@@ -130,11 +135,11 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           return null;
         }
 
-        // Mode: EVERY_VISIT (session-isolated, never blocked by legacy localStorage)
-        if (key === 'used') return sessionStorage.getItem(SS_EVO_USED);
-        if (key === 'shown') return sessionStorage.getItem(SS_EVO_SHOWN);
-        if (key === 'dismissed') return sessionStorage.getItem(SS_EVO_DISMISSED);
-        if (key === 'startTs') return sessionStorage.getItem(SS_EVO_START_TS);
+        // Mode: EVERY_VISIT (persistent wall-clock countdown across closes, auto-resets when expired)
+        if (key === 'used') return localStorage.getItem(LS_EVO_USED);
+        if (key === 'shown') return localStorage.getItem(LS_EVO_SHOWN);
+        if (key === 'dismissed') return localStorage.getItem(LS_EVO_DISMISSED);
+        if (key === 'startTs') return localStorage.getItem(LS_EVO_START_TS);
         return null;
       } catch {
         return null;
@@ -169,11 +174,11 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           return;
         }
 
-        // Mode: EVERY_VISIT
-        if (key === 'used') sessionStorage.setItem(SS_EVO_USED, value);
-        if (key === 'shown') sessionStorage.setItem(SS_EVO_SHOWN, value);
-        if (key === 'dismissed') sessionStorage.setItem(SS_EVO_DISMISSED, value);
-        if (key === 'startTs') sessionStorage.setItem(SS_EVO_START_TS, value);
+        // Mode: EVERY_VISIT (persistent wall-clock timer)
+        if (key === 'used') localStorage.setItem(LS_EVO_USED, value);
+        if (key === 'shown') localStorage.setItem(LS_EVO_SHOWN, value);
+        if (key === 'dismissed') localStorage.setItem(LS_EVO_DISMISSED, value);
+        if (key === 'startTs') localStorage.setItem(LS_EVO_START_TS, value);
       } catch {
         // storage unavailable / quota exceeded
       }
@@ -246,22 +251,21 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     const durationMs = (currentSettings.durationMinutes || 30) * 60 * 1000;
 
     // In EVERY_VISIT mode (when not in admin preview):
-    // If the visitor previously had a countdown in this tab/session that expired,
-    // clear the expired state so this visit gets the offer fresh!
+    // Check if the persistent offer timestamp has expired while away
     if (isEveryVisit && !isPreview && typeof window !== 'undefined') {
-      const activeStartTs = sessionStorage.getItem(SS_EVO_START_TS);
+      const activeStartTs = localStorage.getItem(LS_EVO_START_TS);
       if (activeStartTs) {
         const startTs = parseInt(activeStartTs, 10);
         const elapsed = Date.now() - startTs;
         if (elapsed >= durationMs) {
-          clearSessionOfferState();
+          clearEvoOfferState();
         }
       }
     }
 
     const used = getStorageItem('used', isPreview, currentSettings.offerMode);
     if (used === 'true') {
-      // Offer already redeemed for this visit/session (or permanently in FIRST_VISIT_ONLY)
+      // Offer already redeemed for this window (or permanently in FIRST_VISIT_ONLY)
       setIsHydrated(true);
       return;
     }
@@ -271,12 +275,12 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     const dismissed = getStorageItem('dismissed', isPreview, currentSettings.offerMode);
 
     if (shown === 'true' && startTsStr) {
-      // Offer was already unlocked in this session / visit
+      // Offer was already unlocked previously
       const startTs = parseInt(startTsStr, 10);
       const elapsed = Date.now() - startTs;
 
       if (elapsed < durationMs) {
-        // Still within active offer duration window
+        // Still within active offer duration window: resume from exact wall-clock remaining time!
         const secsLeft = Math.ceil((durationMs - elapsed) / 1000);
         setRemainingSeconds(secsLeft);
         setIsOfferActive(true);
@@ -288,7 +292,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         setRemainingSeconds(0);
         setIsModalOpen(false);
         if (isEveryVisit && !isPreview) {
-          clearSessionOfferState();
+          clearEvoOfferState();
         }
       }
       setIsHydrated(true);
@@ -377,7 +381,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     setStorageItem('startTs', String(now), isPreview, currentSettings.offerMode);
   };
 
-  // ── 4. Active Countdown Ticker ───────────────────────────────────
+  // ── 4. Active Countdown Ticker (Wall-Clock Synchronized) ──────────
   useEffect(() => {
     if (!isOfferActive || remainingSeconds <= 0) {
       if (countdownIntervalRef.current) {
@@ -387,6 +391,34 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
       return;
     }
 
+    // Re-synchronize exact wall-clock seconds on window focus / tab visibility
+    const syncWithWallClock = () => {
+      const startTsStr = getStorageItem('startTs', isPreviewMode, settings.offerMode);
+      if (!startTsStr) return;
+      const startTs = parseInt(startTsStr, 10);
+      const elapsed = Date.now() - startTs;
+      const durationMs = (settings.durationMinutes || 30) * 60 * 1000;
+
+      if (elapsed >= durationMs) {
+        setIsOfferActive(false);
+        setRemainingSeconds(0);
+        setIsModalOpen(false);
+        if (settings.offerMode === 'EVERY_VISIT' && !isPreviewMode) {
+          clearEvoOfferState();
+        }
+      } else {
+        const secsLeft = Math.ceil((durationMs - elapsed) / 1000);
+        setRemainingSeconds(secsLeft);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', syncWithWallClock);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', syncWithWallClock);
+    }
+
     countdownIntervalRef.current = setInterval(() => {
       setRemainingSeconds((prev) => {
         if (prev <= 1) {
@@ -394,6 +426,9 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           if (countdownIntervalRef.current) {
             clearInterval(countdownIntervalRef.current);
             countdownIntervalRef.current = null;
+          }
+          if (settings.offerMode === 'EVERY_VISIT' && !isPreviewMode) {
+            clearEvoOfferState();
           }
           return 0;
         }
@@ -406,8 +441,14 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         clearInterval(countdownIntervalRef.current);
         countdownIntervalRef.current = null;
       }
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', syncWithWallClock);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('focus', syncWithWallClock);
+      }
     };
-  }, [isOfferActive, remainingSeconds]);
+  }, [isOfferActive, remainingSeconds, isPreviewMode, settings.offerMode, settings.durationMinutes, getStorageItem]);
 
   // ── 5. Dismiss Modal (Offer & discount remain active) ────────────
   const dismissModal = useCallback(() => {
