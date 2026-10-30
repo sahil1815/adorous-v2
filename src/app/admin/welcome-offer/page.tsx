@@ -19,7 +19,9 @@ import {
   Sliders,
   Type,
   FileCode2,
-  DollarSign
+  DollarSign,
+  Users,
+  Repeat
 } from 'lucide-react';
 import {
   getWelcomeOfferSettings,
@@ -39,6 +41,7 @@ export default function AdminWelcomeOfferPage() {
 
   // Form fields
   const [enabled, setEnabled] = useState(true);
+  const [offerMode, setOfferMode] = useState<WelcomeOfferSettingsData['offerMode']>('EVERY_VISIT');
   const [discountPercent, setDiscountPercent] = useState<number>(10);
   const [delaySeconds, setDelaySeconds] = useState<number>(5);
   const [durationMinutes, setDurationMinutes] = useState<number>(30);
@@ -60,6 +63,7 @@ export default function AdminWelcomeOfferPage() {
         const data = await getWelcomeOfferSettings();
         setSettings(data);
         setEnabled(data.enabled);
+        setOfferMode(data.offerMode || 'EVERY_VISIT');
         setDiscountPercent(data.discountPercent);
         setDelaySeconds(data.delaySeconds);
         setDurationMinutes(data.durationMinutes);
@@ -83,6 +87,7 @@ export default function AdminWelcomeOfferPage() {
 
   const handleResetToDefaults = () => {
     setEnabled(DEFAULT_WELCOME_OFFER_SETTINGS.enabled);
+    setOfferMode(DEFAULT_WELCOME_OFFER_SETTINGS.offerMode);
     setDiscountPercent(DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent);
     setDelaySeconds(DEFAULT_WELCOME_OFFER_SETTINGS.delaySeconds);
     setDurationMinutes(DEFAULT_WELCOME_OFFER_SETTINGS.durationMinutes);
@@ -125,6 +130,7 @@ export default function AdminWelcomeOfferPage() {
     try {
       const res = await updateWelcomeOfferSettings({
         enabled,
+        offerMode,
         discountPercent: Number(discountPercent),
         delaySeconds: Number(delaySeconds),
         durationMinutes: Number(durationMinutes),
@@ -177,16 +183,23 @@ export default function AdminWelcomeOfferPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-ink shadow-sm">
               <Sparkles className="w-4 h-4" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              First-Visit Welcome Offer
+              Welcome & Visitor Offer
             </h1>
+            <span className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
+              offerMode === 'EVERY_VISIT'
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                : 'bg-gold/15 text-gold border-gold/30'
+            }`}>
+              {offerMode === 'EVERY_VISIT' ? 'Mode: Every Visit' : 'Mode: First Visit Only'}
+            </span>
           </div>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
-            Configure the automated first-time visitor discount popup, delay trigger timer, live modal copy, and simulate tests on the live store without polluting visitor history.
+            Configure automated visitor discount popups, continuous delay trigger, audience frequency, live modal copy, and simulate tests on the live store without polluting visitor history.
           </p>
         </div>
 
@@ -196,10 +209,10 @@ export default function AdminWelcomeOfferPage() {
             type="button"
             onClick={() => launchPreview('/')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xs bg-[#1C1C1C] border border-gold/40 text-gold-light hover:text-gold hover:border-gold hover:bg-[#252525] transition-all text-xs font-semibold uppercase tracking-wider shadow-sm"
-            title="Preview offer popup as a simulated new visitor in a new tab"
+            title="Preview offer popup as a simulated visitor in a new tab"
           >
             <Eye className="w-3.5 h-3.5 text-gold" />
-            <span>Preview as New Visitor</span>
+            <span>Preview Offer</span>
             <ExternalLink className="w-3 h-3 opacity-60" />
           </button>
 
@@ -266,6 +279,95 @@ export default function AdminWelcomeOfferPage() {
                     {enabled ? 'Active / Enabled' : 'Disabled'}
                   </span>
                 </label>
+              </div>
+
+              {/* Target Audience & Recurrence Frequency */}
+              <div className="p-4 rounded-xs bg-[#191919] border border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gold" />
+                    <span className="text-xs font-semibold text-paper uppercase tracking-wider">
+                      Audience & Offer Recurrence
+                    </span>
+                  </div>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                    offerMode === 'EVERY_VISIT'
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                      : 'bg-gold/10 text-gold-light border-gold/30'
+                  }`}>
+                    {offerMode === 'EVERY_VISIT' ? 'All Visitors · Every Visit' : 'New Visitors · One-Time Only'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Mode Option 1: Every Visit */}
+                  <button
+                    type="button"
+                    onClick={() => setOfferMode('EVERY_VISIT')}
+                    className={`text-left rounded-xs p-3.5 border transition-all relative ${
+                      offerMode === 'EVERY_VISIT'
+                        ? 'bg-emerald-950/25 border-emerald-500/70 shadow-sm shadow-emerald-950/30'
+                        : 'bg-[#141414] border-white/10 hover:border-white/20 opacity-75'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                          offerMode === 'EVERY_VISIT'
+                            ? 'border-emerald-400 bg-emerald-500'
+                            : 'border-white/30 bg-transparent'
+                        }`}>
+                          {offerMode === 'EVERY_VISIT' && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-black" />
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-paper">
+                          Every Visit (Recurring)
+                        </span>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-wider font-semibold text-emerald-400 px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/30">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-paper/70 mt-2 pl-6 leading-relaxed">
+                      Every user gets the offer every time they visit the website. New and returning customers always receive the popup and discount countdown.
+                    </p>
+                  </button>
+
+                  {/* Mode Option 2: First Visit Only */}
+                  <button
+                    type="button"
+                    onClick={() => setOfferMode('FIRST_VISIT_ONLY')}
+                    className={`text-left rounded-xs p-3.5 border transition-all relative ${
+                      offerMode === 'FIRST_VISIT_ONLY'
+                        ? 'bg-amber-950/25 border-gold/70 shadow-sm shadow-gold/20'
+                        : 'bg-[#141414] border-white/10 hover:border-white/20 opacity-75'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                          offerMode === 'FIRST_VISIT_ONLY'
+                            ? 'border-gold bg-gold'
+                            : 'border-white/30 bg-transparent'
+                        }`}>
+                          {offerMode === 'FIRST_VISIT_ONLY' && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-black" />
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-paper">
+                          First Visit Only (One-Time)
+                        </span>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-wider font-semibold text-paper/50 px-1.5 py-0.2 rounded bg-white/5 border border-white/10">
+                        Strict 1-Time
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-paper/70 mt-2 pl-6 leading-relaxed">
+                      Strictly one-time per unique visitor. Returning visitors or previous customers will never see the offer again after closing or using it.
+                    </p>
+                  </button>
+                </div>
               </div>
 
               {/* Number Inputs Grid */}
@@ -537,14 +639,14 @@ export default function AdminWelcomeOfferPage() {
             </div>
 
             <p className="text-xs text-paper/70 leading-relaxed">
-              Because your browser has previously visited or made orders, you would not normally see the welcome popup or receive the first-visit discount. Use these test launcher buttons to open the storefront as a <strong>simulated new customer</strong>.
+              Use these test launcher buttons to open the storefront as an <strong>isolated preview visitor</strong> in a new tab. In <em>Every Visit</em> mode, real visitors receive the popup and discount on every visit, while in <em>First Visit</em> mode only first-time visitors receive it.
             </p>
 
             <ul className="text-xs text-paper/60 space-y-1.5 list-disc list-inside">
-              <li>Ignores your normal browser visitor status and order records.</li>
+              <li>Honors the configured mode: <strong>{offerMode === 'EVERY_VISIT' ? 'Every Visit (Recurring for all)' : 'First Visit Only'}</strong>.</li>
               <li>Runs the continuous {delaySeconds}-second countdown naturally.</li>
               <li>Calculates and applies the {discountPercent}% discount live in Cart and Checkout.</li>
-              <li><strong>Zero permanent pollution</strong>: does not modify your real browser cookie or customer metrics.</li>
+              <li><strong>Zero permanent pollution</strong>: isolated in session storage without affecting analytics or saved visitor history.</li>
             </ul>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -683,6 +785,12 @@ export default function AdminWelcomeOfferPage() {
                 <span className="text-paper/50">Offer Status:</span>
                 <span className={`font-semibold ${enabled ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {enabled ? 'Active / On' : 'Disabled / Off'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-paper/50">Audience Mode:</span>
+                <span className={`font-semibold ${offerMode === 'EVERY_VISIT' ? 'text-emerald-400' : 'text-gold-light'}`}>
+                  {offerMode === 'EVERY_VISIT' ? 'Every Visit (All Visitors)' : 'First Visit Only'}
                 </span>
               </div>
               <div className="flex items-center justify-between">

@@ -14,13 +14,19 @@ import {
   DEFAULT_WELCOME_OFFER_SETTINGS,
 } from '@/data/newVisitorOffer';
 
-// ── Persistent Storage Keys (Normal Visitors) ──────────────────────
+// ── Persistent Storage Keys (First Visit Only Mode) ───────────────
 const LS_START_TS   = 'adorous_nvo_startTimestamp';   // epoch ms when offer countdown started
 const LS_SHOWN      = 'adorous_nvo_shown';            // offer was shown & activated
 const LS_DISMISSED  = 'adorous_nvo_dismissed';        // modal was closed/dismissed
 const LS_USED       = 'adorous_nvo_used';             // offer was redeemed (one-time)
 
-// ── Session Storage Keys (Session navigation & Preview mode) ───────
+// ── Session Storage Keys (Every Visit Mode) ────────────────────────
+const SS_EVO_START_TS   = 'adorous_evo_start_ts';     // epoch ms when offer countdown started for this visit
+const SS_EVO_SHOWN      = 'adorous_evo_shown';        // offer was shown & activated in this visit
+const SS_EVO_DISMISSED  = 'adorous_evo_dismissed';    // modal was closed/dismissed in this visit
+const SS_EVO_USED       = 'adorous_evo_used';         // offer was redeemed in this visit
+
+// ── Shared Session Keys ───────────────────────────────────────────
 const SS_ACTIVE_MS           = 'adorous_nvo_session_active_ms';     // active continuous ms accumulated
 const SS_PREVIEW_MODE        = 'adorous_nvo_preview';              // test mode flag
 const SS_PREVIEW_SHOWN       = 'adorous_nvo_preview_shown';
@@ -51,6 +57,8 @@ export interface NewVisitorOfferContextType {
   remainingSeconds: number;
   /** The discount percentage from DB/config */
   discountPercent: number;
+  /** Active offer mode: 'EVERY_VISIT' or 'FIRST_VISIT_ONLY' */
+  offerMode: WelcomeOfferSettingsData['offerMode'];
   /** Current offer settings */
   settings: WelcomeOfferSettingsData;
   /** Whether current session is in admin preview/test mode */
@@ -85,46 +93,93 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
   const delayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const settingsLoadedRef = useRef(false);
 
-  // ── Helper: Read storage based on preview mode ──────────────────
-  const getStorageItem = useCallback((key: 'used' | 'shown' | 'dismissed' | 'startTs', preview: boolean) => {
-    if (typeof window === 'undefined') return null;
-    try {
-      if (preview) {
-        if (key === 'used') return sessionStorage.getItem(SS_PREVIEW_USED);
-        if (key === 'shown') return sessionStorage.getItem(SS_PREVIEW_SHOWN);
-        if (key === 'dismissed') return sessionStorage.getItem(SS_PREVIEW_DISMISSED);
-        if (key === 'startTs') return sessionStorage.getItem(SS_PREVIEW_START_TS);
-      } else {
-        if (key === 'used') return localStorage.getItem(LS_USED);
-        if (key === 'shown') return localStorage.getItem(LS_SHOWN);
-        if (key === 'dismissed') return localStorage.getItem(LS_DISMISSED);
-        if (key === 'startTs') return localStorage.getItem(LS_START_TS);
-      }
-    } catch {
-      return null;
-    }
-    return null;
-  }, []);
-
-  // ── Helper: Set storage based on preview mode ───────────────────
-  const setStorageItem = useCallback((key: 'used' | 'shown' | 'dismissed' | 'startTs', value: string, preview: boolean) => {
+  // ── Helper: Clear expired or reset session offer state ─────────
+  const clearSessionOfferState = () => {
     if (typeof window === 'undefined') return;
     try {
-      if (preview) {
-        if (key === 'used') sessionStorage.setItem(SS_PREVIEW_USED, value);
-        if (key === 'shown') sessionStorage.setItem(SS_PREVIEW_SHOWN, value);
-        if (key === 'dismissed') sessionStorage.setItem(SS_PREVIEW_DISMISSED, value);
-        if (key === 'startTs') sessionStorage.setItem(SS_PREVIEW_START_TS, value);
-      } else {
-        if (key === 'used') localStorage.setItem(LS_USED, value);
-        if (key === 'shown') localStorage.setItem(LS_SHOWN, value);
-        if (key === 'dismissed') localStorage.setItem(LS_DISMISSED, value);
-        if (key === 'startTs') localStorage.setItem(LS_START_TS, value);
+      sessionStorage.removeItem(SS_EVO_SHOWN);
+      sessionStorage.removeItem(SS_EVO_START_TS);
+      sessionStorage.removeItem(SS_EVO_DISMISSED);
+      sessionStorage.removeItem(SS_EVO_USED);
+      sessionStorage.removeItem(SS_ACTIVE_MS);
+    } catch {}
+  };
+
+  // ── Helper: Read storage based on preview mode & offer mode ────
+  const getStorageItem = useCallback(
+    (
+      key: 'used' | 'shown' | 'dismissed' | 'startTs',
+      preview: boolean,
+      mode: WelcomeOfferSettingsData['offerMode'] = 'EVERY_VISIT'
+    ): string | null => {
+      if (typeof window === 'undefined') return null;
+      try {
+        if (preview) {
+          if (key === 'used') return sessionStorage.getItem(SS_PREVIEW_USED);
+          if (key === 'shown') return sessionStorage.getItem(SS_PREVIEW_SHOWN);
+          if (key === 'dismissed') return sessionStorage.getItem(SS_PREVIEW_DISMISSED);
+          if (key === 'startTs') return sessionStorage.getItem(SS_PREVIEW_START_TS);
+          return null;
+        }
+
+        if (mode === 'FIRST_VISIT_ONLY') {
+          if (key === 'used') return localStorage.getItem(LS_USED);
+          if (key === 'shown') return localStorage.getItem(LS_SHOWN);
+          if (key === 'dismissed') return localStorage.getItem(LS_DISMISSED);
+          if (key === 'startTs') return localStorage.getItem(LS_START_TS);
+          return null;
+        }
+
+        // Mode: EVERY_VISIT (session-isolated, never blocked by legacy localStorage)
+        if (key === 'used') return sessionStorage.getItem(SS_EVO_USED);
+        if (key === 'shown') return sessionStorage.getItem(SS_EVO_SHOWN);
+        if (key === 'dismissed') return sessionStorage.getItem(SS_EVO_DISMISSED);
+        if (key === 'startTs') return sessionStorage.getItem(SS_EVO_START_TS);
+        return null;
+      } catch {
+        return null;
       }
-    } catch {
-      // storage unavailable / quota exceeded
-    }
-  }, []);
+    },
+    []
+  );
+
+  // ── Helper: Set storage based on preview mode & offer mode ─────
+  const setStorageItem = useCallback(
+    (
+      key: 'used' | 'shown' | 'dismissed' | 'startTs',
+      value: string,
+      preview: boolean,
+      mode: WelcomeOfferSettingsData['offerMode'] = 'EVERY_VISIT'
+    ) => {
+      if (typeof window === 'undefined') return;
+      try {
+        if (preview) {
+          if (key === 'used') sessionStorage.setItem(SS_PREVIEW_USED, value);
+          if (key === 'shown') sessionStorage.setItem(SS_PREVIEW_SHOWN, value);
+          if (key === 'dismissed') sessionStorage.setItem(SS_PREVIEW_DISMISSED, value);
+          if (key === 'startTs') sessionStorage.setItem(SS_PREVIEW_START_TS, value);
+          return;
+        }
+
+        if (mode === 'FIRST_VISIT_ONLY') {
+          if (key === 'used') localStorage.setItem(LS_USED, value);
+          if (key === 'shown') localStorage.setItem(LS_SHOWN, value);
+          if (key === 'dismissed') localStorage.setItem(LS_DISMISSED, value);
+          if (key === 'startTs') localStorage.setItem(LS_START_TS, value);
+          return;
+        }
+
+        // Mode: EVERY_VISIT
+        if (key === 'used') sessionStorage.setItem(SS_EVO_USED, value);
+        if (key === 'shown') sessionStorage.setItem(SS_EVO_SHOWN, value);
+        if (key === 'dismissed') sessionStorage.setItem(SS_EVO_DISMISSED, value);
+        if (key === 'startTs') sessionStorage.setItem(SS_EVO_START_TS, value);
+      } catch {
+        // storage unavailable / quota exceeded
+      }
+    },
+    []
+  );
 
   // ── 1. Fetch DB Settings and Detect Preview Mode on Mount ────────
   useEffect(() => {
@@ -187,41 +242,60 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
       return;
     }
 
+    const isEveryVisit = currentSettings.offerMode === 'EVERY_VISIT';
     const durationMs = (currentSettings.durationMinutes || 30) * 60 * 1000;
-    const used = getStorageItem('used', isPreview);
+
+    // In EVERY_VISIT mode (when not in admin preview):
+    // If the visitor previously had a countdown in this tab/session that expired,
+    // clear the expired state so this visit gets the offer fresh!
+    if (isEveryVisit && !isPreview && typeof window !== 'undefined') {
+      const activeStartTs = sessionStorage.getItem(SS_EVO_START_TS);
+      if (activeStartTs) {
+        const startTs = parseInt(activeStartTs, 10);
+        const elapsed = Date.now() - startTs;
+        if (elapsed >= durationMs) {
+          clearSessionOfferState();
+        }
+      }
+    }
+
+    const used = getStorageItem('used', isPreview, currentSettings.offerMode);
     if (used === 'true') {
-      // Offer already redeemed
+      // Offer already redeemed for this visit/session (or permanently in FIRST_VISIT_ONLY)
       setIsHydrated(true);
       return;
     }
 
-    const shown = getStorageItem('shown', isPreview);
-    const startTsStr = getStorageItem('startTs', isPreview);
-    const dismissed = getStorageItem('dismissed', isPreview);
+    const shown = getStorageItem('shown', isPreview, currentSettings.offerMode);
+    const startTsStr = getStorageItem('startTs', isPreview, currentSettings.offerMode);
+    const dismissed = getStorageItem('dismissed', isPreview, currentSettings.offerMode);
 
     if (shown === 'true' && startTsStr) {
-      // Offer was already unlocked previously
+      // Offer was already unlocked in this session / visit
       const startTs = parseInt(startTsStr, 10);
       const elapsed = Date.now() - startTs;
 
       if (elapsed < durationMs) {
-        // Still within offer duration window
+        // Still within active offer duration window
         const secsLeft = Math.ceil((durationMs - elapsed) / 1000);
         setRemainingSeconds(secsLeft);
         setIsOfferActive(true);
-        // If it was shown but user refreshed without closing modal, show modal; otherwise stay closed
+        // If modal was dismissed in this session, keep it dismissed; otherwise keep open
         setIsModalOpen(dismissed !== 'true');
       } else {
         // Offer window expired
         setIsOfferActive(false);
         setRemainingSeconds(0);
         setIsModalOpen(false);
+        if (isEveryVisit && !isPreview) {
+          clearSessionOfferState();
+        }
       }
       setIsHydrated(true);
       return;
     }
 
-    // ── Brand-New Visitor: Start or Continue 5-second Continuous Delay ──
+    // ── Fresh Visit: Start or Continue Continuous Delay Trigger ──
     setIsHydrated(true);
     const targetDelayMs = Math.max(0, (currentSettings.delaySeconds ?? 5) * 1000);
 
@@ -299,8 +373,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     setRemainingSeconds(durationSeconds);
 
     // Record that offer has now been shown/unlocked
-    setStorageItem('shown', 'true', isPreview);
-    setStorageItem('startTs', String(now), isPreview);
+    setStorageItem('shown', 'true', isPreview, currentSettings.offerMode);
+    setStorageItem('startTs', String(now), isPreview, currentSettings.offerMode);
   };
 
   // ── 4. Active Countdown Ticker ───────────────────────────────────
@@ -338,8 +412,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
   // ── 5. Dismiss Modal (Offer & discount remain active) ────────────
   const dismissModal = useCallback(() => {
     setIsModalOpen(false);
-    setStorageItem('dismissed', 'true', isPreviewMode);
-  }, [isPreviewMode, setStorageItem]);
+    setStorageItem('dismissed', 'true', isPreviewMode, settings.offerMode);
+  }, [isPreviewMode, settings.offerMode, setStorageItem]);
 
   // ── 6. Calculate Flat Discount Amount ────────────────────────────
   const calculateDiscount = useCallback(
@@ -456,8 +530,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     setIsOfferActive(false);
     setRemainingSeconds(0);
     setIsModalOpen(false);
-    setStorageItem('used', 'true', isPreviewMode);
-  }, [isPreviewMode, setStorageItem]);
+    setStorageItem('used', 'true', isPreviewMode, settings.offerMode);
+  }, [isPreviewMode, settings.offerMode, setStorageItem]);
 
   // ── 8. Reset Preview Mode Helper (For Admin testing) ─────────────
   const resetPreviewOffer = useCallback(() => {
@@ -486,6 +560,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         isOfferActive,
         remainingSeconds,
         discountPercent: settings.discountPercent,
+        offerMode: settings.offerMode,
         settings,
         isPreviewMode,
         dismissModal,

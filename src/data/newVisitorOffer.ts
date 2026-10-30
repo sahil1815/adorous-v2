@@ -4,9 +4,12 @@
  * Single source of truth for fallback defaults and interfaces.
  */
 
+export type WelcomeOfferMode = 'EVERY_VISIT' | 'FIRST_VISIT_ONLY';
+
 export interface WelcomeOfferSettingsData {
   id: string;
   enabled: boolean;
+  offerMode: WelcomeOfferMode;
   discountPercent: number;
   delaySeconds: number;
   durationMinutes: number;
@@ -24,6 +27,9 @@ export interface WelcomeOfferSettingsData {
 export const NEW_VISITOR_OFFER = {
   /** Master switch — set to false to disable the entire feature */
   enabled: true,
+
+  /** Offer frequency mode: 'EVERY_VISIT' (all visitors on each visit) or 'FIRST_VISIT_ONLY' (strict 1-time) */
+  offerMode: 'EVERY_VISIT' as WelcomeOfferMode,
 
   /** Discount percentage applied to all products */
   discountPercent: 10,
@@ -56,6 +62,7 @@ export const NEW_VISITOR_OFFER = {
 export const DEFAULT_WELCOME_OFFER_SETTINGS: WelcomeOfferSettingsData = {
   id: 'default',
   enabled: NEW_VISITOR_OFFER.enabled,
+  offerMode: NEW_VISITOR_OFFER.offerMode,
   discountPercent: NEW_VISITOR_OFFER.discountPercent,
   delaySeconds: NEW_VISITOR_OFFER.delaySeconds,
   durationMinutes: NEW_VISITOR_OFFER.durationMinutes,

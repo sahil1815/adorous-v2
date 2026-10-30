@@ -209,6 +209,7 @@ model LandingPage {
 model WelcomeOfferSettings {
   id                String   @id @default("default")
   enabled           Boolean  @default(true)
+  offerMode         String   @default("EVERY_VISIT") // "EVERY_VISIT" | "FIRST_VISIT_ONLY"
   discountPercent   Float    @default(10)
   delaySeconds      Int      @default(5)
   durationMinutes   Int      @default(30)

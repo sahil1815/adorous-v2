@@ -75,7 +75,7 @@ export default function WelcomeOfferModal() {
           {isPreviewMode && (
             <div className="bg-gold/20 border-b border-gold/30 px-3 py-1 flex items-center justify-center gap-1.5 text-[10px] text-gold-light uppercase tracking-wider font-semibold">
               <Eye className="w-3 h-3 text-gold" />
-              <span>Admin Preview Mode · Simulated New Visitor</span>
+              <span>Admin Preview Mode · Simulated Visitor</span>
             </div>
           )}
 

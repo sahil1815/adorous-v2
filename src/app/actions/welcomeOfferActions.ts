@@ -11,6 +11,7 @@ function formatSettings(item: any): WelcomeOfferSettingsData {
   return {
     id: item.id || 'default',
     enabled: Boolean(item.enabled),
+    offerMode: (item.offerMode === 'FIRST_VISIT_ONLY' ? 'FIRST_VISIT_ONLY' : 'EVERY_VISIT') as WelcomeOfferSettingsData['offerMode'],
     discountPercent: Number(item.discountPercent ?? DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent),
     delaySeconds: Number(item.delaySeconds ?? DEFAULT_WELCOME_OFFER_SETTINGS.delaySeconds),
     durationMinutes: Number(item.durationMinutes ?? DEFAULT_WELCOME_OFFER_SETTINGS.durationMinutes),
@@ -51,6 +52,7 @@ export async function getWelcomeOfferSettings(): Promise<WelcomeOfferSettingsDat
       data: {
         id: 'default',
         enabled: DEFAULT_WELCOME_OFFER_SETTINGS.enabled,
+        offerMode: DEFAULT_WELCOME_OFFER_SETTINGS.offerMode,
         discountPercent: DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent,
         delaySeconds: DEFAULT_WELCOME_OFFER_SETTINGS.delaySeconds,
         durationMinutes: DEFAULT_WELCOME_OFFER_SETTINGS.durationMinutes,
@@ -80,6 +82,7 @@ export async function updateWelcomeOfferSettings(
       where: { id: 'default' },
       update: {
         enabled: input.enabled ?? undefined,
+        offerMode: input.offerMode ?? undefined,
         discountPercent: input.discountPercent !== undefined ? Number(input.discountPercent) : undefined,
         delaySeconds: input.delaySeconds !== undefined ? Math.max(0, Math.round(Number(input.delaySeconds))) : undefined,
         durationMinutes: input.durationMinutes !== undefined ? Math.max(1, Math.round(Number(input.durationMinutes))) : undefined,
@@ -95,6 +98,7 @@ export async function updateWelcomeOfferSettings(
       create: {
         id: 'default',
         enabled: input.enabled ?? DEFAULT_WELCOME_OFFER_SETTINGS.enabled,
+        offerMode: input.offerMode ?? DEFAULT_WELCOME_OFFER_SETTINGS.offerMode,
         discountPercent: input.discountPercent !== undefined ? Number(input.discountPercent) : DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent,
         delaySeconds: input.delaySeconds !== undefined ? Math.max(0, Math.round(Number(input.delaySeconds))) : DEFAULT_WELCOME_OFFER_SETTINGS.delaySeconds,
         durationMinutes: input.durationMinutes !== undefined ? Math.max(1, Math.round(Number(input.durationMinutes))) : DEFAULT_WELCOME_OFFER_SETTINGS.durationMinutes,
@@ -109,10 +113,14 @@ export async function updateWelcomeOfferSettings(
       },
     });
 
-    revalidatePath('/', 'layout');
-    revalidatePath('/checkout');
-    revalidatePath('/admin');
-    revalidatePath('/admin/welcome-offer');
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/checkout');
+      revalidatePath('/admin');
+      revalidatePath('/admin/welcome-offer');
+    } catch (revalErr) {
+      // Handled gracefully when invoked outside request lifecycle (e.g. seed scripts)
+    }
 
     return { success: true, settings: formatSettings(updated) };
   } catch (error) {
