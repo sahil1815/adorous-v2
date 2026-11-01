@@ -273,6 +273,13 @@ model ProductPageOrdering {
   createdAt   DateTime @default(now())
 }
 
+model WhatsAppSettings {
+  id                   String   @id @default("default")
+  verificationTemplate String   @default("Hello {customer_name}! Greetings from Adorous Fashion.\n\nWe have received your Cash on Delivery order: {order_id}\n\nItems: {items}\n\nTotal Amount: ৳{total_amount}\n\nDelivery Address: {delivery_address}\n\nPlease confirm if this address is correct so we can package and dispatch your order today.")
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
+}
+
 model OrderSequence {
   year    Int @id
   lastSeq Int

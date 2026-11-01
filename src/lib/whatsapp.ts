@@ -5,6 +5,7 @@
 
 import { formatPrice } from './formatPrice';
 import { prisma } from './db';
+import { renderWhatsAppVerificationMessage, DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE } from './whatsappTemplate';
 
 const META_GRAPH_VERSION = 'v21.0';
 
@@ -239,13 +240,20 @@ export async function sendWhatsAppOrderVerification(orderIdOrOrder: string | any
 
     const templateName = process.env.WHATSAPP_TEMPLATE_NAME || 'order_verification';
 
-    const adorousMessageText =
-      `Hello ${customerName}! Greetings from Adorous Fashion.\n\n` +
-      `We have received your Cash on Delivery order: ${orderRef}\n\n` +
-      `Items: ${itemsSummary}\n\n` +
-      `Total Amount: ৳${grandTotalFormatted}\n\n` +
-      `Delivery Address: ${fullAddress}\n\n` +
-      `Please confirm if this address is correct so we can package and dispatch your order today.`;
+    // Retrieve custom template from database if configured, or use fallback
+    let configuredTemplate = DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE;
+    try {
+      if (prisma.whatsAppSettings) {
+        const settings = await prisma.whatsAppSettings.findUnique({ where: { id: 'default' } });
+        if (settings?.verificationTemplate) {
+          configuredTemplate = settings.verificationTemplate;
+        }
+      }
+    } catch (e) {
+      console.warn('[WhatsApp] Could not load custom template from DB, using default:', e);
+    }
+
+    const adorousMessageText = renderWhatsAppVerificationMessage(configuredTemplate, order);
 
     // 1. Try sending the official Meta template
     let result = await sendMetaWhatsAppTemplate({

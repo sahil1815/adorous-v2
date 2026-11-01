@@ -24,7 +24,8 @@ import {
   ShoppingBag,
   ArrowUpDown,
   Sparkles,
-  BookOpen
+  BookOpen,
+  MessageCircle,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -306,6 +307,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Lookbook</span>
+          </Link>
+
+          <Link
+            href="/admin/whatsapp"
+            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
+              pathname === '/admin/whatsapp'
+                ? 'bg-gold text-ink font-bold shadow-sm'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
+            }`}
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>WhatsApp Format</span>
           </Link>
         </div>
       </header>

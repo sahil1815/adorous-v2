@@ -33,6 +33,7 @@ import {
   Ban,
   Copy,
   RefreshCw,
+  Edit3,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
 import { getDistrictDeliveryFee } from '@/data/districts';
@@ -40,6 +41,12 @@ import { getAllProducts } from '@/app/actions/productActions';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product, ProductCategory } from '@/types';
 import ChangeOrderedProductModal from './ChangeOrderedProductModal';
+import {
+  renderWhatsAppVerificationMessage,
+  buildWhatsAppChatUrl,
+  DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE,
+} from '@/lib/whatsappTemplate';
+import { getWhatsAppSettings } from '@/app/actions/whatsappSettingsActions';
 
 function fromDbProduct(p: any): Product {
   return {
@@ -228,6 +235,47 @@ function AdminOrdersDesk() {
   // Copied order delivery & COD info state
   const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
   const [sendingApiOrderId, setSendingApiOrderId] = useState<string | null>(null);
+
+  // Backend WhatsApp template state
+  const [whatsAppTemplate, setWhatsAppTemplate] = useState<string>(DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE);
+
+  // Per-order WhatsApp message customize modal state
+  const [customizingWhatsAppOrder, setCustomizingWhatsAppOrder] = useState<AdminOrder | null>(null);
+  const [customWhatsAppMessage, setCustomWhatsAppMessage] = useState<string>('');
+  const [copiedCustomMessage, setCopiedCustomMessage] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    getWhatsAppSettings()
+      .then((data) => {
+        if (isMounted && data?.verificationTemplate) {
+          setWhatsAppTemplate(data.verificationTemplate);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load WhatsApp template settings:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleOpenCustomMessageModal = (order: AdminOrder) => {
+    const rendered = renderWhatsAppVerificationMessage(whatsAppTemplate, order);
+    setCustomWhatsAppMessage(rendered);
+    setCustomizingWhatsAppOrder(order);
+    setCopiedCustomMessage(false);
+  };
+
+  const handleCopyCustomMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(customWhatsAppMessage);
+      setCopiedCustomMessage(true);
+      setTimeout(() => setCopiedCustomMessage(false), 2000);
+    } catch (err) {
+      console.warn('Copy failed', err);
+    }
+  };
 
   const handleSendWhatsAppApi = async (orderId: string) => {
     setSendingApiOrderId(orderId);
@@ -430,15 +478,8 @@ function AdminOrdersDesk() {
   };
 
   const generateWhatsAppVerificationLink = (order: AdminOrder) => {
-    let msg = `Hello ${order.customer.fullName}! Greetings from Adorous Fashion.\n\n`;
-    msg += `We have received your Cash on Delivery order: ${order.orderId}\n\n`;
-    msg += `Items: ${order.items.map((i) => `${i.product.name} (${i.selectedColor.name})`).join(', ')}\n\n`;
-    msg += `Total Amount: ৳${formatPrice(order.grandTotal)}\n\n`;
-    msg += `Delivery Address: ${order.customer.address}, ${order.customer.district}\n\n`;
-    msg += `Please confirm if this address is correct so we can package and dispatch your order today.`;
-
-    const cleanPhone = order.customer.phone.replace(/[^0-9]/g, '');
-    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    const msg = renderWhatsAppVerificationMessage(whatsAppTemplate, order);
+    return buildWhatsAppChatUrl(order.customer.phone, msg);
   };
 
   const handleCopyOrderInfo = async (order: AdminOrder) => {
@@ -661,6 +702,15 @@ function AdminOrdersDesk() {
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Reset Demo</span>
             </button>
+
+            <Link
+              href="/admin/whatsapp"
+              className="h-11 px-3.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 hover:border-emerald-500/40 rounded-xs text-xs text-paper/70 hover:text-emerald-400 transition-colors flex items-center space-x-1.5 shrink-0"
+              title="Configure WhatsApp Verification Message Format"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">WhatsApp Format</span>
+            </Link>
           </div>
         </div>
 
@@ -1416,15 +1466,26 @@ function AdminOrdersDesk() {
                           <span>WhatsApp Auto-Sent (30s)</span>
                         </div>
                       )}
-                      <a
-                        href={generateWhatsAppVerificationLink(order)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 text-white" />
-                        <span>Verify on WhatsApp</span>
-                      </a>
+                      <div className="flex items-center space-x-1">
+                        <a
+                          href={generateWhatsAppVerificationLink(order)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 text-white" />
+                          <span>Verify on WhatsApp</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCustomMessageModal(order)}
+                          className="py-2 px-2.5 bg-emerald-800/80 hover:bg-emerald-700 border border-emerald-600/40 text-emerald-200 hover:text-white rounded-xs text-[11px] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                          title="Edit message for this order before opening WhatsApp"
+                          aria-label="Edit message before opening WhatsApp"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleSendWhatsAppApi(order.orderId)}
@@ -1499,6 +1560,119 @@ function AdminOrdersDesk() {
           targetIndex={swappingProductState.index}
           availableProducts={availableProducts.length > 0 ? availableProducts : PRODUCTS}
         />
+      )}
+
+      {/* Customize WhatsApp Message Modal for Individual Order */}
+      {customizingWhatsAppOrder && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+        >
+          <div className="bg-[#141414] border border-white/10 rounded-xs shadow-2xl max-w-xl w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-white/10 pb-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                  </span>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-paper">
+                    Edit WhatsApp Message
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-xs bg-gold/15 text-gold border border-gold/30">
+                    {customizingWhatsAppOrder.orderId}
+                  </span>
+                </div>
+                <p className="text-[11px] text-paper/50 mt-1">
+                  Recipient: <strong className="text-paper">{customizingWhatsAppOrder.customer.fullName}</strong> ({customizingWhatsAppOrder.customer.phone})
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCustomizingWhatsAppOrder(null)}
+                className="text-paper/40 hover:text-paper p-1 transition-colors cursor-pointer"
+                aria-label="Close Modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] text-paper/50">
+                <span>Review or edit message text before sending:</span>
+                <span>{customWhatsAppMessage.length} characters</span>
+              </div>
+
+              <textarea
+                value={customWhatsAppMessage}
+                onChange={(e) => setCustomWhatsAppMessage(e.target.value)}
+                rows={10}
+                className="w-full bg-[#0A0A0A] border border-white/15 focus:border-emerald-500 rounded-xs p-3 text-xs text-paper font-sans leading-relaxed resize-y focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
+                placeholder="Type customized WhatsApp message..."
+              />
+
+              <div className="flex items-center justify-between text-[11px] text-paper/40 pt-1">
+                <span>💡 You can edit any line before opening WhatsApp.</span>
+                <Link
+                  href="/admin/whatsapp"
+                  target="_blank"
+                  className="text-gold-light hover:text-gold hover:underline flex items-center space-x-1"
+                >
+                  <span>Edit Default Format</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex items-center justify-between border-t border-white/10 pt-3 gap-2">
+              <button
+                type="button"
+                onClick={handleCopyCustomMessage}
+                className="px-3 py-2 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/80 rounded-xs text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+              >
+                {copiedCustomMessage ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-300">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Text</span>
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setCustomizingWhatsAppOrder(null)}
+                  className="px-3 py-2 bg-transparent hover:bg-white/5 text-paper/60 hover:text-paper rounded-xs text-xs transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <a
+                  href={buildWhatsAppChatUrl(
+                    customizingWhatsAppOrder.customer.phone,
+                    customWhatsAppMessage
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setCustomizingWhatsAppOrder(null)}
+                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-colors shadow-sm"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Open in WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
