@@ -10,7 +10,6 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import { useInventory } from '@/context/InventoryContext';
 import { formatPrice } from '@/lib/formatPrice';
-import { getProductPieceInfo } from '@/lib/productPieces';
 import { isProductOutOfStock, isColorwayOutOfStock, isProductLowStock } from '@/lib/productStock';
 
 interface ProductCardProps {
@@ -204,17 +203,6 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
             }`}
           />
         </button>
-
-        {/* Pieces Count or Quick Specs (including box / complimentary gift item) */}
-        {(() => {
-          const pieceInfo = getProductPieceInfo(product);
-          if (!pieceInfo.badgeLabel) return null;
-          return (
-            <div className="absolute bottom-2.5 right-2.5 bg-sand/80 backdrop-blur-sm text-ink text-[10px] tracking-wider uppercase px-2 py-0.5 font-medium transition-opacity duration-200 sm:group-hover:opacity-0">
-              {pieceInfo.badgeLabel}
-            </div>
-          );
-        })()}
 
         {/* Quick Add overlay button (desktop hover & mobile accessible) */}
         <div className="absolute inset-x-2 bottom-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto hidden sm:block">
