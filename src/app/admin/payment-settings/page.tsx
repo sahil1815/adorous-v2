@@ -28,9 +28,11 @@ import {
   getPaymentSettings,
   updatePaymentSettings,
   resetPaymentSettings,
-  PaymentSettingsData,
-  DEFAULT_PAYMENT_SETTINGS,
 } from '@/app/actions/paymentSettingsActions';
+import {
+  type PaymentSettingsData,
+  DEFAULT_PAYMENT_SETTINGS,
+} from '@/lib/paymentSettings';
 import { formatPrice } from '@/lib/formatPrice';
 
 export default function AdminPaymentSettingsPage() {

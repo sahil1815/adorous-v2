@@ -13,7 +13,8 @@ import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useNewVisitorOffer, getItemComparePrice } from '@/context/NewVisitorOfferContext';
 import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
-import { getPaymentSettings, PaymentSettingsData, DEFAULT_PAYMENT_SETTINGS } from '@/app/actions/paymentSettingsActions';
+import { getPaymentSettings } from '@/app/actions/paymentSettingsActions';
+import { type PaymentSettingsData, DEFAULT_PAYMENT_SETTINGS } from '@/lib/paymentSettings';
 import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import { trackBeginCheckout } from '@/lib/gtag';
@@ -92,7 +93,7 @@ export default function CheckoutPage() {
   const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
   const districtContainerRef = useRef<HTMLDivElement>(null);
   const [giftNote, setGiftNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('bkash');
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
 
   // Online Payment (bKash/Nagad) Settings & TrxID
@@ -221,10 +222,21 @@ export default function CheckoutPage() {
   const useNvo = isOfferActive && nvoDiscount > 0 && nvoPayable <= couponPayable;
 
   const isOnlineSelected = paymentMethod === 'bkash';
-  const onlineDiscount =
-    isOnlineSelected && paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0
+  const isOnlineEnabled = paymentSettings?.enabled ?? DEFAULT_PAYMENT_SETTINGS.enabled;
+  const configuredDiscount =
+    typeof paymentSettings?.onlineDiscountAmount === 'number'
       ? paymentSettings.onlineDiscountAmount
+      : DEFAULT_PAYMENT_SETTINGS.onlineDiscountAmount;
+  const onlineDiscount =
+    isOnlineSelected && isOnlineEnabled && configuredDiscount > 0
+      ? configuredDiscount
       : 0;
+
+  const bkashNumber = paymentSettings?.bkashNumber || DEFAULT_PAYMENT_SETTINGS.bkashNumber;
+  const bkashAccountType = paymentSettings?.bkashAccountType || DEFAULT_PAYMENT_SETTINGS.bkashAccountType;
+  const nagadNumber = paymentSettings?.nagadNumber || DEFAULT_PAYMENT_SETTINGS.nagadNumber;
+  const nagadAccountType = paymentSettings?.nagadAccountType || DEFAULT_PAYMENT_SETTINGS.nagadAccountType;
+  const paymentInstructions = paymentSettings?.instructions || DEFAULT_PAYMENT_SETTINGS.instructions;
 
   const checkoutSubtotal = baseSubtotal;
   const totalDiscount = useNvo
@@ -1007,9 +1019,10 @@ export default function CheckoutPage() {
                   <h2 className="font-medium text-sm text-ink">
                     Choose payment method
                   </h2>
-                  {paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0 && (
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-xs border border-emerald-300">
-                      Save ৳{formatPrice(paymentSettings.onlineDiscountAmount)} Online
+                  {isOnlineEnabled && configuredDiscount > 0 && (
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-300 shadow-2xs flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-emerald-700" />
+                      Save ৳{formatPrice(configuredDiscount)} Online
                     </span>
                   )}
                 </div>
@@ -1019,7 +1032,7 @@ export default function CheckoutPage() {
                   <div
                     className={`border rounded-xs transition-all ${
                       paymentMethod === 'bkash'
-                        ? 'border-gold bg-sand/20 shadow-xs'
+                        ? 'border-gold bg-[#C5A880]/10 shadow-xs'
                         : 'border-line hover:border-line/80'
                     }`}
                   >
@@ -1035,42 +1048,43 @@ export default function CheckoutPage() {
                           onChange={() => setPaymentMethod('bkash')}
                           className="accent-gold w-3.5 h-3.5 cursor-pointer"
                         />
-                        <span className="font-medium text-ink">Online Payment (bKash/Nagad)</span>
+                        <span className="font-semibold text-ink text-xs sm:text-sm">Online Payment (bKash/Nagad)</span>
                       </div>
-                      {paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0 && (
-                        <span className="text-[11px] font-bold text-emerald-700">
-                          -৳{formatPrice(paymentSettings.onlineDiscountAmount)} OFF
-                        </span>
+                      {isOnlineEnabled && configuredDiscount > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-xs">
+                            -৳{formatPrice(configuredDiscount)} OFF
+                          </span>
+                        </div>
                       )}
                     </label>
 
                     {/* Expandable MFS Payment Box */}
                     {paymentMethod === 'bkash' && (
-                      <div className="px-3.5 pb-4 pt-1 border-t border-line/60 space-y-3.5 animate-in fade-in duration-150">
+                      <div className="px-3.5 pb-4 pt-1 border-t border-line/60 space-y-3 animate-in fade-in duration-150">
                         <p className="text-[11px] text-text-muted leading-relaxed">
-                          {paymentSettings.instructions ||
-                            'Please Send Money to any of the numbers below, then enter your Transaction ID to complete your order.'}
+                          {paymentInstructions}
                         </p>
 
-                        {/* MFS Number Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {/* MFS Number Cards - Stacked for maximum clarity & luxury feel */}
+                        <div className="space-y-2">
                           {/* bKash Card */}
-                          <div className="p-2.5 bg-paper border border-line rounded-xs flex items-center justify-between">
+                          <div className="p-2.5 bg-paper border border-[#DDD6CB] rounded-xs flex items-center justify-between shadow-2xs">
                             <div>
                               <span className="text-[9px] font-bold uppercase tracking-wider text-pink-700 block">
-                                bKash · {paymentSettings.bkashAccountType}
+                                bKash · {bkashAccountType}
                               </span>
-                              <span className="font-mono font-bold text-ink text-xs">
-                                {paymentSettings.bkashNumber}
+                              <span className="font-mono font-bold text-ink text-xs sm:text-sm tracking-wide select-all block mt-0.5">
+                                {bkashNumber}
                               </span>
                             </div>
                             <button
                               type="button"
-                              onClick={() => handleCopyMfs(paymentSettings.bkashNumber)}
-                              className="px-2 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
+                              onClick={() => handleCopyMfs(bkashNumber)}
+                              className="px-2.5 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
                               title="Copy bKash Number"
                             >
-                              {copiedMfs === paymentSettings.bkashNumber ? (
+                              {copiedMfs === bkashNumber ? (
                                 <>
                                   <Check className="w-2.5 h-2.5 text-emerald-700" />
                                   <span className="text-emerald-700 font-semibold">Copied</span>
@@ -1085,22 +1099,22 @@ export default function CheckoutPage() {
                           </div>
 
                           {/* Nagad Card */}
-                          <div className="p-2.5 bg-paper border border-line rounded-xs flex items-center justify-between">
+                          <div className="p-2.5 bg-paper border border-[#DDD6CB] rounded-xs flex items-center justify-between shadow-2xs">
                             <div>
                               <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 block">
-                                Nagad · {paymentSettings.nagadAccountType}
+                                Nagad · {nagadAccountType}
                               </span>
-                              <span className="font-mono font-bold text-ink text-xs">
-                                {paymentSettings.nagadNumber}
+                              <span className="font-mono font-bold text-ink text-xs sm:text-sm tracking-wide select-all block mt-0.5">
+                                {nagadNumber}
                               </span>
                             </div>
                             <button
                               type="button"
-                              onClick={() => handleCopyMfs(paymentSettings.nagadNumber)}
-                              className="px-2 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
+                              onClick={() => handleCopyMfs(nagadNumber)}
+                              className="px-2.5 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
                               title="Copy Nagad Number"
                             >
-                              {copiedMfs === paymentSettings.nagadNumber ? (
+                              {copiedMfs === nagadNumber ? (
                                 <>
                                   <Check className="w-2.5 h-2.5 text-emerald-700" />
                                   <span className="text-emerald-700 font-semibold">Copied</span>
@@ -1116,7 +1130,7 @@ export default function CheckoutPage() {
                         </div>
 
                         {/* Transaction ID Input */}
-                        <div className="space-y-1.5 pt-1">
+                        <div className="space-y-1 pt-1">
                           <label className="text-[11px] font-semibold text-ink flex items-center justify-between">
                             <span>Transaction ID (TrxID) *</span>
                             <span className="text-[10px] text-text-muted font-normal">
@@ -1131,11 +1145,22 @@ export default function CheckoutPage() {
                               setErrorMsg(null);
                             }}
                             placeholder="e.g. BL92A8ZK9P or 9H7..."
-                            className="w-full px-3 py-2 bg-paper border border-gold/70 focus:border-gold rounded-xs text-ink font-mono font-semibold text-xs placeholder:text-text-muted/60 focus:outline-none shadow-xs"
+                            className="w-full px-3 py-2 bg-paper border border-gold/70 focus:border-gold rounded-xs text-ink font-mono font-bold text-xs placeholder:text-text-muted/60 placeholder:font-normal focus:outline-none shadow-xs"
                           />
                           <p className="text-[10px] text-text-muted leading-tight">
                             You are booking with <strong>0 COD</strong>. Our team will verify this Transaction ID after order placement.
                           </p>
+                        </div>
+
+                        {/* Doorstep Cash Collection Banner (0 COD) */}
+                        <div className="p-2.5 bg-emerald-50 border border-emerald-300/80 rounded-xs flex items-center justify-between text-xs mt-1">
+                          <div className="flex items-center gap-1.5 text-emerald-900 font-medium">
+                            <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                            <span>Doorstep Cash Collection:</span>
+                          </div>
+                          <span className="font-bold text-emerald-800 text-xs tracking-wide">
+                            ৳0 COD
+                          </span>
                         </div>
                       </div>
                     )}
@@ -1206,12 +1231,12 @@ export default function CheckoutPage() {
 
                   {/* Online Payment Discount */}
                   {onlineDiscount > 0 && (
-                    <div className="flex justify-between items-center text-emerald-700 font-medium">
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
+                    <div className="flex justify-between items-center text-emerald-800 bg-emerald-50/90 border border-emerald-200/80 px-2.5 py-1.5 rounded-xs font-semibold shadow-2xs">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                         <span>Online Payment Discount (bKash/Nagad)</span>
                       </span>
-                      <span className="tabular-nums">-৳{formatPrice(onlineDiscount)}</span>
+                      <span className="tabular-nums font-bold text-emerald-700">-৳{formatPrice(onlineDiscount)}</span>
                     </div>
                   )}
 
