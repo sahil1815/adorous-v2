@@ -64,6 +64,12 @@ export default function ChuriSizingModal({ isOpen, onClose }: ChuriSizingModalPr
               </thead>
               <tbody className="divide-y divide-line text-ink">
                 <tr>
+                  <td className="py-2.5 px-3 font-semibold text-gold-deep">2-2</td>
+                  <td className="py-2.5 px-3 tabular-nums">2.12" / 5.4 cm</td>
+                  <td className="py-2.5 px-3 tabular-nums">6.5" – 7.0"</td>
+                  <td className="py-2.5 px-3 text-text-muted">Extra Petite / Very Slender</td>
+                </tr>
+                <tr>
                   <td className="py-2.5 px-3 font-semibold text-gold-deep">2-4</td>
                   <td className="py-2.5 px-3 tabular-nums">2.25" / 5.7 cm</td>
                   <td className="py-2.5 px-3 tabular-nums">7.0" – 7.5"</td>
@@ -80,6 +86,12 @@ export default function ChuriSizingModal({ isOpen, onClose }: ChuriSizingModalPr
                   <td className="py-2.5 px-3 tabular-nums">2.50" / 6.4 cm</td>
                   <td className="py-2.5 px-3 tabular-nums">8.0" – 8.5"</td>
                   <td className="py-2.5 px-3 text-text-muted">Comfort / Wider Hand</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 px-3 font-semibold text-gold-deep">2-10</td>
+                  <td className="py-2.5 px-3 tabular-nums">2.62" / 6.7 cm</td>
+                  <td className="py-2.5 px-3 tabular-nums">8.5" – 9.0"</td>
+                  <td className="py-2.5 px-3 text-text-muted">Broad Hand / Relaxed Fit</td>
                 </tr>
               </tbody>
             </table>

@@ -8,6 +8,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { ProductCategory, Product, Colorway } from '@/types';
 import { createProductAction, getProductById } from '@/app/actions/productActions';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
+import BangleSizingEditor, { DEFAULT_BANGLE_SIZES } from '@/components/admin/BangleSizingEditor';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
@@ -208,6 +209,9 @@ function AddProductContent() {
         );
 
         setIncludeSizes(Boolean((prod as any).sizes && (prod as any).sizes.length > 0));
+        if (Array.isArray((prod as any).sizes) && (prod as any).sizes.length > 0) {
+          setCustomSizes((prod as any).sizes);
+        }
         setAllowMultipleColors((prod as any).allowMultipleColors !== undefined ? Boolean((prod as any).allowMultipleColors) : true);
         setAllowMultipleSizes(Boolean((prod as any).allowMultipleSizes));
         setHasCustomNote(Boolean((prod as any).hasCustomNote));
@@ -269,6 +273,7 @@ function AddProductContent() {
 
   // Sizing & Badges
   const [includeSizes, setIncludeSizes] = useState(true);
+  const [customSizes, setCustomSizes] = useState<string[]>(DEFAULT_BANGLE_SIZES);
   const [allowMultipleColors, setAllowMultipleColors] = useState(true);
   const [allowMultipleSizes, setAllowMultipleSizes] = useState(false);
   const [hasCustomNote, setHasCustomNote] = useState(true);
@@ -493,7 +498,7 @@ function AddProductContent() {
       piecesIncluded: piecesIncluded.length > 0 ? piecesIncluded : undefined,
       complimentaryItem: hasComplimentaryItem && complimentaryItemText.trim() ? complimentaryItemText.trim() : null,
       colorways,
-      sizes: category === 'churi' && includeSizes ? ['2-4 (57mm)', '2-6 (60mm)', '2-8 (64mm)'] : [],
+      sizes: category === 'churi' && includeSizes ? customSizes : [],
       allowMultipleColors: category === 'churi' ? allowMultipleColors : true,
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
@@ -961,49 +966,14 @@ function AddProductContent() {
                   </div>
 
                   {/* 2. Sizing & Multi-Size Toggle */}
-                  <div className={`p-4 rounded-xs border transition-all ${
-                    includeSizes
-                      ? 'bg-gold/10 border-gold/50 shadow-xs'
-                      : 'bg-[#141414] border-white/10'
-                  }`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="text-xs font-bold text-white block">2. Bangle Sizing</span>
-                        <span className="text-[11px] text-paper/60 leading-snug block mt-0.5">
-                          Enable sizes (2-4, 2-6, 2-8) and choose if multi-size is allowed
-                        </span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={includeSizes}
-                        onChange={(e) => setIncludeSizes(e.target.checked)}
-                        className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
-                      />
-                    </div>
-
-                    {includeSizes ? (
-                      <div className="mt-3 pt-3 border-t border-gold/20 space-y-2">
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={allowMultipleSizes}
-                            onChange={(e) => setAllowMultipleSizes(e.target.checked)}
-                            className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 h-3.5 w-3.5 cursor-pointer"
-                          />
-                          <span className="text-[11px] text-paper/90 font-medium">
-                            Allow selecting multiple sizes
-                          </span>
-                        </label>
-                        <div className="text-[10px] text-paper/60 font-mono">
-                          Available: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-3 text-[11px] text-paper/50">
-                        Sizing disabled (One standard size)
-                      </div>
-                    )}
-                  </div>
+                  <BangleSizingEditor
+                    includeSizes={includeSizes}
+                    onIncludeSizesChange={setIncludeSizes}
+                    allowMultipleSizes={allowMultipleSizes}
+                    onAllowMultipleSizesChange={setAllowMultipleSizes}
+                    sizes={customSizes}
+                    onSizesChange={setCustomSizes}
+                  />
 
                   {/* 3. Custom Note / Extra Field */}
                   <div className={`p-4 rounded-xs border transition-all ${

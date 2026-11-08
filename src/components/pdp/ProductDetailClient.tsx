@@ -1170,7 +1170,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {product.sizes.map((s) => {
                             const isSelected = isMultiSizeAllowed ? selectedSizes.includes(s) : selectedSize === s;
                             return (
@@ -1178,7 +1178,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                                 key={s}
                                 type="button"
                                 onClick={() => handleSizeSelect(s)}
-                                className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
+                                className={`flex-1 min-w-[70px] sm:min-w-[85px] py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
                                   isSelected
                                     ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold shadow-xs'
                                     : 'border-line bg-sand/30 text-ink hover:border-ink/60'
@@ -1279,7 +1279,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                             <Ruler className="w-3 h-3" /> Guide
                           </button>
                         </div>
-                        <div className="grid grid-cols-3 gap-1.5">
+                        <div className="flex flex-wrap gap-1.5">
                           {product.sizes.map((s) => {
                             const isSelected = isMultiSizeAllowed ? selectedSizes.includes(s) : selectedSize === s;
                             return (
@@ -1287,7 +1287,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                                 key={s}
                                 type="button"
                                 onClick={() => handleSizeSelect(s)}
-                                className={`py-1 px-2 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
+                                className={`flex-1 min-w-[65px] sm:min-w-[75px] py-1 px-2 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
                                   isSelected
                                     ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold'
                                     : 'border-line bg-sand/30 text-ink hover:border-ink/60'
