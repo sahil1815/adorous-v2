@@ -18,9 +18,8 @@ function sanitizeDbUrl(url: string): string {
 
 /**
  * Normalizes PostgreSQL connection string for Supabase / PgBouncer.
- * Always routes to port 5432 (IPv4 session pooler) with connection_limit=1
- * for serverless instances, preventing both port 6543 unreachable errors
- * and EMAXCONNSESSION (pool_size: 15) session ceiling.
+ * Sets connection_limit=1 & pool_timeout=30 for serverless instances,
+ * and sets pgbouncer=true on transaction pooler (port 6543).
  */
 function getDatasourceUrl(): string | undefined {
   const rawUrl = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
@@ -30,19 +29,14 @@ function getDatasourceUrl(): string | undefined {
     const cleanUrl = sanitizeDbUrl(rawUrl);
     const parsed = new URL(cleanUrl);
 
-    // Port 6543 on Supabase pooler is unreachable/rejected in this region;
-    // ensure we always route to the working IPv4 port 5432.
-    if (parsed.port === '6543') {
-      parsed.port = '5432';
-    }
-
     // Healthy connection limits for serverless instances (connection_limit=1 avoids session pool exhaustion)
     parsed.searchParams.set('connection_limit', '1');
     parsed.searchParams.set('pool_timeout', '30');
-    parsed.searchParams.set('connect_timeout', '15');
 
-    // On session mode port 5432, remove pgbouncer=true to allow native query handling
-    if (parsed.port === '5432') {
+    // On transaction pooler (port 6543), pgbouncer=true is required
+    if (parsed.port === '6543') {
+      parsed.searchParams.set('pgbouncer', 'true');
+    } else if (parsed.port === '5432') {
       parsed.searchParams.delete('pgbouncer');
     }
 
@@ -61,4 +55,3 @@ export const prisma =
 
 // Always store on globalThis so all Next.js server chunks/Server Actions share the singleton
 globalForPrisma.prisma = prisma;
-

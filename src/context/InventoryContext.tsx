@@ -338,6 +338,12 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProducts = async () => {
     try {
+      const res = await fetch('/api/products?includeHidden=true');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+        setDbProducts(data.products.map(fromDbProduct));
+        return;
+      }
       const serverProducts = await getAllProducts(true);
       if (serverProducts) {
         setDbProducts(serverProducts.map(fromDbProduct));

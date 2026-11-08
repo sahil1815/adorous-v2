@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import {
-  getAdminRegisteredUsersAction,
-  getAdminGuestCustomersAction,
-  getCustomersOverviewStatsAction,
+import type {
   AdminRegisteredCustomer,
   AdminGuestCustomer,
   CustomersOverviewStats,
@@ -58,14 +55,13 @@ export default function AdminCustomersPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [reg, guests, overview] = await Promise.all([
-        getAdminRegisteredUsersAction(),
-        getAdminGuestCustomersAction(),
-        getCustomersOverviewStatsAction(),
-      ]);
-      setRegisteredUsers(reg);
-      setGuestCustomers(guests);
-      setStats(overview);
+      const res = await fetch('/api/admin/customers');
+      const data = await res.json();
+      if (data.success) {
+        setRegisteredUsers(data.registered || []);
+        setGuestCustomers(data.guests || []);
+        setStats(data.stats || null);
+      }
     } catch (e) {
       console.error('Failed to load customers:', e);
     } finally {

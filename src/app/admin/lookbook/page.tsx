@@ -28,15 +28,6 @@ import {
   ImageIcon,
 } from 'lucide-react';
 import {
-  getLookbookLooks,
-  getLookbookSettings,
-  saveLookbookLook,
-  deleteLookbookLook,
-  reorderLookbookLooks,
-  updateLookbookSettings,
-} from '@/app/actions/lookbookActions';
-import { getAllProducts } from '@/app/actions/productActions';
-import {
   LookbookLook,
   LookbookSettingsData,
   DEFAULT_LOOKBOOK_SETTINGS,
@@ -145,15 +136,16 @@ export default function AdminLookbookPage() {
   const loadAll = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedLooks, fetchedSettings, rawProducts] = await Promise.all([
-        getLookbookLooks(true),
-        getLookbookSettings(),
-        getAllProducts(true),
-      ]);
-      setLooks(fetchedLooks);
-      setSettings(fetchedSettings);
-      setSettingsForm(fetchedSettings);
-      setProducts(rawProducts.map(fromDbProduct));
+      const res = await fetch('/api/admin/lookbook');
+      const data = await res.json();
+      if (data.success) {
+        setLooks(data.looks || []);
+        setSettings(data.settings);
+        setSettingsForm(data.settings);
+        setProducts((data.products || []).map(fromDbProduct));
+      } else {
+        throw new Error(data.error || 'Failed to load lookbook data');
+      }
     } catch (err) {
       console.error('Failed to load lookbook data:', err);
       showToast('Failed to load lookbook data. Please refresh.', true);
@@ -264,17 +256,25 @@ export default function AdminLookbookPage() {
 
     setIsSaving(true);
     try {
-      const res = await saveLookbookLook({
-        id: editingLookId || undefined,
-        numeral: formNumeral,
-        title: formTitle,
-        tagline: formTagline,
-        description: formDescription,
-        heroImage: formHeroImage,
-        palette: formPalette,
-        itemIds: formItemIds,
-        isActive: formIsActive,
+      const response = await fetch('/api/admin/lookbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'saveLook',
+          look: {
+            id: editingLookId || undefined,
+            numeral: formNumeral,
+            title: formTitle,
+            tagline: formTagline,
+            description: formDescription,
+            heroImage: formHeroImage,
+            palette: formPalette,
+            itemIds: formItemIds,
+            isActive: formIsActive,
+          },
+        }),
       });
+      const res = await response.json();
 
       if (res.success && res.look) {
         showToast(editingLookId ? 'Look updated successfully!' : 'New look created successfully!');
@@ -294,10 +294,18 @@ export default function AdminLookbookPage() {
   // Toggle Visibility
   const handleToggleActive = async (look: LookbookLook) => {
     try {
-      const res = await saveLookbookLook({
-        ...look,
-        isActive: !look.isActive,
+      const response = await fetch('/api/admin/lookbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'saveLook',
+          look: {
+            ...look,
+            isActive: !look.isActive,
+          },
+        }),
       });
+      const res = await response.json();
       if (res.success) {
         setLooks((prev) =>
           prev.map((l) => (l.id === look.id ? { ...l, isActive: !look.isActive } : l))
@@ -315,7 +323,12 @@ export default function AdminLookbookPage() {
   const handleDeleteLook = async (id: string) => {
     setIsSaving(true);
     try {
-      const res = await deleteLookbookLook(id);
+      const response = await fetch('/api/admin/lookbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteLook', id }),
+      });
+      const res = await response.json();
       if (res.success) {
         setLooks((prev) => prev.filter((l) => l.id !== id));
         setDeleteConfirmId(null);
@@ -342,7 +355,12 @@ export default function AdminLookbookPage() {
 
     try {
       const ids = copy.map((l) => l.id);
-      const res = await reorderLookbookLooks(ids);
+      const response = await fetch('/api/admin/lookbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reorderLooks', orderedIds: ids }),
+      });
+      const res = await response.json();
       if (res.success) {
         showToast('Looks order updated.');
       } else {
@@ -360,7 +378,12 @@ export default function AdminLookbookPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await updateLookbookSettings(settingsForm);
+      const response = await fetch('/api/admin/lookbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateSettings', settings: settingsForm }),
+      });
+      const res = await response.json();
       if (res.success && res.settings) {
         setSettings(res.settings);
         showToast('Editorial settings updated successfully!');

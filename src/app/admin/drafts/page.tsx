@@ -3,15 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  getDraftCheckoutsAction,
-  deleteDraftCheckoutAction,
-  getDraftSignInsAction,
-  deleteDraftSignInAction,
-  convertDraftCheckoutToOrderAction,
-  updateDraftCheckoutStatusAction,
-  updateDraftSignInStatusAction,
-} from '@/app/actions/draftActions';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { formatPrice } from '@/lib/formatPrice';
 import {
@@ -89,12 +80,12 @@ export default function AdminDraftsPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [checkouts, signins] = await Promise.all([
-        getDraftCheckoutsAction(),
-        getDraftSignInsAction(),
-      ]);
-      setDraftCheckouts(checkouts);
-      setDraftSignIns(signins);
+      const res = await fetch('/api/admin/drafts');
+      const data = await res.json();
+      if (data.success) {
+        setDraftCheckouts(data.checkouts || []);
+        setDraftSignIns(data.signins || []);
+      }
     } catch (e) {
       console.error('Failed to load drafts', e);
     } finally {
@@ -109,17 +100,35 @@ export default function AdminDraftsPage() {
   const handleDeleteCheckout = async (id: string) => {
     if (!confirm('Are you sure you want to remove this draft checkout?')) return;
     setIsDeleting(id);
-    await deleteDraftCheckoutAction(id);
-    setDraftCheckouts((prev) => prev.filter((d) => d.id !== id));
-    setIsDeleting(null);
+    try {
+      await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteCheckout', id }),
+      });
+      setDraftCheckouts((prev) => prev.filter((d) => d.id !== id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const handleDeleteSignIn = async (id: string) => {
     if (!confirm('Are you sure you want to remove this draft lead?')) return;
     setIsDeleting(id);
-    await deleteDraftSignInAction(id);
-    setDraftSignIns((prev) => prev.filter((d) => d.id !== id));
-    setIsDeleting(null);
+    try {
+      await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deleteSignIn', id }),
+      });
+      setDraftSignIns((prev) => prev.filter((d) => d.id !== id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const handleOpenConvertModal = (draft: any) => {
@@ -156,16 +165,15 @@ export default function AdminDraftsPage() {
     setIsConverting(true);
     setAlertMessage(null);
     try {
-      const res = await convertDraftCheckoutToOrderAction(convertingDraft.id, {
-        fullName: convertModalForm.fullName,
-        phone: convertModalForm.phone,
-        email: convertModalForm.email,
-        district: convertModalForm.district,
-        address: convertModalForm.address,
-        shippingFee: convertModalForm.shippingFee,
-        paymentMethod: convertModalForm.paymentMethod,
-        internalNotes: convertModalForm.internalNotes,
+      const response = await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'convertCheckout',
+          id: convertingDraft.id,
+        }),
       });
+      const res = await response.json();
 
       if (res.success && res.orderId) {
         setDraftCheckouts((prev) =>
@@ -214,7 +222,16 @@ export default function AdminDraftsPage() {
     setUpdatingStatusId(draftId);
     setAlertMessage(null);
     try {
-      const res = await updateDraftCheckoutStatusAction(draftId, targetStatus);
+      const response = await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateCheckoutStatus',
+          id: draftId,
+          status: targetStatus,
+        }),
+      });
+      const res = await response.json();
       if (res.success) {
         setDraftCheckouts((prev) =>
           prev.map((d) =>
@@ -252,7 +269,16 @@ export default function AdminDraftsPage() {
     setUpdatingStatusId(id);
     setAlertMessage(null);
     try {
-      const res = await updateDraftSignInStatusAction(id, targetStatus);
+      const response = await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateSignInStatus',
+          id,
+          status: targetStatus,
+        }),
+      });
+      const res = await response.json();
       if (res.success) {
         setDraftSignIns((prev) =>
           prev.map((d) => (d.id === id ? { ...d, status: targetStatus } : d))
