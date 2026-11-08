@@ -113,13 +113,6 @@ export async function updateWelcomeOfferSettings(
       },
     });
 
-    try {
-      revalidatePath('/admin/welcome-offer');
-      revalidatePath('/checkout');
-    } catch (revalErr) {
-      // Handled gracefully when invoked outside request lifecycle (e.g. seed scripts)
-    }
-
     return { success: true, settings: formatSettings(updated) };
   } catch (error) {
     console.error('[updateWelcomeOfferSettings] Error updating settings:', error);

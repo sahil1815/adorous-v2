@@ -8,7 +8,6 @@ import {
 } from '@/lib/paymentSettings';
 
 export type { PaymentSettingsData };
-export { DEFAULT_PAYMENT_SETTINGS };
 
 function formatSettings(item: any): PaymentSettingsData {
   return {
@@ -105,12 +104,6 @@ export async function updatePaymentSettings(
         instructions: data.instructions?.trim() || DEFAULT_PAYMENT_SETTINGS.instructions,
       },
     });
-
-    try {
-      revalidatePath('/checkout');
-      revalidatePath('/admin');
-      revalidatePath('/admin/payment-settings');
-    } catch {}
 
     return {
       success: true,

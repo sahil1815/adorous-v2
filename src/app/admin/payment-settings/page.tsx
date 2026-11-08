@@ -60,7 +60,26 @@ export default function AdminPaymentSettingsPage() {
     async function load() {
       try {
         setIsLoading(true);
-        const data = await getPaymentSettings();
+
+        // 1. Try REST API route first
+        let data: any = null;
+        try {
+          const apiRes = await fetch('/api/admin/payment-settings', { cache: 'no-store' });
+          if (apiRes.ok) {
+            const json = await apiRes.json();
+            if (json.success && json.settings) {
+              data = json.settings;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('[AdminPaymentSettings] API fetch failed, falling back:', apiErr);
+        }
+
+        // 2. Server Action fallback
+        if (!data) {
+          data = await getPaymentSettings();
+        }
+
         if (isMounted) {
           setSettings(data);
           setEnabled(data.enabled);
@@ -89,7 +108,7 @@ export default function AdminPaymentSettingsPage() {
     setFeedback(null);
 
     try {
-      const res = await updatePaymentSettings({
+      const payload = {
         enabled,
         bkashNumber: bkashNumber.trim(),
         bkashAccountType: bkashAccountType.trim(),
@@ -97,7 +116,27 @@ export default function AdminPaymentSettingsPage() {
         nagadAccountType: nagadAccountType.trim(),
         onlineDiscountAmount: Math.max(0, Number(onlineDiscountAmount) || 0),
         instructions: instructions.trim(),
-      });
+      };
+
+      // 1. Try REST API route first
+      let res: any = null;
+      try {
+        const apiRes = await fetch('/api/admin/payment-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (apiRes.ok) {
+          res = await apiRes.json();
+        }
+      } catch (apiErr) {
+        console.warn('[AdminPaymentSettings] API POST failed, trying server action:', apiErr);
+      }
+
+      // 2. Server Action fallback
+      if (!res) {
+        res = await updatePaymentSettings(payload);
+      }
 
       if (res.success && res.settings) {
         setSettings(res.settings);
@@ -131,7 +170,22 @@ export default function AdminPaymentSettingsPage() {
     setFeedback(null);
 
     try {
-      const res = await resetPaymentSettings();
+      let res: any = null;
+      try {
+        const apiRes = await fetch('/api/admin/payment-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reset' }),
+        });
+        if (apiRes.ok) {
+          res = await apiRes.json();
+        }
+      } catch {}
+
+      if (!res) {
+        res = await resetPaymentSettings();
+      }
+
       if (res.success && res.settings) {
         setSettings(res.settings);
         setEnabled(res.settings.enabled);

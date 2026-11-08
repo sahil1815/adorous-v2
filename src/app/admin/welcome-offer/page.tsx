@@ -60,7 +60,26 @@ export default function AdminWelcomeOfferPage() {
     async function load() {
       try {
         setIsLoading(true);
-        const data = await getWelcomeOfferSettings();
+
+        // 1. Try REST API endpoint first
+        let data: any = null;
+        try {
+          const apiRes = await fetch('/api/admin/welcome-offer', { cache: 'no-store' });
+          if (apiRes.ok) {
+            const json = await apiRes.json();
+            if (json.success && json.settings) {
+              data = json.settings;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('API /api/admin/welcome-offer GET failed, falling back:', apiErr);
+        }
+
+        // 2. Fallback to Server Action if API route didn't return data
+        if (!data) {
+          data = await getWelcomeOfferSettings();
+        }
+
         setSettings(data);
         setEnabled(data.enabled);
         setOfferMode(data.offerMode || 'EVERY_VISIT');
@@ -128,7 +147,7 @@ export default function AdminWelcomeOfferPage() {
 
     setIsSaving(true);
     try {
-      const res = await updateWelcomeOfferSettings({
+      const payload = {
         enabled,
         offerMode,
         discountPercent: Number(discountPercent),
@@ -142,7 +161,27 @@ export default function AdminWelcomeOfferPage() {
         skipButtonText: skipButtonText.trim(),
         timerLabel: timerLabel.trim(),
         badgeText: badgeText.trim(),
-      });
+      };
+
+      // 1. Try REST API endpoint first (avoids RSC Flight stream re-render errors)
+      let res: any = null;
+      try {
+        const apiRes = await fetch('/api/admin/welcome-offer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (apiRes.ok) {
+          res = await apiRes.json();
+        }
+      } catch (apiErr) {
+        console.warn('API /api/admin/welcome-offer POST failed, falling back:', apiErr);
+      }
+
+      // 2. Server Action fallback
+      if (!res) {
+        res = await updateWelcomeOfferSettings(payload);
+      }
 
       if (res.success && res.settings) {
         setSettings(res.settings);
