@@ -12,6 +12,8 @@ interface OrderFiltersBarProps {
   statusFilter: string;
   onStatusChange: (status: string) => void;
   onResetDemo: () => void;
+  onRefreshOrders?: () => void;
+  isRefreshing?: boolean;
   totalOrdersCount: number;
   pendingCount: number;
   verifiedCount: number;
@@ -31,6 +33,8 @@ export default function OrderFiltersBar({
   statusFilter,
   onStatusChange,
   onResetDemo,
+  onRefreshOrders,
+  isRefreshing,
   totalOrdersCount,
   pendingCount,
   verifiedCount,
@@ -96,12 +100,13 @@ export default function OrderFiltersBar({
 
           <button
             type="button"
-            onClick={onResetDemo}
-            className="h-11 px-3.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 rounded-xs text-xs text-paper/70 hover:text-gold transition-colors flex items-center space-x-1.5 shrink-0 cursor-pointer"
-            title="Reset sample orders for local QA testing"
+            onClick={onRefreshOrders || onResetDemo}
+            disabled={isRefreshing}
+            className="h-11 px-3.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 rounded-xs text-xs text-paper/70 hover:text-gold transition-colors flex items-center space-x-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+            title="Refresh and sync all orders from live database"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset Demo</span>
+            <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-gold' : ''}`} />
+            <span className="hidden sm:inline">{isRefreshing ? 'Syncing...' : 'Sync Database'}</span>
           </button>
 
           <Link

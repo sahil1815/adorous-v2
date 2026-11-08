@@ -79,6 +79,8 @@ export interface AdminOrder {
 
 interface OrdersContextType {
   orders: AdminOrder[];
+  isLoading: boolean;
+  refreshOrders: () => Promise<void>;
   addOrder: (
     order: Omit<AdminOrder, 'status' | 'courierPartner' | 'orderId'> &
       Partial<Pick<AdminOrder, 'status' | 'courierPartner' | 'orderId'>>
@@ -128,13 +130,35 @@ const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
 
 export function OrdersProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const refreshOrders = async () => {
+    setIsLoading(true);
     try {
+      // 1. Direct REST endpoint (fast, zero RSC serialization issues)
+      const res = await fetch('/api/admin/orders', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (apiErr) {
+      console.warn('[/api/admin/orders] Failed, trying server action fallback:', apiErr);
+    }
+
+    try {
+      // 2. Server Action fallback
       const dbOrders = await getOrders();
-      setOrders(dbOrders as AdminOrder[]);
+      if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+        setOrders(dbOrders as AdminOrder[]);
+      }
     } catch (e) {
       console.error('Failed to load orders', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -400,6 +424,8 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     <OrdersContext.Provider
       value={{
         orders,
+        isLoading,
+        refreshOrders,
         addOrder,
         updateOrderStatus,
         updateOrderPaymentStatus,

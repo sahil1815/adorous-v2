@@ -70,6 +70,8 @@ function fromDbProduct(p: any): Product {
 function AdminOrdersDesk() {
   const {
     orders,
+    isLoading,
+    refreshOrders,
     updateOrderStatus,
     updateOrderPaymentStatus,
     updateOrderCourier,
@@ -426,6 +428,8 @@ function AdminOrdersDesk() {
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
         onResetDemo={resetToSampleOrders}
+        onRefreshOrders={refreshOrders}
+        isRefreshing={isLoading}
         totalOrdersCount={totalOrders}
         pendingCount={pendingCount}
         verifiedCount={verifiedCount}
@@ -489,20 +493,34 @@ function AdminOrdersDesk() {
 
         {/* Order Cards */}
         {filteredOrders.length === 0 ? (
-          <div className="bg-[#171717] border border-white/10 p-12 text-center rounded-xs space-y-3">
-            <Package className="w-10 h-10 text-paper/30 mx-auto" />
+          <div className="bg-[#171717] border border-white/10 p-12 text-center rounded-xs space-y-4">
+            <Package className={`w-10 h-10 text-paper/30 mx-auto ${isLoading ? 'animate-bounce text-gold' : ''}`} />
             <h3 className="text-lg font-bold text-white tracking-tight">
-              No Orders Match Filter Criteria
+              {isLoading ? 'Loading Orders from Database...' : 'No Orders Match Filter Criteria'}
             </h3>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-              {statusFilter === 'returned_and_cancelled'
+              {isLoading
+                ? 'Connecting to your live Supabase database and synchronizing order records...'
+                : statusFilter === 'returned_and_cancelled'
                 ? 'No returned or cancelled orders found in system.'
                 : statusFilter === 'returned'
                 ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
                 : statusFilter === 'cancelled'
                 ? 'No cancelled orders found in this view.'
-                : 'Try adjusting your search query or reset status filters to view all orders.'}
+                : 'Try adjusting your search query, or click below to sync orders directly from your database.'}
             </p>
+            {!isLoading && orders.length === 0 && (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={refreshOrders}
+                  className="px-5 py-2.5 bg-gold hover:bg-gold-light text-ink font-bold text-xs rounded-xs inline-flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Sync Orders from Database</span>
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           filteredOrders.map((order) => (
