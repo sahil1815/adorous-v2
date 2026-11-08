@@ -165,7 +165,11 @@ export async function getOrders() {
     const dbOrders = await prisma.order.findMany({
       include: {
         customer: true,
-        items: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -202,8 +206,8 @@ export async function getOrders() {
         product: {
           id: item.productId || 'unknown',
           name: item.productName,
-          category: '',
-          slug: '',
+          category: item.product?.category || '',
+          slug: item.product?.slug || '',
           price: item.price,
           featuredImage: item.productImage,
         },
