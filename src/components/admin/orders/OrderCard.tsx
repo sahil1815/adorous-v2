@@ -417,6 +417,14 @@ export default function OrderCard({
                             </div>
                           )}
                         </div>
+
+                        {/* Customer Custom Note Highlight for Packaging & Logistics */}
+                        {(item as any).customNote && (
+                          <div className="mt-1.5 inline-flex items-start gap-1.5 px-2 py-0.5 rounded-xs bg-amber-950/50 border border-amber-500/50 text-amber-200 text-[11px]">
+                            <span className="font-bold text-amber-400 shrink-0">📝 Note:</span>
+                            <span className="italic">"{(item as any).customNote}"</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 

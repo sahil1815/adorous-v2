@@ -223,6 +223,7 @@ export default function CheckoutPage() {
         },
         selectedColor: i.selectedColor,
         selectedSize: i.selectedSize,
+        customNote: i.customNote,
         quantity: i.quantity,
       })),
       subtotal: checkoutSubtotal,
@@ -265,12 +266,12 @@ export default function CheckoutPage() {
 
   // Quantity and Item Removal Handlers
   const handleIncreaseQuantity = (item: CartItem) => {
-    updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize);
+    updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote);
   };
 
   const handleDecreaseQuantity = (item: CartItem) => {
     if (item.quantity > 1) {
-      updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize);
+      updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote);
     } else {
       // Trigger confirmation popup if reducing from 1 to 0
       setItemToDelete(item);
@@ -279,7 +280,7 @@ export default function CheckoutPage() {
 
   const handleConfirmDelete = () => {
     if (itemToDelete) {
-      removeItem(itemToDelete.product.id, itemToDelete.selectedColor.id, itemToDelete.selectedSize);
+      removeItem(itemToDelete.product.id, itemToDelete.selectedColor.id, itemToDelete.selectedSize, itemToDelete.customNote);
       setItemToDelete(null);
     }
   };
@@ -745,7 +746,7 @@ export default function CheckoutPage() {
                                     onChange={(e) => {
                                       const newC = item.product.colorways.find((c) => c.id === e.target.value);
                                       if (newC) {
-                                        updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize);
+                                        updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote);
                                       }
                                     }}
                                     className="bg-transparent text-[10px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
@@ -771,6 +772,14 @@ export default function CheckoutPage() {
 
                             {item.selectedSize && <span>· Size {item.selectedSize}</span>}
 
+                            {/* Customer Custom Note */}
+                            {item.customNote && (
+                              <div className="w-full text-[10px] text-ink/80 bg-sand/60 px-1.5 py-0.5 rounded border border-gold/30 flex items-start gap-1 my-0.5">
+                                <span className="font-semibold text-gold-deep shrink-0">Note:</span>
+                                <span className="italic line-clamp-1">"{item.customNote}"</span>
+                              </div>
+                            )}
+
                             {/* + Add another color */}
                             {(() => {
                               const otherColors = (item.product.colorways || []).filter(
@@ -781,7 +790,7 @@ export default function CheckoutPage() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    addItem(item.product, otherColors[0], item.selectedSize, 1);
+                                    addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote);
                                   }}
                                   className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline flex items-center gap-0.5 ml-1"
                                   title={`Add ${otherColors[0].name} to order`}

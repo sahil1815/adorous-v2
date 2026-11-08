@@ -251,6 +251,11 @@ export default function CustomerOrdersPage() {
                           {item.selectedSize && <span>• Size: {item.selectedSize}</span>}
                           <span>• Qty: {item.quantity}</span>
                         </div>
+                        {item.customNote && (
+                          <p className="text-[11px] text-ink/80 bg-sand/60 px-2 py-0.5 rounded border border-gold/30 mt-1 inline-block">
+                            <span className="font-semibold text-gold-deep">Note:</span> <span className="italic">"{item.customNote}"</span>
+                          </p>
+                        )}
                         <p className="text-xs font-semibold text-ink tabular-nums">
                           ৳{formatPrice(item.price)}
                         </p>

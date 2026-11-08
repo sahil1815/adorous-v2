@@ -10,15 +10,15 @@ interface CartContextType {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (product: Product, selectedColor: Colorway, selectedSize?: string, quantity?: number) => void;
+  addItem: (product: Product, selectedColor: Colorway, selectedSize?: string, quantity?: number, customNote?: string) => void;
   addMultipleItems: (
-    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number }[],
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string }[],
     openDrawer?: boolean
   ) => void;
-  addToCart: (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity?: number) => void;
-  removeItem: (productId: string, colorId: string, size?: string) => void;
-  updateQuantity: (productId: string, colorId: string, quantity: number, size?: string) => void;
-  updateItemColor: (productId: string, oldColorId: string, newColor: Colorway, size?: string) => void;
+  addToCart: (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity?: number, customNote?: string) => void;
+  removeItem: (productId: string, colorId: string, size?: string, customNote?: string) => void;
+  updateQuantity: (productId: string, colorId: string, quantity: number, size?: string, customNote?: string) => void;
+  updateItemColor: (productId: string, oldColorId: string, newColor: Colorway, size?: string, customNote?: string) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -60,16 +60,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
 
-  const addItem = (product: Product, selectedColor: Colorway, selectedSize?: string, quantity: number = 1) => {
+  const addItem = (product: Product, selectedColor: Colorway, selectedSize?: string, quantity: number = 1, customNote?: string) => {
     // Guard: block add if product is explicitly out of stock
     if (product.inStock === false || (product as any).stockQty === 0) return;
+
+    const trimmedNote = customNote?.trim() || undefined;
 
     setItems((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
           item.product.id === product.id &&
           item.selectedColor.id === selectedColor.id &&
-          item.selectedSize === selectedSize
+          item.selectedSize === selectedSize &&
+          (item.customNote || undefined) === trimmedNote
       );
 
       if (existingIndex > -1) {
@@ -77,7 +80,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updated[existingIndex].quantity += quantity;
         return updated;
       } else {
-        return [...prev, { product, selectedColor, selectedSize, quantity }];
+        return [...prev, { product, selectedColor, selectedSize, quantity, customNote: trimmedNote }];
       }
     });
 
@@ -101,7 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addMultipleItems = (
-    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number }[],
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string }[],
     openDrawer: boolean = true
   ) => {
     const validItems = itemsToAdd.filter(
@@ -116,11 +119,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => {
       const updated = [...prev];
       for (const entry of validItems) {
+        const trimmedNote = entry.customNote?.trim() || undefined;
         const existingIndex = updated.findIndex(
           (item) =>
             item.product.id === entry.product.id &&
             item.selectedColor.id === entry.selectedColor.id &&
-            item.selectedSize === entry.selectedSize
+            item.selectedSize === entry.selectedSize &&
+            (item.customNote || undefined) === trimmedNote
         );
 
         if (existingIndex > -1) {
@@ -134,6 +139,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             selectedColor: entry.selectedColor,
             selectedSize: entry.selectedSize,
             quantity: entry.quantity,
+            customNote: trimmedNote,
           });
         }
       }
@@ -145,28 +151,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addToCart = (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity: number = 1) => {
+  const addToCart = (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity: number = 1, customNote?: string) => {
     const color = selectedColor || product.colorways[0];
-    addItem(product, color, selectedSize, quantity);
+    addItem(product, color, selectedSize, quantity, customNote);
   };
 
-  const removeItem = (productId: string, colorId: string, size?: string) => {
+  const removeItem = (productId: string, colorId: string, size?: string, customNote?: string) => {
     setItems((prev) =>
       prev.filter(
         (item) =>
-          !(item.product.id === productId && item.selectedColor.id === colorId && item.selectedSize === size)
+          !(
+            item.product.id === productId &&
+            item.selectedColor.id === colorId &&
+            item.selectedSize === size &&
+            (customNote === undefined || (item.customNote || undefined) === (customNote?.trim() || undefined))
+          )
       )
     );
   };
 
-  const updateQuantity = (productId: string, colorId: string, quantity: number, size?: string) => {
+  const updateQuantity = (productId: string, colorId: string, quantity: number, size?: string, customNote?: string) => {
     if (quantity <= 0) {
-      removeItem(productId, colorId, size);
+      removeItem(productId, colorId, size, customNote);
       return;
     }
     setItems((prev) =>
       prev.map((item) => {
-        if (item.product.id === productId && item.selectedColor.id === colorId && item.selectedSize === size) {
+        if (
+          item.product.id === productId &&
+          item.selectedColor.id === colorId &&
+          item.selectedSize === size &&
+          (customNote === undefined || (item.customNote || undefined) === (customNote?.trim() || undefined))
+        ) {
           return { ...item, quantity };
         }
         return item;
@@ -178,25 +194,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     productId: string,
     oldColorId: string,
     newColor: Colorway,
-    size?: string
+    size?: string,
+    customNote?: string
   ) => {
     setItems((prev) => {
       const targetIndex = prev.findIndex(
         (item) =>
           item.product.id === productId &&
           item.selectedColor.id === oldColorId &&
-          item.selectedSize === size
+          item.selectedSize === size &&
+          (customNote === undefined || (item.customNote || undefined) === (customNote?.trim() || undefined))
       );
       if (targetIndex === -1) return prev;
 
       const itemToUpdate = prev[targetIndex];
-      // Check if item with target new colorway already exists in cart for this product & size
+      // Check if item with target new colorway already exists in cart for this product, size & customNote
       const existingNewColorIndex = prev.findIndex(
         (item, idx) =>
           idx !== targetIndex &&
           item.product.id === productId &&
           item.selectedColor.id === newColor.id &&
-          item.selectedSize === size
+          item.selectedSize === size &&
+          (item.customNote || undefined) === (itemToUpdate.customNote || undefined)
       );
 
       if (existingNewColorIndex > -1) {

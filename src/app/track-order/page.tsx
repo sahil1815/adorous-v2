@@ -54,6 +54,7 @@ interface TrackingData {
     image: string;
     color: string;
     size?: string;
+    customNote?: string;
     quantity: number;
     price: number;
   }>;
@@ -158,6 +159,7 @@ function TrackOrderContent() {
           image: i.product.featuredImage,
           color: i.selectedColor?.name || 'Standard',
           size: i.selectedSize,
+          customNote: (i as any).customNote,
           quantity: i.quantity,
           price: i.product.price,
         })),
@@ -228,6 +230,7 @@ function TrackOrderContent() {
           image: i.product.featuredImage,
           color: i.selectedColor?.name || 'Standard',
           size: i.selectedSize,
+          customNote: (i as any).customNote,
           quantity: i.quantity,
           price: i.product.price,
         })),
@@ -750,9 +753,14 @@ function TrackOrderContent() {
                           <h4 className="text-xs font-medium text-ink truncate block">
                             {item.name}
                           </h4>
-                          <span className="text-[10px] text-text-muted">
+                          <span className="text-[10px] text-text-muted block">
                             Colour: {item.color} {item.size && `· Size: ${item.size}`} · Qty: {item.quantity}
                           </span>
+                          {item.customNote && (
+                            <span className="text-[10px] text-ink/80 bg-sand/60 px-1.5 py-0.5 rounded border border-gold/30 mt-0.5 inline-block">
+                              <strong className="text-gold-deep">Note:</strong> <em>"{item.customNote}"</em>
+                            </span>
+                          )}
                         </div>
                       </div>
                       <span className="text-xs font-semibold text-ink tabular-nums shrink-0">

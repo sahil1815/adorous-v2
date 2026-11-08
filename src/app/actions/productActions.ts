@@ -55,6 +55,11 @@ function toDbShape(product: Product) {
     featuredImage: product.featuredImage,
     seoKeywords: Array.isArray(product.seoKeywords) ? product.seoKeywords.join(',') : (product.seoKeywords ?? ''),
     isHidden: product.isHidden ?? false,
+    sizes: (product as any).sizes || (product.category === 'churi' ? ['2-4 (57mm)', '2-6 (60mm)', '2-8 (64mm)'] : []),
+    allowMultipleColors: (product as any).allowMultipleColors !== undefined ? (product as any).allowMultipleColors : true,
+    allowMultipleSizes: Boolean((product as any).allowMultipleSizes),
+    hasCustomNote: Boolean((product as any).hasCustomNote),
+    customNotePrompt: (product as any).customNotePrompt ?? null,
     details: (product.details || []).map((text, idx) => ({ id: `detail-${idx}`, text, productId: product.id })),
     piecesIncluded: (product.piecesIncluded || []).map((text, idx) => ({ id: `piece-${idx}`, text, productId: product.id })),
     colorways: (product.colorways || []).map((cw) => ({
@@ -225,6 +230,11 @@ export async function createProductAction(productData: Product) {
         isBestseller: productData.isBestseller ?? false,
         featuredRank: productData.featuredRank ?? 1,
         isHidden: Boolean(productData.isHidden),
+        sizes: Array.isArray(productData.sizes) ? productData.sizes : [],
+        allowMultipleColors: productData.allowMultipleColors !== undefined ? productData.allowMultipleColors : true,
+        allowMultipleSizes: Boolean(productData.allowMultipleSizes),
+        hasCustomNote: Boolean(productData.hasCustomNote),
+        customNotePrompt: productData.customNotePrompt?.trim() || null,
         seoKeywords: Array.isArray(productData.seoKeywords) ? productData.seoKeywords.join(',') : (productData.seoKeywords || ''),
         details: { create: (productData.details || []).map((text) => ({ text })) },
         piecesIncluded: { create: (productData.piecesIncluded || []).map((text) => ({ text })) },
@@ -295,6 +305,11 @@ export async function updateProductAction(
     piecesIncluded: string[];
     colorways: { id: string; name: string; hex: string; inStock: boolean; image?: string }[];
     galleryImages: string[];
+    sizes?: string[];
+    allowMultipleColors?: boolean;
+    allowMultipleSizes?: boolean;
+    hasCustomNote?: boolean;
+    customNotePrompt?: string | null;
   }
 ) {
   try {
@@ -360,6 +375,11 @@ export async function updateProductAction(
           isBestseller: productData.isBestseller,
           isGiftPick: productData.isGiftPick,
           isHidden: productData.isHidden ?? false,
+          sizes: Array.isArray(productData.sizes) ? productData.sizes : [],
+          allowMultipleColors: productData.allowMultipleColors !== undefined ? productData.allowMultipleColors : true,
+          allowMultipleSizes: Boolean(productData.allowMultipleSizes),
+          hasCustomNote: Boolean(productData.hasCustomNote),
+          customNotePrompt: productData.customNotePrompt?.trim() || null,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
@@ -392,6 +412,11 @@ export async function updateProductAction(
           isBestseller: productData.isBestseller,
           isGiftPick: productData.isGiftPick,
           isHidden: productData.isHidden !== undefined ? productData.isHidden : undefined,
+          sizes: Array.isArray(productData.sizes) ? productData.sizes : [],
+          allowMultipleColors: productData.allowMultipleColors !== undefined ? productData.allowMultipleColors : true,
+          allowMultipleSizes: Boolean(productData.allowMultipleSizes),
+          hasCustomNote: Boolean(productData.hasCustomNote),
+          customNotePrompt: productData.customNotePrompt?.trim() || null,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },

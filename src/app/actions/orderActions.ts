@@ -130,7 +130,8 @@ export async function createOrder(orderData: any) {
               quantity: Number(item.quantity) || 1,
               colorName: item.selectedColor?.name || (typeof item.selectedColor === 'string' ? item.selectedColor : 'Standard'),
               colorHex: item.selectedColor?.hex || '#C5A880',
-              selectedSize: item.selectedSize || null,
+              selectedSize: item.selectedSize || (Array.isArray(item.selectedSizes) ? item.selectedSizes.join(', ') : null),
+              customNote: item.customNote?.trim() || null,
             };
           }),
         },
@@ -216,6 +217,7 @@ export async function getOrders() {
           hex: item.colorHex,
         },
         selectedSize: item.selectedSize || undefined,
+        customNote: item.customNote || undefined,
         quantity: item.quantity,
       })),
     }));
@@ -422,6 +424,7 @@ export async function updateOrderItemProduct({
   customUnitPrice,
   customGrandTotal,
   customShippingFee,
+  customNote,
 }: {
   orderId: string;
   itemId: string;
@@ -442,6 +445,7 @@ export async function updateOrderItemProduct({
   customUnitPrice?: number;
   customGrandTotal?: number;
   customShippingFee?: number;
+  customNote?: string;
 }) {
   try {
     if (newQuantity < 1) {
@@ -544,6 +548,7 @@ export async function updateOrderItemProduct({
           colorName: newColor.name,
           colorHex: newColor.hex,
           selectedSize: newSize || null,
+          customNote: customNote !== undefined ? (customNote || null) : targetItem.customNote,
         },
       });
 

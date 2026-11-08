@@ -77,6 +77,10 @@ function fromDbProduct(p: any): Product {
       image: cw.image || null,
     })),
     sizes: p.sizes,
+    allowMultipleColors: p.allowMultipleColors,
+    allowMultipleSizes: p.allowMultipleSizes,
+    hasCustomNote: p.hasCustomNote,
+    customNotePrompt: p.customNotePrompt,
     featuredImage: p.featuredImage,
     galleryImages: Array.isArray(p.galleryImages)
       ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))

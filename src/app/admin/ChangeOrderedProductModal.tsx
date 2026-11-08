@@ -256,6 +256,7 @@ export default function ChangeOrderedProductModal({
         customUnitPrice: unitPrice,
         customShippingFee: shippingFee,
         customGrandTotal: finalGrandTotal,
+        customNote: (targetItem as any).customNote || undefined,
       });
 
       if (!res.success) {
@@ -349,6 +350,11 @@ export default function ChangeOrderedProductModal({
                   <span>· Qty: {targetItem.quantity}</span>
                   <span className="text-gold font-bold">· ৳{formatPrice(targetItem.product.price)} each</span>
                 </div>
+                {(targetItem as any).customNote && (
+                  <div className="mt-1 text-[11px] text-amber-300 font-medium bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/30">
+                    <span className="font-bold text-amber-400">Note:</span> "{(targetItem as any).customNote}"
+                  </div>
+                )}
               </div>
             </div>
             <div className="text-right sm:border-l sm:border-white/10 sm:pl-4 shrink-0">

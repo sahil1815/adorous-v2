@@ -91,9 +91,38 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
   const [selectedColor, setSelectedColor] = useState<Colorway>(matchedInitialColor);
   const isOutOfStock = isProductOutOfStock(product);
-  const [selectedSize, setSelectedSize] = useState<string>(
-    product.sizes ? product.sizes[1] || product.sizes[0] : ''
-  );
+
+  const isChuri = product.category === 'churi';
+  const allowMultiColorSwitch = isChuri
+    ? (product.allowMultipleColors !== false && (product.colorways?.length || 0) > 1)
+    : ((product.colorways?.length || 0) > 1);
+  const isMultiSizeAllowed = isChuri && Boolean(product.allowMultipleSizes);
+  const showCustomNoteField = isChuri && Boolean(product.hasCustomNote);
+
+  const initialSize = product.sizes ? product.sizes[1] || product.sizes[0] || '' : '';
+  const [selectedSize, setSelectedSize] = useState<string>(initialSize);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(initialSize ? [initialSize] : []);
+  const [customNote, setCustomNote] = useState<string>('');
+
+  const handleSizeSelect = (s: string) => {
+    if (isMultiSizeAllowed) {
+      setSelectedSizes((prev) => {
+        let updated: string[];
+        if (prev.includes(s)) {
+          if (prev.length === 1) return prev; // Keep at least one size active
+          updated = prev.filter((x) => x !== s);
+        } else {
+          updated = [...prev, s];
+        }
+        setSelectedSize(updated.join(', '));
+        return updated;
+      });
+    } else {
+      setSelectedSize(s);
+      setSelectedSizes([s]);
+    }
+  };
+
   const [quantity, setQuantity] = useState<number>(1);
   const [purchaseMode, setPurchaseMode] = useState<'single' | 'mix'>('single');
   const [colorQuantities, setColorQuantities] = useState<Record<string, number>>(() => {
@@ -459,14 +488,20 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     });
   };
 
+  const effectiveSize = isMultiSizeAllowed
+    ? (selectedSizes.length > 0 ? selectedSizes.join(', ') : selectedSize)
+    : selectedSize;
+  const effectiveNote = showCustomNoteField ? (customNote.trim() || undefined) : undefined;
+
   const getMixItemsToAdd = () => {
     return (product.colorways || [])
       .filter((c) => (colorQuantities[c.id] || 0) > 0)
       .map((c) => ({
         product,
         selectedColor: c,
-        selectedSize: selectedSize || undefined,
+        selectedSize: effectiveSize || undefined,
         quantity: colorQuantities[c.id],
+        customNote: effectiveNote,
       }));
   };
 
@@ -480,7 +515,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       setMixErrorMessage(null);
       addMultipleItems(itemsToAdd, true);
     } else {
-      addItem(product, selectedColor, selectedSize || undefined, quantity);
+      addItem(product, selectedColor, effectiveSize || undefined, quantity, effectiveNote);
     }
     setIsAddedAnimation(true);
     setTimeout(() => setIsAddedAnimation(false), 2000);
@@ -500,7 +535,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       router.push('/checkout');
     } else {
       setIsOrdering(true);
-      addItem(product, selectedColor, selectedSize || undefined, quantity);
+      addItem(product, selectedColor, effectiveSize || undefined, quantity, effectiveNote);
       closeCart();
       router.push('/checkout');
     }
@@ -524,16 +559,22 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
       } else {
         message += `Selected Colour: ${selectedColor.name}\n`;
       }
-      if (selectedSize) {
-        message += `Size: ${selectedSize}\n`;
+      if (effectiveSize) {
+        message += `Size: ${effectiveSize}\n`;
+      }
+      if (effectiveNote) {
+        message += `Special Instructions: "${effectiveNote}"\n`;
       }
       const effectiveQty = totalMixItems > 0 ? totalMixItems : 1;
       message += `Total Pieces: ${effectiveQty}\n`;
       message += `Total: ৳${formatPrice(product.price * effectiveQty)}\n\n`;
     } else {
       message += `Selected Colour: ${selectedColor.name}\n`;
-      if (selectedSize) {
-        message += `Size: ${selectedSize}\n`;
+      if (effectiveSize) {
+        message += `Size: ${effectiveSize}\n`;
+      }
+      if (effectiveNote) {
+        message += `Special Instructions: "${effectiveNote}"\n`;
       }
       message += `Quantity: ${quantity}\n`;
       message += `Total: ৳${formatPrice(product.price * quantity)}\n\n`;
@@ -1037,7 +1078,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </div>
 
                   {/* Mode Toggle: Single vs Mix Colors */}
-                  {product.colorways && product.colorways.length > 1 && (
+                  {allowMultiColorSwitch && (
                     <div className="inline-flex p-0.5 bg-sand/70 rounded-full border border-line text-[11px]">
                       <button
                         type="button"
@@ -1114,11 +1155,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     </div>
 
                     {/* Sizing Selector (For Churi / Bangles) */}
-                    {product.sizes && (
+                    {product.sizes && product.sizes.length > 0 && (
                       <div className="mt-2.5 sm:mt-5 space-y-1.5 sm:space-y-2.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
-                            Hand Size:
+                            {isMultiSizeAllowed ? 'Hand Sizes (Select all needed):' : 'Hand Size:'}
                           </span>
                           <button
                             type="button"
@@ -1130,21 +1171,32 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                         </div>
 
                         <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
-                          {product.sizes.map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => setSelectedSize(s)}
-                              className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all ${
-                                selectedSize === s
-                                  ? 'border-ink bg-gold hover:bg-gold-deep text-ink'
-                                  : 'border-line bg-sand/30 text-ink hover:border-ink/60'
-                              }`}
-                            >
-                              {s}
-                            </button>
-                          ))}
+                          {product.sizes.map((s) => {
+                            const isSelected = isMultiSizeAllowed ? selectedSizes.includes(s) : selectedSize === s;
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => handleSizeSelect(s)}
+                                className={`py-1.5 px-2.5 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
+                                  isSelected
+                                    ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold shadow-xs'
+                                    : 'border-line bg-sand/30 text-ink hover:border-ink/60'
+                                }`}
+                              >
+                                {isMultiSizeAllowed && isSelected && <Check className="w-3 h-3 stroke-[2.5]" />}
+                                <span>{s}</span>
+                              </button>
+                            );
+                          })}
                         </div>
+
+                        {isMultiSizeAllowed && selectedSizes.length > 1 && (
+                          <div className="text-[11px] text-gold-deep font-medium flex items-center gap-1 pt-0.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                            <span>Selected Sizes: <strong>{selectedSizes.join(' & ')}</strong></span>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1177,7 +1229,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     </div>
 
                     {/* Helpful prompt when quantity > 1 */}
-                    {quantity > 1 && product.colorways && product.colorways.length > 1 && (
+                    {quantity > 1 && allowMultiColorSwitch && (
                       <div className="mt-2.5 p-2 sm:p-2.5 bg-sand/50 border border-gold/40 rounded-sm flex items-center justify-between gap-2 text-xs">
                         <span className="text-text-muted text-[11px] flex items-center gap-1.5">
                           <Sparkles className="w-3.5 h-3.5 text-gold-deep shrink-0" />
@@ -1213,11 +1265,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   /* MIX COLORS MODE VIEW */
                   <div className="space-y-3 pt-1">
                     {/* Sizing Selector in Mix Mode */}
-                    {product.sizes && (
+                    {product.sizes && product.sizes.length > 0 && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-medium text-ink uppercase tracking-wider text-[11px]">
-                            Hand Size (Applies to all):
+                            {isMultiSizeAllowed ? 'Hand Sizes (Select all needed):' : 'Hand Size (Applies to all):'}
                           </span>
                           <button
                             type="button"
@@ -1228,21 +1280,31 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                           </button>
                         </div>
                         <div className="grid grid-cols-3 gap-1.5">
-                          {product.sizes.map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => setSelectedSize(s)}
-                              className={`py-1 px-2 text-center border text-xs font-medium rounded-[2px] transition-all ${
-                                selectedSize === s
-                                  ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold'
-                                  : 'border-line bg-sand/30 text-ink hover:border-ink/60'
-                              }`}
-                            >
-                              {s}
-                            </button>
-                          ))}
+                          {product.sizes.map((s) => {
+                            const isSelected = isMultiSizeAllowed ? selectedSizes.includes(s) : selectedSize === s;
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => handleSizeSelect(s)}
+                                className={`py-1 px-2 text-center border text-xs font-medium rounded-[2px] transition-all flex items-center justify-center gap-1 ${
+                                  isSelected
+                                    ? 'border-ink bg-gold hover:bg-gold-deep text-ink font-semibold'
+                                    : 'border-line bg-sand/30 text-ink hover:border-ink/60'
+                                }`}
+                              >
+                                {isMultiSizeAllowed && isSelected && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
+                                <span>{s}</span>
+                              </button>
+                            );
+                          })}
                         </div>
+                        {isMultiSizeAllowed && selectedSizes.length > 1 && (
+                          <div className="text-[11px] text-gold-deep font-medium flex items-center gap-1 pt-0.5">
+                            <CheckCircle2 className="w-3 h-3 text-gold-deep shrink-0" />
+                            <span>Selected: <strong>{selectedSizes.join(' & ')}</strong></span>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1362,6 +1424,36 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </div>
                 )}
               </div>
+
+              {/* Extra Information / Custom Wrist Note (Only when product.hasCustomNote === true) */}
+              {showCustomNoteField && (
+                <div className="mt-3.5 p-3.5 sm:p-4 bg-sand/40 border border-gold/40 rounded-sm space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 font-semibold text-ink text-xs sm:text-sm">
+                      <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
+                      <span>Custom Instructions / Wrist Note</span>
+                    </div>
+                    <span className="text-[10px] text-text-muted uppercase tracking-wider font-mono">
+                      Optional
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-text-muted leading-tight">
+                    {product.customNotePrompt || 'Need a custom size (e.g. 2-5, 58mm wrist) or specific color mix? Enter your instructions below.'}
+                  </p>
+                  <div className="relative">
+                    <textarea
+                      value={customNote}
+                      onChange={(e) => setCustomNote(e.target.value.slice(0, 300))}
+                      placeholder={product.customNotePrompt || 'E.g., 2 bangles in 2-4 and 2 bangles in 2-6 for my sister, or 58mm wrist circumference...'}
+                      rows={2}
+                      className="w-full bg-paper border border-line rounded-[3px] p-2 text-xs text-ink placeholder-text-muted/60 focus:border-gold-deep focus:ring-1 focus:ring-gold-deep focus:outline-none transition-all resize-none"
+                    />
+                    <div className="text-right text-[10px] text-text-muted/70 font-mono mt-0.5">
+                      {customNote.length} / 300
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Low-stock warning */}
               {typeof (product as any).stockQty === 'number' && (product as any).stockQty > 0 && (product as any).stockQty <= 3 && (

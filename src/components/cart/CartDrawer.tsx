@@ -35,6 +35,9 @@ export default function CartDrawer() {
       if (item.selectedSize) {
         text += `   Size: ${item.selectedSize}\n`;
       }
+      if (item.customNote) {
+        text += `   Note: "${item.customNote}"\n`;
+      }
       text += `   Qty: ${item.quantity} × ৳${formatPrice(item.product.price)} = ৳${formatPrice(item.product.price * item.quantity)}\n\n`;
     });
     text += `Subtotal: ৳${formatPrice(subtotal)}\n`;
@@ -125,7 +128,7 @@ export default function CartDrawer() {
             </div>
           ) : (
             items.map((item) => (
-              <div key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize}`} className="py-4 first:pt-0 last:pb-0 flex space-x-4">
+              <div key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize || ''}-${item.customNote || ''}`} className="py-4 first:pt-0 last:pb-0 flex space-x-4">
                 {/* Thumbnail */}
                 <div className="relative w-20 h-24 bg-stone shrink-0 border border-line overflow-hidden">
                   {(() => {
@@ -155,7 +158,7 @@ export default function CartDrawer() {
                         {item.product.name}
                       </h5>
                       <button
-                        onClick={() => removeItem(item.product.id, item.selectedColor.id, item.selectedSize)}
+                        onClick={() => removeItem(item.product.id, item.selectedColor.id, item.selectedSize, item.customNote)}
                         className="text-text-muted hover:text-danger p-1 transition-colors"
                         title="Remove item"
                       >
@@ -181,7 +184,7 @@ export default function CartDrawer() {
                               onChange={(e) => {
                                 const newC = item.product.colorways.find((c) => c.id === e.target.value);
                                 if (newC) {
-                                  updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize);
+                                  updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote);
                                 }
                               }}
                               className="bg-transparent text-[11px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
@@ -222,7 +225,7 @@ export default function CartDrawer() {
                           <button
                             type="button"
                             onClick={() => {
-                              addItem(item.product, otherColors[0], item.selectedSize, 1);
+                              addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote);
                             }}
                             className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline ml-auto flex items-center gap-0.5"
                             title={`Add ${otherColors[0].name} to bag`}
@@ -232,13 +235,21 @@ export default function CartDrawer() {
                         );
                       })()}
                     </div>
+
+                    {/* Customer Custom Note / Special Instructions */}
+                    {item.customNote && (
+                      <div className="mt-1.5 text-[11px] text-ink/80 bg-sand/60 px-2 py-1 rounded border border-gold/30 flex items-start gap-1">
+                        <span className="font-semibold text-gold-deep shrink-0">Note:</span>
+                        <span className="italic line-clamp-2">"{item.customNote}"</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Quantity & Price */}
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center border border-line rounded-[2px] bg-sand/40">
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize)}
+                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote)}
                         className="p-1 text-ink hover:bg-sand transition-colors"
                         aria-label="Decrease quantity"
                       >
@@ -248,7 +259,7 @@ export default function CartDrawer() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize)}
+                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote)}
                         className="p-1 text-ink hover:bg-sand transition-colors"
                         aria-label="Increase quantity"
                       >

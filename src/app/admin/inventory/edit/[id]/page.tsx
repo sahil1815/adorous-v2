@@ -88,6 +88,10 @@ export default function EditProductPage() {
   const [inStock, setInStock] = useState(true);
   const [isHidden, setIsHidden] = useState(false);
   const [includeSizes, setIncludeSizes] = useState(false);
+  const [allowMultipleColors, setAllowMultipleColors] = useState(true);
+  const [allowMultipleSizes, setAllowMultipleSizes] = useState(false);
+  const [hasCustomNote, setHasCustomNote] = useState(false);
+  const [customNotePrompt, setCustomNotePrompt] = useState('Custom wrist measurement (mm), size breakdown, or special instructions...');
 
   // Stock management
   const [stockMode, setStockMode] = useState<'unlimited' | 'tracked'>('unlimited');
@@ -157,6 +161,14 @@ export default function EditProductPage() {
       setIsGiftPick(product.isGiftPick);
       setInStock(product.inStock);
       setIsHidden(Boolean(product.isHidden));
+      const hasSizes = Boolean(product.sizes && product.sizes.length > 0);
+      setIncludeSizes(product.category === 'churi' ? (hasSizes || product.sizes === undefined) : hasSizes);
+      setAllowMultipleColors(product.allowMultipleColors !== undefined ? Boolean(product.allowMultipleColors) : true);
+      setAllowMultipleSizes(Boolean(product.allowMultipleSizes));
+      setHasCustomNote(Boolean(product.hasCustomNote));
+      if (product.customNotePrompt) {
+        setCustomNotePrompt(product.customNotePrompt);
+      }
 
       if (product.stockQty === null || product.stockQty === undefined) {
         setStockMode('unlimited');
@@ -369,6 +381,11 @@ export default function EditProductPage() {
       isGiftPick,
       inStock,
       isHidden,
+      sizes: category === 'churi' && includeSizes ? ['2-4 (57mm)', '2-6 (60mm)', '2-8 (64mm)'] : [],
+      allowMultipleColors: category === 'churi' ? allowMultipleColors : true,
+      allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
+      hasCustomNote: category === 'churi' ? hasCustomNote : false,
+      customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
       details,
       piecesIncluded,
@@ -415,6 +432,11 @@ export default function EditProductPage() {
       isGiftPick,
       inStock,
       isHidden,
+      sizes: category === 'churi' && includeSizes ? ['2-4 (57mm)', '2-6 (60mm)', '2-8 (64mm)'] : [],
+      allowMultipleColors: category === 'churi' ? allowMultipleColors : true,
+      allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
+      hasCustomNote: category === 'churi' ? hasCustomNote : false,
+      customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
       featuredRank: 1,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
     });
@@ -826,11 +848,136 @@ export default function EditProductPage() {
               </label>
             ))}
             {category === 'churi' && (
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="checkbox" checked={includeSizes} onChange={(e) => setIncludeSizes(e.target.checked)}
-                  className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20" />
-                <span className="text-paper/80 font-medium">Enable Bangle Sizes</span>
-              </label>
+              <div className="col-span-full mt-4 bg-[#181613] border-2 border-gold/40 rounded-xs p-5 sm:p-6 space-y-5 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 px-3 py-1 bg-gold/20 border-b border-l border-gold/40 text-[11px] font-mono text-gold uppercase tracking-wider font-semibold">
+                  Churi Exclusive Suite
+                </div>
+                
+                <div className="flex items-center space-x-2.5 border-b border-gold/20 pb-3">
+                  <Sparkles className="w-5 h-5 text-gold shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-bold text-white tracking-wide">
+                      Churi Ordering & Customization Suite
+                    </h3>
+                    <p className="text-[12px] text-paper/60">
+                      Configure multi-color, multi-size, and custom wrist note options for this bangles collection.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* 1. Multi-Color Toggle */}
+                  <div className={`p-4 rounded-xs border transition-all ${
+                    allowMultipleColors
+                      ? 'bg-gold/10 border-gold/50 shadow-xs'
+                      : 'bg-[#141414] border-white/10'
+                  }`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-bold text-white block">1. Multiple Colors</span>
+                        <span className="text-[11px] text-paper/60 leading-snug block mt-0.5">
+                          Allow customers to select & mix multiple colors while ordering
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={allowMultipleColors}
+                        onChange={(e) => setAllowMultipleColors(e.target.checked)}
+                        className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
+                      />
+                    </div>
+                    <div className="mt-3 flex items-center gap-1.5 text-[11px]">
+                      <span className={`px-2 py-0.5 rounded-[2px] font-medium ${
+                        allowMultipleColors ? 'bg-gold/20 text-gold border border-gold/40' : 'bg-white/10 text-paper/60'
+                      }`}>
+                        {allowMultipleColors ? '✓ Multi-Color Allowed' : '✗ Single Color Only'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 2. Sizing & Multi-Size Toggle */}
+                  <div className={`p-4 rounded-xs border transition-all ${
+                    includeSizes
+                      ? 'bg-gold/10 border-gold/50 shadow-xs'
+                      : 'bg-[#141414] border-white/10'
+                  }`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-bold text-white block">2. Bangle Sizing</span>
+                        <span className="text-[11px] text-paper/60 leading-snug block mt-0.5">
+                          Enable sizes (2-4, 2-6, 2-8) and choose if multi-size is allowed
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={includeSizes}
+                        onChange={(e) => setIncludeSizes(e.target.checked)}
+                        className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
+                      />
+                    </div>
+
+                    {includeSizes ? (
+                      <div className="mt-3 pt-3 border-t border-gold/20 space-y-2">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={allowMultipleSizes}
+                            onChange={(e) => setAllowMultipleSizes(e.target.checked)}
+                            className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 h-3.5 w-3.5 cursor-pointer"
+                          />
+                          <span className="text-[11px] text-paper/90 font-medium">
+                            Allow selecting multiple sizes
+                          </span>
+                        </label>
+                        <div className="text-[10px] text-paper/60 font-mono">
+                          Available: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-3 text-[11px] text-paper/50">
+                        Sizing disabled (One standard size)
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Custom Note / Extra Field */}
+                  <div className={`p-4 rounded-xs border transition-all ${
+                    hasCustomNote
+                      ? 'bg-gold/10 border-gold/50 shadow-xs'
+                      : 'bg-[#141414] border-white/10'
+                  }`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-bold text-white block">3. Extra Info Field</span>
+                        <span className="text-[11px] text-paper/60 leading-snug block mt-0.5">
+                          Show custom note / wrist size text box for customer instructions
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={hasCustomNote}
+                        onChange={(e) => setHasCustomNote(e.target.checked)}
+                        className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
+                      />
+                    </div>
+
+                    {hasCustomNote && (
+                      <div className="mt-3 pt-3 border-t border-gold/20 space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold block">
+                          Field Placeholder / Note Prompt:
+                        </label>
+                        <input
+                          type="text"
+                          value={customNotePrompt}
+                          onChange={(e) => setCustomNotePrompt(e.target.value)}
+                          placeholder="E.g. Custom wrist measurement (mm), size breakdown..."
+                          className="w-full bg-[#1C1C1C] border border-white/20 rounded-xs px-2.5 py-1 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

@@ -31,6 +31,11 @@ model Product {
   featuredRank   Int?
   seoKeywords    String            // Store as comma-separated string
   isHidden       Boolean           @default(false)
+  sizes          String[]          @default([])
+  allowMultipleColors Boolean      @default(true)
+  allowMultipleSizes  Boolean      @default(false)
+  hasCustomNote       Boolean      @default(false)
+  customNotePrompt    String?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -151,6 +156,7 @@ model OrderItem {
   colorName      String
   colorHex       String
   selectedSize   String?
+  customNote     String?
 
   order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)

@@ -26,6 +26,10 @@ export interface Product {
   complimentaryItem?: string | null;
   colorways: Colorway[];
   sizes?: string[]; // Sizing for churi (e.g. 2-4, 2-6, 2-8)
+  allowMultipleColors?: boolean; // For churi: allow selecting multiple colors in one order
+  allowMultipleSizes?: boolean; // For churi: allow selecting multiple sizes in one order
+  hasCustomNote?: boolean; // For churi: allow extra field for customer custom notes / wrist sizing
+  customNotePrompt?: string | null; // For churi: custom placeholder or label for extra note field
   featuredImage: string;
   galleryImages: string[];
   isNewDrop?: boolean;
@@ -43,6 +47,8 @@ export interface CartItem {
   product: Product;
   selectedColor: Colorway;
   selectedSize?: string;
+  selectedSizes?: string[]; // Multiple sizes when enabled
+  customNote?: string; // Extra information / customer note (e.g. wrist circumference, customization)
   quantity: number;
 }
 

@@ -48,6 +48,7 @@ interface OrderData {
       hex: string;
     };
     selectedSize?: string;
+    customNote?: string;
     quantity: number;
   }>;
   subtotal: number;
@@ -247,6 +248,12 @@ export default function OrderSuccessPage() {
                           {item.selectedSize && <span>· Size {item.selectedSize}</span>}
                           <span>· Qty {item.quantity}</span>
                         </div>
+                        {item.customNote && (
+                          <div className="text-[10px] text-ink/80 bg-sand/60 px-1.5 py-0.5 rounded border border-gold/30 mt-1 flex items-start gap-1">
+                            <span className="font-semibold text-gold-deep shrink-0">Note:</span>
+                            <span className="italic line-clamp-1">"{item.customNote}"</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
