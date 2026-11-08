@@ -4,6 +4,18 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function sanitizeDbUrl(url: string): string {
+  // Fix unencoded '@' characters inside the password part of the URL
+  // e.g., postgresql://user:pass@word@host:port/db -> postgresql://user:pass%40word@host:port/db
+  const match = url.match(/^(postgres(?:ql)?:\/\/[^:]+:)(.*)@([^@]+)$/);
+  if (match) {
+    const [, prefix, rawPassword, hostAndRest] = match;
+    const encodedPassword = rawPassword.replace(/@/g, '%40');
+    return `${prefix}${encodedPassword}@${hostAndRest}`;
+  }
+  return url;
+}
+
 /**
  * Normalizes PostgreSQL connection string for Supabase / PgBouncer.
  * Always routes to port 5432 (IPv4 session pooler) with connection_limit=1
@@ -11,11 +23,12 @@ const globalForPrisma = globalThis as unknown as {
  * and EMAXCONNSESSION (pool_size: 15) session ceiling.
  */
 function getDatasourceUrl(): string | undefined {
-  const rawUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED;
+  const rawUrl = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
   if (!rawUrl) return undefined;
 
   try {
-    const parsed = new URL(rawUrl);
+    const cleanUrl = sanitizeDbUrl(rawUrl);
+    const parsed = new URL(cleanUrl);
 
     // Port 6543 on Supabase pooler is unreachable/rejected in this region;
     // ensure we always route to the working IPv4 port 5432.
@@ -35,7 +48,7 @@ function getDatasourceUrl(): string | undefined {
 
     return parsed.toString();
   } catch {
-    return rawUrl;
+    return sanitizeDbUrl(rawUrl);
   }
 }
 
