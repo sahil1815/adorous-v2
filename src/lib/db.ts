@@ -6,46 +6,34 @@ const globalForPrisma = globalThis as unknown as {
 
 /**
  * Normalizes PostgreSQL connection string for Supabase / PgBouncer.
- * If connecting to Supabase pooler (pooler.supabase.com or port 6543),
- * Prisma MUST have `pgbouncer=true` to disable named prepared statements.
- * Otherwise, PostgresError 42P05 ("prepared statement 'sX' already exists")
- * will occur when transactions or pooled connections are reused.
+ * Always routes to port 5432 (IPv4 session pooler) with connection_limit=1
+ * for serverless instances, preventing both port 6543 unreachable errors
+ * and EMAXCONNSESSION (pool_size: 15) session ceiling.
  */
 function getDatasourceUrl(): string | undefined {
-  // In production (Vercel serverless), prioritize DATABASE_URL_POOLED (port 6543 transaction pooler)
-  // to avoid exhausting the 15-client session mode pool (EMAXCONNSESSION).
-  // In local development where port 6543 might be filtered by local ISP, prioritize DATABASE_URL.
-  const isProd = Boolean(process.env.VERCEL) || process.env.NODE_ENV === 'production';
-  const rawUrl = isProd
-    ? (process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL)
-    : (process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED);
-
+  const rawUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED;
   if (!rawUrl) return undefined;
 
   try {
     const parsed = new URL(rawUrl);
-    const isPooler =
-      parsed.hostname.includes('pooler.supabase.com') ||
-      parsed.hostname.includes('pooler') ||
-      parsed.port === '6543' ||
-      rawUrl.includes('pgbouncer=true');
 
-    if (isPooler && !parsed.searchParams.has('pgbouncer')) {
-      parsed.searchParams.set('pgbouncer', 'true');
+    // Port 6543 on Supabase pooler is unreachable/rejected in this region;
+    // ensure we always route to the working IPv4 port 5432.
+    if (parsed.port === '6543') {
+      parsed.port = '5432';
     }
 
-    if (!parsed.searchParams.has('connection_limit')) {
-      parsed.searchParams.set('connection_limit', isProd ? '10' : '3');
-    }
-    if (!parsed.searchParams.has('pool_timeout')) {
-      parsed.searchParams.set('pool_timeout', '20');
+    // Limit serverless functions to 1 connection per instance to stay well within Supabase's pool_size
+    parsed.searchParams.set('connection_limit', '1');
+    parsed.searchParams.set('pool_timeout', '10');
+
+    // On session mode port 5432, remove pgbouncer=true to allow native query handling
+    if (parsed.port === '5432') {
+      parsed.searchParams.delete('pgbouncer');
     }
 
     return parsed.toString();
   } catch {
-    if (rawUrl.includes('pooler.supabase.com') && !rawUrl.includes('pgbouncer=true')) {
-      return rawUrl.includes('?') ? `${rawUrl}&pgbouncer=true` : `${rawUrl}?pgbouncer=true`;
-    }
     return rawUrl;
   }
 }

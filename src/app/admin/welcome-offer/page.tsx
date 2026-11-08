@@ -151,9 +151,9 @@ export default function AdminWelcomeOfferPage() {
       } else {
         setErrorMessage(res.error || 'Failed to save settings.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setErrorMessage('An unexpected error occurred while saving.');
+      setErrorMessage(err?.message || 'An unexpected error occurred while saving.');
     } finally {
       setIsSaving(false);
     }
