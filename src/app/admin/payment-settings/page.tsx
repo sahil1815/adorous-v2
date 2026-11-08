@@ -70,10 +70,7 @@ export default function AdminPaymentSettingsPage() {
           setInstructions(data.instructions);
         }
       } catch (err: any) {
-        console.error('Failed to load payment settings:', err);
-        if (isMounted) {
-          setFeedback({ type: 'error', message: 'Failed to load live settings from database.' });
-        }
+        console.warn('[AdminPaymentSettings] Using fallback defaults:', err);
       } finally {
         if (isMounted) setIsLoading(false);
       }

@@ -12,23 +12,30 @@ const globalForPrisma = globalThis as unknown as {
  * will occur when transactions or pooled connections are reused.
  */
 function getDatasourceUrl(): string | undefined {
-  const rawUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED;
+  // In production (Vercel serverless), prioritize DATABASE_URL_POOLED (port 6543 transaction pooler)
+  // to avoid exhausting the 15-client session mode pool (EMAXCONNSESSION).
+  // In local development where port 6543 might be filtered by local ISP, prioritize DATABASE_URL.
+  const isProd = Boolean(process.env.VERCEL) || process.env.NODE_ENV === 'production';
+  const rawUrl = isProd
+    ? (process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL)
+    : (process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED);
+
   if (!rawUrl) return undefined;
 
   try {
     const parsed = new URL(rawUrl);
-    const isTransactionPooler = parsed.port === '6543' || rawUrl.includes('6543');
+    const isPooler =
+      parsed.hostname.includes('pooler.supabase.com') ||
+      parsed.hostname.includes('pooler') ||
+      parsed.port === '6543' ||
+      rawUrl.includes('pgbouncer=true');
 
-    if (isTransactionPooler) {
-      if (!parsed.searchParams.has('pgbouncer')) {
-        parsed.searchParams.set('pgbouncer', 'true');
-      }
-    } else {
-      parsed.searchParams.delete('pgbouncer');
+    if (isPooler && !parsed.searchParams.has('pgbouncer')) {
+      parsed.searchParams.set('pgbouncer', 'true');
     }
 
     if (!parsed.searchParams.has('connection_limit')) {
-      parsed.searchParams.set('connection_limit', '5');
+      parsed.searchParams.set('connection_limit', isProd ? '10' : '3');
     }
     if (!parsed.searchParams.has('pool_timeout')) {
       parsed.searchParams.set('pool_timeout', '20');
@@ -36,6 +43,9 @@ function getDatasourceUrl(): string | undefined {
 
     return parsed.toString();
   } catch {
+    if (rawUrl.includes('pooler.supabase.com') && !rawUrl.includes('pgbouncer=true')) {
+      return rawUrl.includes('?') ? `${rawUrl}&pgbouncer=true` : `${rawUrl}?pgbouncer=true`;
+    }
     return rawUrl;
   }
 }

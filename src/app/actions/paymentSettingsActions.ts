@@ -55,9 +55,14 @@ export async function getPaymentSettings(): Promise<PaymentSettingsData> {
       return DEFAULT_PAYMENT_SETTINGS;
     }
 
-    const settings = await prisma.paymentSettings.findUnique({
+    const fetchPromise = prisma.paymentSettings.findUnique({
       where: { id: 'default' },
     });
+    const timeoutPromise = new Promise<null>((_, reject) =>
+      setTimeout(() => reject(new Error('DB_TIMEOUT')), 6000)
+    );
+
+    const settings = (await Promise.race([fetchPromise, timeoutPromise])) as any;
 
     if (settings) {
       return formatSettings(settings);
