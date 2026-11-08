@@ -23,9 +23,9 @@ function getDatasourceUrl(): string | undefined {
       parsed.port = '5432';
     }
 
-    // Healthy connection limits for serverless instances
-    parsed.searchParams.set('connection_limit', '3');
-    parsed.searchParams.set('pool_timeout', '20');
+    // Healthy connection limits for serverless instances (connection_limit=1 avoids session pool exhaustion)
+    parsed.searchParams.set('connection_limit', '1');
+    parsed.searchParams.set('pool_timeout', '30');
     parsed.searchParams.set('connect_timeout', '15');
 
     // On session mode port 5432, remove pgbouncer=true to allow native query handling

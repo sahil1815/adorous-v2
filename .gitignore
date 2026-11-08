@@ -44,3 +44,8 @@ next-env.d.ts
 # documents
 *.pdf
 
+# database migration backups and scripts
+adorous_complete_migration_data.json
+restore_*.js
+create_all_tables.sql
+
