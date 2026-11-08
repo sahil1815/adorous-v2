@@ -1,32 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
-import {
-  Package,
-  Layers,
-  Truck,
-  BarChart3,
-  Tag,
-  LogOut,
-  ExternalLink,
-  ShieldCheck,
-  Bell,
-  RefreshCw,
-  MessageSquare,
-  FileText,
-  Users,
-  ShoppingBag,
-  ArrowUpDown,
-  Sparkles,
-  BookOpen,
-  MessageCircle,
-} from 'lucide-react';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminHeader from '@/components/admin/AdminHeader';
+import AdminQuickSearchModal from '@/components/admin/AdminQuickSearchModal';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -37,6 +18,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const isLoginPage = pathname === '/admin/login';
 
+  // Responsive Navigation State
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
+  // Restore sidebar collapse preference from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('adorous_admin_sidebar_collapsed');
+      if (saved !== null) {
+        setIsSidebarCollapsed(saved === 'true');
+      }
+    } catch {
+      // LocalStorage access may fail in restricted environments
+    }
+  }, []);
+
+  const handleToggleSidebarCollapse = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('adorous_admin_sidebar_collapsed', String(next));
+      } catch {
+        // Safe ignore
+      }
+      return next;
+    });
+  };
+
+  // Close mobile nav on route change
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  // Global keyboard shortcut for Command Bar (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   // Protect all /admin routes
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !isLoginPage) {
@@ -44,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isAuthenticated, isLoading, isLoginPage, router]);
 
-  // If on login page, just render the login view
+  // If on login page, just render the login view without admin shell
   if (isLoginPage) {
     return <>{children}</>;
   }
@@ -67,266 +94,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pendingReviewCount = reviews.filter((r) => r.status === 'pending').length;
 
   return (
-    <div className="min-h-screen bg-[#0E0E0E] text-paper flex flex-col admin-theme">
-      {/* Top Operations Header Bar */}
-      <header className="bg-[#141414] border-b border-gold/25 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Brand Left */}
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-full overflow-hidden border border-gold/40 shrink-0 bg-black p-0.5">
-              <Image
-                src="/images/logo/logo-monogram.png"
-                alt="Adorous Monogram"
-                width={36}
-                height={36}
-                className="w-full h-full object-cover rounded-full"
-              />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-[0.18em] uppercase text-gold leading-none">
-                  Adorous Admin
-                </span>
-                <span className="bg-gold/20 text-gold-light text-[9px] uppercase px-1.5 py-0.5 rounded-xs font-bold border border-gold/40 tracking-wider">
-                  Internal
-                </span>
-              </div>
-              <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block mt-0.5">
-                Rajshahi Headquarters Desk
-              </span>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0E0E0E] text-paper flex admin-theme">
+      {/* Collapsible Domain Sidebar */}
+      <AdminSidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebarCollapse}
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
+        pendingOrdersCount={pendingCount}
+        pendingReviewsCount={pendingReviewCount}
+        adminUser={adminUser}
+        onLogout={logout}
+      />
 
-          {/* Center Status indicator */}
-          <div className="hidden md:flex items-center space-x-4 text-xs">
-            <div className="flex items-center space-x-2 px-3 py-1 bg-[#1C1C1C] border border-white/10 rounded-full">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[11px] text-emerald-300 font-medium">Adorous HQ Active</span>
-            </div>
-            {pendingCount > 0 && (
-              <div className="flex items-center space-x-1.5 px-3 py-1 bg-amber-950/60 border border-amber-600/40 rounded-full text-amber-300 text-[11px]">
-                <Bell className="w-3 h-3 text-amber-400" />
-                <span>{pendingCount} Pending Dispatch</span>
-              </div>
-            )}
-          </div>
+      {/* Main Viewport Container */}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ${
+          isSidebarCollapsed ? 'md:pl-[70px]' : 'md:pl-64'
+        }`}
+      >
+        {/* Top Executive Header Bar */}
+        <AdminHeader
+          onOpenMobileNav={() => setMobileNavOpen(true)}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebarCollapse={handleToggleSidebarCollapse}
+          onOpenSearch={() => setIsSearchModalOpen(true)}
+          pendingOrdersCount={pendingCount}
+          adminUser={adminUser}
+        />
 
-          {/* Right Actions */}
-          <div className="flex items-center space-x-3 text-xs">
-            <Link
-              href="/"
-              target="_blank"
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#222222] hover:bg-[#2A2A2A] border border-gold/20 text-gold-light rounded-xs transition-colors text-[11px]"
-              title="Open customer storefront in a new tab"
-            >
-              <span>View Storefront</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
+        {/* Page Content Body */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {children}
+        </main>
+      </div>
 
-            <div className="h-6 w-px bg-white/10 hidden sm:block" />
-
-            <div className="flex items-center space-x-2">
-              <div className="text-right hidden sm:block">
-                <span className="text-[11px] font-semibold text-paper block">
-                  {adminUser?.username}
-                </span>
-                <span className="text-[9px] text-gold-light/60 uppercase tracking-wider block">
-                  {adminUser?.role || 'Director'}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="p-2 bg-[#222222] hover:bg-red-950/60 hover:text-red-300 border border-white/10 hover:border-red-800/40 rounded-xs text-paper/70 transition-colors"
-                title="Log Out"
-                aria-label="Log Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Sub-Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-1 sm:space-x-2 overflow-x-auto text-xs py-2 border-t border-white/5 scrollbar-none">
-          <Link
-            href="/admin"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Package className="w-3.5 h-3.5" />
-            <span>Orders & COD Desk</span>
-            {pendingCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                pathname === '/admin' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold-light'
-              }`}>
-                {pendingCount}
-              </span>
-            )}
-          </Link>
-
-          <Link
-            href="/admin/customers"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/customers'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Customers</span>
-          </Link>
-
-
-          <Link
-            href="/admin/drafts"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/drafts'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Drafts & Leads</span>
-          </Link>
-
-          <Link
-            href="/admin/inventory"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/inventory'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Inventory & Stock</span>
-          </Link>
-
-          <Link
-            href="/admin/product-ordering"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/product-ordering'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <ArrowUpDown className="w-3.5 h-3.5" />
-            <span>Product Ordering</span>
-          </Link>
-
-          <Link
-            href="/admin/logistics"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/logistics'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Truck className="w-3.5 h-3.5" />
-            <span>Steadfast Manifest</span>
-          </Link>
-
-          <Link
-            href="/admin/analytics"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/analytics'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>Cash Flow</span>
-          </Link>
-
-          <Link
-            href="/admin/coupons"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/coupons'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Tag className="w-3.5 h-3.5" />
-            <span>Coupons & Promos</span>
-          </Link>
-
-          <Link
-            href="/admin/landing-pages"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/landing-pages'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Landing Pages</span>
-          </Link>
-
-          <Link
-            href="/admin/reviews"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/reviews'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Reviews</span>
-            {pendingReviewCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                pathname === '/admin/reviews' ? 'bg-ink text-gold' : 'bg-gold/20 text-gold-light'
-              }`}>
-                {pendingReviewCount}
-              </span>
-            )}
-          </Link>
-
-          <Link
-            href="/admin/welcome-offer"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/welcome-offer'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Welcome Offer</span>
-          </Link>
-
-          <Link
-            href="/admin/lookbook"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/lookbook'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Lookbook</span>
-          </Link>
-
-          <Link
-            href="/admin/whatsapp"
-            className={`px-3 py-1.5 rounded-xs transition-colors flex items-center space-x-1.5 shrink-0 ${
-              pathname === '/admin/whatsapp'
-                ? 'bg-gold text-ink font-bold shadow-sm'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10 font-medium'
-            }`}
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span>WhatsApp Format</span>
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Operations Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {children}
-      </main>
+      {/* Global Command & Search Modal (Cmd+K) */}
+      <AdminQuickSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+      />
     </div>
   );
 }

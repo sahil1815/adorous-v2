@@ -1,42 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useOrders, AdminOrder, OrderStatus } from '@/context/OrdersContext';
-import {
-  Search,
-  Filter,
-  Truck,
-  MessageCircle,
-  CheckCircle2,
-  Clock,
-  Package,
-  AlertCircle,
-  ExternalLink,
-  ChevronDown,
-  Edit2,
-  Trash2,
-  RotateCcw,
-  Sparkles,
-  Phone,
-  FileText,
-  Save,
-  Tag,
-  Plus,
-  Minus,
-  Check,
-  Loader2,
-  X,
-  XCircle,
-  Ban,
-  Copy,
-  RefreshCw,
-  Edit3,
-} from 'lucide-react';
+import { Package, RotateCcw } from 'lucide-react';
 import { formatPrice } from '@/lib/formatPrice';
-import { getDistrictDeliveryFee } from '@/data/districts';
 import { getAllProducts } from '@/app/actions/productActions';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product, ProductCategory } from '@/types';
@@ -47,6 +15,10 @@ import {
   DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE,
 } from '@/lib/whatsappTemplate';
 import { getWhatsAppSettings } from '@/app/actions/whatsappSettingsActions';
+import OrderStatsHeader from '@/components/admin/orders/OrderStatsHeader';
+import OrderFiltersBar from '@/components/admin/orders/OrderFiltersBar';
+import OrderCard, { STATUS_CONFIG } from '@/components/admin/orders/OrderCard';
+import CustomizeWhatsAppModal from '@/components/admin/orders/CustomizeWhatsAppModal';
 
 function fromDbProduct(p: any): Product {
   return {
@@ -95,86 +67,11 @@ function fromDbProduct(p: any): Product {
   };
 }
 
-const getCourierPortalUrl = (courierPartner: string | null | undefined, consignmentId: string) => {
-  if (!consignmentId) return '#';
-  const c = (courierPartner || '').toLowerCase();
-  if (c.includes('carrybee')) {
-    return `https://carrybee.com/track?tracking_id=${encodeURIComponent(consignmentId)}`;
-  }
-  if (c.includes('pathao')) {
-    return `https://merchant.pathao.com/tracking?consignment_id=${encodeURIComponent(consignmentId)}`;
-  }
-  return `https://steadfast.com.bd/t/${encodeURIComponent(consignmentId)}`;
-};
-
-const STATUS_CONFIG: Record<
-  OrderStatus,
-  { label: string; bg: string; text: string; border: string; step: number; accentBorder: string }
-> = {
-  pending: {
-    label: 'Pending Verification',
-    bg: 'bg-amber-950/60',
-    text: 'text-amber-300',
-    border: 'border-amber-600/40',
-    accentBorder: 'border-l-amber-500',
-    step: 1,
-  },
-  verified: {
-    label: 'WhatsApp Verified',
-    bg: 'bg-blue-950/60',
-    text: 'text-blue-300',
-    border: 'border-blue-600/40',
-    accentBorder: 'border-l-blue-500',
-    step: 2,
-  },
-  packaging: {
-    label: 'Packaging',
-    bg: 'bg-purple-950/60',
-    text: 'text-purple-300',
-    border: 'border-purple-600/40',
-    accentBorder: 'border-l-purple-500',
-    step: 3,
-  },
-  handed_to_courier: {
-    label: 'Handed to Courier',
-    bg: 'bg-emerald-950/60',
-    text: 'text-emerald-300',
-    border: 'border-emerald-600/40',
-    accentBorder: 'border-l-emerald-500',
-    step: 4,
-  },
-  delivered: {
-    label: 'Delivered & Paid',
-    bg: 'bg-green-950/60',
-    text: 'text-green-300',
-    border: 'border-green-600/40',
-    accentBorder: 'border-l-green-500',
-    step: 5,
-  },
-  returned: {
-    label: 'Returned to Merchant (RTO)',
-    bg: 'bg-rose-950/60',
-    text: 'text-rose-300',
-    border: 'border-rose-600/40',
-    accentBorder: 'border-l-rose-500',
-    step: 0,
-  },
-  cancelled: {
-    label: 'Cancelled',
-    bg: 'bg-red-950/60',
-    text: 'text-red-300',
-    border: 'border-red-600/40',
-    accentBorder: 'border-l-red-500',
-    step: 0,
-  },
-};
-
 function AdminOrdersDesk() {
   const {
     orders,
     updateOrderStatus,
     updateOrderCourier,
-    updateInternalNotes,
     deleteOrder,
     resetToSampleOrders,
     updateOrderItemQuantity,
@@ -184,7 +81,6 @@ function AdminOrdersDesk() {
 
   const searchParams = useSearchParams();
   const statusParam = searchParams.get('status');
-
   const queryParam = searchParams.get('search') || searchParams.get('q');
 
   const [searchQuery, setSearchQuery] = useState(queryParam || '');
@@ -331,7 +227,6 @@ function AdminOrdersDesk() {
   }, []);
 
   const handleStartEditQuantity = (order: AdminOrder, item: any, index: number) => {
-    // If current shippingFee is 0 but district qualifies for standard fee, we default to current shippingFee
     setEditingItemQuantity({
       orderId: order.orderId,
       itemId: item.id || `item-${index}`,
@@ -356,21 +251,6 @@ function AdminOrdersDesk() {
       ...editingItemQuantity,
       quantity: next,
     });
-  };
-
-  const calculatePreviewGrandTotal = (order: AdminOrder, item: any, newQty: number, shippingFeeOverride?: number) => {
-    const newSubtotal = order.items.reduce((sum, it) => {
-      const q = (it.id === item.id || (!it.id && order.items.length === 1)) ? newQty : it.quantity;
-      return sum + (it.product.price * q);
-    }, 0);
-
-    let newDiscount = order.discountAmount;
-    if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
-      newDiscount = Math.round(newSubtotal * (order.discountAmount / order.subtotal) * 100) / 100;
-    }
-
-    const ship = typeof shippingFeeOverride === 'number' ? shippingFeeOverride : order.shippingFee;
-    return Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + ship) * 100) / 100);
   };
 
   const handleSaveQuantity = async (orderId: string, itemId: string) => {
@@ -429,17 +309,8 @@ function AdminOrdersDesk() {
   const cancelledCount = orders.filter((o) => o.status === 'cancelled').length;
   const returnedAndCancelledCount = returnedCount + cancelledCount;
 
-  const totalRevenue = orders.reduce((sum, o) => sum + o.grandTotal, 0);
-  const deliveredRevenue = orders
-    .filter((o) => o.status === 'delivered')
-    .reduce((sum, o) => sum + o.grandTotal, 0);
-  const returnedAndCancelledRevenue = orders
-    .filter((o) => o.status === 'returned' || o.status === 'cancelled')
-    .reduce((sum, o) => sum + o.grandTotal, 0);
-
   // Filtered orders
   const filteredOrders = orders.filter((order) => {
-    // Search query
     const cleanSearch = searchQuery.trim().toLowerCase();
     const matchesSearch =
       !cleanSearch ||
@@ -448,15 +319,13 @@ function AdminOrdersDesk() {
       order.customer.phone.includes(cleanSearch) ||
       (order.consignmentId && order.consignmentId.toLowerCase().includes(cleanSearch));
 
-    // Status filter
     const matchesStatus =
       statusFilter === 'all'
         ? true
         : statusFilter === 'returned_and_cancelled'
-          ? order.status === 'returned' || order.status === 'cancelled'
-          : order.status === statusFilter;
+        ? order.status === 'returned' || order.status === 'cancelled'
+        : order.status === statusFilter;
 
-    // Region filter
     const isDhaka = order.customer.district.toLowerCase().includes('dhaka');
     const matchesRegion =
       regionFilter === 'all' ||
@@ -534,241 +403,35 @@ function AdminOrdersDesk() {
 
   return (
     <div className="space-y-8">
-      {/* Top Metrics Banner */}
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <button
-            type="button"
-            onClick={() => setStatusFilter('all')}
-            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
-              statusFilter === 'all' ? 'border-gold bg-[#1c1a15] shadow-sm' : 'border-white/10 hover:border-gold/50'
-            }`}
-          >
-            <span className="text-[11px] uppercase tracking-wider text-zinc-300 block font-bold">
-              Total Orders
-            </span>
-            <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight">{totalOrders}</div>
-            <span className="text-xs text-zinc-400 font-medium block">Logged in System</span>
-          </button>
+      {/* 1. Operational Stats & Financial Pipeline */}
+      <OrderStatsHeader
+        orders={orders}
+        statusFilter={statusFilter}
+        onSelectStatusFilter={setStatusFilter}
+      />
 
-          <button
-            type="button"
-            onClick={() => setStatusFilter('pending')}
-            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
-              statusFilter === 'pending' ? 'border-amber-400 bg-amber-950/30 shadow-sm' : 'border-amber-600/30 hover:border-amber-400/70'
-            }`}
-          >
-            <span className="text-[11px] uppercase tracking-wider text-amber-300 block font-bold">
-              Pending Call
-            </span>
-            <div className="text-3xl font-extrabold text-amber-300 tabular-nums tracking-tight">{pendingCount}</div>
-            <span className="text-xs text-amber-200/90 font-medium block">Needs verification</span>
-          </button>
+      {/* 2. Filter, Search & Status Bar */}
+      <OrderFiltersBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        regionFilter={regionFilter}
+        onRegionChange={setRegionFilter}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+        onResetDemo={resetToSampleOrders}
+        totalOrdersCount={totalOrders}
+        pendingCount={pendingCount}
+        verifiedCount={verifiedCount}
+        packagingCount={packagingCount}
+        courierCount={courierCount}
+        deliveredCount={deliveredCount}
+        returnedAndCancelledCount={returnedAndCancelledCount}
+        returnedCount={returnedCount}
+        cancelledCount={cancelledCount}
+      />
 
-          <button
-            type="button"
-            onClick={() => setStatusFilter('packaging')}
-            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
-              statusFilter === 'packaging' ? 'border-purple-400 bg-purple-950/30 shadow-sm' : 'border-purple-600/30 hover:border-purple-400/70'
-            }`}
-          >
-            <span className="text-[11px] uppercase tracking-wider text-purple-300 block font-bold">
-              In Packaging
-            </span>
-            <div className="text-3xl font-extrabold text-purple-200 tabular-nums tracking-tight">{packagingCount}</div>
-            <span className="text-xs text-purple-200/90 font-medium block">Inspecting & sealing</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStatusFilter('handed_to_courier')}
-            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
-              statusFilter === 'handed_to_courier' ? 'border-sky-400 bg-sky-950/30 shadow-sm' : 'border-sky-600/30 hover:border-sky-400/70'
-            }`}
-          >
-            <span className="text-[11px] uppercase tracking-wider text-sky-300 block font-bold">
-              With Courier
-            </span>
-            <div className="text-3xl font-extrabold text-sky-200 tabular-nums tracking-tight">{courierCount}</div>
-            <span className="text-xs text-sky-200/90 font-medium block">In active delivery</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStatusFilter('delivered')}
-            className={`text-left bg-[#171717] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer ${
-              statusFilter === 'delivered' ? 'border-emerald-400 bg-emerald-950/30 shadow-sm' : 'border-emerald-600/30 hover:border-emerald-400/70'
-            }`}
-          >
-            <span className="text-[11px] uppercase tracking-wider text-emerald-300 block font-bold">
-              Delivered & Paid
-            </span>
-            <div className="text-3xl font-extrabold text-emerald-300 tabular-nums tracking-tight">{deliveredCount}</div>
-            <span className="text-xs text-emerald-200/90 font-medium block">Completed & Remitted</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStatusFilter('returned_and_cancelled')}
-            className={`text-left bg-[#181212] border p-4 rounded-xs space-y-1.5 transition-all cursor-pointer group ${
-              ['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter)
-                ? 'border-rose-500 bg-rose-950/50 shadow-sm'
-                : 'border-rose-600/40 hover:border-rose-500 hover:bg-[#201515]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wider text-rose-300 block font-bold group-hover:text-rose-200">
-                Returned & Cancelled
-              </span>
-              <RotateCcw className="w-3.5 h-3.5 text-rose-300 group-hover:rotate-180 transition-transform" />
-            </div>
-            <div className="text-3xl font-extrabold text-rose-200 tabular-nums tracking-tight">{returnedAndCancelledCount}</div>
-            <span className="text-xs text-rose-200/90 block font-medium">
-              {returnedCount} Ret · {cancelledCount} Canc
-            </span>
-          </button>
-        </div>
-
-        {/* Financial Pipeline Strip */}
-        <div className="bg-[#141414] border border-white/10 p-4 rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs">
-          <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-gold-light block font-bold">
-                Total Order Pipeline
-              </span>
-              <div className="text-lg sm:text-xl font-extrabold text-gold-light tabular-nums tracking-tight mt-0.5">
-                ৳{totalRevenue.toLocaleString('en-US')}
-              </div>
-            </div>
-            <div className="h-8 w-px bg-white/10 hidden sm:block" />
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-emerald-300 block font-bold">
-                Delivered & Collected
-              </span>
-              <div className="text-lg sm:text-xl font-extrabold text-emerald-300 tabular-nums tracking-tight mt-0.5">
-                ৳{deliveredRevenue.toLocaleString('en-US')}
-              </div>
-            </div>
-            <div className="h-8 w-px bg-white/10 hidden sm:block" />
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-rose-300 block font-bold">
-                Returned / Cancelled Value
-              </span>
-              <div className="text-lg sm:text-xl font-extrabold text-rose-200 tabular-nums tracking-tight mt-0.5">
-                ৳{returnedAndCancelledRevenue.toLocaleString('en-US')}
-              </div>
-            </div>
-          </div>
-
-          <div className="text-right text-xs text-zinc-400 font-medium">
-            <span>Cash on Delivery · Real-time Database Sync</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and Search Controls */}
-      <div className="bg-[#171717] border border-white/10 p-5 rounded-xs space-y-4">
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-paper/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by Order ID (AF-...), Patron Name, Phone, or Consignment..."
-              className="w-full h-11 pl-10 pr-4 bg-[#222222] border border-white/10 rounded-xs text-xs text-paper placeholder:text-paper/40 focus:outline-none focus:border-gold transition-colors"
-            />
-          </div>
-
-          {/* Region Filter */}
-          <div className="flex items-center space-x-2">
-            <select
-              value={regionFilter}
-              onChange={(e) => setRegionFilter(e.target.value)}
-              className="h-11 px-3 bg-[#222222] border border-white/10 rounded-xs text-xs text-paper focus:outline-none focus:border-gold"
-            >
-              <option value="all">All Delivery Regions</option>
-              <option value="dhaka">Dhaka (৳80 / Free)</option>
-              <option value="outside">Outside Dhaka (৳130 / Free)</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={resetToSampleOrders}
-              className="h-11 px-3.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 rounded-xs text-xs text-paper/70 hover:text-gold transition-colors flex items-center space-x-1.5 shrink-0"
-              title="Reset sample orders for testing"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Reset Demo</span>
-            </button>
-
-            <Link
-              href="/admin/whatsapp"
-              className="h-11 px-3.5 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 hover:border-emerald-500/40 rounded-xs text-xs text-paper/70 hover:text-emerald-400 transition-colors flex items-center space-x-1.5 shrink-0"
-              title="Configure WhatsApp Verification Message Format"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">WhatsApp Format</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Status Filter Chips */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <span className="text-[11px] text-paper/40 font-medium mr-1">Status:</span>
-          {[
-            { id: 'all', label: 'All Orders', count: orders.length },
-            { id: 'pending', label: 'Pending WhatsApp', count: pendingCount },
-            { id: 'verified', label: 'Verified', count: verifiedCount },
-            { id: 'packaging', label: 'In Packaging', count: packagingCount },
-            { id: 'handed_to_courier', label: 'With Courier', count: courierCount },
-            { id: 'delivered', label: 'Delivered', count: deliveredCount },
-            {
-              id: 'returned_and_cancelled',
-              label: 'Returned & Cancelled',
-              count: returnedAndCancelledCount,
-              isRedGroup: true,
-            },
-            { id: 'returned', label: 'Returned', count: returnedCount, isRedGroup: true },
-            { id: 'cancelled', label: 'Cancelled', count: cancelledCount, isRedGroup: true },
-          ].map((pill) => {
-            const isActive = statusFilter === pill.id;
-            return (
-              <button
-                key={pill.id}
-                type="button"
-                onClick={() => setStatusFilter(pill.id)}
-                className={`px-3 py-1 rounded-xs text-[11px] transition-all flex items-center space-x-1.5 ${isActive
-                  ? pill.isRedGroup
-                    ? 'bg-red-800 text-white font-semibold shadow-xs border border-red-500'
-                    : 'bg-gold text-ink font-semibold shadow-xs'
-                  : pill.isRedGroup && pill.count > 0
-                    ? 'bg-[#221717] hover:bg-[#2c1c1c] text-red-300 border border-red-900/50 hover:border-red-700/60'
-                    : 'bg-[#222222] text-paper/70 hover:text-paper hover:bg-[#2A2A2A] border border-white/5'
-                  }`}
-              >
-                <span>{pill.label}</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${isActive
-                    ? pill.isRedGroup
-                      ? 'bg-black/50 text-red-200'
-                      : 'bg-ink text-gold'
-                    : pill.isRedGroup && pill.count > 0
-                      ? 'bg-red-950 text-red-300 border border-red-800/40'
-                      : 'bg-black/40 text-paper/60'
-                    }`}
-                >
-                  {pill.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Orders List */}
-      <div className="space-y-8 sm:space-y-6 md:space-y-4">
+      {/* 3. Orders List */}
+      <div className="space-y-6">
         {/* Returned & Cancelled Context Alert */}
         {['returned_and_cancelled', 'returned', 'cancelled'].includes(statusFilter) && (
           <div className="bg-[#1C1414] border border-red-700/40 p-4 rounded-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -781,15 +444,15 @@ function AdminOrdersDesk() {
                   {statusFilter === 'returned_and_cancelled'
                     ? 'Returned & Cancelled Orders Section'
                     : statusFilter === 'returned'
-                      ? 'Returned Orders Section (Courier RTO)'
-                      : 'Cancelled Orders Section'}
+                    ? 'Returned Orders Section (Courier RTO)'
+                    : 'Cancelled Orders Section'}
                 </span>
                 <p className="text-[11px] text-red-300/70 mt-0.5">
                   {statusFilter === 'returned'
                     ? 'Parcels that were dispatched with couriers but failed delivery or returned to merchant.'
                     : statusFilter === 'cancelled'
-                      ? 'Orders cancelled before delivery (patron request, phone unreachable, or unverified).'
-                      : 'Viewing all unfulfilled orders: courier returns and cancelled orders.'}
+                    ? 'Orders cancelled before delivery (patron request, phone unreachable, or unverified).'
+                    : 'Viewing all unfulfilled orders: courier returns and cancelled orders.'}
                 </p>
               </div>
             </div>
@@ -801,7 +464,7 @@ function AdminOrdersDesk() {
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
-                className="px-2.5 py-1 bg-[#222] hover:bg-[#2A2A2A] text-paper/70 hover:text-paper rounded-xs text-[11px] border border-white/10 transition-colors"
+                className="px-2.5 py-1 bg-[#222] hover:bg-[#2A2A2A] text-paper/70 hover:text-paper rounded-xs text-[11px] border border-white/10 transition-colors cursor-pointer"
               >
                 Clear Filter
               </button>
@@ -809,744 +472,90 @@ function AdminOrdersDesk() {
           </div>
         )}
 
+        {/* Counter Summary */}
         <div className="flex items-center justify-between text-xs text-paper/60 px-1">
-          <span>Showing {filteredOrders.length} of {orders.length} orders</span>
+          <span>
+            Showing {filteredOrders.length} of {orders.length} orders
+          </span>
           <span className="text-[11px]">Real-time sync with patron parcel tracking</span>
         </div>
 
+        {/* Order Cards */}
         {filteredOrders.length === 0 ? (
           <div className="bg-[#171717] border border-white/10 p-12 text-center rounded-xs space-y-3">
             <Package className="w-10 h-10 text-paper/30 mx-auto" />
-            <h3 className="text-lg font-bold text-white tracking-tight">No Orders Match Filter Criteria</h3>
+            <h3 className="text-lg font-bold text-white tracking-tight">
+              No Orders Match Filter Criteria
+            </h3>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto">
               {statusFilter === 'returned_and_cancelled'
                 ? 'No returned or cancelled orders found in system.'
                 : statusFilter === 'returned'
-                  ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
-                  : statusFilter === 'cancelled'
-                    ? 'No cancelled orders found in this view.'
-                    : 'Try adjusting your search query or reset status filters to view all orders.'}
+                ? 'No orders are currently marked as returned. All parcels with couriers are in transit or delivered.'
+                : statusFilter === 'cancelled'
+                ? 'No cancelled orders found in this view.'
+                : 'Try adjusting your search query or reset status filters to view all orders.'}
             </p>
           </div>
         ) : (
-          filteredOrders.map((order) => {
-            const statusConfig = (STATUS_CONFIG as Record<string, typeof STATUS_CONFIG['pending']>)[order.status] || STATUS_CONFIG.pending;
-            const isEditingConsignment = editingConsignmentOrderId === order.orderId;
-
-            return (
-              <div
-                key={order.orderId}
-                className={`bg-[#171717] border border-white/10 hover:border-gold/40 transition-colors p-4 sm:p-5 md:p-6 rounded-sm md:rounded-xs space-y-4 md:space-y-5 border-l-4 md:border-l ${statusConfig.accentBorder || 'border-l-gold'} shadow-lg shadow-black/40 md:shadow-none`}
-              >
-                {/* Order Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-b border-white/10 pb-3.5 sm:pb-4">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    {/* Distinct Order Tag on Mobile */}
-                    <div className="flex items-center gap-1.5">
-                      <span className="md:hidden text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-gold/15 text-gold rounded-xs border border-gold/30">
-                        ORDER
-                      </span>
-                      <div className="font-mono text-base sm:text-lg text-gold font-bold tracking-wider">
-                        {order.orderId}
-                      </div>
-                    </div>
-
-                    {/* Status Badge */}
-                    <span
-                      className={`px-2.5 py-1 rounded-xs text-[11px] font-bold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}
-                    >
-                      {statusConfig.label}
-                    </span>
-
-                    {/* Region Pill */}
-                    <span className="text-[11px] px-2 py-0.5 bg-[#222222] text-zinc-200 font-semibold rounded-xs border border-white/10">
-                      {order.customer.district}
-                    </span>
-
-                    {/* Mobile Quick Summary Pill */}
-                    <div className="md:hidden inline-flex items-center gap-1.5 px-2 py-0.5 bg-black/40 rounded-xs border border-white/10 text-[11px]">
-                      <span className="text-zinc-400 font-medium">Total:</span>
-                      <strong className="text-gold font-extrabold tabular-nums">৳{formatPrice(order.grandTotal)}</strong>
-                      <span className="text-white/20">·</span>
-                      <span className="text-zinc-300">
-                        {order.items.reduce((s, i) => s + i.quantity, 0)} {order.items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2 text-xs text-zinc-400 font-medium shrink-0">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{new Date(order.createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}</span>
-                  </div>
-                </div>
-
-                {/* Main 3-Column Content (Unified cohesive panel on mobile, 3 independent columns on desktop) */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-6 text-xs bg-[#191919] md:bg-transparent rounded-sm md:rounded-none border border-white/10 md:border-none divide-y divide-white/10 md:divide-y-0 overflow-hidden">
-                  {/* Left: Customer & Address */}
-                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10 md:space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
-                          1
-                        </span>
-                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
-                          Recipient Information
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyOrderInfo(order)}
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-semibold tracking-wide transition-all border cursor-pointer shrink-0 ${copiedOrderId === order.orderId
-                          ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-xs'
-                          : 'bg-gold/10 hover:bg-gold/20 text-gold-light hover:text-gold border-gold/30 hover:border-gold/50'
-                          }`}
-                        title="Copy Customer Name, Phone, Address & Total COD Collection to clipboard"
-                        aria-label="Copy Delivery & COD info to clipboard"
-                      >
-                        {copiedOrderId === order.orderId ? (
-                          <>
-                            <Check className="w-3 h-3 text-emerald-400" />
-                            <span className="font-bold text-emerald-300">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy Delivery & COD</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <div>
-                      <strong className="text-base font-bold text-white block tracking-tight">
-                        {order.customer.fullName}
-                      </strong>
-                      <a
-                        href={`tel:${order.customer.phone}`}
-                        className="text-sm font-bold text-gold-light hover:text-white tabular-nums tracking-wide flex items-center gap-1.5 mt-1 transition-colors"
-                      >
-                        <Phone className="w-3.5 h-3.5 text-gold shrink-0" />
-                        <span>{order.customer.phone}</span>
-                      </a>
-                    </div>
-                    <div>
-                      <span className="text-[11px] uppercase text-zinc-400 font-bold block tracking-wider">Address:</span>
-                      <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-relaxed mt-0.5">
-                        {order.customer.address}, <strong className="text-gold-light font-bold">{order.customer.district}</strong>
-                      </p>
-                    </div>
-
-                    {order.customer.giftNote && (
-                      <div className="pt-2 border-t border-white/10">
-                        <span className="text-[11px] uppercase text-gold font-bold block tracking-wider">Gift Note:</span>
-                        <p className="italic text-zinc-200 mt-0.5 bg-black/40 p-2 rounded-xs border border-white/5">
-                          "{order.customer.giftNote}"
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Middle: Items List */}
-                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10 md:space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
-                          2
-                        </span>
-                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
-                          Package Items ({order.items.reduce((s, i) => s + i.quantity, 0)})
-                        </span>
-                      </div>
-                      {/* Mobile-only Order ID tag to prevent confusion during scrolling */}
-                      <div className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-xs bg-gold/10 border border-gold/30 text-[10px] font-mono shrink-0">
-                        <span className="text-gold/70 text-[9px] uppercase font-semibold">Order</span>
-                        <span className="text-gold font-bold">{order.orderId}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2 divide-y divide-white/5">
-                      {order.items.map((item, idx) => {
-                        const isEditingThis =
-                          editingItemQuantity?.orderId === order.orderId &&
-                          (editingItemQuantity?.itemId === item.id || (!item.id && idx === 0));
-
-                        return (
-                          <div key={item.id || idx} className="pt-2 first:pt-0 space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center space-x-2.5 min-w-0">
-                                <div className="relative w-10 h-12 bg-stone rounded-xs overflow-hidden shrink-0 border border-white/10">
-                                  {item.product.featuredImage ? (
-                                    <Image
-                                      src={item.product.featuredImage}
-                                      alt={item.product.name}
-                                      fill
-                                      sizes="40px"
-                                      className="object-cover"
-                                    />
-                                  ) : (
-                                    <Package className="w-4 h-4 text-paper/40 m-auto mt-3" />
-                                  )}
-                                </div>
-                                <div className="min-w-0">
-                                  <span className="font-bold text-white text-xs sm:text-sm line-clamp-1 block tracking-tight">
-                                    {item.product.name}
-                                  </span>
-                                  <div className="text-[11px] text-zinc-300 font-medium flex items-center gap-1.5 flex-wrap mt-0.5">
-                                    <span
-                                      className="w-2.5 h-2.5 rounded-full border border-black/40"
-                                      style={{ backgroundColor: item.selectedColor.hex }}
-                                    />
-                                    <span className="text-zinc-200">{item.selectedColor.name}</span>
-                                    {item.selectedSize && <span className="text-zinc-300">· {item.selectedSize}</span>}
-                                    <span className="font-bold text-white">· Qty: {item.quantity}</span>
-                                    {!isEditingThis && (
-                                      <div className="flex items-center gap-1.5 ml-1">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleStartEditQuantity(order, item, idx)}
-                                          className="text-[11px] text-gold hover:text-gold-light hover:underline flex items-center gap-0.5 font-bold transition-colors"
-                                          title="Change ordered quantity"
-                                        >
-                                          <Edit2 className="w-2.5 h-2.5" />
-                                          <span>Edit Qty</span>
-                                        </button>
-                                        <span className="text-paper/20">·</span>
-                                        <button
-                                          type="button"
-                                          onClick={() => setSwappingProductState({ order, item, index: idx })}
-                                          className="text-[11px] text-amber-300 hover:text-amber-200 hover:underline flex items-center gap-0.5 font-bold transition-colors"
-                                          title="Customer called & changed product: Swap ordered piece"
-                                        >
-                                          <RefreshCw className="w-2.5 h-2.5" />
-                                          <span>Change Product</span>
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                              <span className="font-extrabold text-gold-light tabular-nums shrink-0 text-xs sm:text-sm">
-                                ৳{formatPrice(item.product.price * item.quantity)}
-                              </span>
-                            </div>
-
-                            {/* Inline Quantity Editor Form */}
-                            {isEditingThis && (
-                              <div className="bg-black/60 border border-gold/30 p-2.5 rounded-xs space-y-2 mt-1">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-[11px] text-paper/80 font-medium">
-                                    Adjust Quantity:
-                                  </span>
-                                  <div className="flex items-center border border-white/20 rounded-xs bg-[#222]">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStepQuantity(-1)}
-                                      disabled={editingItemQuantity.quantity <= 1}
-                                      className="px-2 py-1 text-paper hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                      aria-label="Decrease quantity"
-                                    >
-                                      <Minus className="w-3 h-3" />
-                                    </button>
-                                    <input
-                                      type="number"
-                                      min={1}
-                                      max={99}
-                                      value={editingItemQuantity.quantity}
-                                      onChange={(e) => handleDirectQuantityChange(parseInt(e.target.value) || 1)}
-                                      className="w-12 text-center bg-transparent text-paper font-bold text-xs focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStepQuantity(1)}
-                                      className="px-2 py-1 text-paper hover:bg-white/10 transition-colors"
-                                      aria-label="Increase quantity"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Summary preview with Delivery Fee calculation */}
-                                {(() => {
-                                  const districtFee = getDistrictDeliveryFee(order.customer.district || '');
-                                  const previewSubtotal = item.product.price * editingItemQuantity.quantity;
-                                  const ratio = (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0)
-                                    ? (order.discountAmount / order.subtotal)
-                                    : 0;
-                                  const previewDiscount = ratio > 0 ? Math.round(previewSubtotal * ratio * 100) / 100 : 0;
-                                  const previewGrandTotal = Math.max(
-                                    0,
-                                    Math.round((previewSubtotal - previewDiscount + editingItemQuantity.shippingFee) * 100) / 100
-                                  );
-
-                                  return (
-                                    <div className="bg-[#181818] p-2.5 rounded-xs space-y-1.5 text-[11px] border border-white/5">
-                                      <div className="flex justify-between text-paper/70">
-                                        <span>Item Subtotal ({editingItemQuantity.quantity} × ৳{formatPrice(item.product.price)}):</span>
-                                        <span className="text-paper font-semibold tabular-nums">
-                                          ৳{formatPrice(previewSubtotal)}
-                                        </span>
-                                      </div>
-
-                                      {previewDiscount > 0 && (
-                                        <div className="flex justify-between text-emerald-400">
-                                          <span>Voucher ({order.couponCode || 'PROMO'}):</span>
-                                          <span className="tabular-nums">-৳{formatPrice(previewDiscount)}</span>
-                                        </div>
-                                      )}
-
-                                      {/* Delivery Charge in Quantity Editor */}
-                                      <div className="flex justify-between items-center text-paper/70 pt-1 border-t border-white/5">
-                                        <span className="flex items-center gap-1">
-                                          <Truck className="w-3 h-3 text-paper/40" />
-                                          <span>Delivery ({order.customer.district || 'Standard'}):</span>
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: 0 })}
-                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${editingItemQuantity.shippingFee === 0
-                                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                                              : 'bg-white/5 text-paper/50 hover:text-paper'
-                                              }`}
-                                          >
-                                            Free (৳0)
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingItemQuantity({ ...editingItemQuantity, shippingFee: districtFee })}
-                                            className={`px-1.5 py-0.5 text-[10px] rounded-xs font-medium transition-colors ${editingItemQuantity.shippingFee === districtFee
-                                              ? 'bg-gold/20 text-gold border border-gold/40'
-                                              : 'bg-white/5 text-paper/50 hover:text-paper'
-                                              }`}
-                                          >
-                                            ৳{districtFee}
-                                          </button>
-                                        </div>
-                                      </div>
-
-                                      <div className="flex justify-between text-gold pt-1 border-t border-white/5">
-                                        <span className="font-medium">New Total COD Collection:</span>
-                                        <span className="font-bold tabular-nums">
-                                          ৳{formatPrice(previewGrandTotal)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
-
-                                <div className="flex items-center justify-end gap-2 pt-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => setEditingItemQuantity(null)}
-                                    className="px-2.5 py-1 text-[11px] text-paper/50 hover:text-paper rounded-xs transition-colors"
-                                  >
-                                    Cancel
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSaveQuantity(order.orderId, item.id || editingItemQuantity.itemId)}
-                                    disabled={isSavingQuantity}
-                                    className="px-3 py-1 bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] rounded-xs uppercase tracking-wider flex items-center gap-1 shadow-xs transition-all disabled:opacity-50"
-                                  >
-                                    {isSavingQuantity ? (
-                                      <>
-                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                        <span>Saving...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Check className="w-3 h-3" />
-                                        <span>Update Order</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="border-t border-white/10 pt-2.5 space-y-1.5 text-xs">
-                      {/* Subtotal */}
-                      <div className="flex items-center justify-between text-paper/60 text-[11px]">
-                        <span>Subtotal:</span>
-                        <span className="font-semibold text-paper/80 tabular-nums">৳{formatPrice(order.subtotal)}</span>
-                      </div>
-
-                      {/* Voucher / Coupon */}
-                      {order.couponCode && (
-                        <div className="flex items-center justify-between text-[11px] text-emerald-400">
-                          <span className="flex items-center space-x-1">
-                            <Tag className="w-3 h-3" />
-                            <span>Voucher ({order.couponCode}):</span>
-                          </span>
-                          <span>-৳{formatPrice(order.discountAmount || 0)}</span>
-                        </div>
-                      )}
-
-                      {/* Delivery Charge / Shipping Fee */}
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-paper/60 flex items-center gap-1 text-[11px]">
-                          <Truck className="w-3 h-3 text-paper/40" />
-                          <span>Delivery Charge {order.customer.district ? `(${order.customer.district})` : ''}:</span>
-                        </span>
-
-                        {editingOrderShipping?.orderId === order.orderId ? (
-                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                            <span className="text-gold font-bold text-xs">৳</span>
-                            <input
-                              type="number"
-                              min={0}
-                              value={editingOrderShipping.fee}
-                              onChange={(e) =>
-                                setEditingOrderShipping({
-                                  ...editingOrderShipping,
-                                  fee: Math.max(0, parseInt(e.target.value) || 0),
-                                })
-                              }
-                              className="w-14 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-paper text-right"
-                            />
-                            {/* Preset Buttons */}
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 0 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 0
-                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                                  : 'bg-white/5 text-paper/50 hover:text-paper'
-                                  }`}
-                              >
-                                Free
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 80 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 80
-                                  ? 'bg-gold/20 text-gold border border-gold/40'
-                                  : 'bg-white/5 text-paper/50 hover:text-paper'
-                                  }`}
-                              >
-                                ৳80
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setEditingOrderShipping({ ...editingOrderShipping, fee: 130 })}
-                                className={`px-1.5 py-0.5 text-[9px] rounded-xs font-medium ${editingOrderShipping.fee === 130
-                                  ? 'bg-gold/20 text-gold border border-gold/40'
-                                  : 'bg-white/5 text-paper/50 hover:text-paper'
-                                  }`}
-                              >
-                                ৳130
-                              </button>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleSaveShippingFee(order.orderId)}
-                              disabled={isSavingShipping}
-                              className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light"
-                              title="Save Delivery Fee"
-                            >
-                              {isSavingShipping ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingOrderShipping(null)}
-                              className="p-1 text-paper/50 hover:text-paper"
-                              title="Cancel"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-semibold tabular-nums text-xs">
-                              {order.shippingFee === 0 ? (
-                                <span className="text-emerald-400 font-medium">Free (৳0)</span>
-                              ) : (
-                                <span className="text-paper/90 font-medium">৳{formatPrice(order.shippingFee)}</span>
-                              )}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setEditingOrderShipping({ orderId: order.orderId, fee: order.shippingFee })}
-                              className="text-[10px] text-paper/40 hover:text-gold flex items-center gap-0.5"
-                              title="Edit delivery charge"
-                            >
-                              <Edit2 className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-paper/50">Total COD Collection:</span>
-                        {editingOrderCod?.orderId === order.orderId ? (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-gold font-bold text-xs">৳</span>
-                            <input
-                              type="number"
-                              min={0}
-                              value={editingOrderCod.amount}
-                              onChange={(e) =>
-                                setEditingOrderCod({
-                                  ...editingOrderCod,
-                                  amount: Math.max(0, parseInt(e.target.value) || 0),
-                                })
-                              }
-                              className="w-20 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-gold text-right"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleSaveCodAmount(order.orderId)}
-                              disabled={isSavingCod}
-                              className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light"
-                              title="Save custom COD"
-                            >
-                              {isSavingCod ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingOrderCod(null)}
-                              className="p-1 text-paper/50 hover:text-paper"
-                              title="Cancel"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <strong className="text-base font-extrabold text-gold tabular-nums tracking-tight">
-                              ৳{formatPrice(order.grandTotal)}
-                            </strong>
-                            <button
-                              type="button"
-                              onClick={() => setEditingOrderCod({ orderId: order.orderId, amount: order.grandTotal })}
-                              className="text-[11px] text-zinc-400 hover:text-gold flex items-center gap-0.5"
-                              title="Manually adjust COD collection amount"
-                            >
-                              <Edit2 className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Courier Assignment & Status Controller */}
-                  <div className="md:col-span-4 space-y-3 p-4 bg-[#191919] md:bg-[#1C1C1C] md:p-4 md:rounded-xs md:border md:border-white/10">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="md:hidden flex items-center justify-center w-5 h-5 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono border border-gold/30 shrink-0">
-                          3
-                        </span>
-                        <span className="text-[11px] uppercase font-bold text-gold-light tracking-wider">
-                          Logistics & Courier Action
-                        </span>
-                      </div>
-                      {/* Mobile-only Order ID tag to prevent confusion during scrolling */}
-                      <div className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-xs bg-gold/10 border border-gold/30 text-[10px] font-mono shrink-0">
-                        <span className="text-gold/70 text-[9px] uppercase font-semibold">Order</span>
-                        <span className="text-gold font-bold">{order.orderId}</span>
-                      </div>
-                    </div>
-
-                    {/* Consignment Assignment */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-paper/60">Courier Consignment:</span>
-                        {!isEditingConsignment && (
-                          <button
-                            type="button"
-                            onClick={() => handleStartEditConsignment(order)}
-                            className="text-[10px] text-gold hover:underline flex items-center gap-1"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                            <span>Edit ID</span>
-                          </button>
-                        )}
-                      </div>
-
-                      {isEditingConsignment ? (
-                        <div className="space-y-2 bg-black/40 p-2 rounded-xs">
-                          <select
-                            value={courierInput ?? ""}
-                            onChange={(e) => setCourierInput(e.target.value as any)}
-                            className="w-full h-8 px-2 bg-[#222222] border border-white/10 rounded-xs text-xs text-paper"
-                          >
-                            <option value="CarryBee">CarryBee</option>
-                            <option value="Pathao Courier">Pathao Courier</option>
-                            <option value="Steadfast Courier">Steadfast Courier</option>
-                            <option value="RedX">RedX</option>
-                            <option value="Paperfly">Paperfly</option>
-                          </select>
-                          <input
-                            type="text"
-                            value={consignmentInput}
-                            onChange={(e) => setConsignmentInput(e.target.value)}
-                            placeholder={
-                              courierInput === 'CarryBee'
-                                ? 'e.g. CB-88294102'
-                                : courierInput === 'Pathao Courier'
-                                  ? 'e.g. PT-88294102'
-                                  : 'e.g. ST-88294102'
-                            }
-                            className="w-full h-8 px-2 bg-[#222222] border border-white/10 rounded-xs text-xs font-mono text-paper"
-                          />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              type="button"
-                              onClick={() => handleSaveConsignment(order.orderId)}
-                              className="px-3 py-1 bg-gold text-ink font-semibold text-[10px] rounded-xs uppercase tracking-wider flex items-center space-x-1"
-                            >
-                              <Save className="w-3 h-3" />
-                              <span>Save</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingConsignmentOrderId(null)}
-                              className="px-2 py-1 text-paper/50 hover:text-paper text-[10px]"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-2 bg-black/30 rounded-xs flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] text-paper/40 block">{order.courierPartner || 'Unassigned'}</span>
-                            <span className="font-mono text-xs text-paper font-medium">
-                              {order.consignmentId || 'Unassigned (Awaiting pickup)'}
-                            </span>
-                          </div>
-                          {order.consignmentId && (
-                            <a
-                              href={getCourierPortalUrl(order.courierPartner, order.consignmentId)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-gold-light hover:text-gold p-1"
-                              title="Check on courier portal"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Status Changer Dropdown */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] uppercase text-paper/50 tracking-wider block">
-                        Advance Fulfillment Stage:
-                      </label>
-                      <select
-                        value={order.status}
-                        onChange={(e) => updateOrderStatus(order.orderId, e.target.value as OrderStatus)}
-                        className="w-full h-9 px-2.5 bg-[#222222] border border-gold/30 rounded-xs text-xs text-gold-light font-medium focus:outline-none focus:border-gold"
-                      >
-                        <option value="pending">1. Pending WhatsApp Verification</option>
-                        <option value="verified">2. WhatsApp Verified</option>
-                        <option value="packaging">3. Packaging</option>
-                        <option value="handed_to_courier">4. Handed to Courier (In Transit)</option>
-                        <option value="delivered">5. Delivered & Cash Collected</option>
-                        <option value="returned">6. Returned to Merchant (RTO)</option>
-                        <option value="cancelled">7. Cancelled Order</option>
-                      </select>
-                    </div>
-
-                    {/* WhatsApp Action */}
-                    <div className="space-y-1">
-                      {order.internalNotes && order.internalNotes.includes('[WhatsApp Auto-Sent:') && (
-                        <div className="flex items-center justify-center space-x-1 py-1 px-2 bg-emerald-950/70 border border-emerald-500/40 rounded-xs text-[10px] text-emerald-300 font-medium">
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span>WhatsApp Auto-Sent (30s)</span>
-                        </div>
-                      )}
-                      <div className="flex items-center space-x-1">
-                        <a
-                          href={generateWhatsAppVerificationLink(order)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5 text-white" />
-                          <span>Verify on WhatsApp</span>
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenCustomMessageModal(order)}
-                          className="py-2 px-2.5 bg-emerald-800/80 hover:bg-emerald-700 border border-emerald-600/40 text-emerald-200 hover:text-white rounded-xs text-[11px] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
-                          title="Edit message for this order before opening WhatsApp"
-                          aria-label="Edit message before opening WhatsApp"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSendWhatsAppApi(order.orderId)}
-                        disabled={sendingApiOrderId === order.orderId}
-                        className="w-full py-1.5 bg-[#252525] hover:bg-[#303030] border border-white/10 text-paper/70 hover:text-paper rounded-xs text-[10px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors disabled:opacity-50 cursor-pointer"
-                        title="Trigger official Meta WhatsApp Cloud API automated message"
-                      >
-                        {sendingApiOrderId === order.orderId ? (
-                          <>
-                            <Loader2 className="w-3 h-3 animate-spin text-gold" />
-                            <span>Sending via Meta API...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-3 h-3 text-gold" />
-                            <span>Send via Meta API</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Row Actions */}
-                <div className="pt-3 border-t border-white/10 md:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                  {/* Internal Staff Notes */}
-                  <div className="flex items-center space-x-2 w-full sm:w-auto">
-                    <FileText className="w-3.5 h-3.5 text-paper/40 shrink-0" />
-                    <span className="text-[11px] text-paper/50 italic">
-                      Staff Note: {order.internalNotes || 'No notes added.'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-3 shrink-0">
-                    <Link
-                      href={`/track-order?ref=${order.orderId}`}
-                      target="_blank"
-                      className="text-[11px] text-gold-light/70 hover:text-gold hover:underline flex items-center space-x-1"
-                    >
-                      <span>Preview Patron View</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm(`Are you sure you want to delete order ${order.orderId}?`)) {
-                          deleteOrder(order.orderId);
-                        }
-                      }}
-                      className="text-paper/30 hover:text-red-400 transition-colors p-1"
-                      title="Delete Order Record"
-                      aria-label="Delete Order"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          filteredOrders.map((order) => (
+            <OrderCard
+              key={order.orderId}
+              order={order}
+              isEditingConsignment={editingConsignmentOrderId === order.orderId}
+              onStartEditConsignment={handleStartEditConsignment}
+              consignmentInput={consignmentInput}
+              onConsignmentInputChange={setConsignmentInput}
+              courierInput={courierInput}
+              onCourierInputChange={setCourierInput}
+              onSaveConsignment={handleSaveConsignment}
+              onCancelEditConsignment={() => setEditingConsignmentOrderId(null)}
+              editingItemQuantity={editingItemQuantity}
+              onStartEditQuantity={handleStartEditQuantity}
+              onStepQuantity={handleStepQuantity}
+              onDirectQuantityChange={handleDirectQuantityChange}
+              onSetEditingShippingInQty={(fee) =>
+                editingItemQuantity &&
+                setEditingItemQuantity({ ...editingItemQuantity, shippingFee: fee })
+              }
+              onSaveQuantity={handleSaveQuantity}
+              onCancelEditQuantity={() => setEditingItemQuantity(null)}
+              isSavingQuantity={isSavingQuantity}
+              editingOrderShipping={editingOrderShipping}
+              onStartEditShipping={(orderId, fee) =>
+                setEditingOrderShipping({ orderId, fee })
+              }
+              onShippingFeeChange={(fee) =>
+                editingOrderShipping &&
+                setEditingOrderShipping({ ...editingOrderShipping, fee })
+              }
+              onSaveShippingFee={handleSaveShippingFee}
+              onCancelEditShipping={() => setEditingOrderShipping(null)}
+              isSavingShipping={isSavingShipping}
+              editingOrderCod={editingOrderCod}
+              onStartEditCod={(orderId, amount) =>
+                setEditingOrderCod({ orderId, amount })
+              }
+              onCodAmountChange={(amount) =>
+                editingOrderCod &&
+                setEditingOrderCod({ ...editingOrderCod, amount })
+              }
+              onSaveCodAmount={handleSaveCodAmount}
+              onCancelEditCod={() => setEditingOrderCod(null)}
+              isSavingCod={isSavingCod}
+              isCopied={copiedOrderId === order.orderId}
+              onCopyOrderInfo={handleCopyOrderInfo}
+              onStartSwapProduct={(ord, it, idx) =>
+                setSwappingProductState({ order: ord, item: it, index: idx })
+              }
+              onUpdateStatus={updateOrderStatus}
+              whatsAppLink={generateWhatsAppVerificationLink(order)}
+              onOpenCustomWhatsAppModal={handleOpenCustomMessageModal}
+              onSendWhatsAppApi={handleSendWhatsAppApi}
+              isSendingApi={sendingApiOrderId === order.orderId}
+              onDeleteOrder={deleteOrder}
+            />
+          ))
         )}
       </div>
 
@@ -1562,117 +571,16 @@ function AdminOrdersDesk() {
         />
       )}
 
-      {/* Customize WhatsApp Message Modal for Individual Order */}
+      {/* Customize WhatsApp Message Modal */}
       {customizingWhatsAppOrder && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-        >
-          <div className="bg-[#141414] border border-white/10 rounded-xs shadow-2xl max-w-xl w-full p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-white/10 pb-3">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                  </span>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-paper">
-                    Edit WhatsApp Message
-                  </h3>
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-xs bg-gold/15 text-gold border border-gold/30">
-                    {customizingWhatsAppOrder.orderId}
-                  </span>
-                </div>
-                <p className="text-[11px] text-paper/50 mt-1">
-                  Recipient: <strong className="text-paper">{customizingWhatsAppOrder.customer.fullName}</strong> ({customizingWhatsAppOrder.customer.phone})
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setCustomizingWhatsAppOrder(null)}
-                className="text-paper/40 hover:text-paper p-1 transition-colors cursor-pointer"
-                aria-label="Close Modal"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-[11px] text-paper/50">
-                <span>Review or edit message text before sending:</span>
-                <span>{customWhatsAppMessage.length} characters</span>
-              </div>
-
-              <textarea
-                value={customWhatsAppMessage}
-                onChange={(e) => setCustomWhatsAppMessage(e.target.value)}
-                rows={10}
-                className="w-full bg-[#0A0A0A] border border-white/15 focus:border-emerald-500 rounded-xs p-3 text-xs text-paper font-sans leading-relaxed resize-y focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
-                placeholder="Type customized WhatsApp message..."
-              />
-
-              <div className="flex items-center justify-between text-[11px] text-paper/40 pt-1">
-                <span>💡 You can edit any line before opening WhatsApp.</span>
-                <Link
-                  href="/admin/whatsapp"
-                  target="_blank"
-                  className="text-gold-light hover:text-gold hover:underline flex items-center space-x-1"
-                >
-                  <span>Edit Default Format</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Modal Footer Actions */}
-            <div className="flex items-center justify-between border-t border-white/10 pt-3 gap-2">
-              <button
-                type="button"
-                onClick={handleCopyCustomMessage}
-                className="px-3 py-2 bg-[#222222] hover:bg-[#2A2A2A] border border-white/10 text-paper/80 rounded-xs text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
-              >
-                {copiedCustomMessage ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-300">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Text</span>
-                  </>
-                )}
-              </button>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setCustomizingWhatsAppOrder(null)}
-                  className="px-3 py-2 bg-transparent hover:bg-white/5 text-paper/60 hover:text-paper rounded-xs text-xs transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-
-                <a
-                  href={buildWhatsAppChatUrl(
-                    customizingWhatsAppOrder.customer.phone,
-                    customWhatsAppMessage
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setCustomizingWhatsAppOrder(null)}
-                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xs text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-colors shadow-sm"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Open in WhatsApp</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CustomizeWhatsAppModal
+          order={customizingWhatsAppOrder}
+          message={customWhatsAppMessage}
+          onMessageChange={setCustomWhatsAppMessage}
+          onClose={() => setCustomizingWhatsAppOrder(null)}
+          onCopy={handleCopyCustomMessage}
+          copied={copiedCustomMessage}
+        />
       )}
     </div>
   );

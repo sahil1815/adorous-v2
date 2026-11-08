@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useOrders } from '@/context/OrdersContext';
+import { formatPrice } from '@/lib/formatPrice';
 import {
   TrendingUp,
   DollarSign,
@@ -83,7 +84,7 @@ export default function AdminAnalyticsPage() {
     const outsideOrders = totalOrdersCount - dhakaOrders;
     
     const pieData = [
-      { name: 'Rajshahi Metro', value: dhakaOrders },
+      { name: 'Inside Dhaka', value: dhakaOrders },
       { name: 'Outside Dhaka', value: outsideOrders },
     ];
 
@@ -106,11 +107,11 @@ export default function AdminAnalyticsPage() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#222] border border-[#333] p-3 shadow-lg">
-          <p className="text-paper text-xs font-semibold mb-1">{label}</p>
+        <div className="bg-[#121212]/95 backdrop-blur-md border border-gold/40 p-3 rounded-xs shadow-2xl">
+          <p className="text-white text-xs font-bold mb-1 tracking-wide">{label}</p>
           {payload.map((p: any, idx: number) => (
-            <p key={idx} className="text-xs" style={{ color: p.color }}>
-              {p.name}: {p.name === 'Revenue' ? `৳${p.value.toLocaleString()}` : p.value}
+            <p key={idx} className="text-xs font-mono font-medium" style={{ color: p.color || ADOROUS_GOLD }}>
+              {p.name}: {p.name === 'Revenue' ? `৳${formatPrice(p.value)}` : p.value}
             </p>
           ))}
         </div>
@@ -124,10 +125,15 @@ export default function AdminAnalyticsPage() {
   return (
     <div className="space-y-8 pb-12">
       {/* Top Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Performance & Cash Flow
-        </h1>
+      <div className="border-b border-white/10 pb-4">
+        <div className="flex items-center space-x-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Performance & Cash Flow
+          </h1>
+          <span className="bg-gold/20 text-gold text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border border-gold/30">
+            Realtime BI
+          </span>
+        </div>
         <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1">
           Financial health, Cash on Delivery courier remittances, and regional demand analytics.
         </p>
@@ -142,8 +148,8 @@ export default function AdminAnalyticsPage() {
             </span>
             <TrendingUp className="w-4 h-4 text-gold" />
           </div>
-          <div className="text-3xl font-extrabold text-gold-light tabular-nums tracking-tight">
-            ৳{totalGrossRevenue.toLocaleString('en-US')}
+          <div className="text-3xl font-extrabold text-gold-light tabular-nums font-mono tracking-tight">
+            ৳{formatPrice(totalGrossRevenue)}
           </div>
           <span className="text-xs text-zinc-400 font-medium block">Total order value logged</span>
         </div>
@@ -155,8 +161,8 @@ export default function AdminAnalyticsPage() {
             </span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-extrabold text-emerald-300 tabular-nums tracking-tight">
-            ৳{deliveredRevenue.toLocaleString('en-US')}
+          <div className="text-3xl font-extrabold text-emerald-300 tabular-nums font-mono tracking-tight">
+            ৳{formatPrice(deliveredRevenue)}
           </div>
           <span className="text-xs text-emerald-200/90 font-medium block">Remitted by courier</span>
         </div>
@@ -168,8 +174,8 @@ export default function AdminAnalyticsPage() {
             </span>
             <Truck className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-3xl font-extrabold text-amber-300 tabular-nums tracking-tight">
-            ৳{inTransitRevenue.toLocaleString('en-US')}
+          <div className="text-3xl font-extrabold text-amber-300 tabular-nums font-mono tracking-tight">
+            ৳{formatPrice(inTransitRevenue)}
           </div>
           <span className="text-xs text-amber-200/90 font-medium block">With Steadfast riders</span>
         </div>
@@ -181,8 +187,8 @@ export default function AdminAnalyticsPage() {
             </span>
             <DollarSign className="w-4 h-4 text-zinc-400" />
           </div>
-          <div className="text-3xl font-extrabold text-white tabular-nums tracking-tight">
-            ৳{aov.toLocaleString('en-US')}
+          <div className="text-3xl font-extrabold text-white tabular-nums font-mono tracking-tight">
+            ৳{formatPrice(aov)}
           </div>
           <span className="text-xs text-zinc-400 font-medium block">Per patron checkout</span>
         </div>
@@ -213,7 +219,7 @@ export default function AdminAnalyticsPage() {
                 tick={{ fill: '#a1a1aa', fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(val) => `৳${val}`}
+                tickFormatter={(val) => `৳${formatPrice(val)}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Line 
@@ -237,7 +243,7 @@ export default function AdminAnalyticsPage() {
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>
               <h3 className="text-base font-bold text-white tracking-tight">Regional Delivery Demand</h3>
-              <span className="text-xs text-zinc-400 font-medium">Rajshahi Metro vs. 63 Outside Districts</span>
+              <span className="text-xs text-zinc-400 font-medium">Inside Dhaka Metro vs. 63 Outside Districts</span>
             </div>
             <PieChartIcon className="w-4 h-4 text-emerald-400" />
           </div>
@@ -267,7 +273,7 @@ export default function AdminAnalyticsPage() {
                     verticalAlign="bottom" 
                     height={36} 
                     iconType="circle"
-                    formatter={(value, entry, index) => <span className="text-zinc-200 text-xs font-medium">{value}</span>}
+                    formatter={(value) => <span className="text-zinc-200 text-xs font-medium">{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>
