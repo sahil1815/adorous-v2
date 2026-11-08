@@ -71,6 +71,7 @@ function AdminOrdersDesk() {
   const {
     orders,
     updateOrderStatus,
+    updateOrderPaymentStatus,
     updateOrderCourier,
     deleteOrder,
     resetToSampleOrders,
@@ -359,11 +360,17 @@ function AdminOrdersDesk() {
       fullAddress = rawAddress ? `${rawAddress}, ${rawDistrict}` : rawDistrict;
     }
 
+    const isOnline =
+      order.paymentMethod?.toLowerCase().includes('online') ||
+      order.paymentMethod?.toLowerCase().includes('bkash');
+    const codAmount = isOnline ? 0 : (typeof order.codAmount === 'number' ? order.codAmount : (order.grandTotal ?? 0));
+
     const textToCopy = [
       `Customer Name: ${order.customer.fullName || ''}`,
       `Customer Phone: ${order.customer.phone || ''}`,
       `Address: ${fullAddress}`,
-      `Total COD Collection: ৳${formatPrice(order.grandTotal ?? 0)}`,
+      `Total COD Collection: ৳${formatPrice(codAmount)}${isOnline ? ' (Paid Online - 0 COD)' : ''}`,
+      ...(isOnline && order.transactionId ? [`Transaction ID: ${order.transactionId}`] : []),
     ].join('\n');
 
     let success = false;
@@ -549,6 +556,7 @@ function AdminOrdersDesk() {
                 setSwappingProductState({ order: ord, item: it, index: idx })
               }
               onUpdateStatus={updateOrderStatus}
+              onUpdatePaymentStatus={updateOrderPaymentStatus}
               whatsAppLink={generateWhatsAppVerificationLink(order)}
               onOpenCustomWhatsAppModal={handleOpenCustomMessageModal}
               onSendWhatsAppApi={handleSendWhatsAppApi}

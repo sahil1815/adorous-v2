@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -150,6 +150,8 @@ interface OrderCardProps {
   onStartSwapProduct: (order: AdminOrder, item: any, idx: number) => void;
   // Status
   onUpdateStatus: (orderId: string, status: OrderStatus) => void;
+  // Payment Status
+  onUpdatePaymentStatus?: (orderId: string, status: 'pending' | 'verified' | 'fake') => void;
   // WhatsApp
   whatsAppLink: string;
   onOpenCustomWhatsAppModal: (order: AdminOrder) => void;
@@ -193,6 +195,7 @@ export default function OrderCard({
   onCopyOrderInfo,
   onStartSwapProduct,
   onUpdateStatus,
+  onUpdatePaymentStatus,
   whatsAppLink,
   onOpenCustomWhatsAppModal,
   onSendWhatsAppApi,
@@ -201,6 +204,19 @@ export default function OrderCard({
 }: OrderCardProps) {
   const statusConfig = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
   const totalItemCount = order.items.reduce((s, i) => s + i.quantity, 0);
+
+  const [copiedTrxId, setCopiedTrxId] = useState(false);
+  const isOnlinePayment =
+    order.paymentMethod?.toLowerCase().includes('online') ||
+    order.paymentMethod?.toLowerCase().includes('bkash');
+  const paymentStatus = order.paymentStatus || 'pending';
+
+  const handleCopyTrxId = (trx: string) => {
+    if (!trx) return;
+    navigator.clipboard.writeText(trx);
+    setCopiedTrxId(true);
+    setTimeout(() => setCopiedTrxId(false), 2000);
+  };
 
   return (
     <div
@@ -258,6 +274,103 @@ export default function OrderCard({
           </span>
         </div>
       </div>
+
+      {/* Online Payment & Verification Banner (if placed online) */}
+      {isOnlinePayment && (
+        <div
+          className={`p-3 sm:p-3.5 rounded-xs border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
+            paymentStatus === 'verified'
+              ? 'bg-emerald-950/40 border-emerald-500/40'
+              : paymentStatus === 'fake'
+              ? 'bg-rose-950/60 border-rose-500/60 shadow-xs'
+              : 'bg-amber-950/40 border-amber-500/40'
+          }`}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-bold text-white uppercase text-[10px] tracking-wider px-2 py-0.5 rounded-xs bg-white/10 border border-white/10">
+              Online Payment (bKash/Nagad)
+            </span>
+
+            {order.transactionId ? (
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs bg-black/50 border border-white/15 font-mono text-[11px]">
+                <span className="text-zinc-400">TrxID:</span>
+                <strong className="text-gold font-bold tracking-wider">{order.transactionId}</strong>
+                <button
+                  type="button"
+                  onClick={() => handleCopyTrxId(order.transactionId || '')}
+                  className="text-paper/60 hover:text-gold p-0.5 transition-colors cursor-pointer"
+                  title="Copy Transaction ID"
+                >
+                  {copiedTrxId ? (
+                    <Check className="w-3 h-3 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            ) : (
+              <span className="text-amber-300 italic text-[11px]">No TrxID provided</span>
+            )}
+
+            {/* Verification Status Pill */}
+            <span
+              className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider border ${
+                paymentStatus === 'verified'
+                  ? 'bg-emerald-900/60 text-emerald-300 border-emerald-500/50'
+                  : paymentStatus === 'fake'
+                  ? 'bg-rose-900/80 text-rose-200 border-rose-500/80 font-black'
+                  : 'bg-amber-900/60 text-amber-300 border-amber-500/50'
+              }`}
+            >
+              {paymentStatus === 'verified'
+                ? '✓ Payment Approved'
+                : paymentStatus === 'fake'
+                ? '⚠️ Fake / Error (Customer Notified)'
+                : '⏳ Verification Pending'}
+            </span>
+          </div>
+
+          {/* Admin Verification Actions */}
+          {onUpdatePaymentStatus && (
+            <div className="flex items-center gap-2 shrink-0">
+              {paymentStatus !== 'verified' && (
+                <button
+                  type="button"
+                  onClick={() => onUpdatePaymentStatus(order.orderId, 'verified')}
+                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xs font-semibold text-[11px] flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
+                  title="Approve Transaction ID as genuine"
+                >
+                  <Check className="w-3 h-3" />
+                  <span>Approve Payment</span>
+                </button>
+              )}
+
+              {paymentStatus !== 'fake' && (
+                <button
+                  type="button"
+                  onClick={() => onUpdatePaymentStatus(order.orderId, 'fake')}
+                  className="px-2.5 py-1 bg-rose-900/80 hover:bg-rose-800 text-rose-200 border border-rose-500/50 rounded-xs font-semibold text-[11px] flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
+                  title="Mark as Fake / Error (alerts customer on tracking page)"
+                >
+                  <X className="w-3 h-3" />
+                  <span>Mark as Fake / Error</span>
+                </button>
+              )}
+
+              {paymentStatus === 'fake' && (
+                <button
+                  type="button"
+                  onClick={() => onUpdatePaymentStatus(order.orderId, 'pending')}
+                  className="px-2 py-1 bg-white/10 hover:bg-white/15 text-paper/70 hover:text-paper rounded-xs text-[10px] transition-colors cursor-pointer"
+                  title="Reset status back to Pending"
+                >
+                  Reset Pending
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main 3-Column Content */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-6 text-xs bg-[#191919] md:bg-transparent rounded-sm md:rounded-none border border-white/10 md:border-none divide-y divide-white/10 md:divide-y-0 overflow-hidden">
@@ -606,6 +719,17 @@ export default function OrderCard({
               </div>
             )}
 
+            {/* Online Payment Discount */}
+            {order.onlineDiscountAmount && order.onlineDiscountAmount > 0 && (
+              <div className="flex items-center justify-between text-[11px] text-emerald-400">
+                <span className="flex items-center space-x-1">
+                  <Tag className="w-3 h-3" />
+                  <span>Online Payment Discount:</span>
+                </span>
+                <span>-৳{formatPrice(order.onlineDiscountAmount)}</span>
+              </div>
+            )}
+
             {/* Delivery Charge */}
             <div className="flex items-center justify-between text-xs">
               <span className="text-paper/60 flex items-center gap-1 text-[11px]">
@@ -708,58 +832,75 @@ export default function OrderCard({
             </div>
 
             {/* Total COD Collection */}
-            <div className="flex items-center justify-between">
-              <span className="text-paper/50">Total COD Collection:</span>
-              {editingOrderCod?.orderId === order.orderId ? (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-xs">৳</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={editingOrderCod.amount}
-                    onChange={(e) =>
-                      onCodAmountChange(Math.max(0, parseInt(e.target.value) || 0))
-                    }
-                    className="w-20 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-gold text-right"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => onSaveCodAmount(order.orderId)}
-                    disabled={isSavingCod}
-                    className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light cursor-pointer"
-                    title="Save custom COD"
-                  >
-                    {isSavingCod ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Check className="w-3 h-3" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onCancelEditCod}
-                    className="p-1 text-paper/50 hover:text-paper cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
+            {isOnlinePayment ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-paper/50 block text-[11px]">Total COD Collection:</span>
+                  <span className="text-[10px] text-emerald-400 font-medium">Customer Paid Online</span>
                 </div>
-              ) : (
-                <div className="flex items-center gap-1.5">
-                  <strong className="text-base font-extrabold text-gold tabular-nums tracking-tight">
-                    ৳{formatPrice(order.grandTotal)}
+                <div className="flex flex-col items-end">
+                  <strong className="text-base font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                    ৳0 COD
                   </strong>
-                  <button
-                    type="button"
-                    onClick={() => onStartEditCod(order.orderId, order.grandTotal)}
-                    className="text-[11px] text-zinc-400 hover:text-gold flex items-center gap-0.5 cursor-pointer"
-                    title="Manually adjust COD collection amount"
-                  >
-                    <Edit2 className="w-2.5 h-2.5" />
-                  </button>
+                  <span className="text-[10px] text-paper/40 tabular-nums">
+                    Paid Online: ৳{formatPrice(order.grandTotal)}
+                  </span>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="text-paper/50">Total COD Collection:</span>
+                {editingOrderCod?.orderId === order.orderId ? (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gold font-bold text-xs">৳</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editingOrderCod.amount}
+                      onChange={(e) =>
+                        onCodAmountChange(Math.max(0, parseInt(e.target.value) || 0))
+                      }
+                      className="w-20 px-1.5 py-0.5 bg-[#222] border border-white/20 rounded-xs text-xs font-bold text-gold text-right"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onSaveCodAmount(order.orderId)}
+                      disabled={isSavingCod}
+                      className="p-1 bg-gold text-ink rounded-xs hover:bg-gold-light cursor-pointer"
+                      title="Save custom COD"
+                    >
+                      {isSavingCod ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Check className="w-3 h-3" />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onCancelEditCod}
+                      className="p-1 text-paper/50 hover:text-paper cursor-pointer"
+                      title="Cancel"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <strong className="text-base font-extrabold text-gold tabular-nums tracking-tight">
+                      ৳{formatPrice(order.grandTotal)}
+                    </strong>
+                    <button
+                      type="button"
+                      onClick={() => onStartEditCod(order.orderId, order.grandTotal)}
+                      className="text-[11px] text-zinc-400 hover:text-gold flex items-center gap-0.5 cursor-pointer"
+                      title="Manually adjust COD collection amount"
+                    >
+                      <Edit2 className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

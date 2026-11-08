@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { deductStockAction } from './productActions';
 import { getWelcomeOfferSettings } from './welcomeOfferActions';
+import { getPaymentSettings } from './paymentSettingsActions';
 import { generateNextOrderId } from '@/lib/orderId';
 
 export async function createOrder(orderData: any) {
@@ -86,6 +87,52 @@ export async function createOrder(orderData: any) {
       }
     }
 
+    // Determine Payment Mode & Online Payment Handling
+    const isOnlinePayment =
+      orderData.paymentMethod === 'bkash' ||
+      orderData.paymentMethod === 'online' ||
+      (typeof orderData.paymentMethod === 'string' &&
+        orderData.paymentMethod.toLowerCase().includes('online'));
+
+    let finalPaymentMethod = isOnlinePayment ? 'Online Payment (bKash/Nagad)' : (orderData.paymentMethod || 'Cash on Delivery');
+    let finalTransactionId: string | null = null;
+    let finalOnlineDiscountAmount: number | null = null;
+    let finalCodAmount = 0;
+    let finalPaymentStatus = 'pending';
+
+    if (isOnlinePayment) {
+      const rawTrxId = typeof orderData.transactionId === 'string' ? orderData.transactionId.trim() : '';
+      if (!rawTrxId) {
+        return {
+          success: false,
+          error: 'Please provide a valid bKash or Nagad Transaction ID to complete your order.',
+        };
+      }
+      finalTransactionId = rawTrxId;
+
+      // Validate and apply online discount amount from authoritative settings
+      try {
+        const paymentSettings = await getPaymentSettings();
+        if (paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0) {
+          finalOnlineDiscountAmount = paymentSettings.onlineDiscountAmount;
+        }
+      } catch (err) {
+        console.error('[createOrder] Error fetching payment settings:', err);
+      }
+
+      // Recompute grand total incorporating online discount
+      const sub = Number(orderData.subtotal) || 0;
+      const ship = Number(orderData.shippingFee) || 0;
+      const promoDisc = Number(validatedDiscountAmount) || 0;
+      const onlineDisc = Number(finalOnlineDiscountAmount) || 0;
+      validatedGrandTotal = Math.max(0, Math.round((sub - promoDisc - onlineDisc + ship) * 100) / 100);
+
+      // On online payment, the courier collects 0 COD!
+      finalCodAmount = 0;
+    } else {
+      finalCodAmount = validatedGrandTotal;
+    }
+
     // Generate authoritative server-side continuous order ID (AF-YYYY-10001, AF-YYYY-10002, ...)
     // Preserves legacy import IDs (AF-LEG-*) if explicitly provided
     let finalOrderId = orderData.orderId;
@@ -99,7 +146,11 @@ export async function createOrder(orderData: any) {
         customerUserId: orderData.customerUserId || null,
         status: orderData.status || 'pending',
         courierPartner: orderData.courierPartner,
-        paymentMethod: orderData.paymentMethod,
+        paymentMethod: finalPaymentMethod,
+        transactionId: finalTransactionId,
+        paymentStatus: finalPaymentStatus,
+        onlineDiscountAmount: finalOnlineDiscountAmount,
+        codAmount: finalCodAmount,
         subtotal: orderData.subtotal,
         shippingFee: orderData.shippingFee,
         discountAmount: validatedDiscountAmount,
@@ -150,7 +201,9 @@ export async function createOrder(orderData: any) {
       }))
     );
 
-    revalidatePath('/admin');
+    try {
+      revalidatePath('/admin');
+    } catch {}
     return { success: true, order };
   } catch (error) {
     console.error("Failed to create order:", error);
@@ -196,6 +249,15 @@ export async function getOrders() {
         whatsappUpdates: false,
       },
       paymentMethod: order.paymentMethod,
+      transactionId: (order as any).transactionId || null,
+      paymentStatus: ((order as any).paymentStatus || 'pending') as 'pending' | 'verified' | 'fake',
+      onlineDiscountAmount: (order as any).onlineDiscountAmount || undefined,
+      codAmount:
+        typeof (order as any).codAmount === 'number'
+          ? (order as any).codAmount
+          : (order.paymentMethod?.toLowerCase().includes('online') || order.paymentMethod?.toLowerCase().includes('bkash'))
+          ? 0
+          : order.grandTotal,
       subtotal: order.subtotal,
       shippingFee: order.shippingFee,
       discountAmount: order.discountAmount || undefined,
@@ -236,6 +298,41 @@ export async function updateOrderStatus(orderId: string, status: string) {
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function updateOrderPaymentStatus(orderId: string, paymentStatus: 'pending' | 'verified' | 'fake') {
+  try {
+    const updated = await prisma.order.update({
+      where: { orderId },
+      data: { paymentStatus },
+    });
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/track-order');
+      revalidatePath('/account/orders');
+    } catch {}
+    return { success: true, order: updated };
+  } catch (error) {
+    console.error('[updateOrderPaymentStatus] Error:', error);
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function updateOrderCodAmount(orderId: string, codAmount: number) {
+  try {
+    const updated = await prisma.order.update({
+      where: { orderId },
+      data: { codAmount: Math.max(0, codAmount) },
+    });
+    try {
+      revalidatePath('/admin');
+      revalidatePath('/track-order');
+    } catch {}
+    return { success: true, order: updated };
+  } catch (error) {
+    console.error('[updateOrderCodAmount] Error:', error);
     return { success: false, error: String(error) };
   }
 }

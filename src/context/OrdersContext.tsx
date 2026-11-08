@@ -5,6 +5,8 @@ import {
   getOrders, 
   createOrder, 
   updateOrderStatus as updateOrderStatusDb,
+  updateOrderPaymentStatus as updateOrderPaymentStatusDb,
+  updateOrderCodAmount as updateOrderCodAmountDb,
   updateOrderCourier as updateOrderCourierDb,
   updateInternalNotes as updateInternalNotesDb,
   deleteOrder as deleteOrderDb,
@@ -43,6 +45,8 @@ export interface AdminOrderItem {
   quantity: number;
 }
 
+export type PaymentVerificationStatus = 'pending' | 'verified' | 'fake';
+
 export interface AdminOrder {
   orderId: string;
   customerUserId?: string | null;
@@ -60,6 +64,10 @@ export interface AdminOrder {
     whatsappUpdates: boolean;
   };
   paymentMethod: string;
+  transactionId?: string | null;
+  paymentStatus?: PaymentVerificationStatus;
+  onlineDiscountAmount?: number | null;
+  codAmount?: number;
   items: AdminOrderItem[];
   subtotal: number;
   shippingFee: number;
@@ -76,6 +84,8 @@ interface OrdersContextType {
       Partial<Pick<AdminOrder, 'status' | 'courierPartner' | 'orderId'>>
   ) => Promise<{ success: boolean; order?: { orderId: string; [key: string]: unknown }; error?: string }>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
+  updateOrderPaymentStatus: (orderId: string, paymentStatus: PaymentVerificationStatus) => Promise<{ success: boolean; error?: string }>;
+  updateOrderCodAmount: (orderId: string, codAmount: number) => Promise<{ success: boolean; error?: string }>;
   updateOrderCourier: (orderId: string, courierPartner: AdminOrder['courierPartner'], consignmentId: string) => Promise<void>;
   updateInternalNotes: (orderId: string, notes: string) => Promise<void>;
   deleteOrder: (orderId: string) => Promise<void>;
@@ -147,6 +157,25 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     // Optimistic update
     setOrders(prev => prev.map(o => (o.orderId === orderId ? { ...o, status } : o)));
     await updateOrderStatusDb(orderId, status);
+  };
+
+  const updateOrderPaymentStatus = async (orderId: string, paymentStatus: PaymentVerificationStatus) => {
+    // Optimistic update
+    setOrders(prev => prev.map(o => (o.orderId === orderId ? { ...o, paymentStatus } : o)));
+    const res = await updateOrderPaymentStatusDb(orderId, paymentStatus);
+    if (!res.success) {
+      await refreshOrders();
+    }
+    return res;
+  };
+
+  const updateOrderCodAmount = async (orderId: string, codAmount: number) => {
+    setOrders(prev => prev.map(o => (o.orderId === orderId ? { ...o, codAmount } : o)));
+    const res = await updateOrderCodAmountDb(orderId, codAmount);
+    if (!res.success) {
+      await refreshOrders();
+    }
+    return res;
   };
 
   const updateOrderCourier = async (
@@ -373,6 +402,8 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         orders,
         addOrder,
         updateOrderStatus,
+        updateOrderPaymentStatus,
+        updateOrderCodAmount,
         updateOrderCourier,
         updateInternalNotes,
         deleteOrder,

@@ -13,6 +13,7 @@ import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { useNewVisitorOffer, getItemComparePrice } from '@/context/NewVisitorOfferContext';
 import { NEW_VISITOR_OFFER } from '@/data/newVisitorOffer';
 import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app/actions/draftActions';
+import { getPaymentSettings, PaymentSettingsData, DEFAULT_PAYMENT_SETTINGS } from '@/app/actions/paymentSettingsActions';
 import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import { trackBeginCheckout } from '@/lib/gtag';
@@ -29,6 +30,8 @@ import {
   Sparkles,
   Tag,
   CheckCircle2,
+  Check,
+  Copy,
   X,
   MapPin,
   ChevronDown,
@@ -91,6 +94,32 @@ export default function CheckoutPage() {
   const [giftNote, setGiftNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
+
+  // Online Payment (bKash/Nagad) Settings & TrxID
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettingsData>(DEFAULT_PAYMENT_SETTINGS);
+  const [transactionId, setTransactionId] = useState('');
+  const [copiedMfs, setCopiedMfs] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getPaymentSettings()
+      .then((data) => {
+        if (isMounted && data) {
+          setPaymentSettings(data);
+        }
+      })
+      .catch((err) => console.error('Failed to load payment settings:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleCopyMfs = (num: string) => {
+    if (!num) return;
+    navigator.clipboard.writeText(num);
+    setCopiedMfs(num);
+    setTimeout(() => setCopiedMfs(null), 2000);
+  };
 
   // Auto-fill from signed-in customer profile
   useEffect(() => {
@@ -191,11 +220,17 @@ export default function CheckoutPage() {
   // NVO is applied when offer is active, gives savings from compare price, and customer pays <= coupon total
   const useNvo = isOfferActive && nvoDiscount > 0 && nvoPayable <= couponPayable;
 
+  const isOnlineSelected = paymentMethod === 'bkash';
+  const onlineDiscount =
+    isOnlineSelected && paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0
+      ? paymentSettings.onlineDiscountAmount
+      : 0;
+
   const checkoutSubtotal = baseSubtotal;
   const totalDiscount = useNvo
     ? nvoDiscount
     : Math.round((adminDiscountAmount + couponDiscount) * 100) / 100;
-  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - totalDiscount + shippingFee) * 100) / 100);
+  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - totalDiscount - onlineDiscount + shippingFee) * 100) / 100);
 
   // Manual and onBlur save trigger
   const triggerDraftSave = useCallback(() => {
@@ -210,7 +245,9 @@ export default function CheckoutPage() {
       address,
       district: selectedDistrict,
       giftNote,
-      paymentMethod,
+      paymentMethod: isOnlineSelected ? 'Online Payment (bKash/Nagad)' : 'Cash on Delivery',
+      transactionId: isOnlineSelected ? transactionId : undefined,
+      onlineDiscountAmount: onlineDiscount > 0 ? onlineDiscount : undefined,
       cartItems: (items || []).map((i) => ({
         product: {
           id: i.product.id,
@@ -242,6 +279,9 @@ export default function CheckoutPage() {
     selectedDistrict,
     giftNote,
     paymentMethod,
+    isOnlineSelected,
+    transactionId,
+    onlineDiscount,
     items,
     checkoutSubtotal,
     shippingFee,
@@ -366,6 +406,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (isOnlineSelected && !transactionId.trim()) {
+      setErrorMsg('Please enter your bKash or Nagad Transaction ID (TrxID) to complete your order.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const orderData = {
@@ -380,7 +425,10 @@ export default function CheckoutPage() {
         giftNote: giftNote || undefined,
         whatsappUpdates,
       },
-      paymentMethod,
+      paymentMethod: isOnlineSelected ? 'Online Payment (bKash/Nagad)' : 'Cash on Delivery',
+      transactionId: isOnlineSelected ? transactionId.trim() : undefined,
+      onlineDiscountAmount: onlineDiscount > 0 ? onlineDiscount : undefined,
+      codAmount: isOnlineSelected ? 0 : grandTotal,
       items,
       subtotal: checkoutSubtotal,
       shippingFee,
@@ -955,38 +1003,152 @@ export default function CheckoutPage() {
 
               {/* Payment Method Section */}
               <div className="bg-paper border border-line p-5 rounded-[2px] shadow-xs space-y-4">
-                <div className="flex items-center gap-2 border-b border-line pb-3">
+                <div className="flex items-center justify-between border-b border-line pb-3">
                   <h2 className="font-medium text-sm text-ink">
                     Choose payment method
                   </h2>
+                  {paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0 && (
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-xs border border-emerald-300">
+                      Save ৳{formatPrice(paymentSettings.onlineDiscountAmount)} Online
+                    </span>
+                  )}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  {/* Option A: bKash (Online Payment equivalent) */}
-                  <label
-                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${paymentMethod === 'bkash'
-                        ? 'border-gold bg-sand/30 shadow-xs'
+                  {/* Option A: Online Payment (bKash/Nagad) */}
+                  <div
+                    className={`border rounded-xs transition-all ${
+                      paymentMethod === 'bkash'
+                        ? 'border-gold bg-sand/20 shadow-xs'
                         : 'border-line hover:border-line/80'
-                      }`}
+                    }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === 'bkash'}
-                        onChange={() => setPaymentMethod('bkash')}
-                        className="accent-gold w-3.5 h-3.5 cursor-pointer"
-                      />
-                      <span className="font-medium text-ink">Online Payment (bKash/Nagad)</span>
-                    </div>
-                  </label>
+                    <label
+                      onClick={() => setPaymentMethod('bkash')}
+                      className="flex items-center justify-between p-3.5 cursor-pointer select-none"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          checked={paymentMethod === 'bkash'}
+                          onChange={() => setPaymentMethod('bkash')}
+                          className="accent-gold w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span className="font-medium text-ink">Online Payment (bKash/Nagad)</span>
+                      </div>
+                      {paymentSettings.enabled && paymentSettings.onlineDiscountAmount > 0 && (
+                        <span className="text-[11px] font-bold text-emerald-700">
+                          -৳{formatPrice(paymentSettings.onlineDiscountAmount)} OFF
+                        </span>
+                      )}
+                    </label>
+
+                    {/* Expandable MFS Payment Box */}
+                    {paymentMethod === 'bkash' && (
+                      <div className="px-3.5 pb-4 pt-1 border-t border-line/60 space-y-3.5 animate-in fade-in duration-150">
+                        <p className="text-[11px] text-text-muted leading-relaxed">
+                          {paymentSettings.instructions ||
+                            'Please Send Money to any of the numbers below, then enter your Transaction ID to complete your order.'}
+                        </p>
+
+                        {/* MFS Number Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {/* bKash Card */}
+                          <div className="p-2.5 bg-paper border border-line rounded-xs flex items-center justify-between">
+                            <div>
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-pink-700 block">
+                                bKash · {paymentSettings.bkashAccountType}
+                              </span>
+                              <span className="font-mono font-bold text-ink text-xs">
+                                {paymentSettings.bkashNumber}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyMfs(paymentSettings.bkashNumber)}
+                              className="px-2 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Copy bKash Number"
+                            >
+                              {copiedMfs === paymentSettings.bkashNumber ? (
+                                <>
+                                  <Check className="w-2.5 h-2.5 text-emerald-700" />
+                                  <span className="text-emerald-700 font-semibold">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-2.5 h-2.5" />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Nagad Card */}
+                          <div className="p-2.5 bg-paper border border-line rounded-xs flex items-center justify-between">
+                            <div>
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 block">
+                                Nagad · {paymentSettings.nagadAccountType}
+                              </span>
+                              <span className="font-mono font-bold text-ink text-xs">
+                                {paymentSettings.nagadNumber}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyMfs(paymentSettings.nagadNumber)}
+                              className="px-2 py-1 text-[10px] font-medium bg-sand/60 hover:bg-sand border border-line rounded-xs text-ink flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Copy Nagad Number"
+                            >
+                              {copiedMfs === paymentSettings.nagadNumber ? (
+                                <>
+                                  <Check className="w-2.5 h-2.5 text-emerald-700" />
+                                  <span className="text-emerald-700 font-semibold">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-2.5 h-2.5" />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Transaction ID Input */}
+                        <div className="space-y-1.5 pt-1">
+                          <label className="text-[11px] font-semibold text-ink flex items-center justify-between">
+                            <span>Transaction ID (TrxID) *</span>
+                            <span className="text-[10px] text-text-muted font-normal">
+                              Required
+                            </span>
+                          </label>
+                          <input
+                            type="text"
+                            value={transactionId}
+                            onChange={(e) => {
+                              setTransactionId(e.target.value.toUpperCase());
+                              setErrorMsg(null);
+                            }}
+                            placeholder="e.g. BL92A8ZK9P or 9H7..."
+                            className="w-full px-3 py-2 bg-paper border border-gold/70 focus:border-gold rounded-xs text-ink font-mono font-semibold text-xs placeholder:text-text-muted/60 focus:outline-none shadow-xs"
+                          />
+                          <p className="text-[10px] text-text-muted leading-tight">
+                            You are booking with <strong>0 COD</strong>. Our team will verify this Transaction ID after order placement.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Option B: Cash on Delivery */}
                   <label
-                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${paymentMethod === 'cod'
+                    onClick={() => setPaymentMethod('cod')}
+                    className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${
+                      paymentMethod === 'cod'
                         ? 'border-gold bg-sand/30 shadow-xs'
                         : 'border-line hover:border-line/80'
-                      }`}
+                    }`}
                   >
                     <div className="flex items-center space-x-3">
                       <input
@@ -1042,6 +1204,17 @@ export default function CheckoutPage() {
                     </>
                   )}
 
+                  {/* Online Payment Discount */}
+                  {onlineDiscount > 0 && (
+                    <div className="flex justify-between items-center text-emerald-700 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        <span>Online Payment Discount (bKash/Nagad)</span>
+                      </span>
+                      <span className="tabular-nums">-৳{formatPrice(onlineDiscount)}</span>
+                    </div>
+                  )}
+
                   {/* Hint when both NVO and coupon exist but NVO wins */}
                   {useNvo && couponDiscount > 0 && appliedCoupon && (
                     <p className="text-[10px] text-text-muted italic">
@@ -1073,11 +1246,21 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Total Payable (Always shown here on Desktop, also shown here on Mobile to preserve normal flow) */}
-                <div className="border-t border-line/80 pt-4 flex justify-between items-center font-semibold text-sm">
-                  <span>Total Payable</span>
-                  <span className="tabular-nums">
-                    {selectedDistrict ? `৳${formatPrice(grandTotal)}` : <span className="text-xs font-normal">Pending address</span>}
-                  </span>
+                <div className="border-t border-line/80 pt-4 space-y-1.5">
+                  <div className="flex justify-between items-center font-semibold text-sm">
+                    <span>Total Payable</span>
+                    <span className="tabular-nums">
+                      {selectedDistrict ? `৳${formatPrice(grandTotal)}` : <span className="text-xs font-normal">Pending address</span>}
+                    </span>
+                  </div>
+
+                  {/* 0 COD status notice */}
+                  {isOnlineSelected && (
+                    <div className="flex justify-between items-center text-[11px] text-emerald-700 font-semibold pt-1">
+                      <span>Doorstep Cash Collection:</span>
+                      <span className="uppercase tracking-wider">৳0 COD (Paid Online)</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

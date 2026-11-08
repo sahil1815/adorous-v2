@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Sparkles,
   MessageCircle,
+  CreditCard,
   LucideIcon,
 } from 'lucide-react';
 
@@ -137,6 +138,12 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         href: '/admin/whatsapp',
         icon: MessageCircle,
         description: 'Customize order verification templates and variable placeholders',
+      },
+      {
+        title: 'Payment & MFS Settings',
+        href: '/admin/payment-settings',
+        icon: CreditCard,
+        description: 'Configure bKash, Nagad numbers, account types & online discount',
       },
     ],
   },

@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   RotateCcw,
   AlertCircle,
+  AlertTriangle,
   ArrowRight,
   Sparkles,
   Phone
@@ -47,6 +48,8 @@ interface TrackingData {
   address: string;
   estimatedDelivery: string;
   paymentMethod: string;
+  transactionId?: string | null;
+  paymentStatus?: 'pending' | 'verified' | 'fake';
   codAmount: number;
   items: Array<{
     name: string;
@@ -152,7 +155,11 @@ function TrackOrderContent() {
         address: dbOrder.customer.address,
         estimatedDelivery: isDhaka ? 'Within 24–48 Hours' : 'Within 48–72 Hours',
         paymentMethod: dbOrder.paymentMethod,
-        codAmount: dbOrder.grandTotal,
+        transactionId: dbOrder.transactionId || null,
+        paymentStatus: dbOrder.paymentStatus || 'pending',
+        codAmount: (dbOrder.paymentMethod?.toLowerCase().includes('online') || dbOrder.paymentMethod?.toLowerCase().includes('bkash'))
+          ? 0
+          : (typeof dbOrder.codAmount === 'number' ? dbOrder.codAmount : dbOrder.grandTotal),
         items: dbOrder.items.map((i) => ({
           name: i.product.name,
           category: i.product.category,
@@ -222,8 +229,12 @@ function TrackOrderContent() {
         district: recentOrder.customer.district,
         address: recentOrder.customer.address,
         estimatedDelivery: isDhaka ? 'Today by 6:00 PM' : 'Within 48 hours',
-        paymentMethod: 'Cash on Delivery (COD)',
-        codAmount: recentOrder.grandTotal,
+        paymentMethod: recentOrder.paymentMethod || 'Cash on Delivery (COD)',
+        transactionId: recentOrder.transactionId || null,
+        paymentStatus: recentOrder.paymentStatus || 'pending',
+        codAmount: (recentOrder.paymentMethod?.toLowerCase().includes('online') || recentOrder.paymentMethod?.toLowerCase().includes('bkash'))
+          ? 0
+          : (typeof recentOrder.codAmount === 'number' ? recentOrder.codAmount : recentOrder.grandTotal),
         items: recentOrder.items.map((i: any) => ({
           name: i.product.name,
           category: i.product.categoryLabel || i.product.category,
@@ -642,13 +653,91 @@ function TrackOrderContent() {
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Payment Mode:</span>
                   <span className="font-semibold text-ink mt-0.5 block">{trackingData.paymentMethod}</span>
+                  {trackingData.transactionId && (
+                    <span className="text-[10px] font-mono text-gold-deep block font-bold">
+                      TrxID: {trackingData.transactionId}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-ink/50 block">Amount Payable (COD):</span>
-                  <span className="font-semibold text-gold-deep mt-0.5 block text-sm">৳{formatPrice(trackingData.codAmount)}</span>
+                  <span className="font-semibold text-gold-deep mt-0.5 block text-sm">
+                    {trackingData.codAmount === 0 ? '৳0 COD (Paid Online)' : `৳${formatPrice(trackingData.codAmount)}`}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {/* Payment Verification Alerts (for Online Payment) */}
+            {trackingData.paymentStatus === 'fake' && (
+              <div className="bg-red-50 border-2 border-red-500 rounded-xs p-5 space-y-3 shadow-md animate-in fade-in duration-200">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="font-semibold text-sm text-red-900 tracking-tight">
+                      Payment Verification Issue: Invalid Transaction ID
+                    </h4>
+                    <p className="text-xs text-red-800 leading-relaxed">
+                      Our atelier accounts desk could not verify the Transaction ID (
+                      <strong className="font-mono">{trackingData.transactionId || 'Unspecified'}</strong>
+                      ) provided for order <strong>{trackingData.orderId}</strong>. It has been marked as invalid or unverified. Your parcel dispatch is currently paused until payment is confirmed.
+                    </p>
+                    <div className="pt-2 flex flex-wrap items-center gap-3">
+                      <a
+                        href={`https://wa.me/8801854411797?text=${encodeURIComponent(
+                          `Hello Adorous Fashion, I am contacting you regarding order ${trackingData.orderId}. My submitted TrxID is ${trackingData.transactionId || ''}. Here is my payment receipt screenshot:`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xs font-semibold text-xs transition-colors shadow-xs"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Send Payment Screenshot on WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {trackingData.paymentStatus === 'verified' && (
+              <div className="bg-emerald-50 border border-emerald-300 rounded-xs p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-900 shadow-xs">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    <strong>Payment Confirmed ✓</strong> Your bKash/Nagad payment has been verified by our team.
+                    {trackingData.transactionId && (
+                      <span className="font-mono text-[11px] ml-1.5">
+                        (TrxID: {trackingData.transactionId})
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <span className="font-bold uppercase tracking-wider text-[10px] bg-emerald-200/80 text-emerald-950 px-2.5 py-1 rounded-xs border border-emerald-400 shrink-0">
+                  0 COD at Delivery
+                </span>
+              </div>
+            )}
+
+            {trackingData.paymentStatus === 'pending' &&
+              (trackingData.paymentMethod?.toLowerCase().includes('online') ||
+                trackingData.paymentMethod?.toLowerCase().includes('bkash')) && (
+                <div className="bg-amber-50 border border-amber-300 rounded-xs p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-900 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>
+                      <strong>Payment Verification in Progress:</strong> Our accounts team is verifying your Transaction ID (
+                      <span className="font-mono font-bold">{trackingData.transactionId || 'Pending'}</span>
+                      ). You will pay ৳0 COD at doorstep.
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200/80 text-amber-950 px-2 py-0.5 rounded-xs shrink-0">
+                    Pending Verification
+                  </span>
+                </div>
+              )}
 
             {/* 4-Stage Visual Journey Timeline */}
             <div className="bg-paper border border-line p-6 sm:p-8 rounded-[2px] shadow-xs space-y-6">

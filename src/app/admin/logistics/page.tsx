@@ -32,7 +32,15 @@ export default function AdminLogisticsPage() {
     return isDispatchReady && matchesPartner;
   });
 
-  const totalCodValue = dispatchOrders.reduce((sum, o) => sum + o.grandTotal, 0);
+  const getOrderCodAmount = (o: any) => {
+    const isOnline =
+      o.paymentMethod?.toLowerCase().includes('online') ||
+      o.paymentMethod?.toLowerCase().includes('bkash');
+    if (isOnline) return 0;
+    return typeof o.codAmount === 'number' ? o.codAmount : (o.grandTotal || 0);
+  };
+
+  const totalCodValue = dispatchOrders.reduce((sum, o) => sum + getOrderCodAmount(o), 0);
   const dhakaCount = dispatchOrders.filter((o) =>
     o.customer.district.toLowerCase().includes('dhaka')
   ).length;
@@ -204,7 +212,14 @@ export default function AdminLogisticsPage() {
                       </span>
                     </td>
                     <td className="py-3 px-3 text-right font-mono font-bold text-paper print:text-black text-sm">
-                      ৳{order.grandTotal.toLocaleString('en-US')}
+                      {getOrderCodAmount(order) === 0 ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-emerald-400 print:text-black font-semibold text-xs uppercase">৳0 COD</span>
+                          <span className="text-[10px] text-paper/40 print:text-gray-500 font-normal">Paid Online</span>
+                        </div>
+                      ) : (
+                        `৳${getOrderCodAmount(order).toLocaleString('en-US')}`
+                      )}
                     </td>
                     <td className="py-3 px-3 text-center print:table-cell hidden sm:table-cell">
                       <div className="w-5 h-5 border border-white/20 print:border-black rounded-xs mx-auto" />

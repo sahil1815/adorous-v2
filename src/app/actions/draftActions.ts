@@ -23,6 +23,8 @@ export interface DraftCheckoutInput {
   district?: string;
   giftNote?: string;
   paymentMethod?: string;
+  transactionId?: string;
+  onlineDiscountAmount?: number;
   cartItems: any[];
   subtotal: number;
   shippingFee: number;
@@ -72,6 +74,8 @@ export async function saveDraftCheckoutAction(data: DraftCheckoutInput) {
         district: data.district?.trim() || null,
         giftNote: data.giftNote?.trim() || null,
         paymentMethod: data.paymentMethod || 'Cash on Delivery',
+        transactionId: data.transactionId?.trim() || null,
+        onlineDiscountAmount: data.onlineDiscountAmount ?? null,
         cartItemsJson: cartJson,
         subtotal: data.subtotal || 0,
         shippingFee: data.shippingFee || 0,
@@ -90,6 +94,8 @@ export async function saveDraftCheckoutAction(data: DraftCheckoutInput) {
         district: data.district?.trim() || null,
         giftNote: data.giftNote?.trim() || null,
         paymentMethod: data.paymentMethod || 'Cash on Delivery',
+        transactionId: data.transactionId?.trim() || null,
+        onlineDiscountAmount: data.onlineDiscountAmount ?? null,
         cartItemsJson: cartJson,
         subtotal: data.subtotal || 0,
         shippingFee: data.shippingFee || 0,
@@ -233,6 +239,10 @@ export async function convertDraftCheckoutToOrderAction(
         status: 'pending',
         courierPartner: null,
         paymentMethod,
+        transactionId: draft.transactionId || null,
+        paymentStatus: 'pending',
+        onlineDiscountAmount: draft.onlineDiscountAmount || null,
+        codAmount: (paymentMethod.toLowerCase().includes('online') || paymentMethod.toLowerCase().includes('bkash')) ? 0 : grandTotal,
         subtotal,
         shippingFee,
         discountAmount,
@@ -384,6 +394,8 @@ export async function getDraftCheckoutsAction() {
         district: d.district || '',
         giftNote: d.giftNote || '',
         paymentMethod: d.paymentMethod || 'Cash on Delivery',
+        transactionId: d.transactionId || undefined,
+        onlineDiscountAmount: d.onlineDiscountAmount || undefined,
         cartItems: parsedItems,
         subtotal: d.subtotal,
         shippingFee: d.shippingFee,

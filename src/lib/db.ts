@@ -12,26 +12,30 @@ const globalForPrisma = globalThis as unknown as {
  * will occur when transactions or pooled connections are reused.
  */
 function getDatasourceUrl(): string | undefined {
-  const rawUrl = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
+  const rawUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_POOLED;
   if (!rawUrl) return undefined;
 
   try {
     const parsed = new URL(rawUrl);
-    const isPooler =
-      parsed.hostname.includes('pooler.supabase.com') ||
-      parsed.hostname.includes('pooler') ||
-      parsed.port === '6543' ||
-      rawUrl.includes('pgbouncer=true');
+    const isTransactionPooler = parsed.port === '6543' || rawUrl.includes('6543');
 
-    if (isPooler && !parsed.searchParams.has('pgbouncer')) {
-      parsed.searchParams.set('pgbouncer', 'true');
+    if (isTransactionPooler) {
+      if (!parsed.searchParams.has('pgbouncer')) {
+        parsed.searchParams.set('pgbouncer', 'true');
+      }
+    } else {
+      parsed.searchParams.delete('pgbouncer');
+    }
+
+    if (!parsed.searchParams.has('connection_limit')) {
+      parsed.searchParams.set('connection_limit', '5');
+    }
+    if (!parsed.searchParams.has('pool_timeout')) {
+      parsed.searchParams.set('pool_timeout', '20');
     }
 
     return parsed.toString();
   } catch {
-    if (rawUrl.includes('pooler.supabase.com') && !rawUrl.includes('pgbouncer=true')) {
-      return rawUrl.includes('?') ? `${rawUrl}&pgbouncer=true` : `${rawUrl}?pgbouncer=true`;
-    }
     return rawUrl;
   }
 }

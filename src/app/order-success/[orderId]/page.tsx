@@ -33,6 +33,10 @@ interface OrderData {
     whatsappUpdates: boolean;
   };
   paymentMethod: string;
+  transactionId?: string;
+  paymentStatus?: string;
+  onlineDiscountAmount?: number;
+  codAmount?: number;
   items: Array<{
     product: {
       id: string;
@@ -343,10 +347,27 @@ export default function OrderSuccessPage() {
                   <span className="text-[10px] uppercase font-semibold text-text-muted block">
                     Payment Mode:
                   </span>
-                  <p className="text-ink font-medium mt-0.5">
-                    {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'bKash Direct Transfer'}
-                  </p>
-                  <p className="text-[10px] text-emerald-700">Zero advance payment required</p>
+                  {order.paymentMethod?.toLowerCase().includes('online') || order.paymentMethod?.toLowerCase().includes('bkash') ? (
+                    <div className="space-y-1 mt-0.5">
+                      <p className="text-ink font-semibold">Online Payment (bKash/Nagad)</p>
+                      {order.transactionId && (
+                        <p className="text-xs font-mono text-gold-deep font-bold">
+                          TrxID: {order.transactionId}
+                        </p>
+                      )}
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-bold rounded-xs">
+                        <span>Due at Doorstep: ৳0 COD</span>
+                      </div>
+                      <p className="text-[10px] text-text-muted leading-relaxed">
+                        Total ৳{formatPrice(order.grandTotal)} paid online. Our atelier accounts team will verify your TrxID shortly.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-ink font-medium mt-0.5">Cash on Delivery (COD)</p>
+                      <p className="text-[10px] text-emerald-700">Pay ৳{formatPrice(order.grandTotal)} to courier upon doorstep inspection</p>
+                    </>
+                  )}
                 </div>
 
                 {order.customer.giftNote && (

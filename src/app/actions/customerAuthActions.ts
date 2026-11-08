@@ -360,6 +360,15 @@ export async function getCustomerOrdersAction() {
       courierPartner: o.courierPartner,
       consignmentId: o.consignmentId,
       paymentMethod: o.paymentMethod,
+      transactionId: (o as any).transactionId || null,
+      paymentStatus: ((o as any).paymentStatus || 'pending') as string,
+      onlineDiscountAmount: (o as any).onlineDiscountAmount || null,
+      codAmount:
+        typeof (o as any).codAmount === 'number'
+          ? (o as any).codAmount
+          : o.paymentMethod?.toLowerCase().includes('online') || o.paymentMethod?.toLowerCase().includes('bkash')
+          ? 0
+          : o.grandTotal,
       subtotal: o.subtotal,
       shippingFee: o.shippingFee,
       discountAmount: o.discountAmount,

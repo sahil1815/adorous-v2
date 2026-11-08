@@ -85,6 +85,10 @@ model Order {
   courierPartner String?
   consignmentId  String?
   paymentMethod  String      @default("Cash on Delivery")
+  transactionId  String?
+  paymentStatus  String      @default("pending") // pending, verified, fake
+  onlineDiscountAmount Float?
+  codAmount      Float       @default(0)
   subtotal       Float
   shippingFee    Float
   discountAmount Float?
@@ -173,6 +177,8 @@ model DraftCheckout {
   district         String?
   giftNote         String?
   paymentMethod    String?  @default("Cash on Delivery")
+  transactionId    String?
+  onlineDiscountAmount Float?
   cartItemsJson    String   @default("[]") // JSON string of cart items
   subtotal         Float    @default(0)
   shippingFee      Float    @default(0)
@@ -289,6 +295,19 @@ model WhatsAppSettings {
 model OrderSequence {
   year    Int @id
   lastSeq Int
+}
+
+model PaymentSettings {
+  id                   String   @id @default("default")
+  enabled              Boolean  @default(true)
+  bkashNumber          String   @default("01854411797")
+  bkashAccountType     String   @default("Personal (Send Money)")
+  nagadNumber          String   @default("01854411797")
+  nagadAccountType     String   @default("Personal (Send Money)")
+  onlineDiscountAmount Float    @default(50) // Flat X tk discount for paying online
+  instructions         String   @default("Please Send Money to our bKash or Nagad Personal number or Payment to Merchant, then enter the Transaction ID below.")
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
 }
 
 

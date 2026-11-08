@@ -194,11 +194,20 @@ export default function CustomerOrdersPage() {
                     </div>
                     <div className="border-l border-line/80 pl-4 hidden md:block">
                       <span className="text-[10px] uppercase text-text-muted block font-medium">Payment Mode</span>
-                      <span className="text-ink font-medium">{order.paymentMethod}</span>
+                      <span className="text-ink font-medium">
+                        {order.paymentMethod}
+                        {order.transactionId && ` (${order.transactionId})`}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    {order.paymentStatus === 'fake' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-[2px] uppercase font-bold tracking-wider bg-rose-100 text-rose-800 border border-rose-300">
+                        TrxID Issue
+                      </span>
+                    )}
+
                     <span
                       className={`text-[10px] px-2.5 py-1 rounded-[2px] uppercase font-semibold tracking-wider ${
                         isDelivered
