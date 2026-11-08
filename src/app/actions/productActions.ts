@@ -439,7 +439,6 @@ export async function updateProductAction(
       revalidatePath('/shop');
       revalidatePath('/');
       revalidatePath('/admin/inventory');
-      revalidatePath('/', 'layout');
     } catch (revalErr) {
       console.warn('Revalidation warning:', revalErr);
     }
@@ -503,7 +502,6 @@ export async function updateStockAction(productIdOrSlug: string, stockQty: numbe
       revalidatePath(`/${existing.category}`);
       revalidatePath(`/${existing.category}/${existing.slug}`);
       revalidatePath('/');
-      revalidatePath('/', 'layout');
     } catch {}
 
     return { success: true, inStock, stockQty };
@@ -730,7 +728,6 @@ export async function toggleProductVisibilityAction(productIdOrSlug: string, isH
       revalidatePath(`/${existing.category}/${existing.slug}`);
       revalidatePath('/lookbook');
       revalidatePath('/collections');
-      revalidatePath('/', 'layout');
     } catch (revalErr) {
       console.warn('Revalidation warning:', revalErr);
     }

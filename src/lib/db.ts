@@ -23,9 +23,10 @@ function getDatasourceUrl(): string | undefined {
       parsed.port = '5432';
     }
 
-    // Limit serverless functions to 1 connection per instance to stay well within Supabase's pool_size
-    parsed.searchParams.set('connection_limit', '1');
-    parsed.searchParams.set('pool_timeout', '10');
+    // Healthy connection limits for serverless instances
+    parsed.searchParams.set('connection_limit', '3');
+    parsed.searchParams.set('pool_timeout', '20');
+    parsed.searchParams.set('connect_timeout', '15');
 
     // On session mode port 5432, remove pgbouncer=true to allow native query handling
     if (parsed.port === '5432') {

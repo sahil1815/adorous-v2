@@ -114,10 +114,8 @@ export async function updateWelcomeOfferSettings(
     });
 
     try {
-      revalidatePath('/', 'layout');
-      revalidatePath('/checkout');
-      revalidatePath('/admin');
       revalidatePath('/admin/welcome-offer');
+      revalidatePath('/checkout');
     } catch (revalErr) {
       // Handled gracefully when invoked outside request lifecycle (e.g. seed scripts)
     }
