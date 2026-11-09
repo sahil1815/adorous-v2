@@ -93,13 +93,30 @@ export default function CheckoutPage() {
   const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
   const districtContainerRef = useRef<HTMLDivElement>(null);
   const [giftNote, setGiftNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('bkash');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
 
   // Online Payment (bKash/Nagad) Settings & TrxID
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettingsData>(DEFAULT_PAYMENT_SETTINGS);
   const [transactionId, setTransactionId] = useState('');
+  const [transactionIdError, setTransactionIdError] = useState<string | null>(null);
   const [copiedMfs, setCopiedMfs] = useState<string | null>(null);
+
+  // Form Field Refs for Smooth Scrolling & Error Focus
+  const fullNameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const districtInputRef = useRef<HTMLInputElement>(null);
+  const addressInputRef = useRef<HTMLTextAreaElement>(null);
+  const transactionInputRef = useRef<HTMLInputElement>(null);
+  const transactionSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleSelectPaymentMethod = (method: 'cod' | 'bkash') => {
+    setPaymentMethod(method);
+    setTransactionIdError(null);
+    if (errorMsg?.includes('Transaction ID')) {
+      setErrorMsg(null);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -395,31 +412,50 @@ export default function CheckoutPage() {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setTransactionIdError(null);
 
-    // Validation
+    // Validation with smooth scrolling & error focusing
     if (!fullName.trim()) {
       setErrorMsg('Please enter the recipient full name.');
+      fullNameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      fullNameInputRef.current?.focus();
       return;
     }
 
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     if (cleanPhone.length < 10) {
       setErrorMsg('Please enter a valid 11-digit Bangladesh phone number (e.g., 01712345678).');
-      return;
-    }
-
-    if (!address.trim()) {
-      setErrorMsg('Please provide a complete delivery address (House, Road, Area).');
+      phoneInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      phoneInputRef.current?.focus();
       return;
     }
 
     if (!selectedDistrict.trim()) {
       setErrorMsg('Please select or type your delivery district / city.');
+      districtInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      districtInputRef.current?.focus();
+      setIsDistrictDropdownOpen(true);
+      return;
+    }
+
+    if (!address.trim()) {
+      setErrorMsg('Please provide a complete delivery address (House, Road, Area).');
+      addressInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      addressInputRef.current?.focus();
       return;
     }
 
     if (isOnlineSelected && !transactionId.trim()) {
-      setErrorMsg('Please enter your bKash or Nagad Transaction ID (TrxID) to complete your order.');
+      const msg = 'Please enter your bKash or Nagad Transaction ID (TrxID) to complete your order.';
+      setErrorMsg(msg);
+      setTransactionIdError(msg);
+
+      if (transactionSectionRef.current) {
+        transactionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      setTimeout(() => {
+        transactionInputRef.current?.focus();
+      }, 300);
       return;
     }
 
@@ -580,6 +616,7 @@ export default function CheckoutPage() {
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    ref={fullNameInputRef}
                     type="text"
                     required
                     value={fullName}
@@ -600,6 +637,7 @@ export default function CheckoutPage() {
                       +880
                     </span>
                     <input
+                      ref={phoneInputRef}
                       type="tel"
                       required
                       value={phone}
@@ -635,6 +673,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="relative">
                     <input
+                      ref={districtInputRef}
                       type="text"
                       required
                       value={selectedDistrict}
@@ -720,6 +759,7 @@ export default function CheckoutPage() {
                     Address <span className="text-red-500">*</span>
                   </label>
                   <textarea
+                    ref={addressInputRef}
                     required
                     rows={2}
                     value={address}
@@ -1037,7 +1077,7 @@ export default function CheckoutPage() {
                     }`}
                   >
                     <label
-                      onClick={() => setPaymentMethod('bkash')}
+                      onClick={() => handleSelectPaymentMethod('bkash')}
                       className="flex items-center justify-between p-3.5 cursor-pointer select-none"
                     >
                       <div className="flex items-center space-x-3">
@@ -1045,7 +1085,7 @@ export default function CheckoutPage() {
                           type="radio"
                           name="paymentMethod"
                           checked={paymentMethod === 'bkash'}
-                          onChange={() => setPaymentMethod('bkash')}
+                          onChange={() => handleSelectPaymentMethod('bkash')}
                           className="accent-gold w-3.5 h-3.5 cursor-pointer"
                         />
                         <span className="font-semibold text-ink text-xs sm:text-sm">Online Payment (bKash/Nagad)</span>
@@ -1130,26 +1170,58 @@ export default function CheckoutPage() {
                         </div>
 
                         {/* Transaction ID Input */}
-                        <div className="space-y-1 pt-1">
+                        <div
+                          ref={transactionSectionRef}
+                          className={`space-y-1.5 pt-1 rounded-xs transition-all ${
+                            transactionIdError
+                              ? 'p-3 bg-red-50/70 border border-red-300 ring-2 ring-red-400/30'
+                              : ''
+                          }`}
+                        >
                           <label className="text-[11px] font-semibold text-ink flex items-center justify-between">
-                            <span>Transaction ID (TrxID) *</span>
-                            <span className="text-[10px] text-text-muted font-normal">
-                              Required
+                            <span className="flex items-center gap-1">
+                              <span>Transaction ID (TrxID)</span>
+                              <span className="text-red-500 font-bold">*</span>
                             </span>
+                            {transactionIdError ? (
+                              <span className="text-[10px] text-red-600 font-bold bg-red-100/90 border border-red-300 px-1.5 py-0.5 rounded-2xs flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3 text-red-600 shrink-0" />
+                                Required Field
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-text-muted font-normal">
+                                Required
+                              </span>
+                            )}
                           </label>
                           <input
+                            ref={transactionInputRef}
                             type="text"
                             value={transactionId}
                             onChange={(e) => {
                               setTransactionId(e.target.value.toUpperCase());
                               setErrorMsg(null);
+                              setTransactionIdError(null);
                             }}
                             placeholder="e.g. BL92A8ZK9P or 9H7..."
-                            className="w-full px-3 py-2 bg-paper border border-gold/70 focus:border-gold rounded-xs text-ink font-mono font-bold text-xs placeholder:text-text-muted/60 placeholder:font-normal focus:outline-none shadow-xs"
+                            className={`w-full px-3 py-2.5 bg-paper rounded-xs text-ink font-mono font-bold text-xs placeholder:text-text-muted/60 placeholder:font-normal focus:outline-none transition-all ${
+                              transactionIdError
+                                ? 'border-2 border-red-500 focus:border-red-600 ring-2 ring-red-200 shadow-sm'
+                                : 'border border-gold/70 focus:border-gold shadow-xs'
+                            }`}
                           />
-                          <p className="text-[10px] text-text-muted leading-tight">
-                            You are booking with <strong>0 COD</strong>. Our team will verify this Transaction ID after order placement.
-                          </p>
+                          {transactionIdError ? (
+                            <div className="flex items-start gap-1.5 text-red-700 bg-red-100/80 border border-red-300/80 p-2 rounded-xs text-[11px] font-medium leading-snug animate-in fade-in">
+                              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                              <div>
+                                <strong>Transaction ID is required:</strong> Please Send Money to our bKash or Nagad number above, then enter the TrxID here to place your order with ৳0 COD.
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-text-muted leading-tight">
+                              You are booking with <strong>0 COD</strong>. Our team will verify this Transaction ID after order placement.
+                            </p>
+                          )}
                         </div>
 
                         {/* Doorstep Cash Collection Banner (0 COD) */}
@@ -1168,7 +1240,7 @@ export default function CheckoutPage() {
 
                   {/* Option B: Cash on Delivery */}
                   <label
-                    onClick={() => setPaymentMethod('cod')}
+                    onClick={() => handleSelectPaymentMethod('cod')}
                     className={`flex items-center justify-between p-3.5 border rounded-xs cursor-pointer transition-all ${
                       paymentMethod === 'cod'
                         ? 'border-gold bg-sand/30 shadow-xs'
@@ -1180,7 +1252,7 @@ export default function CheckoutPage() {
                         type="radio"
                         name="paymentMethod"
                         checked={paymentMethod === 'cod'}
-                        onChange={() => setPaymentMethod('cod')}
+                        onChange={() => handleSelectPaymentMethod('cod')}
                         className="accent-gold w-3.5 h-3.5 cursor-pointer"
                       />
                       <span className="font-medium text-ink">Cash on Delivery</span>
@@ -1304,6 +1376,14 @@ export default function CheckoutPage() {
                 />
               </div>
 
+              {/* Error Notice above Desktop Button */}
+              {errorMsg && (
+                <div className="hidden lg:flex p-3 bg-red-50 border border-red-300 text-red-800 text-xs rounded-xs items-start space-x-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                  <div className="font-medium leading-snug">{errorMsg}</div>
+                </div>
+              )}
+
               {/* Desktop Submit Button (Hidden on Mobile) */}
               <button
                 type="submit"
@@ -1320,7 +1400,13 @@ export default function CheckoutPage() {
         </form>
 
         {/* Mobile Sticky Footer (Hidden on Desktop) */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-paper px-4 py-3 sm:p-4 border-t border-line shadow-[0_-8px_16px_rgba(0,0,0,0.04)] z-[9999] space-y-3 pb-safe">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-paper px-4 py-3 sm:p-4 border-t border-line shadow-[0_-8px_16px_rgba(0,0,0,0.04)] z-[9999] space-y-2.5 pb-safe">
+          {errorMsg && (
+            <div className="p-2.5 bg-red-50 border border-red-300 text-red-800 text-[11px] rounded-xs flex items-start space-x-2 animate-in fade-in">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-600" />
+              <div className="font-medium leading-tight">{errorMsg}</div>
+            </div>
+          )}
           <div className="flex justify-between items-center font-semibold text-sm">
             <span>Total Payable</span>
             <span className="tabular-nums">
