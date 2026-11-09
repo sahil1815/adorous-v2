@@ -12,16 +12,16 @@ function formatSettings(item: any): WelcomeOfferSettingsData {
     id: item.id || 'default',
     enabled: Boolean(item.enabled),
     offerMode: (item.offerMode === 'FIRST_VISIT_ONLY' ? 'FIRST_VISIT_ONLY' : 'EVERY_VISIT') as WelcomeOfferSettingsData['offerMode'],
-    discountPercent: Number(item.discountPercent ?? DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent),
+    discountPercent: Math.round(Number(item.discountPercent ?? DEFAULT_WELCOME_OFFER_SETTINGS.discountPercent)),
     delaySeconds: Number(item.delaySeconds ?? DEFAULT_WELCOME_OFFER_SETTINGS.delaySeconds),
     durationMinutes: Number(item.durationMinutes ?? DEFAULT_WELCOME_OFFER_SETTINGS.durationMinutes),
     maxDiscountAmount:
       item.maxDiscountAmount !== null && item.maxDiscountAmount !== undefined
-        ? Number(item.maxDiscountAmount)
+        ? Math.round(Number(item.maxDiscountAmount))
         : null,
     minOrderAmount:
       item.minOrderAmount !== null && item.minOrderAmount !== undefined
-        ? Number(item.minOrderAmount)
+        ? Math.round(Number(item.minOrderAmount))
         : null,
     welcomeTitle: item.welcomeTitle || DEFAULT_WELCOME_OFFER_SETTINGS.welcomeTitle,
     welcomeSubtext: item.welcomeSubtext || DEFAULT_WELCOME_OFFER_SETTINGS.welcomeSubtext,
@@ -83,11 +83,11 @@ export async function updateWelcomeOfferSettings(
       update: {
         enabled: input.enabled ?? undefined,
         offerMode: input.offerMode ?? undefined,
-        discountPercent: input.discountPercent !== undefined ? Number(input.discountPercent) : undefined,
+        discountPercent: input.discountPercent !== undefined ? Math.round(Number(input.discountPercent)) : undefined,
         delaySeconds: input.delaySeconds !== undefined ? Math.max(0, Math.round(Number(input.delaySeconds))) : undefined,
         durationMinutes: input.durationMinutes !== undefined ? Math.max(1, Math.round(Number(input.durationMinutes))) : undefined,
-        maxDiscountAmount: input.maxDiscountAmount !== undefined ? (input.maxDiscountAmount === null ? null : Number(input.maxDiscountAmount)) : undefined,
-        minOrderAmount: input.minOrderAmount !== undefined ? (input.minOrderAmount === null ? null : Number(input.minOrderAmount)) : undefined,
+        maxDiscountAmount: input.maxDiscountAmount !== undefined ? (input.maxDiscountAmount === null ? null : Math.round(Number(input.maxDiscountAmount))) : undefined,
+        minOrderAmount: input.minOrderAmount !== undefined ? (input.minOrderAmount === null ? null : Math.round(Number(input.minOrderAmount))) : undefined,
         welcomeTitle: input.welcomeTitle ?? undefined,
         welcomeSubtext: input.welcomeSubtext ?? undefined,
         ctaButtonText: input.ctaButtonText ?? undefined,

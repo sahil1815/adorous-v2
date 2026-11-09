@@ -189,7 +189,7 @@ export default function AdminDraftsPage() {
                   address: convertModalForm.address || d.address,
                   district: convertModalForm.district || d.district,
                   shippingFee: convertModalForm.shippingFee,
-                  grandTotal: Math.max(0, Math.round(((d.subtotal || 0) - (d.discountAmount || 0) + convertModalForm.shippingFee) * 100) / 100),
+                  grandTotal: Math.max(0, Math.round((d.subtotal || 0) - (d.discountAmount || 0) + convertModalForm.shippingFee)),
                 }
               : d
           )
@@ -1317,11 +1317,10 @@ export default function AdminDraftsPage() {
                         Math.max(
                           0,
                           Math.round(
-                            ((convertingDraft.subtotal || 0) -
+                            (convertingDraft.subtotal || 0) -
                               (convertingDraft.discountAmount || 0) +
-                              (convertModalForm.shippingFee || 0)) *
-                              100
-                          ) / 100
+                              (convertModalForm.shippingFee || 0)
+                          )
                         )
                       )}
                     </span>
@@ -1361,11 +1360,10 @@ export default function AdminDraftsPage() {
                         Math.max(
                           0,
                           Math.round(
-                            ((convertingDraft.subtotal || 0) -
+                            (convertingDraft.subtotal || 0) -
                               (convertingDraft.discountAmount || 0) +
-                              (convertModalForm.shippingFee || 0)) *
-                              100
-                          ) / 100
+                              (convertModalForm.shippingFee || 0)
+                          )
                         )
                       )}
                       )

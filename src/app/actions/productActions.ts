@@ -215,9 +215,9 @@ export async function createProductAction(productData: Product) {
         category: productData.category,
         categoryLabel: productData.categoryLabel || 'Luxury Accessories',
         tagline: productData.tagline?.trim() || null,
-        price: pricing.sellingPrice,
-        originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
-        discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+        price: Math.round(pricing.sellingPrice),
+        originalPrice: pricing.discountAmount > 0 ? Math.round(pricing.comparePrice) : (productData.originalPrice ? Math.round(Number(productData.originalPrice)) : null),
+        discount: productData.discount !== undefined && productData.discount !== null ? Math.round(Number(productData.discount)) : null,
         discountType: productData.discountType || 'percent',
         description: productData.description?.trim() || null,
         complimentaryItem: productData.complimentaryItem?.trim() || null,
@@ -362,9 +362,9 @@ export async function updateProductAction(
           category: productData.category,
           categoryLabel: productData.categoryLabel,
           tagline: productData.tagline?.trim() || null,
-          price: pricing.sellingPrice,
-          originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
-          discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+          price: Math.round(pricing.sellingPrice),
+          originalPrice: pricing.discountAmount > 0 ? Math.round(pricing.comparePrice) : (productData.originalPrice ? Math.round(Number(productData.originalPrice)) : null),
+          discount: productData.discount !== undefined && productData.discount !== null ? Math.round(Number(productData.discount)) : null,
           discountType: productData.discountType || 'percent',
           description: productData.description?.trim() || null,
           complimentaryItem: productData.complimentaryItem?.trim() || null,
@@ -399,9 +399,9 @@ export async function updateProductAction(
           category: productData.category,
           categoryLabel: productData.categoryLabel,
           tagline: productData.tagline?.trim() || null,
-          price: pricing.sellingPrice,
-          originalPrice: pricing.discountAmount > 0 ? pricing.comparePrice : (productData.originalPrice ? Number(productData.originalPrice) : null),
-          discount: productData.discount !== undefined && productData.discount !== null ? Number(productData.discount) : null,
+          price: Math.round(pricing.sellingPrice),
+          originalPrice: pricing.discountAmount > 0 ? Math.round(pricing.comparePrice) : (productData.originalPrice ? Math.round(Number(productData.originalPrice)) : null),
+          discount: productData.discount !== undefined && productData.discount !== null ? Math.round(Number(productData.discount)) : null,
           discountType: productData.discountType || 'percent',
           description: productData.description?.trim() || null,
           complimentaryItem: productData.complimentaryItem?.trim() || null,
@@ -601,9 +601,9 @@ export async function updateProductPriceAction(
 
     if (!existing) return { success: false, error: 'Product not found' };
 
-    let finalPrice = Number(price);
-    let finalOriginalPrice: number | null = originalPrice !== undefined && originalPrice !== null ? Number(originalPrice) : null;
-    let finalDiscount: number | null = discount !== undefined && discount !== null ? Number(discount) : null;
+    let finalPrice = Math.round(Number(price));
+    let finalOriginalPrice: number | null = originalPrice !== undefined && originalPrice !== null ? Math.round(Number(originalPrice)) : null;
+    let finalDiscount: number | null = discount !== undefined && discount !== null ? Math.round(Number(discount)) : null;
     let finalDiscountType: string | null = (discountType as string) || (finalDiscount ? 'percent' : null);
 
     // If caller passed 4 args with (id, basePrice, discount, discountType):
@@ -611,7 +611,7 @@ export async function updateProductPriceAction(
       const calc = calculateSellingPrice(price, originalPrice, discount as any);
       finalPrice = calc.sellingPrice;
       finalOriginalPrice = calc.discountAmount > 0 ? calc.comparePrice : null;
-      finalDiscount = originalPrice ? Number(originalPrice) : null;
+      finalDiscount = originalPrice ? Math.round(Number(originalPrice)) : null;
       finalDiscountType = discount;
     } else if (finalDiscount !== null && finalDiscount > 0) {
       // If caller passed discount, calculate selling and compare price
@@ -628,9 +628,9 @@ export async function updateProductPriceAction(
     await prisma.product.update({
       where: { id: existing.id },
       data: {
-        price: finalPrice,
-        originalPrice: finalOriginalPrice,
-        discount: finalDiscount,
+        price: Math.round(finalPrice),
+        originalPrice: finalOriginalPrice ? Math.round(finalOriginalPrice) : null,
+        discount: finalDiscount !== null ? Math.round(finalDiscount) : null,
         discountType: finalDiscountType,
       },
     });

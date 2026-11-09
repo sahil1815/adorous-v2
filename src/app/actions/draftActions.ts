@@ -77,11 +77,11 @@ export async function saveDraftCheckoutAction(data: DraftCheckoutInput) {
         transactionId: data.transactionId?.trim() || null,
         onlineDiscountAmount: data.onlineDiscountAmount ?? null,
         cartItemsJson: cartJson,
-        subtotal: data.subtotal || 0,
-        shippingFee: data.shippingFee || 0,
-        discountAmount: data.discountAmount ?? null,
+        subtotal: Math.round(data.subtotal || 0),
+        shippingFee: Math.round(data.shippingFee || 0),
+        discountAmount: data.discountAmount !== null && data.discountAmount !== undefined ? Math.round(data.discountAmount) : null,
         couponCode: data.couponCode?.trim() || null,
-        grandTotal: data.grandTotal || 0,
+        grandTotal: Math.round(data.grandTotal || 0),
         // Only keep abandoned if not already converted
       },
       create: {
@@ -97,11 +97,11 @@ export async function saveDraftCheckoutAction(data: DraftCheckoutInput) {
         transactionId: data.transactionId?.trim() || null,
         onlineDiscountAmount: data.onlineDiscountAmount ?? null,
         cartItemsJson: cartJson,
-        subtotal: data.subtotal || 0,
-        shippingFee: data.shippingFee || 0,
-        discountAmount: data.discountAmount ?? null,
+        subtotal: Math.round(data.subtotal || 0),
+        shippingFee: Math.round(data.shippingFee || 0),
+        discountAmount: data.discountAmount !== null && data.discountAmount !== undefined ? Math.round(data.discountAmount) : null,
         couponCode: data.couponCode?.trim() || null,
-        grandTotal: data.grandTotal || 0,
+        grandTotal: Math.round(data.grandTotal || 0),
         status: 'abandoned',
       },
     });
@@ -222,7 +222,7 @@ export async function convertDraftCheckoutToOrderAction(
     // Recalculate grandTotal if custom shipping fee or discount is used
     let grandTotal = Number(draft.grandTotal || 0);
     if (options?.shippingFee !== undefined) {
-      grandTotal = Math.max(0, Math.round((subtotal - (discountAmount || 0) + shippingFee) * 100) / 100);
+      grandTotal = Math.max(0, Math.round(subtotal - (discountAmount || 0) + shippingFee));
     }
 
     const internalNotes = options?.internalNotes?.trim() ||

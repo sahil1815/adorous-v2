@@ -1018,8 +1018,8 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     // otherwise, make it flat X% discount.
                     const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
                     const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
-                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100) * 100) / 100;
-                    const nvoFinalPrice = hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice);
+                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
+                    const nvoFinalPrice = hasHigherExistingDiscount ? Math.round(product.price) : Math.min(Math.round(product.price), targetPrice);
                     const showStrikethrough = comparePrice > nvoFinalPrice;
 
                     return (

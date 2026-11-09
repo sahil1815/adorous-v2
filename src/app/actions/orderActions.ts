@@ -46,8 +46,8 @@ export async function createOrder(orderData: any) {
             serverCompareSubtotal += comparePrice * qty;
             serverSellingSubtotal += price * qty;
 
-            // Target price at flat X% discount from comparePrice (preserving exact decimals p.q if fractional)
-            const targetPrice = Math.round(comparePrice * (1 - pct / 100) * 100) / 100;
+            // Target price at flat X% discount from comparePrice
+            const targetPrice = Math.round(comparePrice * (1 - pct / 100));
             const effectiveTargetPrice = Math.min(price, targetPrice);
 
             // Discount from compare price
@@ -56,8 +56,8 @@ export async function createOrder(orderData: any) {
             }
           }
 
-          serverCompareSubtotal = Math.round(serverCompareSubtotal * 100) / 100;
-          serverDiscountFromCompare = Math.round(serverDiscountFromCompare * 100) / 100;
+          serverCompareSubtotal = Math.round(serverCompareSubtotal);
+          serverDiscountFromCompare = Math.round(serverDiscountFromCompare);
 
           // Check minOrderAmount threshold against selling subtotal
           if (settings.minOrderAmount && serverSellingSubtotal < settings.minOrderAmount) {
@@ -81,7 +81,7 @@ export async function createOrder(orderData: any) {
         const sub = Number(orderData.subtotal) || 0;
         const ship = Number(orderData.shippingFee) || 0;
         const disc = Number(validatedDiscountAmount) || 0;
-        validatedGrandTotal = Math.max(0, Math.round((sub - disc + ship) * 100) / 100);
+        validatedGrandTotal = Math.max(0, Math.round(sub - disc + ship));
       } catch (err) {
         console.error('[createOrder] Error validating NEW_VISITOR discount on server:', err);
       }
@@ -125,7 +125,7 @@ export async function createOrder(orderData: any) {
       const ship = Number(orderData.shippingFee) || 0;
       const promoDisc = Number(validatedDiscountAmount) || 0;
       const onlineDisc = Number(finalOnlineDiscountAmount) || 0;
-      validatedGrandTotal = Math.max(0, Math.round((sub - promoDisc - onlineDisc + ship) * 100) / 100);
+      validatedGrandTotal = Math.max(0, Math.round(sub - promoDisc - onlineDisc + ship));
 
       // On online payment, the courier collects 0 COD!
       finalCodAmount = 0;
@@ -433,7 +433,7 @@ export async function updateOrderItemQuantity(
     let newDiscount = order.discountAmount;
     if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
       const discountRatio = order.discountAmount / order.subtotal;
-      newDiscount = Math.round(newSubtotal * discountRatio * 100) / 100;
+      newDiscount = Math.round(newSubtotal * discountRatio);
     }
 
     // 3. Determine shipping fee
@@ -445,7 +445,7 @@ export async function updateOrderItemQuantity(
     // 4. Calculate new grand total
     const calculatedGrandTotal = Math.max(
       0,
-      Math.round((newSubtotal - (newDiscount || 0) + finalShippingFee) * 100) / 100
+      Math.round(newSubtotal - (newDiscount || 0) + finalShippingFee)
     );
 
     const finalGrandTotal =
@@ -606,7 +606,7 @@ export async function updateOrderItemProduct({
     let newDiscount = order.discountAmount;
     if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
       const discountRatio = order.discountAmount / order.subtotal;
-      newDiscount = Math.round(newSubtotal * discountRatio * 100) / 100;
+      newDiscount = Math.round(newSubtotal * discountRatio);
     }
 
     // 3. Determine shipping fee
@@ -618,7 +618,7 @@ export async function updateOrderItemProduct({
     // 4. Calculate new grand total
     const calculatedGrandTotal = Math.max(
       0,
-      Math.round((newSubtotal - (newDiscount || 0) + finalShippingFee) * 100) / 100
+      Math.round(newSubtotal - (newDiscount || 0) + finalShippingFee)
     );
 
     const finalGrandTotal =
@@ -746,7 +746,7 @@ export async function updateOrderShippingFee(
     const fee = Math.max(0, shippingFee);
     const calculatedGrandTotal = Math.max(
       0,
-      Math.round((order.subtotal - (order.discountAmount || 0) + fee) * 100) / 100
+      Math.round(order.subtotal - (order.discountAmount || 0) + fee)
     );
     const finalGrandTotal =
       typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0

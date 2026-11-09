@@ -593,13 +593,12 @@ export default function OrderCard({
                             ? order.discountAmount / order.subtotal
                             : 0;
                         const previewDiscount =
-                          ratio > 0 ? Math.round(previewSubtotal * ratio * 100) / 100 : 0;
+                          ratio > 0 ? Math.round(previewSubtotal * ratio) : 0;
                         const previewGrandTotal = Math.max(
                           0,
                           Math.round(
-                            (previewSubtotal - previewDiscount + editingItemQuantity.shippingFee) *
-                              100
-                          ) / 100
+                            previewSubtotal - previewDiscount + editingItemQuantity.shippingFee
+                          )
                         );
 
                         return (

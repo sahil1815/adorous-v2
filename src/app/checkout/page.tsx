@@ -212,7 +212,7 @@ export default function CheckoutPage() {
   }, [items]);
 
   // Admin discount: difference between base subtotal and selling subtotal
-  const adminDiscountAmount = Math.max(0, Math.round((baseSubtotal - subtotal) * 100) / 100);
+  const adminDiscountAmount = Math.max(0, Math.round(baseSubtotal - subtotal));
   const adminDiscountPercent = useMemo(() => {
     if (baseSubtotal <= 0 || adminDiscountAmount <= 0) return 0;
     if (items.length === 1 && items[0].product.discount && items[0].product.discountType === 'percent') {
@@ -258,8 +258,8 @@ export default function CheckoutPage() {
   const checkoutSubtotal = baseSubtotal;
   const totalDiscount = useNvo
     ? nvoDiscount
-    : Math.round((adminDiscountAmount + couponDiscount) * 100) / 100;
-  const grandTotal = Math.max(0, Math.round((checkoutSubtotal - totalDiscount - onlineDiscount + shippingFee) * 100) / 100);
+    : Math.round(adminDiscountAmount + couponDiscount);
+  const grandTotal = Math.max(0, Math.round(checkoutSubtotal - totalDiscount - onlineDiscount + shippingFee));
 
   // Manual and onBlur save trigger
   const triggerDraftSave = useCallback(() => {
@@ -799,8 +799,8 @@ export default function CheckoutPage() {
                   let discountedUnitPrice = Number(item.product.price) || 0;
                   if (useNvo) {
                     const pct = settings.discountPercent || 10;
-                    const targetPrice = Math.round(baseUnitPrice * (1 - pct / 100) * 100) / 100;
-                    discountedUnitPrice = Math.min(Number(item.product.price) || targetPrice, targetPrice);
+                    const targetPrice = Math.round(baseUnitPrice * (1 - pct / 100));
+                    discountedUnitPrice = Math.round(Math.min(Number(item.product.price) || targetPrice, targetPrice));
                   }
 
                   const discountedLineTotal = discountedUnitPrice * item.quantity;

@@ -12,6 +12,7 @@ import { useInventory } from '@/context/InventoryContext';
 import { getAllProducts } from '@/app/actions/productActions';
 import { PRODUCTS } from '@/data/catalogue';
 import { Product, ProductCategory } from '@/types';
+import { formatPrice } from '@/lib/formatPrice';
 import {
   Plus,
   Copy,
@@ -796,7 +797,7 @@ export default function AdminLandingPagesPage() {
                             {product.name}
                           </p>
                           <p className="text-[10px] text-paper/40">
-                            {product.categoryLabel} · ৳{product.price.toLocaleString()}
+                            {product.categoryLabel} · ৳{formatPrice(product.price)}
                           </p>
                         </div>
                         <div

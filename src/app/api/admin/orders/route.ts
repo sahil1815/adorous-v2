@@ -46,15 +46,15 @@ export async function GET() {
       onlineDiscountAmount: (order as any).onlineDiscountAmount || undefined,
       codAmount:
         typeof (order as any).codAmount === 'number'
-          ? (order as any).codAmount
+          ? Math.round((order as any).codAmount)
           : (order.paymentMethod?.toLowerCase().includes('online') || order.paymentMethod?.toLowerCase().includes('bkash'))
           ? 0
-          : order.grandTotal,
-      subtotal: order.subtotal,
-      shippingFee: order.shippingFee,
-      discountAmount: order.discountAmount || undefined,
+          : Math.round(order.grandTotal),
+      subtotal: Math.round(order.subtotal),
+      shippingFee: Math.round(order.shippingFee),
+      discountAmount: order.discountAmount !== null && order.discountAmount !== undefined ? Math.round(order.discountAmount) : undefined,
       couponCode: order.couponCode || undefined,
-      grandTotal: order.grandTotal,
+      grandTotal: Math.round(order.grandTotal),
       internalNotes: order.internalNotes || undefined,
       items: (order.items || []).map(item => ({
         id: item.id,
@@ -63,7 +63,7 @@ export async function GET() {
           name: item.productName,
           category: item.product?.category || '',
           slug: item.product?.slug || '',
-          price: item.price,
+          price: Math.round(item.price),
           featuredImage: item.productImage,
         },
         selectedColor: {

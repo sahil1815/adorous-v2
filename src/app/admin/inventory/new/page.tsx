@@ -798,12 +798,12 @@ function AddProductContent() {
                 <span className="absolute left-3 top-2 text-gold font-sans font-semibold">৳</span>
                 <input
                   type="number"
-                  step="any"
+                  step="1"
                   required
-                  min="0.01"
+                  min="1"
                   value={basePrice}
                   onChange={(e) => setBasePrice(e.target.value)}
-                  placeholder="e.g. 1735"
+                  placeholder="e.g. 1750"
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-semibold text-sm font-mono"
                 />
               </div>
@@ -846,12 +846,12 @@ function AddProductContent() {
                 </span>
                 <input
                   type="number"
-                  step="any"
+                  step="1"
                   min="0"
                   max={discountType === 'percent' ? 100 : undefined}
                   value={discount}
                   onChange={(e) => setDiscount(e.target.value)}
-                  placeholder={discountType === 'percent' ? 'e.g. 14' : 'e.g. 244.32'}
+                  placeholder={discountType === 'percent' ? 'e.g. 14' : 'e.g. 250'}
                   className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold pl-7 pr-3 py-2 text-paper rounded-xs text-xs focus:outline-none font-mono"
                 />
               </div>

@@ -31,10 +31,17 @@ export async function GET(req: Request) {
       products = PRODUCTS.filter((p) => includeHidden || !p.isHidden);
     }
 
+    const sanitizedProducts = products.map((p) => ({
+      ...p,
+      price: Math.round(Number(p.price)),
+      originalPrice: p.originalPrice ? Math.round(Number(p.originalPrice)) : null,
+      discount: p.discount !== undefined && p.discount !== null ? Math.round(Number(p.discount)) : null,
+    }));
+
     return NextResponse.json({
       success: true,
-      count: products.length,
-      products,
+      count: sanitizedProducts.length,
+      products: sanitizedProducts,
     });
   } catch (error: any) {
     console.error('[/api/products] Fatal error:', error);

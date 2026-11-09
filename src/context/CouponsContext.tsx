@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { formatPrice } from '@/lib/formatPrice';
 
 export type DiscountType = 'percentage' | 'fixed' | 'free_shipping';
 
@@ -245,7 +246,7 @@ export function CouponsProvider({ children }: { children: React.ReactNode }) {
         isValid: false,
         discountAmount: 0,
         freeShipping: false,
-        message: `Requires a minimum cart subtotal of ৳${coupon.minOrderAmount.toLocaleString()} (Add ৳${diff.toLocaleString()} more).`,
+        message: `Requires a minimum cart subtotal of ৳${formatPrice(coupon.minOrderAmount)} (Add ৳${formatPrice(diff)} more).`,
         coupon,
       };
     }

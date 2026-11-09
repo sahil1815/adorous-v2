@@ -81,9 +81,9 @@ export default function AdminCouponsPage() {
       code: cleanCode,
       description: description.trim(),
       discountType,
-      discountValue: discountType === 'free_shipping' ? 0 : Number(discountValue),
-      minOrderAmount: minOrderAmount ? Number(minOrderAmount) : undefined,
-      maxDiscountAmount: discountType === 'percentage' && maxDiscountAmount ? Number(maxDiscountAmount) : undefined,
+      discountValue: discountType === 'free_shipping' ? 0 : Math.round(Number(discountValue)),
+      minOrderAmount: minOrderAmount ? Math.round(Number(minOrderAmount)) : undefined,
+      maxDiscountAmount: discountType === 'percentage' && maxDiscountAmount ? Math.round(Number(maxDiscountAmount)) : undefined,
       usageLimit: usageLimit ? Number(usageLimit) : undefined,
       isActive: true,
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
@@ -472,11 +472,11 @@ export default function AdminCouponsPage() {
                     </label>
                     <input
                       type="number"
-                      step="any"
-                      min="0.01"
+                      step="1"
+                      min="1"
                       max={discountType === 'percentage' ? '100' : '50000'}
                       value={discountValue}
-                      onChange={(e) => setDiscountValue(Number(e.target.value))}
+                      onChange={(e) => setDiscountValue(Math.round(Number(e.target.value)))}
                       className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold px-3 py-2 text-paper rounded-xs focus:outline-none"
                     />
                   </div>
@@ -488,11 +488,11 @@ export default function AdminCouponsPage() {
                       </label>
                       <input
                         type="number"
-                        step="any"
+                        step="1"
                         min="0"
                         placeholder="e.g. 1000"
                         value={maxDiscountAmount}
-                        onChange={(e) => setMaxDiscountAmount(Number(e.target.value))}
+                        onChange={(e) => setMaxDiscountAmount(Math.round(Number(e.target.value)))}
                         className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold px-3 py-2 text-paper rounded-xs focus:outline-none"
                       />
                     </div>
@@ -508,11 +508,11 @@ export default function AdminCouponsPage() {
                   </label>
                   <input
                     type="number"
-                    step="any"
+                    step="1"
                     min="0"
                     placeholder="0 for no minimum"
                     value={minOrderAmount}
-                    onChange={(e) => setMinOrderAmount(Number(e.target.value))}
+                    onChange={(e) => setMinOrderAmount(Math.round(Number(e.target.value)))}
                     className="w-full bg-[#1C1C1C] border border-white/15 focus:border-gold px-3 py-2 text-paper rounded-xs focus:outline-none"
                   />
                 </div>

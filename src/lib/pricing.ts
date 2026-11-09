@@ -3,7 +3,7 @@
  * Supports:
  * - Base price (Compare price)
  * - Discount (Percent % or Flat ৳)
- * - Computes effective selling price accurately with 2 decimal precision
+ * - Computes effective selling price strictly in integer format (no decimals)
  */
 
 export function calculateSellingPrice(
@@ -16,7 +16,7 @@ export function calculateSellingPrice(
   discountPercent: number;
   discountAmount: number;
 } {
-  const base = Math.max(0, Number(basePrice) || 0);
+  const base = Math.max(0, Math.round(Number(basePrice) || 0));
   const disc = Number(discount) || 0;
   const type = discountType === 'flat' ? 'flat' : 'percent';
 
@@ -33,13 +33,13 @@ export function calculateSellingPrice(
   let discountAmount = 0;
 
   if (type === 'percent') {
-    const pct = Math.min(100, Math.max(0, disc));
-    discountAmount = Math.round(base * (pct / 100) * 100) / 100;
-    sellingPrice = Math.max(0, Math.round((base - discountAmount) * 100) / 100);
+    const pct = Math.min(100, Math.max(0, Math.round(disc)));
+    discountAmount = Math.round(base * (pct / 100));
+    sellingPrice = Math.max(0, base - discountAmount);
   } else {
     // Flat amount in BDT
-    discountAmount = Math.min(base, Math.max(0, disc));
-    sellingPrice = Math.max(0, Math.round((base - discountAmount) * 100) / 100);
+    discountAmount = Math.min(base, Math.max(0, Math.round(disc)));
+    sellingPrice = Math.max(0, base - discountAmount);
   }
 
   const effectiveDiscountPct = base > 0 ? Math.round(((base - sellingPrice) / base) * 100) : 0;

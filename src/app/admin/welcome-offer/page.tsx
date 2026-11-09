@@ -419,11 +419,11 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
-                      step="any"
-                      min="0.01"
+                      step="1"
+                      min="1"
                       max="100"
                       value={discountPercent}
-                      onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                      onChange={(e) => setDiscountPercent(Math.round(Number(e.target.value)))}
                       className="w-full bg-[#1C1C1C] border border-white/15 rounded-xs px-3.5 py-2.5 text-sm text-paper focus:outline-none focus:border-gold transition-colors pr-8 font-mono"
                       required
                     />
@@ -489,11 +489,11 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
-                      step="any"
+                      step="1"
                       min="0"
                       value={maxDiscountAmount ?? ''}
                       onChange={(e) =>
-                        setMaxDiscountAmount(e.target.value === '' ? null : Number(e.target.value))
+                        setMaxDiscountAmount(e.target.value === '' ? null : Math.round(Number(e.target.value)))
                       }
                       placeholder="e.g. 500 (blank for no cap)"
                       className="w-full bg-[#1C1C1C] border border-white/15 rounded-xs px-3.5 py-2.5 text-sm text-paper focus:outline-none focus:border-gold transition-colors pr-8 font-mono"
@@ -513,11 +513,11 @@ export default function AdminWelcomeOfferPage() {
                   <div className="relative">
                     <input
                       type="number"
-                      step="any"
+                      step="1"
                       min="0"
                       value={minOrderAmount ?? ''}
                       onChange={(e) =>
-                        setMinOrderAmount(e.target.value === '' ? null : Number(e.target.value))
+                        setMinOrderAmount(e.target.value === '' ? null : Math.round(Number(e.target.value)))
                       }
                       placeholder="0 (no minimum required)"
                       className="w-full bg-[#1C1C1C] border border-white/15 rounded-xs px-3.5 py-2.5 text-sm text-paper focus:outline-none focus:border-gold transition-colors pr-8 font-mono"

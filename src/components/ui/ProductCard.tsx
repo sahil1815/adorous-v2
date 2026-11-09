@@ -69,10 +69,10 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
     ? (hasHigherExistingDiscount ? existingDiscountPct : discountPercent)
     : existingDiscountPct;
 
-  const targetPrice = Math.round(baseOriginalPrice * (1 - discountPercent / 100) * 100) / 100;
+  const targetPrice = Math.round(baseOriginalPrice * (1 - discountPercent / 100));
   const sellingPrice = isOfferActive
-    ? (hasHigherExistingDiscount ? product.price : Math.min(product.price, targetPrice))
-    : product.price;
+    ? (hasHigherExistingDiscount ? Math.round(product.price) : Math.min(Math.round(product.price), targetPrice))
+    : Math.round(product.price);
 
   const strikethroughPrice = baseOriginalPrice > sellingPrice ? baseOriginalPrice : null;
 

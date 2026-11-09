@@ -20,11 +20,11 @@ export async function GET() {
     });
 
     const registeredUsers = users.map((user) => {
-      const totalSpent = user.orders.reduce((sum, o) => sum + (o.grandTotal || 0), 0);
+      const totalSpent = Math.round(user.orders.reduce((sum, o) => sum + (o.grandTotal || 0), 0));
       const ordersSummary = user.orders.map((o) => ({
         orderId: o.orderId,
         createdAt: o.createdAt.toISOString(),
-        grandTotal: o.grandTotal,
+        grandTotal: Math.round(o.grandTotal),
         status: o.status,
         itemsCount: o.items.reduce((acc, it) => acc + (it.quantity || 1), 0),
         paymentMethod: o.paymentMethod || 'Cash on Delivery',
@@ -95,7 +95,7 @@ export async function GET() {
           whatsappUpdates: order.customer.whatsappUpdates,
           giftNote: order.customer.giftNote,
           orderCount: 1,
-          totalSpent: order.grandTotal,
+          totalSpent: Math.round(order.grandTotal),
           firstOrderDate: order.createdAt.toISOString(),
           lastOrderDate: order.createdAt.toISOString(),
           orders: [orderSummary],
@@ -103,7 +103,7 @@ export async function GET() {
       } else {
         const existing = guestMap.get(phoneKey)!;
         existing.orderCount += 1;
-        existing.totalSpent += order.grandTotal;
+        existing.totalSpent += Math.round(order.grandTotal);
         existing.orders.push(orderSummary);
 
         if (new Date(order.createdAt) > new Date(existing.lastOrderDate)) {
@@ -127,9 +127,9 @@ export async function GET() {
     const totalUniqueBuyers = registeredCount + guestCount;
     const repeatGuestCount = guestCustomers.filter((g) => g.orderCount > 1).length;
 
-    const registeredRevenue = registeredUsers.reduce((sum, u) => sum + u.totalSpent, 0);
-    const guestRevenue = guestCustomers.reduce((sum, g) => sum + g.totalSpent, 0);
-    const totalRevenue = registeredRevenue + guestRevenue;
+    const registeredRevenue = Math.round(registeredUsers.reduce((sum, u) => sum + u.totalSpent, 0));
+    const guestRevenue = Math.round(guestCustomers.reduce((sum, g) => sum + g.totalSpent, 0));
+    const totalRevenue = Math.round(registeredRevenue + guestRevenue);
 
     const stats = {
       registeredCount,

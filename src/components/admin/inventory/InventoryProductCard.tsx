@@ -199,8 +199,8 @@ export default function InventoryProductCard({
                       <span className="text-gold text-[10px] font-semibold">Price ৳:</span>
                       <input
                         type="number"
-                        step="any"
-                        min="0.01"
+                        step="1"
+                        min="1"
                         value={basePriceInput}
                         onChange={(e) => onBasePriceChange(e.target.value)}
                         className="w-20 bg-[#171717] border border-white/20 text-paper text-xs px-1.5 py-0.5 rounded-xs focus:outline-none focus:border-gold font-mono"
@@ -210,7 +210,7 @@ export default function InventoryProductCard({
                       <span className="text-paper/60 text-[10px]">Disc:</span>
                       <input
                         type="number"
-                        step="any"
+                        step="1"
                         min="0"
                         max={discountTypeInput === 'percent' ? 100 : undefined}
                         value={discountInput}

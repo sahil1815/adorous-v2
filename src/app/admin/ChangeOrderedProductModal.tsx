@@ -200,14 +200,14 @@ export default function ChangeOrderedProductModal({
   const voucherDiscount = useMemo(() => {
     if (order.subtotal > 0 && typeof order.discountAmount === 'number' && order.discountAmount > 0) {
       const ratio = order.discountAmount / order.subtotal;
-      return Math.round(newSubtotal * ratio * 100) / 100;
+      return Math.round(newSubtotal * ratio);
     }
     return 0;
   }, [order.subtotal, order.discountAmount, newSubtotal]);
 
   const autoGrandTotal = Math.max(
     0,
-    Math.round((newSubtotal - voucherDiscount + shippingFee) * 100) / 100
+    Math.round(newSubtotal - voucherDiscount + shippingFee)
   );
 
   const finalGrandTotal = customTotalInput !== '' && !isNaN(Number(customTotalInput))

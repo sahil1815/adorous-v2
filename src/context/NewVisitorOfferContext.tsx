@@ -475,8 +475,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           const qty = Number(item.quantity) || 1;
           cartSubtotal += price * qty;
 
-          // Target price at flat X% discount from originalPrice (preserving exact decimals p.q if fractional)
-          const targetPrice = Math.round(originalPrice * (1 - pct / 100) * 100) / 100;
+          // Target price at flat X% discount from originalPrice
+          const targetPrice = Math.round(originalPrice * (1 - pct / 100));
 
           // If current selling price is higher than targetPrice, discount down to flat X%
           if (price > targetPrice) {
@@ -486,7 +486,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
           // keep it as is (additional discount = 0).
         }
 
-        totalDiscount = Math.round(totalDiscount * 100) / 100;
+        totalDiscount = Math.round(totalDiscount);
 
         if (settings.minOrderAmount && cartSubtotal < settings.minOrderAmount) {
           return 0;
@@ -500,7 +500,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
       // Fallback for number subtotal
       const subtotal = Number(itemsOrSubtotal) || 0;
       if (settings.minOrderAmount && subtotal < settings.minOrderAmount) return 0;
-      const raw = Math.round((subtotal * pct) / 100 * 100) / 100;
+      const raw = Math.round((subtotal * pct) / 100);
       return settings.maxDiscountAmount ? Math.min(raw, settings.maxDiscountAmount) : raw;
     },
     [isOfferActive, remainingSeconds, settings.discountPercent, settings.minOrderAmount, settings.maxDiscountAmount]
@@ -532,7 +532,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         const qty = Number(item.quantity) || 1;
         compareSubtotal += cp * qty;
 
-        const targetPrice = Math.round(cp * (1 - pct / 100) * 100) / 100;
+        const targetPrice = Math.round(cp * (1 - pct / 100));
         const effectiveTargetPrice = Math.min(price, targetPrice);
 
         if (cp > effectiveTargetPrice) {
@@ -540,8 +540,8 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         }
       }
 
-      compareSubtotal = Math.round(compareSubtotal * 100) / 100;
-      totalDiscount = Math.round(totalDiscount * 100) / 100;
+      compareSubtotal = Math.round(compareSubtotal);
+      totalDiscount = Math.round(totalDiscount);
 
       if (settings.minOrderAmount && sellingSubtotal < settings.minOrderAmount) {
         return {
@@ -555,7 +555,7 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
         ? Math.min(totalDiscount, settings.maxDiscountAmount)
         : totalDiscount;
 
-      const payableSubtotal = Math.max(0, Math.round((compareSubtotal - finalDiscount) * 100) / 100);
+      const payableSubtotal = Math.max(0, Math.round(compareSubtotal - finalDiscount));
 
       return {
         compareSubtotal,

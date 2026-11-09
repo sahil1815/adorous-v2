@@ -243,13 +243,13 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         const newSubtotal = updatedItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
         let newDiscount = o.discountAmount;
         if (o.subtotal > 0 && typeof o.discountAmount === 'number' && o.discountAmount > 0) {
-          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal) * 100) / 100;
+          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal));
         }
         const finalShip = typeof customShippingFee === 'number' ? customShippingFee : o.shippingFee;
         const newGrandTotal =
           typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
             ? customGrandTotal
-            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + finalShip) * 100) / 100);
+            : Math.max(0, Math.round(newSubtotal - (newDiscount || 0) + finalShip));
 
         return {
           ...o,
@@ -325,13 +325,13 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
         const newSubtotal = updatedItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
         let newDiscount = o.discountAmount;
         if (o.subtotal > 0 && typeof o.discountAmount === 'number' && o.discountAmount > 0) {
-          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal) * 100) / 100;
+          newDiscount = Math.round(newSubtotal * (o.discountAmount / o.subtotal));
         }
         const finalShip = typeof customShippingFee === 'number' ? customShippingFee : o.shippingFee;
         const newGrandTotal =
           typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
             ? customGrandTotal
-            : Math.max(0, Math.round((newSubtotal - (newDiscount || 0) + finalShip) * 100) / 100);
+            : Math.max(0, Math.round(newSubtotal - (newDiscount || 0) + finalShip));
 
         return {
           ...o,
@@ -360,7 +360,7 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
     setOrders(prev =>
       prev.map(o => {
         if (o.orderId !== orderId) return o;
-        const calculatedGrandTotal = Math.max(0, Math.round((o.subtotal - (o.discountAmount || 0) + fee) * 100) / 100);
+        const calculatedGrandTotal = Math.max(0, Math.round(o.subtotal - (o.discountAmount || 0) + fee));
         const finalGrandTotal =
           typeof customGrandTotal === 'number' && !isNaN(customGrandTotal) && customGrandTotal >= 0
             ? customGrandTotal
