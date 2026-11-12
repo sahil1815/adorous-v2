@@ -36,7 +36,7 @@ export async function generateMetadata({
       title: page.headline,
       description,
       type: 'website',
-      url: `https://www.adorousfashion.store/collections/${page.slug}`,
+      url: `https://adorousfashion.store/collections/${page.slug}`,
     },
     twitter: {
       card: 'summary_large_image',

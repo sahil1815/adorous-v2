@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://adorousfashion.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://adorousfashion.store'),
   title: "Adorous Fashion — Boutique Accessories & Fine Jewelry | Rajshahi, Bangladesh",
   description: "Curated premium jewelry sets, velvet churi bangles, luxury bags, and fashion accessories. Cash on Delivery across all 64 districts in Bangladesh.",
   keywords: [
@@ -40,10 +40,13 @@ export const metadata: Metadata = {
     "jhumka earrings online BD",
     "fashion accessories Dhaka"
   ],
+  alternates: {
+    canonical: 'https://adorousfashion.store',
+  },
   openGraph: {
     title: "Adorous Fashion — Boutique Accessories & Fine Jewelry",
     description: "Curated premium jewelry sets, churi bangles, and luxury bags. Cash on Delivery across Bangladesh.",
-    url: "https://adorousfashion.com",
+    url: "https://adorousfashion.store",
     siteName: "Adorous Fashion",
     images: [
       {
@@ -55,6 +58,12 @@ export const metadata: Metadata = {
     ],
     locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Adorous Fashion — Boutique Accessories & Fine Jewelry",
+    description: "Curated premium jewelry sets, churi bangles, and luxury bags. Cash on Delivery across Bangladesh.",
+    images: ["/images/hero/hero-still-life.jpg"],
   },
   icons: {
     icon: [

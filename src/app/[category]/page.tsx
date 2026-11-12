@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     openGraph: {
       title,
       description,
-      url: `https://adorousfashion.com/${cat.slug}`,
+      url: `https://adorousfashion.store/${cat.slug}`,
       images: [
         {
           url: heroImage,

@@ -42,10 +42,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title,
       description,
-      url: `https://adorousfashion.com/${product.category}/${product.slug}`,
+      url: `https://adorousfashion.store/${product.category}/${product.slug}`,
       images: [
         {
-          url: product.featuredImage,
+          url: product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`,
           width: 800,
           height: 1000,
           alt: `${product.name} Still Life Photography`,
@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: [`https://adorousfashion.com${product.featuredImage}`],
+    image: [product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`],
     description: product.description,
     sku: product.id,
     brand: {
@@ -135,7 +135,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
     offers: {
       '@type': 'Offer',
-      url: `https://adorousfashion.com/${product.category}/${product.slug}`,
+      url: `https://adorousfashion.store/${product.category}/${product.slug}`,
       priceCurrency: 'BDT',
       price: product.price,
       priceValidUntil: '2026-12-31',

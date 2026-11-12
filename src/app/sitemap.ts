@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://adorousfashion.com';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://adorousfashion.store';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date().toISOString();
