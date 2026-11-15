@@ -17,7 +17,7 @@ import { getPaymentSettings } from '@/app/actions/paymentSettingsActions';
 import { type PaymentSettingsData, DEFAULT_PAYMENT_SETTINGS } from '@/lib/paymentSettings';
 import { formatPrice } from '@/lib/formatPrice';
 import { event as trackFbEvent } from '@/lib/fpixel';
-import { trackBeginCheckout } from '@/lib/gtag';
+import { trackBeginCheckout, trackPurchase } from '@/lib/gtag';
 import {
   ShieldCheck,
   Truck,
@@ -504,6 +504,48 @@ export default function CheckoutPage() {
       if (activeSid) {
         markDraftCheckoutConvertedAction(activeSid, assignedOrderId);
         sessionStorage.removeItem('adorous_draft_checkout_session');
+      }
+
+      // Track Meta Pixel and GA4 Purchase event ONLY ONCE right here when order is confirmed
+      const trackedKey = `adorous_fb_tracked_${assignedOrderId}`;
+      const isAlreadyTracked =
+        (typeof window !== 'undefined' && localStorage.getItem(trackedKey) === 'true') ||
+        (typeof window !== 'undefined' && sessionStorage.getItem(trackedKey) === 'true');
+
+      if (!isAlreadyTracked) {
+        try {
+          localStorage.setItem(trackedKey, 'true');
+          sessionStorage.setItem(trackedKey, 'true');
+        } catch (storageErr) {
+          console.warn('Storage write error:', storageErr);
+        }
+
+        // Fire Meta Pixel Purchase event with unique eventID
+        trackFbEvent(
+          'Purchase',
+          {
+            content_type: 'product',
+            content_ids: items.map((item) => item.product?.id || (item as any).id),
+            value: Number(grandTotal) || 0,
+            currency: 'BDT',
+            num_items: items.reduce((sum, item) => sum + (item.quantity || 1), 0),
+          },
+          {
+            eventID: assignedOrderId,
+          }
+        );
+
+        // Fire Google Analytics 4 Purchase event
+        trackPurchase({
+          transactionId: assignedOrderId,
+          value: Number(grandTotal) || 0,
+          items: items.map((i) => ({
+            id: i.product?.id || (i as any).id,
+            name: i.product?.name || (i as any).name,
+            price: Number(i.product?.price || (i as any).price) || 0,
+            quantity: i.quantity || 1,
+          })),
+        });
       }
 
       const savedOrder = {
