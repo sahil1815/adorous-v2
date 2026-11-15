@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, Search, ShoppingBag, MessageCircle, ArrowRight, Heart, User, LogOut, Package, MapPin, ChevronDown } from 'lucide-react';
-import MobileNav from './MobileNav';
-import SearchModal from './SearchModal';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCustomerAuth } from '@/context/CustomerAuthContext';
+
+const MobileNav = dynamic(() => import('./MobileNav'), { ssr: false });
+const SearchModal = dynamic(() => import('./SearchModal'), { ssr: false });
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);

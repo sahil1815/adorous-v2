@@ -2,12 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useOrders } from '@/context/OrdersContext';
 import { useReviews } from '@/context/ReviewsContext';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminQuickSearchModal from '@/components/admin/AdminQuickSearchModal';
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-admin',
+  display: 'swap',
+});
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -73,13 +81,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // If on login page, just render the login view without admin shell
   if (isLoginPage) {
-    return <>{children}</>;
+    return <div className={`admin-theme ${plusJakartaSans.variable}`}>{children}</div>;
   }
 
   // Loading state
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0E0E0E] flex items-center justify-center">
+      <div className={`min-h-screen bg-[#0E0E0E] flex items-center justify-center admin-theme ${plusJakartaSans.variable}`}>
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs uppercase tracking-widest text-gold font-medium">
@@ -94,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pendingReviewCount = reviews.filter((r) => r.status === 'pending').length;
 
   return (
-    <div className="min-h-screen bg-[#0E0E0E] text-paper flex admin-theme">
+    <div className={`min-h-screen bg-[#0E0E0E] text-paper flex admin-theme ${plusJakartaSans.variable}`}>
       {/* Collapsible Domain Sidebar */}
       <AdminSidebar
         isCollapsed={isSidebarCollapsed}

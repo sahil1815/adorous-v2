@@ -1,16 +1,24 @@
 'use client';
 
 import React, { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileStickyBar from '@/components/layout/MobileStickyBar';
-import CartDrawer from '@/components/cart/CartDrawer';
-import WishlistDrawer from '@/components/wishlist/WishlistDrawer';
 import NavigationProgress from '@/components/layout/NavigationProgress';
-import WelcomeOfferModal from '@/components/layout/WelcomeOfferModal';
 import OfferCountdownBadge from '@/components/layout/OfferCountdownBadge';
+
+const CartDrawer = dynamic(() => import('@/components/cart/CartDrawer'), {
+  ssr: false,
+});
+const WishlistDrawer = dynamic(() => import('@/components/wishlist/WishlistDrawer'), {
+  ssr: false,
+});
+const WelcomeOfferModal = dynamic(() => import('@/components/layout/WelcomeOfferModal'), {
+  ssr: false,
+});
 
 export default function StorefrontLayoutWrapper({
   children,

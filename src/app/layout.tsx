@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
@@ -21,6 +22,22 @@ import MetaPixel from "@/components/analytics/MetaPixel";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import WebMcpProvider from "@/components/agent/WebMcpProvider";
 import { ROOT_JSON_LD } from "@/lib/jsonLd";
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-jost",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -93,14 +110,8 @@ export default function RootLayout({
     process.env.GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ROOT_JSON_LD) }}
