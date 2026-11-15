@@ -120,7 +120,7 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
         scroll={true}
         className="relative block aspect-[4/5] bg-stone overflow-hidden active:opacity-90 active:scale-[0.99] transition-all"
       >
-        {displayImage.startsWith('data:') || displayImage.startsWith('http') ? (
+        {displayImage.startsWith('data:') ? (
           <img
             src={displayImage}
             alt={product.name}

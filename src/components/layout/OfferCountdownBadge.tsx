@@ -12,6 +12,7 @@ export default function OfferCountdownBadge() {
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const badgeRef = useRef<HTMLDivElement>(null);
+  const cachedDimsRef = useRef<{ width: number; height: number }>({ width: 240, height: 44 });
   const dragStartRef = useRef<{ clientX: number; clientY: number; startOffsetX: number; startOffsetY: number }>({
     clientX: 0,
     clientY: 0,
@@ -21,9 +22,7 @@ export default function OfferCountdownBadge() {
 
   const clampOffset = (x: number, y: number) => {
     if (typeof window === 'undefined') return { x, y };
-    const badgeEl = badgeRef.current;
-    const badgeWidth = badgeEl ? badgeEl.offsetWidth : 240;
-    const badgeHeight = badgeEl ? badgeEl.offsetHeight : 44;
+    const { width: badgeWidth, height: badgeHeight } = cachedDimsRef.current;
 
     const minX = -(window.innerWidth - badgeWidth - 16);
     const maxX = 8;
@@ -37,10 +36,22 @@ export default function OfferCountdownBadge() {
   };
 
   React.useEffect(() => {
+    if (badgeRef.current) {
+      cachedDimsRef.current = {
+        width: badgeRef.current.offsetWidth || 240,
+        height: badgeRef.current.offsetHeight || 44,
+      };
+    }
     const handleResize = () => {
+      if (badgeRef.current) {
+        cachedDimsRef.current = {
+          width: badgeRef.current.offsetWidth || 240,
+          height: badgeRef.current.offsetHeight || 44,
+        };
+      }
       setOffset((prev) => clampOffset(prev.x, prev.y));
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -48,6 +59,13 @@ export default function OfferCountdownBadge() {
     // If user clicked close button, let close handler execute without dragging
     if ((e.target as HTMLElement).closest('button')) return;
     if (e.button !== 0) return; // Only drag with primary mouse button / touch
+
+    if (badgeRef.current) {
+      cachedDimsRef.current = {
+        width: badgeRef.current.offsetWidth || 240,
+        height: badgeRef.current.offsetHeight || 44,
+      };
+    }
 
     setIsDragging(true);
     dragStartRef.current = {
