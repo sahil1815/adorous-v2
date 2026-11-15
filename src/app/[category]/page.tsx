@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, cache } from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { CATEGORIES } from '@/data/catalogue';
@@ -8,13 +8,15 @@ import { getPageOrdering } from '@/app/actions/productOrderingActions';
 import { ProductCategory } from '@/types';
 import CategoryPageClient from '@/components/category/CategoryPageClient';
 
+const getCachedCategoryHeroSettings = cache(getCategoryHeroSettings);
+
 interface CategoryPageProps {
   params: Promise<{
     category: string;
   }>;
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
@@ -27,7 +29,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const title = `${cat.name} Collection | Adorous Fashion Dhaka`;
   const description = `${cat.blurb} Premium South Asian accessories available for Cash on Delivery across Bangladesh.`;
 
-  const heroSetting = await getCategoryHeroSettings(category);
+  const heroSetting = await getCachedCategoryHeroSettings(category);
   const heroImage = heroSetting?.heroImage || cat.image;
 
   return {
@@ -67,7 +69,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
   const [categoryProductsDb, heroSetting, orderingSetting] = await Promise.all([
     getProductsByCategory(category),
-    getCategoryHeroSettings(category),
+    getCachedCategoryHeroSettings(category),
     getPageOrdering(`category-${category}`),
   ]);
   const heroImage = heroSetting?.heroImage || cat.image;

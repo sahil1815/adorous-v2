@@ -18,7 +18,7 @@ import {
   Layers,
 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 function toFrontendProduct(p: any): Product {
   return {

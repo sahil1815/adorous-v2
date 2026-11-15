@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, cache } from 'react';
 import { Metadata } from 'next';
 import { getLookbookLooks, getLookbookSettings } from '@/app/actions/lookbookActions';
 import { getAllProducts } from '@/app/actions/productActions';
@@ -6,10 +6,12 @@ import { ProductCategory, Product } from '@/types';
 import { PRODUCTS } from '@/data/catalogue';
 import LookbookClient from '@/components/lookbook/LookbookClient';
 
-export const dynamic = 'force-dynamic';
+const getCachedLookbookSettings = cache(getLookbookSettings);
+
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getLookbookSettings();
+  const settings = await getCachedLookbookSettings();
   return {
     title: `${settings.pageTitle} | Adorous Fashion Dhaka`,
     description: settings.pageDescription,
@@ -19,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LookbookPage() {
   const [looks, settings, rawProducts] = await Promise.all([
     getLookbookLooks(false),
-    getLookbookSettings(),
+    getCachedLookbookSettings(),
     getAllProducts(),
   ]);
 

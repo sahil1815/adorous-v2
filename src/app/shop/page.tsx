@@ -5,7 +5,7 @@ import { getPageOrdering } from '@/app/actions/productOrderingActions';
 import { ProductCategory, Product } from '@/types';
 import ShopClient from '@/components/shop/ShopClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'The Full Collection | Adorous Fashion Dhaka',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getLandingPageBySlug } from '@/app/actions/landingPageActions';
@@ -6,7 +6,9 @@ import { getAllProducts } from '@/app/actions/productActions';
 import { ProductCategory, Product } from '@/types';
 import CollectionClient from '@/components/collections/CollectionClient';
 
-export const dynamic = 'force-dynamic';
+const getCachedLandingPageBySlug = cache(getLandingPageBySlug);
+
+export const revalidate = 300;
 
 interface CollectionPageProps {
   params: Promise<{
@@ -18,7 +20,7 @@ export async function generateMetadata({
   params,
 }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = await getLandingPageBySlug(slug);
+  const page = await getCachedLandingPageBySlug(slug);
 
   if (!page || !page.isActive) {
     return {
@@ -48,7 +50,7 @@ export async function generateMetadata({
 
 export default async function CollectionLandingPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const page = await getLandingPageBySlug(slug);
+  const page = await getCachedLandingPageBySlug(slug);
 
   if (!page || !page.isActive) {
     notFound();

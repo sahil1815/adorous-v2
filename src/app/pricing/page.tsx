@@ -7,7 +7,7 @@ import { getAllProducts } from '@/app/actions/productActions';
 import { formatPrice } from '@/lib/formatPrice';
 import { Tag, ShieldCheck, Truck, MessageCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Official Pricing & Product Catalogue | Adorous Fashion Dhaka',

@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, cache } from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -9,8 +9,10 @@ import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
 import { EyeOff } from 'lucide-react';
 
+const getCachedProductBySlug = cache(getProductBySlug);
+
 export const dynamicParams = true;
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface ProductPageProps {
   params: Promise<{
@@ -21,7 +23,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { category, slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getCachedProductBySlug(slug);
 
   if (!product) {
     notFound();
@@ -60,7 +62,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (category.toLowerCase() === 'umbrellas') {
     redirect(`/more/${slug}`);
   }
-  let productDb = await getProductBySlug(slug, false);
+  let productDb = await getCachedProductBySlug(slug, false);
   let isPreviewForAdmin = false;
 
   if (!productDb) {
@@ -70,7 +72,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       if (sessionToken) {
         const session = await decrypt(sessionToken);
         if (session) {
-          productDb = await getProductBySlug(slug, true);
+          productDb = await getCachedProductBySlug(slug, true);
           if (productDb) {
             isPreviewForAdmin = true;
           }
