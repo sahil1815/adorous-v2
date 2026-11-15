@@ -41,6 +41,28 @@ const nextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Link',
+            value: '</llms.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Link',
+            value: '</llms.txt>; rel="describedby"; type="text/plain"',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -48,43 +48,7 @@ export default function CategoryLoading() {
             <div className="h-6 w-12 rounded-full bg-stone/80 luxury-shimmer" />
             <div className="h-5 w-5 rounded-full bg-stone/70 luxury-shimmer" />
             <div className="h-5 w-5 rounded-full bg-stone/70 luxury-shimmer" />
-            <div className="h-5 w-5 rounded-full bg-stone/70 luxury-shimmer" />
           </div>
-          <div className="h-6 w-28 bg-stone/60 luxury-shimmer" />
-        </div>
-      </div>
-
-      {/* Product Cards Grid Skeleton */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div
-              key={item}
-              className="flex flex-col bg-paper border border-line/70 overflow-hidden"
-            >
-              {/* Warm Stone Plinth Placeholder */}
-              <div className="relative aspect-[4/5] bg-stone luxury-shimmer">
-                {/* Subtle Luxury Corner Accent */}
-                <div className="absolute top-2.5 left-2.5 w-14 h-4 bg-paper/40" />
-              </div>
-
-              {/* Details Skeleton */}
-              <div className="p-3.5 sm:p-4 space-y-2.5 flex-1 flex flex-col justify-between">
-                <div className="space-y-1.5">
-                  <div className="h-2.5 w-16 bg-stone/60 luxury-shimmer" />
-                  <div className="h-4 w-4/5 bg-stone luxury-shimmer" />
-                </div>
-
-                <div className="pt-2 flex items-center justify-between">
-                  <div className="h-4 w-16 bg-stone luxury-shimmer" />
-                  <div className="flex gap-1">
-                    <div className="w-3.5 h-3.5 rounded-full bg-stone/70 luxury-shimmer" />
-                    <div className="w-3.5 h-3.5 rounded-full bg-stone/70 luxury-shimmer" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

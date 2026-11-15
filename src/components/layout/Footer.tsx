@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, ShieldCheck, Truck, RotateCcw, Award } from 'lucide-react';
+import { MessageCircle, ShieldCheck, Truck, RotateCcw, Award, Phone, Mail, MapPin } from 'lucide-react';
 import { CATEGORIES } from '@/data/catalogue';
 
 export default function Footer() {
@@ -71,16 +71,36 @@ export default function Footer() {
             <p className="text-xs text-ink leading-relaxed max-w-sm">
               Premium curated accessories and jewellery for discerning women in Bangladesh. Designed to be styled together across occasions, from festive celebrations to effortless everyday wear.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col space-y-2 text-xs">
               <a
                 href="https://wa.me/8801577731381?text=Hello%20Adorous%20Fashion"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-paper hover:bg-stone border border-line text-ink text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-colors max-w-full min-w-0"
+                className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-paper hover:bg-stone border border-line text-ink text-[11px] sm:text-xs tracking-wider uppercase rounded-[2px] transition-colors max-w-full min-w-0"
               >
                 <MessageCircle className="w-4 h-4 text-whatsapp shrink-0" />
                 <span className="font-medium truncate">WhatsApp: 015-777-31381</span>
               </a>
+              <div className="flex flex-col space-y-1.5 pt-1 text-ink/80 text-[11px]">
+                <a
+                  href="tel:+8801577731381"
+                  className="inline-flex items-center space-x-2 hover:text-gold-deep transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                  <span>Call: +880 15-7773-1381</span>
+                </a>
+                <a
+                  href="mailto:support@adorousfashion.store"
+                  className="inline-flex items-center space-x-2 hover:text-gold-deep transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                  <span>Email: support@adorousfashion.store</span>
+                </a>
+                <span className="inline-flex items-center space-x-2 text-ink/60">
+                  <MapPin className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                  <span>Studio: Rajshahi, Bangladesh (All 64 districts)</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -110,12 +130,22 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Client Care Col */}
+          {/* Client Care & Legal Col */}
           <div className="md:col-span-2 space-y-4">
             <h5 className="font-serif text-[13px] tracking-[0.15em] uppercase text-ink font-semibold">
-              Client Care
+              Client Care & Legal
             </h5>
-            <ul className="space-y-3 text-xs text-ink">
+            <ul className="space-y-2.5 text-xs text-ink">
+              <li>
+                <Link href="/about" className="hover:text-gold-deep transition-colors font-medium text-gold-deep">
+                  About Our Atelier
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-gold-deep transition-colors">
+                  Contact Studio
+                </Link>
+              </li>
               <li>
                 <Link href="/size-fit" className="hover:text-gold-deep transition-colors">
                   Churi Sizing Guide
@@ -132,6 +162,16 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/terms" className="hover:text-gold-deep transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-gold-deep transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
                 <Link href="/faq" className="hover:text-gold-deep transition-colors">
                   Frequently Asked Questions
                 </Link>
@@ -139,11 +179,6 @@ export default function Footer() {
               <li>
                 <Link href="/track-order" className="hover:text-gold-deep transition-colors">
                   Track Your Parcel
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-gold-deep transition-colors">
-                  Contact Studio
                 </Link>
               </li>
             </ul>
@@ -175,10 +210,20 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-line flex flex-col sm:flex-row items-center justify-between text-xs text-ink space-y-4 sm:space-y-0">
-          <div>
-            © {new Date().getFullYear()} Adorous Fashion Ltd. Rajshahi, Bangladesh.
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-ink/75">
+            <span>© {new Date().getFullYear()} Adorous Fashion Ltd.</span>
+            <span className="hidden sm:inline">·</span>
+            <Link href="/about" className="hover:text-gold-deep transition-colors">About</Link>
+            <span>·</span>
+            <Link href="/contact" className="hover:text-gold-deep transition-colors">Contact</Link>
+            <span>·</span>
+            <Link href="/terms" className="hover:text-gold-deep transition-colors">Terms</Link>
+            <span>·</span>
+            <Link href="/privacy" className="hover:text-gold-deep transition-colors">Privacy</Link>
+            <span>·</span>
+            <Link href="/llms.txt" className="hover:text-gold-deep transition-colors font-mono text-[10px]">llms.txt</Link>
           </div>
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-[11px] font-medium">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-[11px] font-medium text-ink/80">
             <span>Cash on Delivery</span>
             <span>bKash</span>
             <span>Nagad</span>

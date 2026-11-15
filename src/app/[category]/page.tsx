@@ -21,9 +21,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const cat = CATEGORIES.find((c) => c.slug === category);
 
   if (!cat) {
-    return {
-      title: 'Category Not Found | Adorous Fashion',
-    };
+    notFound();
   }
 
   const title = `${cat.name} Collection | Adorous Fashion Dhaka`;

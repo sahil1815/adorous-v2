@@ -1,5 +1,5 @@
 import React from 'react';
-import CategoryLoading from '../[category]/loading';
+import CategoryLoading from '@/components/ui/CategoryLoading';
 
 export default function ShopLoading() {
   return <CategoryLoading />;

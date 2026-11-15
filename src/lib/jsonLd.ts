@@ -1,0 +1,131 @@
+export const ROOT_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['Organization', 'OnlineStore', 'JewelryStore'],
+      '@id': 'https://adorousfashion.store/#organization',
+      name: 'Adorous Fashion',
+      alternateName: ['Adorous Fashion BD', 'Adorous Fashion Dhaka'],
+      url: 'https://adorousfashion.store',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': 'https://adorousfashion.store/#logo',
+        url: 'https://adorousfashion.store/images/logo/logo-monogram.png',
+        contentUrl: 'https://adorousfashion.store/images/logo/logo-monogram.png',
+        caption: 'Adorous Fashion Atelier Monogram',
+      },
+      image: {
+        '@type': 'ImageObject',
+        '@id': 'https://adorousfashion.store/#hero-image',
+        url: 'https://adorousfashion.store/images/hero/hero-still-life.jpg',
+        caption: 'Adorous Fashion Luxury Still Life Jewellery Collection',
+      },
+      description: 'Curated boutique luxury accessories and jewelry suites in Bangladesh. Handcrafted Pakistani bridal suites, velvet churi bangles, ladies satchel bags, and crystal sets with Cash on Delivery nationwide.',
+      telephone: '+8801577731381',
+      email: 'support@adorousfashion.store',
+      priceRange: '৳৳',
+      currenciesAccepted: 'BDT',
+      paymentAccepted: ['Cash on Delivery', 'bKash', 'Nagad', 'Visa', 'Mastercard'],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Rajshahi',
+        addressRegion: 'Rajshahi Division',
+        addressCountry: 'BD',
+      },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone: '+8801577731381',
+          contactType: 'customer service',
+          email: 'support@adorousfashion.store',
+          areaServed: 'BD',
+          availableLanguage: ['English', 'Bengali'],
+        },
+      ],
+      sameAs: [
+        'https://www.facebook.com/adorousfashion',
+        'https://www.instagram.com/adorousfashion',
+        'https://wa.me/8801577731381',
+        'https://tiktok.com/@adorousfashion',
+      ],
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'BD',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://adorousfashion.store/#website',
+      url: 'https://adorousfashion.store',
+      name: 'Adorous Fashion',
+      description: 'Luxury South Asian Jewelry Sets, Velvet Churi, and Ladies Bags',
+      publisher: {
+        '@id': 'https://adorousfashion.store/#organization',
+      },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://adorousfashion.store/shop?q={search_term_string}',
+        },
+        'query-input': 'required name=search_term_string',
+      },
+      inLanguage: 'en-US',
+    },
+    {
+      '@type': 'WebPage',
+      '@id': 'https://adorousfashion.store/#webpage',
+      url: 'https://adorousfashion.store',
+      name: 'Adorous Fashion — Boutique Accessories & Fine Jewelry | Rajshahi, Bangladesh',
+      description: 'Curated premium jewelry sets, velvet churi bangles, luxury bags, and fashion accessories. Cash on Delivery across all 64 districts in Bangladesh.',
+      isPartOf: {
+        '@id': 'https://adorousfashion.store/#website',
+      },
+      about: {
+        '@id': 'https://adorousfashion.store/#organization',
+      },
+      inLanguage: 'en-US',
+    },
+    {
+      '@type': 'ItemList',
+      '@id': 'https://adorousfashion.store/#featured-collections',
+      name: 'Featured Boutique Collections',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Jewelry Sets',
+          url: 'https://adorousfashion.store/jewelry',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: "Ladies' Bags",
+          url: 'https://adorousfashion.store/bags',
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'Churi (Bangles)',
+          url: 'https://adorousfashion.store/churi',
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: 'Earrings',
+          url: 'https://adorousfashion.store/earrings',
+        },
+        {
+          '@type': 'ListItem',
+          position: 5,
+          name: 'Curated Lifestyle & More',
+          url: 'https://adorousfashion.store/more',
+        },
+      ],
+    },
+  ],
+};

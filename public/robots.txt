@@ -1,0 +1,15 @@
+User-Agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /order-success/
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /promo/
+Disallow: /promo/*
+Disallow: /collections/
+Disallow: /collections/*
+
+Content-Signal: search=yes, ai-train=no
+
+Sitemap: https://adorousfashion.store/sitemap.xml

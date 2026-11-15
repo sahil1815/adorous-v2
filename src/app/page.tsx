@@ -81,48 +81,176 @@ export default async function HomePage() {
     bestsellerProducts = allAvailable.slice(0, 4);
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': ['Organization', 'OnlineStore', 'JewelryStore'],
+        '@id': 'https://adorousfashion.store/#organization',
+        name: 'Adorous Fashion',
+        alternateName: ['Adorous Fashion BD', 'Adorous Fashion Dhaka'],
+        url: 'https://adorousfashion.store',
+        logo: {
+          '@type': 'ImageObject',
+          '@id': 'https://adorousfashion.store/#logo',
+          url: 'https://adorousfashion.store/images/logo/logo-monogram.png',
+          caption: 'Adorous Fashion Atelier Monogram',
+        },
+        image: {
+          '@type': 'ImageObject',
+          '@id': 'https://adorousfashion.store/#hero-image',
+          url: 'https://adorousfashion.store/images/hero/hero-still-life.jpg',
+          caption: 'Adorous Fashion Luxury Still Life Jewellery Collection',
+        },
+        description: 'Curated boutique luxury accessories and jewelry suites in Bangladesh. Handcrafted Pakistani bridal suites, velvet churi bangles, ladies satchel bags, and crystal sets with Cash on Delivery nationwide.',
+        telephone: '+8801577731381',
+        email: 'support@adorousfashion.store',
+        priceRange: '৳৳',
+        currenciesAccepted: 'BDT',
+        paymentAccepted: ['Cash on Delivery', 'bKash', 'Nagad', 'Visa', 'Mastercard'],
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Rajshahi',
+          addressRegion: 'Rajshahi Division',
+          addressCountry: 'BD',
+        },
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            telephone: '+8801577731381',
+            contactType: 'customer service',
+            email: 'support@adorousfashion.store',
+            areaServed: 'BD',
+            availableLanguage: ['English', 'Bengali'],
+          },
+        ],
+        sameAs: [
+          'https://www.facebook.com/adorousfashion',
+          'https://www.instagram.com/adorousfashion',
+          'https://wa.me/8801577731381',
+          'https://tiktok.com/@adorousfashion',
+        ],
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'BD',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: 7,
+          returnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/FreeReturn',
+        },
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://adorousfashion.store/#website',
+        url: 'https://adorousfashion.store',
+        name: 'Adorous Fashion',
+        description: 'Luxury South Asian Jewelry Sets, Velvet Churi, and Ladies Bags',
+        publisher: {
+          '@id': 'https://adorousfashion.store/#organization',
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://adorousfashion.store/shop?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
+        inLanguage: 'en-US',
+      },
+      {
+        '@type': 'WebPage',
+        '@id': 'https://adorousfashion.store/#webpage',
+        url: 'https://adorousfashion.store',
+        name: 'Adorous Fashion — Boutique Accessories & Fine Jewelry | Rajshahi, Bangladesh',
+        description: 'Curated premium jewelry sets, velvet churi bangles, luxury bags, and fashion accessories. Cash on Delivery across all 64 districts in Bangladesh.',
+        isPartOf: {
+          '@id': 'https://adorousfashion.store/#website',
+        },
+        about: {
+          '@id': 'https://adorousfashion.store/#organization',
+        },
+        inLanguage: 'en-US',
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://adorousfashion.store/#featured-collections',
+        name: 'Featured Boutique Collections',
+        itemListElement: CATEGORIES.map((cat, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: cat.name,
+          url: `https://adorousfashion.store/${cat.slug}`,
+        })),
+      },
+    ],
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* 1. HERO SECTION */}
-      <section className="relative bg-paper text-ink overflow-hidden border-b border-line">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[640px]">
-          {/* Left Hero Content */}
-          <div className="lg:col-span-6 px-6 py-12 sm:px-12 sm:py-16 lg:py-24 flex flex-col justify-center z-10">
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.08] font-medium text-ink tracking-tight">
-              Premium jewelry, bags & churi — <span className="gold-gradient-text italic font-normal">made to be worn together.</span>
-            </h1>
-
-            <p className="mt-5 text-sm sm:text-base text-ink/80 max-w-lg leading-relaxed font-normal">
-              Curated boutique accessories crafted for timeless South Asian celebrations. Cash on Delivery across all 64 districts in Bangladesh with personal WhatsApp confirmation.
-            </p>
-
-            <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-              <Link
-                href="/shop"
-                className="inline-flex items-center justify-center px-7 py-3.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-[0.16em] uppercase rounded-[2px] transition-all shadow-md group"
-              >
-                <span>Shop The New Arrival</span>
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              <Link
-                href="/churi"
-                className="inline-flex items-center justify-center px-7 py-3.5 bg-transparent hover:bg-sand text-gold-deep border border-gold hover:border-gold font-medium text-xs tracking-[0.16em] uppercase rounded-[2px] transition-colors"
-              >
-                <span>Explore Churi Stacks</span>
-              </Link>
-            </div>
-
-            {/* Quick Micro Proof */}
-            <div className="mt-10 pt-6 border-t border-line flex items-center space-x-6 text-xs text-ink/70">
-              <div className="flex items-center space-x-1 text-gold">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-gold" />
-                ))}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="flex flex-col min-h-screen">
+        {/* 1. HERO SECTION */}
+        <section className="relative bg-paper text-ink overflow-hidden border-b border-line">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[640px]">
+            {/* Left Hero Content */}
+            <div className="lg:col-span-6 px-6 py-12 sm:px-12 sm:py-16 lg:py-24 flex flex-col justify-center z-10">
+              <div className="mb-3 inline-flex items-center space-x-2 text-xs font-mono tracking-[0.2em] uppercase text-gold-deep">
+                <span className="w-5 h-px bg-gold-deep/60" />
+                <span>Curated South Asian Atelier</span>
               </div>
-              <span>4.9/5 Rating by 200+ Clients in Dhaka & Nationwide</span>
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.08] font-medium text-ink tracking-tight">
+                Adorous Fashion — <span className="gold-gradient-text italic font-normal">Luxury Boutique Jewelry, Bags & Churi</span>
+              </h1>
+
+              <p className="mt-5 text-sm sm:text-base text-ink/80 max-w-lg leading-relaxed font-normal">
+                Curated boutique accessories crafted for timeless South Asian celebrations. Cash on Delivery across all 64 districts in Bangladesh with personal WhatsApp confirmation.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center justify-center px-7 py-3.5 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-[0.16em] uppercase rounded-[2px] transition-all shadow-md group"
+                >
+                  <span>Shop The New Arrival</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link
+                  href="/churi"
+                  className="inline-flex items-center justify-center px-7 py-3.5 bg-transparent hover:bg-sand text-gold-deep border border-gold hover:border-gold font-medium text-xs tracking-[0.16em] uppercase rounded-[2px] transition-colors"
+                >
+                  <span>Explore Churi Stacks</span>
+                </Link>
+              </div>
+
+              {/* Quick Micro Proof & Machine-readable Contact Details */}
+              <div className="mt-8 pt-5 border-t border-line flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-ink/75">
+                <div className="flex items-center space-x-1 text-gold">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-gold" />
+                  ))}
+                  <span className="text-ink font-medium ml-1">4.9/5 (200+ Clients)</span>
+                </div>
+                <span className="text-ink/30 hidden sm:inline">·</span>
+                <a
+                  href="tel:+8801577731381"
+                  className="hover:text-gold-deep transition-colors font-medium inline-flex items-center"
+                >
+                  Tel: +880 15-7773-1381
+                </a>
+                <span className="text-ink/30 hidden sm:inline">·</span>
+                <a
+                  href="mailto:support@adorousfashion.store"
+                  className="hover:text-gold-deep transition-colors font-medium inline-flex items-center"
+                >
+                  support@adorousfashion.store
+                </a>
+              </div>
             </div>
-          </div>
 
           {/* Right Hero Visual */}
           <div className="lg:col-span-6 relative min-h-[380px] lg:min-h-full">
@@ -404,5 +532,6 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

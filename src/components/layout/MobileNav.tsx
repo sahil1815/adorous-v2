@@ -35,7 +35,10 @@ const EDITORIAL_LINKS = [
   { name: 'Festive Lookbook 2026', href: '/lookbook' },
   { name: 'Churi Hand-Sizing Guide', href: '/size-fit' },
   { name: 'Delivery & COD Rates (64 Districts)', href: '/delivery-payment' },
-  { name: 'Our Story & Vision', href: '/about' },
+  { name: 'About Our Atelier', href: '/about' },
+  { name: 'Contact Studio', href: '/contact' },
+  { name: 'Terms of Service', href: '/terms' },
+  { name: 'Privacy Policy', href: '/privacy' },
 ];
 
 export default function MobileNav({ isOpen, onClose }: MobileNavProps) {

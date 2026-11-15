@@ -24,9 +24,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const product = await getProductBySlug(slug);
 
   if (!product) {
-    return {
-      title: 'Product Not Found | Adorous Fashion',
-    };
+    notFound();
   }
 
   const title = `${product.name} | Adorous Fashion Dhaka`;

@@ -591,15 +591,12 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
     startOfferLifecycle(settings, true);
   }, [settings]);
 
-  // Don't render children until hydrated to prevent hydration mismatch flash
-  if (!isHydrated) return null;
-
   return (
     <NewVisitorOfferContext.Provider
       value={{
-        isModalOpen,
-        isOfferActive,
-        remainingSeconds,
+        isModalOpen: isHydrated ? isModalOpen : false,
+        isOfferActive: isHydrated ? isOfferActive : false,
+        remainingSeconds: isHydrated ? remainingSeconds : 0,
         discountPercent: settings.discountPercent,
         offerMode: settings.offerMode,
         settings,
