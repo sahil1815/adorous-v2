@@ -18,10 +18,55 @@ export function getCurrentBangladeshYear(): number {
 }
 
 /**
+ * Helper to safely query the maximum order sequence number already present
+ * in the Order table for a given year (e.g. from 'AF-2026-10130' -> 10130).
+ */
+async function getMaxExistingOrderSeq(
+  year: number,
+  db: Prisma.TransactionClient | typeof prisma
+): Promise<number> {
+  try {
+    const rows = await db.$queryRawUnsafe<{ maxSeq: string | number }[]>(
+      `SELECT COALESCE(MAX(CAST(SUBSTRING("orderId" FROM '^AF-' || $1 || '-([0-9]+)$') AS BIGINT)), 0)::text as "maxSeq"
+       FROM "Order"
+       WHERE "orderId" LIKE 'AF-' || $1 || '-%'`,
+      year
+    );
+    const parsed = parseInt(String(rows[0]?.maxSeq || '0'), 10);
+    return isNaN(parsed) ? 0 : parsed;
+  } catch (err) {
+    console.warn(`[orderId] Error querying max sequence from Order table for year ${year}:`, err);
+    try {
+      const orders = await db.order.findMany({
+        where: { orderId: { startsWith: `AF-${year}-` } },
+        select: { orderId: true },
+        take: 100,
+        orderBy: { createdAt: 'desc' },
+      });
+      let maxSeq = 0;
+      for (const o of orders) {
+        const match = o.orderId.match(new RegExp(`^AF-${year}-(\\d+)$`));
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxSeq) maxSeq = num;
+        }
+      }
+      return maxSeq;
+    } catch {
+      return 0;
+    }
+  }
+}
+
+/**
  * Atomically generates the next continuous Order ID for the given year (or current Bangladesh year).
  * Format: AF-(year)-10001, AF-(year)-10002, AF-(year)-10003, ...
  * Uses PostgreSQL row-level atomic UPSERT on "OrderSequence" to prevent race conditions,
  * duplicate IDs, or numbering gaps.
+ * 
+ * Self-healing: If "OrderSequence" is ever missing, reset, or falls behind existing orders
+ * (e.g. after a backup restore, legacy data import, or manual inserts), it automatically
+ * synchronizes with the highest existing sequence in the "Order" table and proceeds smoothly.
  */
 export async function generateNextOrderId(
   forcedYear?: number,
@@ -39,25 +84,33 @@ export async function generateNextOrderId(
     );
   `);
 
+  // Query highest existing sequence in the Order table for this year
+  const maxExisting = await getMaxExistingOrderSeq(year, db);
+  // Base starting sequence floor is at least 10000, or the highest existing order
+  let floorSeq = Math.max(10000, maxExisting);
+  let initialSeq = floorSeq + 1;
+
   let attempts = 0;
-  while (attempts < 20) {
+  while (attempts < 50) {
     attempts++;
 
     // Atomic increment/upsert in PostgreSQL
-    // If no row for this year exists, initialize at 10001.
-    // If row exists, increment by 1.
+    // If no row for this year exists, initialize at initialSeq (>= 10001 and > maxExisting).
+    // If row exists, ensure it is at least floorSeq, then increment by 1.
     const rows = await db.$queryRawUnsafe<{ lastSeq: number }[]>(
       `
       INSERT INTO "OrderSequence" ("year", "lastSeq")
-      VALUES ($1, 10001)
+      VALUES ($1, $2)
       ON CONFLICT ("year")
-      DO UPDATE SET "lastSeq" = "OrderSequence"."lastSeq" + 1
+      DO UPDATE SET "lastSeq" = GREATEST("OrderSequence"."lastSeq", $3) + 1
       RETURNING "lastSeq";
       `,
-      year
+      year,
+      initialSeq,
+      floorSeq
     );
 
-    const seq = rows[0]?.lastSeq;
+    const seq = Number(rows[0]?.lastSeq);
     if (!seq) {
       throw new Error(`Failed to generate sequence for year ${year}`);
     }
@@ -73,10 +126,16 @@ export async function generateNextOrderId(
     if (!existing) {
       return candidateId;
     }
-    // If it already exists in Order table, the while-loop atomically increments again
+
+    // In the rare event candidateId was already occupied, re-evaluate floorSeq
+    const latestMax = await getMaxExistingOrderSeq(year, db);
+    floorSeq = Math.max(seq, latestMax);
+    initialSeq = floorSeq + 1;
   }
 
-  throw new Error(`Failed to allocate a unique order ID for year ${year} after multiple attempts.`);
+  // Emergency deterministic fallback (only reached if 50 attempts somehow failed)
+  const emergencySeq = Math.max(floorSeq + 50, Date.now() % 1000000);
+  return `AF-${year}-${emergencySeq}`;
 }
 
 /**
