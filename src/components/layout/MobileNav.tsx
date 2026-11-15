@@ -24,6 +24,7 @@ interface MobileNavProps {
 
 const EXPLORE_ALL_LINKS = [
   { name: 'Full Collection', href: '/shop' },
+  { name: 'Official Price List (৳ BDT)', href: '/pricing' },
   { name: 'Jewelry Sets', href: '/jewelry' },
   { name: "Ladies' Bags", href: '/bags' },
   { name: 'Churi (Bangles)', href: '/churi' },
@@ -32,6 +33,7 @@ const EXPLORE_ALL_LINKS = [
 ];
 
 const EDITORIAL_LINKS = [
+  { name: 'Official Price List (৳ BDT)', href: '/pricing' },
   { name: 'Festive Lookbook 2026', href: '/lookbook' },
   { name: 'Churi Hand-Sizing Guide', href: '/size-fit' },
   { name: 'Delivery & COD Rates (64 Districts)', href: '/delivery-payment' },

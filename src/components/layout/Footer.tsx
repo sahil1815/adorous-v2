@@ -137,7 +137,12 @@ export default function Footer() {
             </h5>
             <ul className="space-y-2.5 text-xs text-ink">
               <li>
-                <Link href="/about" className="hover:text-gold-deep transition-colors font-medium text-gold-deep">
+                <Link href="/pricing" className="hover:text-gold-deep transition-colors font-semibold text-gold-deep">
+                  Pricing & Product Catalogue
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-gold-deep transition-colors font-medium">
                   About Our Atelier
                 </Link>
               </li>
@@ -214,6 +219,8 @@ export default function Footer() {
             <span>© {new Date().getFullYear()} Adorous Fashion Ltd.</span>
             <span className="hidden sm:inline">·</span>
             <Link href="/about" className="hover:text-gold-deep transition-colors">About</Link>
+            <span>·</span>
+            <Link href="/pricing" className="hover:text-gold-deep transition-colors font-medium">Pricing</Link>
             <span>·</span>
             <Link href="/contact" className="hover:text-gold-deep transition-colors">Contact</Link>
             <span>·</span>

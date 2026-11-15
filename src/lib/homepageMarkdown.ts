@@ -16,6 +16,7 @@ export const HOMEPAGE_MARKDOWN = `# Adorous Fashion — Luxury Boutique Jewelry,
 - **[Earrings](https://adorousfashion.store/earrings)**: Kashmiri heritage lotus and peacock jhumkas, and multi-stone filigree bell earrings.
 - **[Curated Lifestyle & More](https://adorousfashion.store/more)**: UV-blocking designer umbrellas and artisanal keepsakes.
 - **[Festive Lookbook 2026](https://adorousfashion.store/lookbook)**: Curated celebration styling and pairing inspirations.
+- **[Official Pricing & Product Catalogue](https://adorousfashion.store/pricing)**: Complete itemized price list in Bangladeshi Taka (৳ BDT) across all 30+ boutique pieces.
 - **[Shop All Products](https://adorousfashion.store/shop)**: Browse the complete real-time catalogue.
 
 ## Contact & Studio Inquiries

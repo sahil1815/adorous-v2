@@ -107,7 +107,13 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
     : (product.featuredImage || defaultColor?.image || activeColor?.image || '');
 
   return (
-    <div className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300 w-full min-w-0 overflow-hidden">
+    <div
+      className="group flex flex-col bg-paper border border-line/70 hover:border-gold/60 transition-all duration-300 w-full min-w-0 overflow-hidden"
+      itemScope
+      itemType="https://schema.org/Product"
+    >
+      <meta itemProp="name" content={product.name} />
+      <meta itemProp="url" content={`https://adorousfashion.store${productHref}`} />
       {/* Image Container with Warm Stone Backdrop */}
       <Link
         href={productHref}
@@ -263,7 +269,18 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
 
         {/* Price, Swatches, and Mobile Quick Add */}
         <div className="pt-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
-          <div className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 shrink-0 min-w-0">
+          <div
+            className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5 shrink-0 min-w-0"
+            itemProp="offers"
+            itemScope
+            itemType="https://schema.org/Offer"
+          >
+            <meta itemProp="priceCurrency" content="BDT" />
+            <meta itemProp="price" content={String(sellingPrice)} />
+            <link
+              itemProp="availability"
+              href={isCurrentColorOutOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'}
+            />
             <span
               className={`font-semibold text-sm sm:text-base tabular-nums ${
                 isCurrentColorOutOfStock ? 'text-ink/65' : 'text-ink'

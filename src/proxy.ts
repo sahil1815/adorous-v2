@@ -24,6 +24,7 @@ const VALID_STATIC_PATHS = new Set([
   'order-success',
   'terms',
   'privacy',
+  'pricing',
   'llms.txt',
   'robots.txt',
   'sitemap.xml',

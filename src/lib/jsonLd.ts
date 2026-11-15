@@ -1,3 +1,67 @@
+import { PRODUCTS, CATEGORIES } from '@/data/catalogue';
+
+const featuredProducts = PRODUCTS.filter((p) => !p.isHidden).slice(0, 8);
+
+const productSchemaNodes = featuredProducts.map((p) => ({
+  '@type': 'Product',
+  '@id': `https://adorousfashion.store/${p.category}/${p.slug}#product`,
+  name: p.name,
+  description: p.description || p.tagline || `${p.name} - Curated luxury boutique South Asian accessory suite.`,
+  image: p.featuredImage.startsWith('http')
+    ? p.featuredImage
+    : `https://adorousfashion.store${p.featuredImage}`,
+  url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+  sku: p.id,
+  brand: {
+    '@type': 'Brand',
+    name: 'Adorous Fashion',
+  },
+  category: p.categoryLabel || p.category,
+  offers: {
+    '@type': 'Offer',
+    '@id': `https://adorousfashion.store/${p.category}/${p.slug}#offer`,
+    price: Math.round(p.price),
+    priceCurrency: 'BDT',
+    availability: p.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    itemCondition: 'https://schema.org/NewCondition',
+    priceValidUntil: '2027-12-31',
+    url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+    seller: {
+      '@id': 'https://adorousfashion.store/#organization',
+    },
+    hasMerchantReturnPolicy: {
+      '@id': 'https://adorousfashion.store/#organization',
+    },
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      shippingRate: {
+        '@type': 'MonetaryAmount',
+        value: 80,
+        currency: 'BDT',
+      },
+      shippingDestination: {
+        '@type': 'DefinedRegion',
+        addressCountry: 'BD',
+      },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: {
+          '@type': 'QuantitativeValue',
+          minValue: 0,
+          maxValue: 1,
+          unitCode: 'DAY',
+        },
+        transitTime: {
+          '@type': 'QuantitativeValue',
+          minValue: 1,
+          maxValue: 4,
+          unitCode: 'DAY',
+        },
+      },
+    },
+  },
+}));
+
 export const ROOT_JSON_LD = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -127,5 +191,35 @@ export const ROOT_JSON_LD = {
         },
       ],
     },
+    {
+      '@type': 'ItemList',
+      '@id': 'https://adorousfashion.store/#curated-products',
+      name: 'Featured Products & Official Pricing',
+      numberOfItems: featuredProducts.length,
+      itemListElement: featuredProducts.map((p, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: p.name,
+        url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+        item: {
+          '@type': 'Product',
+          name: p.name,
+          url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          image: p.featuredImage.startsWith('http')
+            ? p.featuredImage
+            : `https://adorousfashion.store${p.featuredImage}`,
+          offers: {
+            '@type': 'Offer',
+            price: Math.round(p.price),
+            priceCurrency: 'BDT',
+            availability: p.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition',
+            priceValidUntil: '2027-12-31',
+            url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          },
+        },
+      })),
+    },
+    ...productSchemaNodes,
   ],
 };

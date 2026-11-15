@@ -183,6 +183,63 @@ export default async function HomePage() {
           url: `https://adorousfashion.store/${cat.slug}`,
         })),
       },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://adorousfashion.store/#bestseller-products',
+        name: 'Bestseller Pieces & Pricing',
+        numberOfItems: bestsellerProducts.length,
+        itemListElement: bestsellerProducts.map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: p.name,
+          url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          item: {
+            '@type': 'Product',
+            name: p.name,
+            description: p.tagline || p.description,
+            image: p.featuredImage.startsWith('http') ? p.featuredImage : `https://adorousfashion.store${p.featuredImage}`,
+            url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+            sku: p.id,
+            offers: {
+              '@type': 'Offer',
+              price: Math.round(p.price),
+              priceCurrency: 'BDT',
+              availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              itemCondition: 'https://schema.org/NewCondition',
+              priceValidUntil: '2027-12-31',
+              url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+              seller: {
+                '@id': 'https://adorousfashion.store/#organization',
+              },
+            },
+          },
+        })),
+      },
+      ...bestsellerProducts.map((p) => ({
+        '@type': 'Product',
+        '@id': `https://adorousfashion.store/${p.category}/${p.slug}#product`,
+        name: p.name,
+        description: p.tagline || p.description,
+        image: p.featuredImage.startsWith('http') ? p.featuredImage : `https://adorousfashion.store${p.featuredImage}`,
+        url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+        sku: p.id,
+        brand: {
+          '@type': 'Brand',
+          name: 'Adorous Fashion',
+        },
+        offers: {
+          '@type': 'Offer',
+          price: Math.round(p.price),
+          priceCurrency: 'BDT',
+          availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          priceValidUntil: '2027-12-31',
+          url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          seller: {
+            '@id': 'https://adorousfashion.store/#organization',
+          },
+        },
+      })),
     ],
   };
 
@@ -235,6 +292,13 @@ export default async function HomePage() {
                   ))}
                   <span className="text-ink font-medium ml-1">4.9/5 (200+ Clients)</span>
                 </div>
+                <span className="text-ink/30 hidden sm:inline">·</span>
+                <Link
+                  href="/pricing"
+                  className="hover:text-gold-deep transition-colors font-semibold text-gold-deep inline-flex items-center"
+                >
+                  Prices & Catalogue (৳ BDT)
+                </Link>
                 <span className="text-ink/30 hidden sm:inline">·</span>
                 <a
                   href="tel:+8801577731381"
@@ -332,13 +396,22 @@ export default async function HomePage() {
               Our most coveted boutique pieces, adored for timeless celebrations, exceptional detailing, and heirloom craftsmanship.
             </p>
           </div>
-          <Link
-            href="/shop"
-            className="mt-4 md:mt-0 inline-flex items-center text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors group"
-          >
-            <span>View All Designs</span>
-            <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <div className="flex items-center gap-3.5 mt-4 md:mt-0">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-gold-deep hover:text-ink transition-colors"
+            >
+              <span>Full Price List (৳ BDT)</span>
+            </Link>
+            <span className="text-line hidden sm:inline">|</span>
+            <Link
+              href="/shop"
+              className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-ink hover:text-gold-deep transition-colors group"
+            >
+              <span>View All Designs</span>
+              <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
 
         {/* 4-Product Grid */}

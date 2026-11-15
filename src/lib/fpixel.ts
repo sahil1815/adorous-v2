@@ -17,8 +17,16 @@ export const pageview = () => {
   }
 };
 
-export const event = (name: string, options: Record<string, any> = {}) => {
+export const event = (
+  name: string,
+  options: Record<string, any> = {},
+  eventOptions?: Record<string, any>
+) => {
   if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('track', name, options);
+    if (eventOptions) {
+      (window as any).fbq('track', name, options, eventOptions);
+    } else {
+      (window as any).fbq('track', name, options);
+    }
   }
 };

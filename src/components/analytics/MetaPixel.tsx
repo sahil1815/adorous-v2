@@ -2,14 +2,20 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect, Suspense } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { setPixelId, pageview } from '@/lib/fpixel';
 
 function MetaPixelTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    // Skip initial mount because the inline Script already triggers the initial PageView
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (pathname) {
       pageview();
     }

@@ -66,6 +66,7 @@ export default function OrderSuccessPage() {
   const params = useParams();
   const orderId = params.orderId as string;
   const [order, setOrder] = useState<OrderData | null>(null);
+  const hasTrackedRef = React.useRef(false);
 
   useEffect(() => {
     try {
@@ -75,24 +76,45 @@ export default function OrderSuccessPage() {
         if (parsed.orderId === orderId) {
           setOrder(parsed);
 
-          // Track Meta Pixel Purchase event once
+          // Track Meta Pixel Purchase event once with strict multi-layer deduplication
           const trackedKey = `adorous_fb_tracked_${orderId}`;
-          if (!sessionStorage.getItem(trackedKey)) {
-            sessionStorage.setItem(trackedKey, 'true');
-            trackFbEvent('Purchase', {
-              content_type: 'product',
-              content_ids: (parsed.items || []).map((i: any) => i.product.id),
-              value: parsed.grandTotal,
-              currency: 'BDT',
-              num_items: (parsed.items || []).reduce((sum: number, i: any) => sum + (i.quantity || 1), 0),
-            });
+          const isAlreadyTracked =
+            hasTrackedRef.current ||
+            localStorage.getItem(trackedKey) === 'true' ||
+            sessionStorage.getItem(trackedKey) === 'true';
+
+          if (!isAlreadyTracked) {
+            hasTrackedRef.current = true;
+            try {
+              localStorage.setItem(trackedKey, 'true');
+              sessionStorage.setItem(trackedKey, 'true');
+            } catch (storageErr) {
+              console.warn('Tracking storage write error:', storageErr);
+            }
+
+            // Track Meta Pixel Purchase with eventID for Meta server deduplication
+            trackFbEvent(
+              'Purchase',
+              {
+                content_type: 'product',
+                content_ids: (parsed.items || []).map((i: any) => i.product?.id || i.id),
+                value: Number(parsed.grandTotal) || 0,
+                currency: 'BDT',
+                num_items: (parsed.items || []).reduce((sum: number, i: any) => sum + (i.quantity || 1), 0),
+              },
+              {
+                eventID: orderId,
+              }
+            );
+
+            // Track GA4 Purchase event with transactionId
             trackPurchase({
               transactionId: orderId,
-              value: parsed.grandTotal,
+              value: Number(parsed.grandTotal) || 0,
               items: (parsed.items || []).map((i: any) => ({
                 id: i.product?.id || i.id,
                 name: i.product?.name || i.name,
-                price: i.product?.price || i.price,
+                price: Number(i.product?.price || i.price) || 0,
                 quantity: i.quantity || 1,
               })),
             });
