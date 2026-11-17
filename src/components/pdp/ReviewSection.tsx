@@ -90,15 +90,26 @@ export default function ReviewSection({ product }: ReviewSectionProps) {
       <div className="mb-8 p-4 sm:p-5 bg-paper border border-line rounded-lg flex items-center justify-between gap-4 shadow-xs">
         {/* Left: Overall Score */}
         <div className="flex flex-col items-center justify-center shrink-0 pr-4 sm:pr-8 border-r border-line min-w-[110px] sm:min-w-[130px]">
-          <div className="text-3xl sm:text-4xl font-bold text-ink flex items-center gap-1.5">
-            <span>{averageRating}</span>
-            <span className="text-amber-500 text-2xl sm:text-3xl">★</span>
-          </div>
-          <span className="text-[11px] text-text-muted mt-1 text-center whitespace-nowrap">
-            {displayReviews.length > 0
-              ? `Based on ${displayReviews.length} ${displayReviews.length === 1 ? 'Review' : 'Reviews'}`
-              : 'Verified Atelier Standard'}
-          </span>
+          {displayReviews.length > 0 ? (
+            <>
+              <div className="text-3xl sm:text-4xl font-bold text-ink flex items-center gap-1.5">
+                <span>{averageRating}</span>
+                <span className="text-amber-500 text-2xl sm:text-3xl">★</span>
+              </div>
+              <span className="text-[11px] text-text-muted mt-1 text-center whitespace-nowrap">
+                Based on {displayReviews.length} {displayReviews.length === 1 ? 'Review' : 'Reviews'}
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="text-lg sm:text-xl font-serif font-semibold text-ink flex items-center gap-1 text-gold-deep">
+                <span>New Drop</span>
+              </div>
+              <span className="text-[11px] text-text-muted mt-1 text-center whitespace-nowrap">
+                Verified Atelier Standard
+              </span>
+            </>
+          )}
         </div>
 
         {/* Right: Star Distribution Bars */}

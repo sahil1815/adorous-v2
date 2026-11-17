@@ -112,15 +112,16 @@ ${rows}
 
   // 5. Returns & Exchange Policy
   if (cleanPath === '/returns-exchange') {
-    return `# 7-Day Doorstep Exchange Policy — Adorous Fashion
+    return `# 7-Day Doorstep Exchange Policy & 6-Month Color Warranty — Adorous Fashion
 
-> Hassle-free 7-day doorstep size and style exchange policy across Bangladesh. Guaranteed fit on all Churi bangles, jewelry, and luxury bags.
+> Hassle-free 7-day doorstep size and style exchange policy across Bangladesh. Guaranteed fit on all Churi bangles, jewelry, and luxury bags, backed by our 6-month color and plating assurance.
 
 ## Core Policy Pillars
-1. **7-Day Exchange Window**: Notify our team within 7 calendar days of courier delivery to initiate an exchange.
-2. **Doorstep Exchange**: The courier delivers the replacement item directly to your door and collects the original parcel simultaneously.
-3. **Condition**: Items must remain in their original unworn condition with tags and luxury keepsake packaging intact.
-4. **Exchange Hotline**: Message our dedicated team on WhatsApp at [+8801577731381](https://wa.me/8801577731381) with your order ID.
+1. **6-Month Color & Plating Assurance**: Every piece features premium 22k gold-tone electroplating and anti-tarnish protective lacquer. We provide free doorstep replacement or re-plating support if noticeable color fading occurs within 6 months of normal non-chemical care.
+2. **7-Day Exchange Window**: Notify our team within 7 calendar days of courier delivery to initiate an exchange.
+3. **Doorstep Exchange**: The courier delivers the replacement item directly to your door and collects the original parcel simultaneously.
+4. **Condition**: Items must remain in their original unworn condition with tags and luxury keepsake packaging intact.
+5. **Exchange Hotline**: Message our dedicated team on WhatsApp at [+8801577731381](https://wa.me/8801577731381) with your order ID.
 
 ## Exchange Process
 1. Contact us on WhatsApp with your Order ID and preferred replacement size/color.

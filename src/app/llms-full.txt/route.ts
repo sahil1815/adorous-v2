@@ -114,11 +114,12 @@ export async function GET() {
 
 ---
 
-## 3. 7-Day Doorstep Exchange Policy
-- **7-Day Window**: Patrons may initiate an exchange within 7 calendar days of courier delivery.
+## 3. 7-Day Doorstep Exchange & 6-Month Color Assurance
+- **6-Month Color & Plating Warranty**: Every Adorous jewelry piece features premium 22k gold-tone electroplating and anti-tarnish protective lacquer. We provide free doorstep replacement or re-plating support if noticeable color fading occurs within 6 months of normal non-chemical care.
+- **7-Day Window**: Patrons may initiate an exchange within 7 calendar days of courier delivery for size or style adjustments.
 - **Doorstep Exchange**: In eligible metro zones, the replacement piece is delivered to your door while the courier simultaneously collects the original item.
 - **Conditions**: Items must remain in their original unworn condition with tags and luxury keepsake packaging intact.
-- **Support Contact for Exchanges**: WhatsApp hotline +8801577731381 or email support@adorousfashion.store.
+- **Support Contact for Exchanges & Warranty**: WhatsApp hotline +8801577731381 or email support@adorousfashion.store.
 
 ---
 

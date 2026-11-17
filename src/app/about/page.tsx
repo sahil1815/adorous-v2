@@ -114,7 +114,7 @@ export default function AboutPage() {
               </div>
               <h3 className="font-serif text-lg text-ink font-medium">22k Gold-Tone Antique Electroplating</h3>
               <p className="text-xs text-text-muted leading-relaxed">
-                Brass cores coated with thick antique matte 22k gold-tone plating and sealed with a hypoallergenic anti-tarnish protective lacquer that resists tropical humidity.
+                Brass cores coated with thick antique matte 22k gold-tone plating and sealed with a skin-friendly protective clear lacquer that resists tropical humidity.
               </p>
             </div>
             <span className="text-[10px] text-gold-ink font-semibold tracking-wider uppercase pt-2">

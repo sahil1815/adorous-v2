@@ -26,16 +26,19 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     notFound();
   }
 
-  const title = `${cat.name} Collection | Adorous Fashion Dhaka`;
+  const title = `${cat.name} Collection | Adorous Fashion`;
   const description = `${cat.blurb} Premium South Asian accessories available for Cash on Delivery across Bangladesh.`;
 
   const heroSetting = await getCachedCategoryHeroSettings(category);
-  const heroImage = heroSetting?.heroImage || cat.image;
+  let heroImage = heroSetting?.heroImage || cat.image;
+  if (heroImage.toLowerCase().includes('.heic') && !heroImage.includes('format=')) {
+    heroImage += (heroImage.includes('?') ? '&' : '?') + 'format=webp';
+  }
 
   return {
     title,
     description,
-    keywords: [cat.name, 'Adorous Fashion', 'Dhaka jewelry', 'accessories Bangladesh', 'Cash on delivery BD'],
+    keywords: [cat.name, 'Adorous Fashion', 'boutique jewelry', 'accessories Bangladesh', 'Cash on delivery BD'],
     alternates: {
       canonical: `/${cat.slug}`,
     },
@@ -53,6 +56,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       ],
       locale: 'en_US',
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [heroImage],
     },
   };
 }

@@ -114,7 +114,7 @@ export default function DeliveryPaymentPage() {
           </div>
 
           <p className="leading-relaxed">
-            To prevent accidental orders, wrong phone numbers, or courier return fees, our Adorous Fashion team confirms all orders via Calling before sealing the parcel:
+            To prevent accidental orders, wrong phone numbers, or courier return fees, our Adorous Fashion team confirms all orders via Phone Call &amp; WhatsApp (+8801577731381) before dispatch:
           </p>
 
           <ol className="list-decimal list-inside space-y-2 pl-2">
@@ -153,7 +153,7 @@ export default function DeliveryPaymentPage() {
         <div className="pt-8 border-t border-line text-center space-y-4">
           <h3 className="font-serif text-xl text-ink">Have a specific question about your location?</h3>
           <p className="text-xs text-text-muted max-w-md mx-auto">
-            Contact our Gulshan studio delivery coordinator directly on WhatsApp for real-time tracking and delivery updates.
+            Contact our Atelier delivery concierge directly on WhatsApp (+8801577731381) for real-time tracking and dispatch updates.
           </p>
           <a
             href="https://wa.me/8801577731381?text=Hi%20Adorous%20Fashion,%20I%20have%20a%20question%20regarding%20delivery."

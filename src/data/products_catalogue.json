@@ -11,7 +11,7 @@
     "discount": 14,
     "discountType": "percent",
     "description": "Discover the perfect balance of luxury and value with the Luxe Black Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-black.png?updatedAt=1792578116686",
     "badge": "New Drop",
     "inStock": true,
@@ -39,8 +39,7 @@
       "1x Adjustable Black Crystal Drop Necklace",
       "1x Pair Matching Black Crystal Earrings",
       "1x Adjustable Black Crystal Bracelet",
-      "1x Adjustable Black Crystal Ring",
-      "1x Velvet Keepsake Presentation Box"
+      "1x Adjustable Black Crystal Ring"
     ],
     "colorways": [
       {
@@ -69,7 +68,7 @@
     "discount": 14,
     "discountType": "percent",
     "description": "Discover the perfect balance of luxury and value with the Luxe Blue Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Blue.png?updatedAt=1792578082581",
     "badge": "New Drop",
     "inStock": true,
@@ -94,7 +93,6 @@
       "**Bracelet:** Delicate Silver-tone chain with Blue crystal accents"
     ],
     "piecesIncluded": [
-      "1x Adjustable Black Crystal Ring",
       "1x Adjustable Blue Crystal Drop Necklace",
       "1x Pair Matching Blue Crystal Earrings",
       "1x Adjustable Blue Crystal Bracelet",
@@ -127,7 +125,7 @@
     "discount": 14,
     "discountType": "percent",
     "description": "Discover the perfect balance of luxury and value with the Luxe Red Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Red.png",
     "badge": "New Drop",
     "inStock": true,
@@ -152,7 +150,6 @@
       "**Bracelet:** Delicate Silver-tone chain with Red crystal accents"
     ],
     "piecesIncluded": [
-      "1x Adjustable Red Crystal Ring",
       "1x Adjustable Red Crystal Drop Necklace",
       "1x Pair Matching Red Crystal Earrings",
       "1x Adjustable Red Crystal Bracelet",
@@ -281,13 +278,6 @@
         "hex": "#F8F6F0",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
-      },
-      {
-        "id": "white-tweed",
-        "name": "Ivory & Gold Tweed",
-        "hex": "#F8F6F0",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
       }
     ],
     "galleryImages": [
@@ -345,13 +335,6 @@
       "1x Detachable Mock-Croc Crossbody Strap"
     ],
     "colorways": [
-      {
-        "id": "black-tweed",
-        "name": "Midnight Black & Gold Tweed",
-        "hex": "#222222",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg"
-      },
       {
         "id": "black-tweed",
         "name": "Midnight Black & Gold Tweed",
@@ -419,13 +402,6 @@
         "hex": "#FFFFF0",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
-      },
-      {
-        "id": "white-croc",
-        "name": "Pristine Ivory",
-        "hex": "#FFFFF0",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
       }
     ],
     "galleryImages": [
@@ -481,13 +457,6 @@
       "1x Detachable Matching Adjustable Crossbody Strap"
     ],
     "colorways": [
-      {
-        "id": "black-croc",
-        "name": "Midnight Black",
-        "hex": "#222222",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg"
-      },
       {
         "id": "black-croc",
         "name": "Midnight Black",
@@ -555,13 +524,6 @@
         "hex": "#B57EDC",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
-      },
-      {
-        "id": "purple-croc",
-        "name": "Lavender Lilac",
-        "hex": "#B57EDC",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
       }
     ],
     "galleryImages": [
@@ -620,13 +582,6 @@
         "hex": "#FFFDD0",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
-      },
-      {
-        "id": "white-tote",
-        "name": "Ivory Cream",
-        "hex": "#FFFDD0",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
       }
     ],
     "galleryImages": [
@@ -679,13 +634,6 @@
       "1x Everyday Casual Commuter Tote Bag"
     ],
     "colorways": [
-      {
-        "id": "black-tote",
-        "name": "Midnight Black",
-        "hex": "#1A1A1A",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371"
-      },
       {
         "id": "black-tote",
         "name": "Midnight Black",
@@ -755,13 +703,6 @@
         "hex": "#F5F5F0",
         "inStock": false,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
-      },
-      {
-        "id": "chalk-white-tan",
-        "name": "Chalk White & Tan Straps",
-        "hex": "#F5F5F0",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
       }
     ],
     "galleryImages": [
@@ -820,13 +761,6 @@
       "4x Gold-Tone Kundan Mirror Border Bangles with Pearl Drops"
     ],
     "colorways": [
-      {
-        "id": "maroon-teal-combo",
-        "name": "Maroon & Teal Royal Combo",
-        "hex": "#631A24",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868"
-      },
       {
         "id": "maroon-teal-combo",
         "name": "Maroon & Teal Royal Combo",
@@ -892,13 +826,6 @@
       "1x Pair Midnight Black Kundan Silk Bangles"
     ],
     "colorways": [
-      {
-        "id": "festive-quad-combo",
-        "name": "Festive Multi-Color Quad (Green, Red, Gold, Black)",
-        "hex": "#C6A96E",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184"
-      },
       {
         "id": "festive-quad-combo",
         "name": "Festive Multi-Color Quad (Green, Red, Gold, Black)",
@@ -972,13 +899,6 @@
         "hex": "#CA1F7B",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
-      },
-      {
-        "id": "royal-deep-magenta",
-        "name": "Royal Deep Magenta",
-        "hex": "#CA1F7B",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
       }
     ],
     "galleryImages": [
@@ -1045,13 +965,6 @@
         "hex": "#40E0D0",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
-      },
-      {
-        "id": "turquoise-antique-silver",
-        "name": "Turquoise & Antique Silver",
-        "hex": "#40E0D0",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
       }
     ],
     "galleryImages": [
@@ -1112,13 +1025,6 @@
       "1x Pair Kashmiri Noor-e-Sitara Tiered Jhumkas"
     ],
     "colorways": [
-      {
-        "id": "teal-antique-silver",
-        "name": "Teal & Antique Silver",
-        "hex": "#008080",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177"
-      },
       {
         "id": "teal-antique-silver",
         "name": "Teal & Antique Silver",
@@ -1219,41 +1125,6 @@
         "hex": "#002366",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-blue_aeeec5c6-3bba-4623-adfd-30d6a6316f09.png?v=1787066804"
-      },
-      {
-        "id": "moonstone-white",
-        "name": "Moonstone White",
-        "hex": "#F5F5F0",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-white.png?v=1787067740"
-      },
-      {
-        "id": "ruby-red",
-        "name": "Ruby Red",
-        "hex": "#9B111E",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-red.png?v=1787067510"
-      },
-      {
-        "id": "jade-green",
-        "name": "Jade Green",
-        "hex": "#5B8A72",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-paste.png?v=1787067407"
-      },
-      {
-        "id": "rich-violet",
-        "name": "Rich Violet",
-        "hex": "#6A0DAD",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-purple.png?v=1787067166"
-      },
-      {
-        "id": "royal-blue",
-        "name": "Royal Blue",
-        "hex": "#002366",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-blue_aeeec5c6-3bba-4623-adfd-30d6a6316f09.png?v=1787066804"
       }
     ],
     "galleryImages": [
@@ -1301,7 +1172,7 @@
     "discount": 15,
     "discountType": "percent",
     "description": "Discover the perfect balance of luxury and value with the Luxe Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=webp",
     "badge": "Bestseller",
     "inStock": true,
@@ -1332,17 +1203,9 @@
       "1x Adjustable Crystal Drop Necklace",
       "1x Pair Matching Crystal Earrings",
       "1x Adjustable Crystal Bracelet",
-      "1x Adjustable Crystal Ring",
-      "1x Velvet Keepsake Presentation Box"
+      "1x Adjustable Crystal Ring"
     ],
     "colorways": [
-      {
-        "id": "diamond-white-silver",
-        "name": "Diamond White & Silver",
-        "hex": "#ffffff",
-        "inStock": true,
-        "image": null
-      },
       {
         "id": "diamond-white-silver",
         "name": "Diamond White & Silver",
@@ -1378,7 +1241,7 @@
     "discount": 14,
     "discountType": "percent",
     "description": "Embrace the power of understated elegance. The Luxe Crystal Gemstone Simple Suite offers a delicate and refined take on luxury. This complete 5-piece collection is designed for those who appreciate clean lines, effortless style, and a subtle, sophisticated sparkle.\n\nPerfect for seamlessly transitioning from daytime wear to evening elegance, this minimalist set arrives beautifully packaged in a premium presentation box, making it an ideal gift or a highly versatile addition to your own jewelry collection.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=webp",
     "badge": null,
     "inStock": true,
@@ -1415,17 +1278,9 @@
       "1x Dainty Adjustable Crystal Pendant Necklace",
       "1x Pair Subtle Minimalist Crystal Earrings",
       "1x Slender Minimalist Crystal Bracelet",
-      "1x Refined Adjustable Crystal Ring",
-      "1x Velvet Keepsake Presentation Box"
+      "1x Refined Adjustable Crystal Ring"
     ],
     "colorways": [
-      {
-        "id": "diamond-white-silver",
-        "name": "Diamond White & Silver",
-        "hex": "#ffffff",
-        "inStock": true,
-        "image": null
-      },
       {
         "id": "diamond-white-silver",
         "name": "Diamond White & Silver",
@@ -1461,7 +1316,7 @@
     "discount": 14,
     "discountType": "percent",
     "description": "Experience the timeless beauty of gold paired with striking brilliance.",
-    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "complimentaryItem": "1x Signature Velvet Keepsake Presentation Box",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176",
     "badge": null,
     "inStock": false,
@@ -1496,17 +1351,9 @@
       "1x Golden Adjustable Crystal Necklace",
       "1x Pair Matching Golden Crystal Earrings",
       "1x Golden Adjustable Crystal Bracelet",
-      "1x Adjustable Crystal Ring",
-      "1x Velvet Keepsake Presentation Box"
+      "1x Adjustable Crystal Ring"
     ],
     "colorways": [
-      {
-        "id": "radiant-gold-white-crystal",
-        "name": "Radiant Gold & White Crystal",
-        "hex": "#D4AF37",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176"
-      },
       {
         "id": "radiant-gold-white-crystal",
         "name": "Radiant Gold & White Crystal",
@@ -1582,13 +1429,6 @@
         "hex": "#ffffff",
         "inStock": true,
         "image": null
-      },
-      {
-        "id": "silver-white",
-        "name": "Silver White",
-        "hex": "#ffffff",
-        "inStock": true,
-        "image": null
       }
     ],
     "galleryImages": [
@@ -1646,13 +1486,6 @@
       "1x Pair Matching Crystal Earrings"
     ],
     "colorways": [
-      {
-        "id": "radiant-gold",
-        "name": "Radiant Gold",
-        "hex": "#D4AF37",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325"
-      },
       {
         "id": "radiant-gold",
         "name": "Radiant Gold",
@@ -1722,13 +1555,6 @@
         "hex": "#e4a4b4",
         "inStock": true,
         "image": null
-      },
-      {
-        "id": "blush-rose-pink",
-        "name": "Blush Rose Pink",
-        "hex": "#e4a4b4",
-        "inStock": true,
-        "image": null
       }
     ],
     "galleryImages": [
@@ -1792,13 +1618,6 @@
         "hex": "#582F72",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
-      },
-      {
-        "id": "imperial-amethyst",
-        "name": "Imperial Amethyst Purple",
-        "hex": "#582F72",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
       }
     ],
     "galleryImages": [
@@ -1852,13 +1671,6 @@
       "1x Pair Matching Pearl & Halo Drop Earrings"
     ],
     "colorways": [
-      {
-        "id": "silver-pristine-pearl",
-        "name": "Silver & Pristine Pearl",
-        "hex": "#F4F1EA",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
-      },
       {
         "id": "silver-pristine-pearl",
         "name": "Silver & Pristine Pearl",
@@ -1934,13 +1746,6 @@
         "hex": "#0F52BA",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
-      },
-      {
-        "id": "royal-sapphire-blue",
-        "name": "Royal Sapphire Blue",
-        "hex": "#0F52BA",
-        "inStock": true,
-        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
       }
     ],
     "galleryImages": [
@@ -1998,13 +1803,6 @@
       "1x Pair Matching Crystal Teardrop Drop Earrings"
     ],
     "colorways": [
-      {
-        "id": "obsidian-black",
-        "name": "Obsidian Black",
-        "hex": "#000000",
-        "inStock": true,
-        "image": null
-      },
       {
         "id": "obsidian-black",
         "name": "Obsidian Black",
@@ -2092,13 +1890,6 @@
         "hex": "#a0cffd",
         "inStock": true,
         "image": null
-      },
-      {
-        "id": "ocean-blue-clear-crystal-silver-tone-finish",
-        "name": "Ocean Blue • Clear Crystal • Silver-Tone Finish",
-        "hex": "#a0cffd",
-        "inStock": true,
-        "image": null
       }
     ],
     "galleryImages": [
@@ -2160,13 +1951,6 @@
       "1 × Pair of Matching Earrings"
     ],
     "colorways": [
-      {
-        "id": "clear-crystal-silver-tone-finish",
-        "name": "Clear Crystal & Silver-Tone Finish",
-        "hex": "#ffffff",
-        "inStock": true,
-        "image": null
-      },
       {
         "id": "clear-crystal-silver-tone-finish",
         "name": "Clear Crystal & Silver-Tone Finish",
@@ -2307,20 +2091,6 @@
       "1x Horizon Compact UV Protection Folding Umbrella"
     ],
     "colorways": [
-      {
-        "id": "blush-pink",
-        "name": "Blush Pink",
-        "hex": "#E8A5B8",
-        "inStock": true,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-CART.png?v=1784728682"
-      },
-      {
-        "id": "sky-blue",
-        "name": "Sky Blue",
-        "hex": "#7BAFD4",
-        "inStock": false,
-        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-CART.png?v=1784728337"
-      },
       {
         "id": "blush-pink",
         "name": "Blush Pink",

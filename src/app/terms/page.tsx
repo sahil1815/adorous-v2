@@ -89,10 +89,10 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="font-serif text-xl sm:text-2xl text-ink font-semibold">
-              4. 7-Day Exchange & Damage Guarantee
+              4. 7-Day Exchange &amp; 6-Month Color Warranty
             </h2>
             <p>
-              We maintain meticulous quality inspection prior to packaging. In the rare event of transit damage or sizing discrepancy:
+              We maintain meticulous quality inspection prior to packaging. In the rare event of transit damage, sizing discrepancy, or plating issues:
             </p>
             <ul className="list-disc pl-5 space-y-2">
               <li>
@@ -100,6 +100,9 @@ export default function TermsPage() {
               </li>
               <li>
                 Unworn pieces in original luxury packaging with seals intact qualify for a 7-day size or style exchange.
+              </li>
+              <li>
+                <strong>6-Month Color Assurance:</strong> Authentic electroplated pieces are covered by a 6-month color assurance against premature fading under standard non-chemical wear.
               </li>
               <li>
                 Full policy details are accessible at{' '}

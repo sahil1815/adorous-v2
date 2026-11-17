@@ -431,7 +431,7 @@ export default function ShopClient({ initialProducts, initialOrdering }: ShopCli
               Looking for a matching set or custom sizing?
             </h3>
             <p className="text-xs text-text-muted max-w-xl">
-              Our Gulshan studio stylists are available daily on WhatsApp to help select matching pieces for weddings, Eid celebrations, or gift hampers.
+              Our Atelier stylists are available daily on WhatsApp to help select matching pieces for weddings, Eid celebrations, or gift hampers.
             </p>
           </div>
 

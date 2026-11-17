@@ -70,6 +70,35 @@ export default function ReturnsExchangePage() {
           </div>
         </div>
 
+        {/* 6-Month Color & Plating Assurance Guarantee Banner */}
+        <section className="p-6 sm:p-8 bg-sand/40 border border-gold/40 rounded-xs space-y-3">
+          <div className="flex items-center space-x-2.5 text-gold-deep">
+            <ShieldCheck className="w-5 h-5 text-gold-deep shrink-0" />
+            <span className="text-[11px] font-semibold tracking-wider text-gold-ink uppercase">
+              Long-Term Craftsmanship Protection
+            </span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-serif text-ink font-medium">
+            6-Month Color &amp; Plating Assurance Guarantee
+          </h2>
+          <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
+            Every Adorous jewelry piece is electroplated with premium 22k gold-tone or rhodium finish and sealed with an anti-tarnish protective lacquer. We proudly back our craftsmanship:
+          </p>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs text-ink/90 list-none">
+            <li className="flex items-start gap-2 bg-paper p-3 border border-line rounded-xs">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>Free Re-plating or Replacement:</strong> If noticeable color fading occurs within 6 months of normal wear.</span>
+            </li>
+            <li className="flex items-start gap-2 bg-paper p-3 border border-line rounded-xs">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>Simple WhatsApp Verification:</strong> Just share a clear photo of the piece with your Order ID on WhatsApp (+8801577731381).</span>
+            </li>
+          </ul>
+          <p className="text-[11px] text-text-muted italic pt-1">
+            *Guarantee terms: Valid under standard non-chemical use. Keep pieces away from direct spray of perfumes, alcohol sanitizers, and water immersion.
+          </p>
+        </section>
+
         {/* Section 1: How Doorstep Exchange Works */}
         <section className="space-y-4 pt-4 border-t border-line">
           <div className="space-y-1">

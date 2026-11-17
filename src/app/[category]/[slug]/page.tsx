@@ -31,13 +31,20 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     notFound();
   }
 
-  const title = `${product.name} | Adorous Fashion Dhaka`;
+  const title = `${product.name} | Adorous Fashion`;
   const description = `${product.tagline}. Premium boutique South Asian accessories. Cash on Delivery across Bangladesh. Price: ৳${product.price}.`;
+
+  let featuredImg = product.featuredImage.startsWith('http')
+    ? product.featuredImage
+    : `https://adorousfashion.store${product.featuredImage}`;
+  if (featuredImg.toLowerCase().includes('.heic') && !featuredImg.includes('format=')) {
+    featuredImg += (featuredImg.includes('?') ? '&' : '?') + 'format=webp';
+  }
 
   return {
     title,
     description,
-    keywords: [...(product.seoKeywords ? product.seoKeywords.split(',') : []), 'Adorous Fashion', 'Dhaka e-commerce', 'Cash on Delivery BD'],
+    keywords: [...(product.seoKeywords ? product.seoKeywords.split(',') : []), 'Adorous Fashion', 'Bangladesh boutique', 'Cash on Delivery BD'],
     alternates: {
       canonical: `/${product.category}/${product.slug}`,
     },
@@ -47,13 +54,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       url: `https://adorousfashion.store/${product.category}/${product.slug}`,
       images: [
         {
-          url: product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`,
+          url: featuredImg,
           width: 1200,
           height: 630,
           alt: `${product.name} Still Life Photography`,
         },
         {
-          url: product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`,
+          url: featuredImg,
           width: 800,
           height: 1000,
           alt: `${product.name} Still Life Photography`,
@@ -61,6 +68,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       ],
       locale: 'en_US',
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [featuredImg],
     },
     other: {
       'product:price:amount': String(Math.round(product.price)),

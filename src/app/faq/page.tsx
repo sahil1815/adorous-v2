@@ -79,6 +79,11 @@ const FAQ_DATA: FaqCategory[] = [
     icon: Gem,
     items: [
       {
+        question: 'Do you offer a warranty or guarantee on jewelry color and plating?',
+        answer:
+          'Yes! Every Adorous jewelry piece is backed by our 6-Month Color & Plating Assurance Guarantee. If any noticeable color fading occurs within 6 months of normal non-chemical wear, simply message our WhatsApp concierge (+8801577731381) with your Order ID for free doorstep replacement or re-plating assistance.',
+      },
+      {
         question: 'Will the 22k gold-tone antique finish tarnish in Bangladesh humidity?',
         answer:
           'Our brass-alloy pieces are electroplated with thick antique 22k gold-tone finish and sealed with a protective anti-tarnish lacquer formulated specifically to resist oxidation in tropical South Asian climates.',
@@ -101,6 +106,7 @@ export default function FaqPage() {
   const [openItems, setOpenItems] = useState<{ [key: string]: boolean }>({
     'Cash on Delivery & Ordering-0': true,
     'Delivery & Shipping Charges-0': true,
+    'Quality & Jewelry Care-0': true,
   });
 
   const toggleItem = (category: string, idx: number) => {
@@ -111,8 +117,26 @@ export default function FaqPage() {
     }));
   };
 
+  const allFaqItems = FAQ_DATA.flatMap((cat) => cat.items);
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: allFaqItems.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div className="bg-paper min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Header */}
       <section className="border-b border-line bg-[#F7F5EE] py-12 sm:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-3">
@@ -168,11 +192,9 @@ export default function FaqPage() {
                         />
                       </button>
 
-                      {isOpen && (
-                        <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-text-muted leading-relaxed pt-0">
-                          <p>{item.answer}</p>
-                        </div>
-                      )}
+                      <div className={`px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-text-muted leading-relaxed pt-0 ${isOpen ? 'block' : 'hidden'}`}>
+                        <p>{item.answer}</p>
+                      </div>
                     </div>
                   );
                 })}

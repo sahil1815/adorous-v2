@@ -12,6 +12,7 @@ import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import ChuriSizingModal from './ChuriSizingModal';
 import ProductCard from '@/components/ui/ProductCard';
 import ReviewSection from './ReviewSection';
+import { useReviews } from '@/context/ReviewsContext';
 import { renderFormattedText } from '@/lib/formatText';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
@@ -52,6 +53,11 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const { addItem, addMultipleItems, closeCart, openCart, totalItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isOfferActive, discountPercent, calculateDiscount, settings } = useNewVisitorOffer();
+  const { getReviewsForProduct } = useReviews();
+  const approvedReviews = getReviewsForProduct(product.id, product.slug).filter((r) => r.status === 'approved');
+  const avgRating = approvedReviews.length > 0
+    ? (approvedReviews.reduce((acc, rev) => acc + rev.rating, 0) / approvedReviews.length).toFixed(1)
+    : null;
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -902,9 +908,17 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
 
               {/* Mobile Bottom-Left Rating & Stock Pill Badge */}
               <div className="lg:hidden absolute bottom-3 left-3 z-20 flex items-center gap-1.5 bg-paper/90 backdrop-blur-md border border-line px-2.5 py-1 rounded-full shadow-sm text-xs font-semibold text-ink pointer-events-none">
-                <span className="flex items-center gap-0.5 text-amber-500 font-bold">
-                  4.80 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                </span>
+                {avgRating ? (
+                  <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                    {avgRating} <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span className="text-[10px] text-text-muted font-normal">({approvedReviews.length})</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-gold-deep font-medium text-[11px]">
+                    <Sparkles className="w-3 h-3 text-gold" />
+                    <span>Boutique Piece</span>
+                  </span>
+                )}
                 <span className="text-line">|</span>
                 {isOutOfStock ? (
                   <span className="text-[#9E2A2B] font-semibold">Out of Stock</span>
@@ -1546,6 +1560,10 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
               {/* Trust & Delivery Card */}
               <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg shadow-xs">
                 <div className="space-y-2 text-xs text-ink/90">
+                  <div className="flex items-center gap-2 text-emerald-800 font-medium">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span><strong>Warranty :</strong> 6-Month Color &amp; Plating Assurance</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                     <span><strong>Return :</strong> 7 Days Exchange</span>
@@ -1605,7 +1623,9 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                     <div className="flex items-center space-x-2 text-ink">
                       <Box className="w-4 h-4 text-gold-deep" />
                       <h3 className="font-serif text-sm font-semibold uppercase tracking-wider">
-                        What&apos;s in Your Package{pieceInfo.badgeLabel ? ` (${pieceInfo.badgeLabel})` : ''}:
+                        {product.name.includes('5-Piece')
+                          ? "What's in Your Package (5-Piece Box Suite):"
+                          : `What's in Your Package${pieceInfo.badgeLabel ? ` (${pieceInfo.badgeLabel})` : ''}:`}
                       </h3>
                     </div>
                     <ul className="space-y-1.5 text-xs text-ink/90 divide-y divide-line/40">
