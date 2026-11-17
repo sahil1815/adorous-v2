@@ -79,9 +79,9 @@ const FAQ_DATA: FaqCategory[] = [
     icon: Gem,
     items: [
       {
-        question: 'Will the 22k antique gold plating tarnish in Bangladesh humidity?',
+        question: 'Will the 22k gold-tone antique finish tarnish in Bangladesh humidity?',
         answer:
-          'Our pieces are electroplated with thick antique 22k matte gold and coated with a proprietary anti-tarnish protective lacquer formulated specifically to resist oxidation in tropical South Asian climates.',
+          'Our brass-alloy pieces are electroplated with thick antique 22k gold-tone finish and sealed with a protective anti-tarnish lacquer formulated specifically to resist oxidation in tropical South Asian climates.',
       },
       {
         question: 'How should I store and care for my accessories?',

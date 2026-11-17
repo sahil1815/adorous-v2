@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: 'Delivery & Cash on Delivery (COD) Policy | Adorous Fashion',
   description:
     'Complete guide to Cash on Delivery (COD), shipping charges, and delivery timelines across all 64 districts of Bangladesh by Adorous Fashion.',
+  alternates: {
+    canonical: '/delivery-payment',
+  },
 };
 
 export default function DeliveryPaymentPage() {

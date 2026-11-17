@@ -45,6 +45,9 @@ export async function generateMetadata({
       title: page.headline,
       description,
     },
+    alternates: {
+      canonical: `/collections/${page.slug}`,
+    },
   };
 }
 

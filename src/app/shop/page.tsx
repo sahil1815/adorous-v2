@@ -8,13 +8,13 @@ import ShopClient from '@/components/shop/ShopClient';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'The Full Collection | Adorous Fashion Dhaka',
+  title: 'The Full Collection | Adorous Fashion',
   description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, luxury bags, and accessories.',
   alternates: {
     canonical: '/shop',
   },
   openGraph: {
-    title: 'The Full Collection | Adorous Fashion Dhaka',
+    title: 'The Full Collection | Adorous Fashion',
     description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, and luxury bags.',
     url: 'https://adorousfashion.store/shop',
     images: [
@@ -75,7 +75,7 @@ export default async function ShopPage() {
         '@type': 'CollectionPage',
         '@id': 'https://adorousfashion.store/shop#webpage',
         url: 'https://adorousfashion.store/shop',
-        name: 'The Full Collection | Adorous Fashion Dhaka',
+        name: 'The Full Collection | Adorous Fashion',
         description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, luxury bags, and accessories.',
         isPartOf: {
           '@id': 'https://adorousfashion.store/#website',
@@ -119,8 +119,29 @@ export default async function ShopPage() {
       />
       <Suspense
         fallback={
-          <div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">
-            Loading collection...
+          <div className="bg-paper min-h-screen py-10 sm:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="border-b border-line pb-8 mb-8 text-center sm:text-left">
+                <span className="text-[11px] font-semibold tracking-[0.25em] text-gold-ink uppercase block mb-2">
+                  Atelier Catalogue
+                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-ink">
+                  The Full Collection
+                </h1>
+                <p className="mt-3 text-xs sm:text-sm text-text-muted max-w-xl">
+                  Handcrafted boutique jewelry, velvet churi bangles, and structured satchels.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                {initialProducts.slice(0, 8).map((p) => (
+                  <div key={p.id} className="border border-line p-3 rounded-xs bg-white space-y-2">
+                    <div className="aspect-square bg-sand/30 rounded-xs animate-pulse" />
+                    <h3 className="font-serif text-xs sm:text-sm text-ink font-medium truncate">{p.name}</h3>
+                    <p className="text-xs text-gold-deep font-semibold">৳{p.price}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         }
       >

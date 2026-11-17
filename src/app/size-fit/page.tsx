@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Churi & Jewelry Sizing Guide | Adorous Fashion',
   description:
     'Comprehensive sizing chart for traditional South Asian Churi bangles, rigid Hasli collars, and bridal chokers. Measure hand knuckle circumference accurately.',
+  alternates: {
+    canonical: '/size-fit',
+  },
 };
 
 export default function SizeFitPage() {

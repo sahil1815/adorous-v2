@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Lock, ShieldCheck, Mail, Phone } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Adorous Fashion Dhaka',
+  title: 'Privacy Policy | Adorous Fashion',
   description: 'Privacy policy and customer data protection standards for Adorous Fashion Bangladesh.',
   alternates: {
     canonical: '/privacy',

@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { ArrowLeft, Compass, ShoppingBag, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Page Not Found (404) | Adorous Fashion Dhaka',
+  title: 'Page Not Found (404) | Adorous Fashion',
   description: 'The requested piece or collection page could not be located in our atelier catalogue.',
   robots: {
     index: false,

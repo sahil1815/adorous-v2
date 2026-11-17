@@ -1,5 +1,237 @@
 [
   {
+    "id": "prod-luxe-black-crystal-gemstone-suite-5-piece-box-set-1792578448024",
+    "slug": "luxe-black-crystal-gemstone-suite-5-piece-box-set",
+    "name": "Luxe Black Crystal Gemstone Suite (5-Piece Box Set)",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "Complete 5-Piece Black-Tone Collection in Premium PU Leather Case",
+    "price": 1522,
+    "originalPrice": 1770,
+    "discount": 14,
+    "discountType": "percent",
+    "description": "Discover the perfect balance of luxury and value with the Luxe Black Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
+    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-black.png?updatedAt=1792578116686",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 12,
+    "isNewDrop": true,
+    "isGiftPick": true,
+    "isBestseller": false,
+    "featuredRank": 30,
+    "seoKeywords": [
+      "Luxe Black Crystal Gemstone Suite (5-Piece Box Set)",
+      "jewelry",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Ring:** Comfort-fit adjustable matching band",
+      "**Perfect For:** Weddings, festive occasions, formal receptions, or premium gifting",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Stone Color:** Charcoal Black",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length with faceted crystal drop pendant",
+      "**Bracelet:** Delicate Silver-tone chain with Black crystal accents"
+    ],
+    "piecesIncluded": [
+      "1x Adjustable Black Crystal Drop Necklace",
+      "1x Pair Matching Black Crystal Earrings",
+      "1x Adjustable Black Crystal Bracelet",
+      "1x Adjustable Black Crystal Ring",
+      "1x Velvet Keepsake Presentation Box"
+    ],
+    "colorways": [
+      {
+        "id": "charcoal-black",
+        "name": "Charcoal Black",
+        "hex": "#000000",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-black.png?updatedAt=1792578116686"
+      }
+    ]
+  },
+  {
+    "id": "prod-luxe-blue-crystal-gemstone-suite-5-piece-box-set-1792578630604",
+    "slug": "luxe-blue-crystal-gemstone-suite-5-piece-box-set",
+    "name": "Luxe Blue Crystal Gemstone Suite (5-Piece Box Set)",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "Complete 5-Piece Black-Tone Collection in Premium PU Leather Case",
+    "price": 1522,
+    "originalPrice": 1770,
+    "discount": 14,
+    "discountType": "percent",
+    "description": "Discover the perfect balance of luxury and value with the Luxe Blue Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
+    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Blue.png?updatedAt=1792578082581",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 9,
+    "isNewDrop": true,
+    "isGiftPick": true,
+    "isBestseller": false,
+    "featuredRank": 29,
+    "seoKeywords": [
+      "Luxe Blue Crystal Gemstone Suite (5-Piece Box Set)",
+      "jewelry",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Ring:** Comfort-fit adjustable matching band",
+      "**Perfect For:** Weddings, festive occasions, formal receptions, or premium gifting",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Stone Color:** Royal Blue",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length with faceted crystal drop pendant",
+      "**Bracelet:** Delicate Silver-tone chain with Blue crystal accents"
+    ],
+    "piecesIncluded": [
+      "1x Adjustable Black Crystal Ring",
+      "1x Adjustable Blue Crystal Drop Necklace",
+      "1x Pair Matching Blue Crystal Earrings",
+      "1x Adjustable Blue Crystal Bracelet",
+      "1x Adjustable Blue Crystal Ring"
+    ],
+    "colorways": [
+      {
+        "id": "royal-blue",
+        "name": "Royal Blue",
+        "hex": "#0400e6",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Blue.png?updatedAt=1792578082581"
+      }
+    ]
+  },
+  {
+    "id": "prod-luxe-red-crystal-gemstone-suite-5-piece-box-set-1792668383202",
+    "slug": "luxe-red-crystal-gemstone-suite-5-piece-box-set",
+    "name": "Luxe Red Crystal Gemstone Suite (5-Piece Box Set)",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "Complete 5-Piece Black-Tone Collection in Premium PU Leather Case",
+    "price": 1522,
+    "originalPrice": 1770,
+    "discount": 14,
+    "discountType": "percent",
+    "description": "Discover the perfect balance of luxury and value with the Luxe Red Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
+    "complimentaryItem": "1x Premium PU Leather Jewellery Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Red.png",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 4,
+    "isNewDrop": true,
+    "isGiftPick": true,
+    "isBestseller": false,
+    "featuredRank": 31,
+    "seoKeywords": [
+      "Luxe Red Crystal Gemstone Suite (5-Piece Box Set)",
+      "jewelry",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Ring:** Comfort-fit adjustable matching band",
+      "**Perfect For:** Weddings, festive occasions, formal receptions, or premium gifting",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Stone Color:** Ruby Red",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length with faceted crystal drop pendant",
+      "**Bracelet:** Delicate Silver-tone chain with Red crystal accents"
+    ],
+    "piecesIncluded": [
+      "1x Adjustable Red Crystal Ring",
+      "1x Adjustable Red Crystal Drop Necklace",
+      "1x Pair Matching Red Crystal Earrings",
+      "1x Adjustable Red Crystal Bracelet",
+      "1x Adjustable Red Crystal Ring"
+    ],
+    "colorways": [
+      {
+        "id": "red-ruby",
+        "name": "Red Ruby",
+        "hex": "#cc0000",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Combo-Red.png"
+      }
+    ]
+  },
+  {
+    "id": "prod-celestia-mint-green-crystal-necklace-earring-set-1794058082102",
+    "slug": "celestia-mint-green-crystal-necklace-earring-set",
+    "name": "Celestia Mint Green Crystal Necklace & Earring Set",
+    "category": "jewelry",
+    "categoryLabel": "Fine Jewelry Sets",
+    "tagline": "A refreshing blend of soft mint green crystals and delicate floral sparkle.",
+    "price": 1162,
+    "originalPrice": 1320,
+    "discount": 12,
+    "discountType": "percent",
+    "description": "Inspired by the refreshing beauty of soft mint hues, delicate floral clusters flow along a graceful silver-tone vine. Luminous mint green teardrop crystals add a graceful and elegant finishing touch.",
+    "complimentaryItem": null,
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Mint%20Elegance%20Jewelry%20Display.png",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 2,
+    "isNewDrop": true,
+    "isGiftPick": false,
+    "isBestseller": false,
+    "featuredRank": 26,
+    "seoKeywords": [
+      "Celestia Mint Green Crystal Necklace & Earring Set",
+      "jewelry",
+      "premium jewelry",
+      "Dhaka boutique",
+      "cash on delivery Bangladesh"
+    ],
+    "details": [
+      "**Set Type:** Necklace & Matching Drop Earrings",
+      "**Design: **Floral vine / cascading crystal",
+      "**Main Stone Color:** Mint Green",
+      "**Accent Stone Color:** Clear / White",
+      "**Stone Shape:** Round, floral cluster & teardrop",
+      "**Finish:** Silver-tone polished metal",
+      "**Style:** Elegant, fresh & occasion wear",
+      "**Closure:** Lobster-claw style necklace clasp",
+      "**Material:** Artificial fashion jewellery with crystal-style stones"
+    ],
+    "piecesIncluded": [
+      "1 × Necklace",
+      "1 × Pair of Matching Earrings"
+    ],
+    "colorways": [
+      {
+        "id": "mint-green",
+        "name": "Mint Green",
+        "hex": "#1fdb93",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Mint%20Elegance%20Jewelry%20Display.png"
+      }
+    ]
+  },
+  {
     "id": "prod-the-tweed-structured-satchel-white-bag-1791031969660",
     "slug": "the-tweed-structured-satchel-white-bag",
     "name": "The Woven Tweed Structured Satchel White Bag",
@@ -15,11 +247,11 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg",
     "badge": null,
     "inStock": true,
-    "stockQty": 10,
+    "stockQty": 6,
     "isNewDrop": false,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 15,
+    "featuredRank": 22,
     "seoKeywords": [
       "The Woven Tweed Structured Satchel White Bag",
       "bags",
@@ -27,6 +259,11 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Premium Texture:** Woven tweed-style fabric detailed with subtle sparkling gold metallic threading",
+      "**Contrasting Handle:** Textured mock-crocodile top handle with matching detachable crossbody strap",
+      "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive U-shaped front closure",
+      "**Structured Silhouette:** Maintains a firm, architectural shape to keep your essentials organized and secure",
+      "**Interior:** Single main structured compartment with high-density lining",
       "**Premium Texture:** Woven tweed-style fabric detailed with subtle sparkling gold metallic threading",
       "**Contrasting Handle:** Textured mock-crocodile top handle with matching detachable crossbody strap",
       "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive U-shaped front closure",
@@ -44,9 +281,19 @@
         "hex": "#F8F6F0",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
+      },
+      {
+        "id": "white-tweed",
+        "name": "Ivory & Gold Tweed",
+        "hex": "#F8F6F0",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-white.jpg"
       }
@@ -68,11 +315,11 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg",
     "badge": "Bestseller",
     "inStock": true,
-    "stockQty": 10,
+    "stockQty": 4,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": true,
-    "featuredRank": 16,
+    "featuredRank": 21,
     "seoKeywords": [
       "The Woven Tweed Structured Satchel Bag",
       "bags",
@@ -80,6 +327,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "Premium Texture: Woven tweed-style fabric detailed with subtle sparkling gold metallic threading",
+      "Contrasting Handle: Textured mock-crocodile top handle with matching detachable crossbody strap",
+      "Luxe Hardware: Polished gold-tone accents featuring a distinctive U-shaped front closure",
+      "Structured Silhouette: Maintains a firm, architectural shape to keep your essentials organized and secure",
+      "Interior: Single main structured compartment with high-density lining",
+      "Available Colors: Ivory & Gold Woven Tweed and Midnight Black & Gold Woven Tweed",
       "Premium Texture: Woven tweed-style fabric detailed with subtle sparkling gold metallic threading",
       "Contrasting Handle: Textured mock-crocodile top handle with matching detachable crossbody strap",
       "Luxe Hardware: Polished gold-tone accents featuring a distinctive U-shaped front closure",
@@ -98,9 +351,19 @@
         "hex": "#222222",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg"
+      },
+      {
+        "id": "black-tweed",
+        "name": "Midnight Black & Gold Tweed",
+        "hex": "#222222",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/design-black.jpg"
       }
@@ -122,11 +385,11 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg",
     "badge": "Bestseller",
     "inStock": true,
-    "stockQty": 10,
+    "stockQty": 3,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": true,
-    "featuredRank": 17,
+    "featuredRank": 23,
     "seoKeywords": [
       "The Croc-Embossed Structured Satchel White Bag",
       "bags",
@@ -134,6 +397,11 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
+      "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
+      "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
+      "**Structured Silhouette:** Maintains a firm, architectural shape to keep daily essentials organized and secure",
+      "**Interior:** Single main structured compartment with smooth lining",
       "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
       "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
       "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
@@ -151,9 +419,19 @@
         "hex": "#FFFFF0",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
+      },
+      {
+        "id": "white-croc",
+        "name": "Pristine Ivory",
+        "hex": "#FFFFF0",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-white.jpg"
       }
@@ -175,11 +453,11 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 10,
+    "stockQty": 1,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 18,
+    "featuredRank": 20,
     "seoKeywords": [
       "The Croc-Embossed Structured Satchel Black Bag",
       "bags",
@@ -187,6 +465,11 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
+      "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
+      "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
+      "**Structured Silhouette:** Maintains a firm, architectural shape to keep daily essentials organized and secure",
+      "**Interior:** Double main structured compartment with smooth lining",
       "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
       "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
       "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
@@ -204,9 +487,19 @@
         "hex": "#222222",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg"
+      },
+      {
+        "id": "black-croc",
+        "name": "Midnight Black",
+        "hex": "#222222",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Bags%20/solid-black.jpg"
       }
@@ -228,11 +521,11 @@
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": null,
+    "stockQty": 3,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 19,
+    "featuredRank": 24,
     "seoKeywords": [
       "The Croc-Embossed Structured Satchel Purple Bag",
       "bags",
@@ -240,6 +533,11 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
+      "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
+      "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
+      "**Structured Silhouette:** Maintains a firm, architectural shape to keep daily essentials organized and secure",
+      "**Interior:** Double main structured compartment with smooth lining",
       "**Premium Texture:** All-over faux-crocodile embossed exterior with rich tactile depth",
       "**Versatile Styling:** Carry by the sturdy top handle, or use the included matching adjustable crossbody strap",
       "**Luxe Hardware:** Polished gold-tone accents featuring a distinctive dual-tone U-shaped front closure",
@@ -257,9 +555,19 @@
         "hex": "#B57EDC",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
+      },
+      {
+        "id": "purple-croc",
+        "name": "Lavender Lilac",
+        "hex": "#B57EDC",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/solid-purple.png?v=1782911391"
       }
@@ -272,9 +580,9 @@
     "category": "bags",
     "categoryLabel": "Ladies' Handbags",
     "tagline": "Large-Capacity Textured Shoulder Bag with Dual Chambers",
-    "price": 750,
+    "price": 755,
     "originalPrice": 899,
-    "discount": 17,
+    "discount": 16,
     "discountType": "percent",
     "description": "Step out in effortless style with our Everyday Casual Commuter Tote, the perfect companion for college students and busy women on the go. Inspired by the latest streetwear trends, this shoulder handbag features a chic textured finish complemented by sleek contrast straps and elegant gold-tone hardware.\n\nDesigned for practicality and daily wear, this lightweight tote provides one roomy inside chamber for notebooks and makeup kits.",
     "complimentaryItem": null,
@@ -285,7 +593,7 @@
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 20,
+    "featuredRank": 33,
     "seoKeywords": [
       "The Everyday Casual Commuter White Tote Bag",
       "bags",
@@ -293,6 +601,10 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Large Capacity:** Spacious interior designed to hold notebooks, daily essentials, and pouches",
+      "**Simple & Functional Storage:** 1 roomy inside main chamber + 1 convenient outside quick-access pocket",
+      "**Trendy Aesthetic:** Textured, canvas-like aesthetic with contrasting straps and gold-tone hardware",
+      "**Comfortable Carry:** Sturdy reinforced shoulder straps designed for comfortable all-day wear",
       "**Large Capacity:** Spacious interior designed to hold notebooks, daily essentials, and pouches",
       "**Simple & Functional Storage:** 1 roomy inside main chamber + 1 convenient outside quick-access pocket",
       "**Trendy Aesthetic:** Textured, canvas-like aesthetic with contrasting straps and gold-tone hardware",
@@ -308,9 +620,19 @@
         "hex": "#FFFDD0",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
+      },
+      {
+        "id": "white-tote",
+        "name": "Ivory Cream",
+        "hex": "#FFFDD0",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/white.png?v=1782926558"
       }
@@ -323,20 +645,20 @@
     "category": "bags",
     "categoryLabel": "Ladies' Handbags",
     "tagline": "Large-Capacity Textured Shoulder Bag with Dual Chambers",
-    "price": 750,
+    "price": 755,
     "originalPrice": 899,
-    "discount": 17,
+    "discount": 16,
     "discountType": "percent",
     "description": "Step out in effortless style with our Everyday Casual Commuter Tote, the perfect companion for college students and busy women on the go. Inspired by the latest streetwear trends, this shoulder handbag features a chic textured finish complemented by sleek contrast straps and elegant gold-tone hardware.\n\nDesigned for practicality and daily wear, this lightweight tote provides one roomy inside chamber for notebooks and makeup kits.",
     "complimentaryItem": null,
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 10,
+    "stockQty": 4,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 21,
+    "featuredRank": 32,
     "seoKeywords": [
       "The Everyday Casual Commuter Black Tote Bag",
       "bags",
@@ -344,6 +666,10 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Large Capacity:** Spacious interior designed to hold notebooks, daily essentials, and pouches",
+      "**Simple & Functional Storage:** 1 roomy inside main chamber + 1 convenient outside quick-access pocket",
+      "**Trendy Aesthetic:** Textured, canvas-like aesthetic with contrasting straps and gold-tone hardware",
+      "**Comfortable Carry:** Sturdy reinforced shoulder straps designed for comfortable all-day wear",
       "**Large Capacity:** Spacious interior designed to hold notebooks, daily essentials, and pouches",
       "**Simple & Functional Storage:** 1 roomy inside main chamber + 1 convenient outside quick-access pocket",
       "**Trendy Aesthetic:** Textured, canvas-like aesthetic with contrasting straps and gold-tone hardware",
@@ -359,9 +685,19 @@
         "hex": "#1A1A1A",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371"
+      },
+      {
+        "id": "black-tote",
+        "name": "Midnight Black",
+        "hex": "#1A1A1A",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/black.png?v=1782926371"
       }
@@ -382,12 +718,12 @@
     "complimentaryItem": null,
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791",
     "badge": null,
-    "inStock": false,
-    "stockQty": 0,
+    "inStock": true,
+    "stockQty": 5,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 22,
+    "featuredRank": 35,
     "seoKeywords": [
       "embossed tote bag",
       "doodle shoulder bag bd",
@@ -396,6 +732,12 @@
       "ladies shoulder handbag bangladesh"
     ],
     "details": [
+      "Large Capacity: Spacious interior designed to easily hold daily college or commuting essentials",
+      "Functional Storage: 1 roomy inside chamber for main items + 1 convenient outside quick-access chamber",
+      "Playful Aesthetic: Unique all-over embossed pattern with hearts, bows, and smiley icons",
+      "Secure & Comfortable: Secure top zipper closure paired with sturdy tan shoulder straps for all-day comfort",
+      "Material: Textured high-grade faux leather",
+      "Carry Options: Top carry handles and shoulder wear",
       "Large Capacity: Spacious interior designed to easily hold daily college or commuting essentials",
       "Functional Storage: 1 roomy inside chamber for main items + 1 convenient outside quick-access chamber",
       "Playful Aesthetic: Unique all-over embossed pattern with hearts, bows, and smiley icons",
@@ -413,9 +755,19 @@
         "hex": "#F5F5F0",
         "inStock": false,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
+      },
+      {
+        "id": "chalk-white-tan",
+        "name": "Chalk White & Tan Straps",
+        "hex": "#F5F5F0",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/pookie.png?v=1782926791"
       }
@@ -428,21 +780,12 @@
     "category": "churi",
     "categoryLabel": "Bangles & Churi",
     "tagline": "Contrasting Maroon & Teal Stack with Mirror-Work Borders",
-    "price": 891,
+    "price": 892,
     "originalPrice": 1049,
     "discount": 15,
     "discountType": "percent",
     "description": "Elevate your ethnic wardrobe with this stunning, exquisitely handcrafted Silk Thread Churi set. Wrapped in rich, contrasting shades of deep maroon and vibrant teal, the centerpiece bangles are embellished with golden floral motifs, delicate faux pearls, and sparkling stones that catch the light from every angle.\n\nThe set is framed by statement border bangles featuring classic square Kundan-style mirror work and pearl drops, creating a perfectly balanced and luxurious stack.",
     "complimentaryItem": null,
-    "sizes": [
-      "2-4 (57mm)",
-      "2-6 (60mm)",
-      "2-8 (64mm)"
-    ],
-    "allowMultipleColors": true,
-    "allowMultipleSizes": false,
-    "hasCustomNote": true,
-    "customNotePrompt": "Custom wrist measurement (mm), size breakdown, or special instructions...",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868",
     "badge": "Bestseller",
     "inStock": true,
@@ -450,7 +793,7 @@
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": true,
-    "featuredRank": 14,
+    "featuredRank": 4,
     "seoKeywords": [
       "The Royal Floral Silk Thread Churi Set - Maroon & Teal",
       "churi",
@@ -458,6 +801,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "Care: Keep away from moisture, perfumes, and harsh chemicals; store in a dry bangle box",
+      "100% Handmade Craftsmanship: Meticulously wrapped and decorated by hand",
+      "Contrasting Color Palette: Rich deep maroon and vibrant peacock teal thread base",
+      "Statement Borders: Gold-tone square Kundan mirror work with dangling faux pearl drops",
+      "Floral Embellishments: Intricate brass-tone floral appliques and crystal stone centers",
+      "Material: High-luster silk thread, faux pearls, Kundan stones, metallic floral motifs",
       "Care: Keep away from moisture, perfumes, and harsh chemicals; store in a dry bangle box",
       "100% Handmade Craftsmanship: Meticulously wrapped and decorated by hand",
       "Contrasting Color Palette: Rich deep maroon and vibrant peacock teal thread base",
@@ -477,9 +826,19 @@
         "hex": "#631A24",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868"
+      },
+      {
+        "id": "maroon-teal-combo",
+        "name": "Maroon & Teal Royal Combo",
+        "hex": "#631A24",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-1.png?v=1782973868"
       }
@@ -492,21 +851,12 @@
     "category": "churi",
     "categoryLabel": "Bangles & Churi",
     "tagline": "4-Pair Handcrafted Silk Thread Set in Classic Festive Hues",
-    "price": 891,
+    "price": 892,
     "originalPrice": 1049,
     "discount": 15,
     "discountType": "percent",
     "description": "Celebrate vibrant color and royal heritage with this handcrafted Silk Thread Bangle Collection. Meticulously hand-wrapped in premium silk thread, this collection features four timeless shades: emerald green, ruby red, classic gold, and midnight black.\n\nEach bangle is adorned with gold-tone floral appliques, delicately studded with Kundan-style stones, and finished with clusters of elegant faux pearls. Designed as four distinct pairs, wear a single matching pair for everyday subtlety or stack all four pairs together for a regal festive statement.",
     "complimentaryItem": "Adorous Signature Keepsake Box & Velvet Pouch",
-    "sizes": [
-      "2-4 (57mm)",
-      "2-6 (60mm)",
-      "2-8 (64mm)"
-    ],
-    "allowMultipleColors": true,
-    "allowMultipleSizes": false,
-    "hasCustomNote": true,
-    "customNotePrompt": "Custom wrist measurement (mm), size breakdown, or special instructions...",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184",
     "badge": null,
     "inStock": true,
@@ -514,7 +864,7 @@
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 15,
+    "featuredRank": 6,
     "seoKeywords": [
       "Festive Heritage Silk Thread Bangle Collection (4-Pair Set)",
       "churi",
@@ -522,6 +872,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "100% Handmade Craftsmanship: Each bangle is beautifully wrapped and embellished by hand",
+      "Ultimate Versatility: Includes 4 distinct pairs (8 bangles total) in Green, Red, Gold, and Black",
+      "Elegant Detailing: Floral metallic accents, Kundan-style stones, and faux pearl clusters",
+      "Material: Premium silk thread, faux pearls, Kundan stones, gold-tone metallic floral appliques",
+      "Mix & Match Freedom: Wear as individual pairs or stack together for a heavy bridal aesthetic",
+      "Care: Keep away from moisture, perfumes, and harsh chemicals; store in a dry enclosed bangle box",
       "100% Handmade Craftsmanship: Each bangle is beautifully wrapped and embellished by hand",
       "Ultimate Versatility: Includes 4 distinct pairs (8 bangles total) in Green, Red, Gold, and Black",
       "Elegant Detailing: Floral metallic accents, Kundan-style stones, and faux pearl clusters",
@@ -542,9 +898,19 @@
         "hex": "#C6A96E",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184"
+      },
+      {
+        "id": "festive-quad-combo",
+        "name": "Festive Multi-Color Quad (Green, Red, Gold, Black)",
+        "hex": "#C6A96E",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-3.png?v=1782974184"
       }
@@ -557,21 +923,12 @@
     "category": "churi",
     "categoryLabel": "Bangles & Churi",
     "tagline": "Deep Magenta Stack with Geometric Kundan & Wire Detailing",
-    "price": 891,
+    "price": 892,
     "originalPrice": 1049,
     "discount": 15,
     "discountType": "percent",
     "description": "Make a bold and unforgettable statement with this vibrant Silk Thread Churi set. Expertly wrapped in lustrous, deep magenta silk thread, this bangle stack is a masterpiece of traditional craftsmanship mixed with contemporary design.\n\nThe set features a stunning variety of embellishments, including striking geometric Kundan stones (featuring triangle and diamond shapes), intricate gold-tone floral and swirl motifs, and elegant metallic wire detailing. Bordered by delicate faux pearl accents, this stack offers a rich, textured, and luxurious appearance while remaining lightweight on the wrist.",
     "complimentaryItem": null,
-    "sizes": [
-      "2-4 (57mm)",
-      "2-6 (60mm)",
-      "2-8 (64mm)"
-    ],
-    "allowMultipleColors": true,
-    "allowMultipleSizes": false,
-    "hasCustomNote": true,
-    "customNotePrompt": "Custom wrist measurement (mm), size breakdown, or special instructions...",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064",
     "badge": null,
     "inStock": true,
@@ -579,7 +936,7 @@
     "isNewDrop": false,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 16,
+    "featuredRank": 5,
     "seoKeywords": [
       "The Magenta Majesty Silk Thread Churi Set",
       "churi",
@@ -587,6 +944,13 @@
       "Dhaka boutique"
     ],
     "details": [
+      "Intricate Embellishments: Geometric triangle and diamond Kundan stones, gold swirl motifs, metallic wire wrapping",
+      "Faux Pearl Accents: Finished with fine pearl border trim for added texture and luxury",
+      "Material: Premium silk thread, faux pearls, Kundan stones, gold-tone metallic wire",
+      "Comfortable & Lightweight: Heavy, regal aesthetic without excessive weight",
+      "Care: Avoid moisture and perfumes; store safely in a closed bangle box",
+      "100% Handmade Craftsmanship: Delicately wrapped and embellished by hand",
+      "Vibrant Statement Color: Rich magenta shade that pairs beautifully with traditional sarees and lehengas",
       "Intricate Embellishments: Geometric triangle and diamond Kundan stones, gold swirl motifs, metallic wire wrapping",
       "Faux Pearl Accents: Finished with fine pearl border trim for added texture and luxury",
       "Material: Premium silk thread, faux pearls, Kundan stones, gold-tone metallic wire",
@@ -608,9 +972,19 @@
         "hex": "#CA1F7B",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
+      },
+      {
+        "id": "royal-deep-magenta",
+        "name": "Royal Deep Magenta",
+        "hex": "#CA1F7B",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Combo-2.png?v=1782974064"
       }
@@ -623,7 +997,7 @@
     "category": "earrings",
     "categoryLabel": "Chandbalis & Jhumkas",
     "tagline": "Royal Peacock Motif with Vivid Turquoise Centerpiece",
-    "price": 482,
+    "price": 483,
     "originalPrice": 549,
     "discount": 12,
     "discountType": "percent",
@@ -636,7 +1010,7 @@
     "isNewDrop": true,
     "isGiftPick": true,
     "isBestseller": true,
-    "featuredRank": 11,
+    "featuredRank": 14,
     "seoKeywords": [
       "Kashmiri Noor-e-Firuzah Peacock Crescent Jhumka Earrings",
       "earrings",
@@ -644,6 +1018,14 @@
       "Dhaka boutique"
     ],
     "details": [
+      "Stone: Turquoise centerpiece with turquoise bead trim",
+      "Motif: Hand-detailed peacock and floral crescent design",
+      "Finish: Oxidized antique silver-tone metal",
+      "Closure: Push-back stud",
+      "Style: Statement chandbali-style jhumka with dangling ghungroo bells",
+      "Pairs well with: Sarees, anarkalis, and festive or bridal ethnic wear",
+      "Care: Keep away from water, perfume, and sweat to preserve the finish",
+      "Storage: Store in a dry pouch/box when not in use",
       "Stone: Turquoise centerpiece with turquoise bead trim",
       "Motif: Hand-detailed peacock and floral crescent design",
       "Finish: Oxidized antique silver-tone metal",
@@ -663,9 +1045,19 @@
         "hex": "#40E0D0",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
+      },
+      {
+        "id": "turquoise-antique-silver",
+        "name": "Turquoise & Antique Silver",
+        "hex": "#40E0D0",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-A.png?v=1787068080"
       }
@@ -678,7 +1070,7 @@
     "category": "earrings",
     "categoryLabel": "Chandbalis & Jhumkas",
     "tagline": "Starlight Woven in Antique Silver-Tone Filigree",
-    "price": 482,
+    "price": 483,
     "originalPrice": 549,
     "discount": 12,
     "discountType": "percent",
@@ -691,7 +1083,7 @@
     "isNewDrop": true,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 12,
+    "featuredRank": 15,
     "seoKeywords": [
       "Kashmiri Noor-e-Sitara Tiered Lotus Jhumka Earrings",
       "earrings",
@@ -699,6 +1091,14 @@
       "Dhaka boutique"
     ],
     "details": [
+      "Stone: Teal teardrop stones set in tiered medallions",
+      "Motif: Layered lotus-medallion design with filigree detailing",
+      "Finish: Oxidized antique silver-tone metal",
+      "Closure: Push-back stud",
+      "Style: Statement chandbali-style jhumka with faceted bead and ghungroo bell drops",
+      "Pairs well with: Sarees, anarkalis, and festive or bridal ethnic wear",
+      "Care: Keep away from water, perfume, and sweat to preserve the antique finish",
+      "Storage: Store in a dry pouch/box when not in use and wipe gently with a soft dry cloth",
       "Stone: Teal teardrop stones set in tiered medallions",
       "Motif: Layered lotus-medallion design with filigree detailing",
       "Finish: Oxidized antique silver-tone metal",
@@ -718,9 +1118,19 @@
         "hex": "#008080",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177"
+      },
+      {
+        "id": "teal-antique-silver",
+        "name": "Teal & Antique Silver",
+        "hex": "#008080",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/Kashmiri-B.png?v=1787068177"
       }
@@ -733,20 +1143,20 @@
     "category": "earrings",
     "categoryLabel": "Chandbalis & Jhumkas",
     "tagline": null,
-    "price": 467,
+    "price": 471,
     "originalPrice": 529,
-    "discount": 12,
+    "discount": 11,
     "discountType": "percent",
     "description": "Handcrafted with intricate filigree work and finished in a rich oxidized silver tone, the Bell Jhumka brings timeless ethnic elegance to modern styling. A striking centerpiece stone sits at the center, framed by delicate floral detailing, while cascading ghungroo bells add graceful movement and a soft jingle with every step — a signature touch of traditional jhumka charm.\n\nWhether for a festive occasion, a wedding reception, or to elevate your everyday ethnic look, this piece adds a regal statement to any outfit.",
     "complimentaryItem": null,
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-white.png?v=1787067740",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 4,
+    "stockQty": 3,
     "isNewDrop": true,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 13,
+    "featuredRank": 16,
     "seoKeywords": [
       "Traditional Filigree Floral Bell Jhumka Earrings",
       "earrings",
@@ -761,12 +1171,55 @@
       "Style: Traditional bell jhumka with dangling musical ghungroo bells",
       "Pairs well with: Sarees, kurtas, lehengas, and festive ethnic wear",
       "Care: Keep away from water, perfume, and sweat to preserve the antique finish",
+      "Storage: Store in a dry pouch/box when not in use",
+      "Stone Options: Milky Moonstone-White, Vivid Ruby-Red, Soft Jade-Green, Rich Violet, Deep Royal Blue",
+      "Motif: Intricate filigree flower medallion with tiered bell canopy",
+      "Finish: Oxidized antique silver-tone metal",
+      "Closure: Push-back stud",
+      "Style: Traditional bell jhumka with dangling musical ghungroo bells",
+      "Pairs well with: Sarees, kurtas, lehengas, and festive ethnic wear",
+      "Care: Keep away from water, perfume, and sweat to preserve the antique finish",
       "Storage: Store in a dry pouch/box when not in use"
     ],
     "piecesIncluded": [
       "1x Pair Traditional Filigree Floral Bell Jhumkas"
     ],
     "colorways": [
+      {
+        "id": "moonstone-white",
+        "name": "Moonstone White",
+        "hex": "#F5F5F0",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-white.png?v=1787067740"
+      },
+      {
+        "id": "ruby-red",
+        "name": "Ruby Red",
+        "hex": "#9B111E",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-red.png?v=1787067510"
+      },
+      {
+        "id": "jade-green",
+        "name": "Jade Green",
+        "hex": "#5B8A72",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-paste.png?v=1787067407"
+      },
+      {
+        "id": "rich-violet",
+        "name": "Rich Violet",
+        "hex": "#6A0DAD",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-purple.png?v=1787067166"
+      },
+      {
+        "id": "royal-blue",
+        "name": "Royal Blue",
+        "hex": "#002366",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-blue_aeeec5c6-3bba-4623-adfd-30d6a6316f09.png?v=1787066804"
+      },
       {
         "id": "moonstone-white",
         "name": "Moonstone White",
@@ -818,6 +1271,21 @@
       },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-blue_aeeec5c6-3bba-4623-adfd-30d6a6316f09.png?v=1787066804"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-white.png?v=1787067740"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-red.png?v=1787067510"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-paste.png?v=1787067407"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-purple.png?v=1787067166"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/stone-blue_aeeec5c6-3bba-4623-adfd-30d6a6316f09.png?v=1787066804"
       }
     ]
   },
@@ -834,10 +1302,10 @@
     "discountType": "percent",
     "description": "Discover the perfect balance of luxury and value with the Luxe Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.",
     "complimentaryItem": "1x Premium PU Leather Jewellery Box",
-    "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=jpg",
+    "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=webp",
     "badge": "Bestseller",
     "inStock": true,
-    "stockQty": 8,
+    "stockQty": 16,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": true,
@@ -853,15 +1321,28 @@
       "**Color:** Diamond-White / Clear Crystal",
       "**Style:** European & American Classic",
       "**Storage:** Includes premium padded PU leather gift case",
+      "**Perfect For:** Weddings, parties, formal events, or premium gifting",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Color:** Diamond-White / Clear Crystal",
+      "**Style:** European & American Classic",
+      "**Storage:** Includes premium padded PU leather gift case",
       "**Perfect For:** Weddings, parties, formal events, or premium gifting"
     ],
     "piecesIncluded": [
       "1x Adjustable Crystal Drop Necklace",
       "1x Pair Matching Crystal Earrings",
       "1x Adjustable Crystal Bracelet",
-      "1x Adjustable Crystal Ring"
+      "1x Adjustable Crystal Ring",
+      "1x Velvet Keepsake Presentation Box"
     ],
     "colorways": [
+      {
+        "id": "diamond-white-silver",
+        "name": "Diamond White & Silver",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
+      },
       {
         "id": "diamond-white-silver",
         "name": "Diamond White & Silver",
@@ -872,10 +1353,16 @@
     ],
     "galleryImages": [
       {
-        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=jpg"
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/silver.png?v=1782763499"
       },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/silver.png?v=1782763499"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=webp"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5822.heic?v=1782451897&format=webp"
       }
     ]
   },
@@ -892,10 +1379,10 @@
     "discountType": "percent",
     "description": "Embrace the power of understated elegance. The Luxe Crystal Gemstone Simple Suite offers a delicate and refined take on luxury. This complete 5-piece collection is designed for those who appreciate clean lines, effortless style, and a subtle, sophisticated sparkle.\n\nPerfect for seamlessly transitioning from daytime wear to evening elegance, this minimalist set arrives beautifully packaged in a premium presentation box, making it an ideal gift or a highly versatile addition to your own jewelry collection.",
     "complimentaryItem": "1x Premium PU Leather Jewellery Box",
-    "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=jpg",
+    "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=webp",
     "badge": null,
     "inStock": true,
-    "stockQty": 8,
+    "stockQty": 3,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
@@ -914,15 +1401,31 @@
       "Earrings: Subtle and lightweight for comfortable everyday brilliance",
       "Bracelet: Slender, graceful design that adds a shimmer to your wrist",
       "Ring: Refined slim band with crystal accent",
+      "Perfect For: Office wear, casual chic outfits, subtle evening glamour, and premium gifting",
+      "Design: Delicate & Minimalist",
+      "Stone: Brilliant Clear Crystal",
+      "Style: Modern Minimalist / Everyday Elegance",
+      "Necklace: Dainty chain featuring a single elegant crystal pendant",
+      "Earrings: Subtle and lightweight for comfortable everyday brilliance",
+      "Bracelet: Slender, graceful design that adds a shimmer to your wrist",
+      "Ring: Refined slim band with crystal accent",
       "Perfect For: Office wear, casual chic outfits, subtle evening glamour, and premium gifting"
     ],
     "piecesIncluded": [
       "1x Dainty Adjustable Crystal Pendant Necklace",
       "1x Pair Subtle Minimalist Crystal Earrings",
       "1x Slender Minimalist Crystal Bracelet",
-      "1x Refined Adjustable Crystal Ring"
+      "1x Refined Adjustable Crystal Ring",
+      "1x Velvet Keepsake Presentation Box"
     ],
     "colorways": [
+      {
+        "id": "diamond-white-silver",
+        "name": "Diamond White & Silver",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
+      },
       {
         "id": "diamond-white-silver",
         "name": "Diamond White & Silver",
@@ -933,10 +1436,16 @@
     ],
     "galleryImages": [
       {
-        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=jpg"
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/simple.png?v=1782763485"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=webp"
       },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/simple.png?v=1782763485"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/IMG_5825.heic?v=1782469806&format=webp"
       }
     ]
   },
@@ -955,8 +1464,8 @@
     "complimentaryItem": "1x Premium PU Leather Jewellery Box",
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176",
     "badge": null,
-    "inStock": true,
-    "stockQty": 5,
+    "inStock": false,
+    "stockQty": 0,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
@@ -974,15 +1483,30 @@
       "**Stone Color:** Diamond-White / Clear Crystal",
       "**Style:** European & American Classic",
       "**Necklace:** Adjustable length with faceted crystal drop pendant",
+      "**Bracelet:** Delicate gold-tone chain with crystal accents",
+      "**Ring:** Comfort-fit adjustable matching band",
+      "**Perfect For:** Weddings, festive occasions, formal receptions, or premium gifting",
+      "**Finish:** Radiant Gold-Tone metal",
+      "**Stone Color:** Diamond-White / Clear Crystal",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length with faceted crystal drop pendant",
       "**Bracelet:** Delicate gold-tone chain with crystal accents"
     ],
     "piecesIncluded": [
       "1x Golden Adjustable Crystal Necklace",
       "1x Pair Matching Golden Crystal Earrings",
       "1x Golden Adjustable Crystal Bracelet",
-      "1x Adjustable Crystal Ring"
+      "1x Adjustable Crystal Ring",
+      "1x Velvet Keepsake Presentation Box"
     ],
     "colorways": [
+      {
+        "id": "radiant-gold-white-crystal",
+        "name": "Radiant Gold & White Crystal",
+        "hex": "#D4AF37",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176"
+      },
       {
         "id": "radiant-gold-white-crystal",
         "name": "Radiant Gold & White Crystal",
@@ -992,6 +1516,12 @@
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden.png?v=1782823271"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/goldenjewellery_1.png?v=1782823176"
       },
@@ -1016,7 +1546,7 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Gorgeous-2pis.png?updatedAt=1790351698480",
     "badge": "Bestseller",
     "inStock": true,
-    "stockQty": null,
+    "stockQty": 29,
     "isNewDrop": false,
     "isGiftPick": false,
     "isBestseller": true,
@@ -1028,6 +1558,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stones:** Diamond-white / clear faceted crystals",
+      "**Finishes:** Brilliant Silver-Tone",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length chain with brilliant crystal drop pendant",
+      "**Earrings:** Lightweight and designed for comfortable all-day wear",
+      "**Perfect For:** Weddings, festive occasions, formal events, and premium gifting",
       "**Stones:** Diamond-white / clear faceted crystals",
       "**Finishes:** Brilliant Silver-Tone",
       "**Style:** European & American Classic",
@@ -1046,9 +1582,19 @@
         "hex": "#ffffff",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "silver-white",
+        "name": "Silver White",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Gorgeous-2pis.png?updatedAt=1790351698480"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Gorgeous-2pis.png?updatedAt=1790351698480"
       }
@@ -1061,16 +1607,16 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "Diamond-Gold Crystal Drop Necklace & Matching Earrings",
-    "price": 990,
-    "originalPrice": 1155,
+    "price": 989,
+    "originalPrice": 1150,
     "discount": 14,
     "discountType": "percent",
     "description": "Experience the perfect balance of luxury and brilliance with the Luxe Crystal Gemstone 2-Piece Suite.",
     "complimentaryItem": null,
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325",
     "badge": null,
-    "inStock": false,
-    "stockQty": 0,
+    "inStock": true,
+    "stockQty": 3,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": false,
@@ -1082,6 +1628,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stones:** Diamond-white / clear faceted crystals",
+      "**Finishes:** Radiant Gold-Tone",
+      "**Style:** European & American Classic",
+      "**Necklace:** Adjustable length chain with brilliant crystal drop pendant",
+      "**Earrings:** Lightweight and designed for comfortable all-day wear",
+      "**Perfect For:** Weddings, festive occasions, formal events, and premium gifting",
       "**Stones:** Diamond-white / clear faceted crystals",
       "**Finishes:** Radiant Gold-Tone",
       "**Style:** European & American Classic",
@@ -1100,9 +1652,19 @@
         "hex": "#D4AF37",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325"
+      },
+      {
+        "id": "radiant-gold",
+        "name": "Radiant Gold",
+        "hex": "#D4AF37",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/golden-2pis.png?v=1783359325"
       }
@@ -1115,16 +1677,16 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "2-Piece Crystal Cluster Necklace & Matching Teardrop Earrings",
-    "price": 995,
-    "originalPrice": 1149,
-    "discount": 13,
+    "price": 998,
+    "originalPrice": 1160,
+    "discount": 14,
     "discountType": "percent",
     "description": "Discover captivating beauty with the Blush Pink Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance, this set is the perfect statement centerpiece for formal galas, weddings, and memorable evenings.",
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pink-web.png",
     "badge": null,
     "inStock": true,
-    "stockQty": 5,
+    "stockQty": 11,
     "isNewDrop": false,
     "isGiftPick": false,
     "isBestseller": false,
@@ -1136,6 +1698,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stone Colors:** Soft Blush Pink, offset by clear round pavé crystals",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
+      "**Earring Design:** Matching floral cluster studs leading to brilliant teardrop drops",
+      "**Style:** Imperial Floral / Classic Statement",
+      "**Perfect For:** Galas, formal dinners, weddings, bridal wear, and magnificent gifting",
       "**Stone Colors:** Soft Blush Pink, offset by clear round pavé crystals",
       "**Finish:** Brilliant silver-tone metal",
       "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
@@ -1154,9 +1722,19 @@
         "hex": "#e4a4b4",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "blush-rose-pink",
+        "name": "Blush Rose Pink",
+        "hex": "#e4a4b4",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pink-web.png"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pink-web.png"
       }
@@ -1169,16 +1747,16 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "2-Piece Crystal Cluster Necklace & Matching Teardrop Earrings",
-    "price": 995,
-    "originalPrice": 1149,
-    "discount": 13,
+    "price": 998,
+    "originalPrice": 1160,
+    "discount": 14,
     "discountType": "percent",
     "description": "Discover captivating beauty with the Imperial Purple Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance, this set is the perfect statement centerpiece for formal galas, weddings, and memorable evenings.",
     "complimentaryItem": null,
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252",
     "badge": "Bestseller",
     "inStock": true,
-    "stockQty": 5,
+    "stockQty": 9,
     "isNewDrop": false,
     "isGiftPick": true,
     "isBestseller": true,
@@ -1190,6 +1768,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stone Colors:** Rich Amethyst Purple offset by clear round pavé crystals",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
+      "**Earring Design:** Matching floral cluster studs leading to brilliant teardrop drops",
+      "**Style:** Imperial Floral / Classic Statement",
+      "**Perfect For:** Galas, formal dinners, weddings, bridal wear, and magnificent gifting",
       "**Stone Colors:** Rich Amethyst Purple offset by clear round pavé crystals",
       "**Finish:** Brilliant silver-tone metal",
       "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
@@ -1208,9 +1792,19 @@
         "hex": "#582F72",
         "inStock": true,
         "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
+      },
+      {
+        "id": "imperial-amethyst",
+        "name": "Imperial Amethyst Purple",
+        "hex": "#582F72",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
+      },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/purple-web.png?v=1784465252"
       }
@@ -1232,7 +1826,7 @@
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": null,
+    "stockQty": 6,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
@@ -1244,6 +1838,10 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Finish:** High-luster ivory shell pearls with faceted pear-cut crystal teardrop pendant",
+      "**Color:** Polished silver-tone rhodium plated setting with micro-pavé cubic zirconia",
+      "**Earring Design:** Matching halo stud earrings with suspended pearl drops and secure post back",
+      "**Adjustable** lobster clasp closure for a tailored neckline fit",
       "**Finish:** High-luster ivory shell pearls with faceted pear-cut crystal teardrop pendant",
       "**Color:** Polished silver-tone rhodium plated setting with micro-pavé cubic zirconia",
       "**Earring Design:** Matching halo stud earrings with suspended pearl drops and secure post back",
@@ -1260,9 +1858,22 @@
         "hex": "#F4F1EA",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
+      },
+      {
+        "id": "silver-pristine-pearl",
+        "name": "Silver & Pristine Pearl",
+        "hex": "#F4F1EA",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-1.png?updatedAt=1791021967299"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/pearl-0.png?updatedAt=1791021967248"
       },
@@ -1278,16 +1889,16 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "2-Piece Crystal Cluster Necklace & Matching Teardrop Earrings",
-    "price": 995,
-    "originalPrice": 1149,
-    "discount": 13,
+    "price": 998,
+    "originalPrice": 1160,
+    "discount": 14,
     "discountType": "percent",
     "description": "Exuding regal poise and cinematic sparkle, the Sapphire Blue Crystal Duo pairs luminous marquise crystal foliage with a breathtaking teardrop halo pendant.\n\nAccompanied by matching teardrop earrings, this set creates an unforgettable statement for grand galas, bridal celebrations, and formal evenings.",
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 2,
+    "stockQty": 5,
     "isNewDrop": true,
     "isGiftPick": true,
     "isBestseller": false,
@@ -1299,6 +1910,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stone Colors:** Royal Sapphire Blue offset by brilliant clear crystal pavé",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
+      "**Earring Design:** Matching teardrop sapphire crystal earrings framed with sparkling clear crystal halo",
+      "**Style:** Royal European Classic / Statement Elegance",
+      "**Perfect For:** Galas, formal dinners, weddings, bridal wear, and magnificent gifting",
       "**Stone Colors:** Royal Sapphire Blue offset by brilliant clear crystal pavé",
       "**Finish:** Brilliant silver-tone metal",
       "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
@@ -1317,9 +1934,19 @@
         "hex": "#0F52BA",
         "inStock": true,
         "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
+      },
+      {
+        "id": "royal-sapphire-blue",
+        "name": "Royal Sapphire Blue",
+        "hex": "#0F52BA",
+        "inStock": true,
+        "image": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/blue-web.png?updatedAt=1791021139520"
       }
@@ -1332,16 +1959,16 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "2-Piece Crystal Cluster Necklace & Matching Teardrop Earrings",
-    "price": 995,
-    "originalPrice": 1149,
-    "discount": 13,
+    "price": 998,
+    "originalPrice": 1160,
+    "discount": 14,
     "discountType": "percent",
     "description": "Discover captivating beauty with the Obsidian Black Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance",
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/black-web.png",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 2,
+    "stockQty": 4,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
@@ -1353,6 +1980,12 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Stone Colors:** Obsidian Black",
+      "**Finish:** Brilliant silver-tone metal",
+      "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
+      "**Earring Design:** Matching obsidian black color leading to brilliant teardrop drops",
+      "**Style:** Imperial Floral / Classic Statement",
+      "**Perfect For:** Galas, formal dinners, weddings, bridal wear, and magnificent gifting",
       "**Stone Colors:** Obsidian Black",
       "**Finish:** Brilliant silver-tone metal",
       "**Necklace Design:** Marquise-cut crystal leaves with grand teardrop pendant and clear crystal halo",
@@ -1371,9 +2004,25 @@
         "hex": "#000000",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "obsidian-black",
+        "name": "Obsidian Black",
+        "hex": "#000000",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/black-web.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/black%201.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/black%202.png"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/black-web.png"
       },
@@ -1392,7 +2041,7 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "A serene blend of ocean-blue crystals and delicate floral sparkle.",
-    "price": 1160,
+    "price": 1162,
     "originalPrice": 1320,
     "discount": 12,
     "discountType": "percent",
@@ -1400,12 +2049,12 @@
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-ocean_blue.png",
     "badge": "New Drop",
-    "inStock": false,
-    "stockQty": 0,
+    "inStock": true,
+    "stockQty": 4,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 22,
+    "featuredRank": 25,
     "seoKeywords": [
       "Celestia Ocean Blue Crystal Necklace & Earring Set",
       "jewelry",
@@ -1413,6 +2062,15 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Set Type:** Necklace & Matching Drop Earrings",
+      "**Design: **Floral vine / cascading crystal",
+      "**Main Stone Color:** Ocean Blue",
+      "**Accent Stone Color:** Clear / White",
+      "**Stone Shape:** Round, floral cluster & teardrop",
+      "**Finish:** Silver-tone polished metal",
+      "**Style:** Elegant, fresh & occasion wear",
+      "**Closure:** Lobster-claw style necklace clasp",
+      "**Material:** Artificial fashion jewellery with crystal-style stones",
       "**Set Type:** Necklace & Matching Drop Earrings",
       "**Design: **Floral vine / cascading crystal",
       "**Main Stone Color:** Ocean Blue",
@@ -1434,9 +2092,19 @@
         "hex": "#a0cffd",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "ocean-blue-clear-crystal-silver-tone-finish",
+        "name": "Ocean Blue • Clear Crystal • Silver-Tone Finish",
+        "hex": "#a0cffd",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-ocean_blue.png"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-ocean_blue.png"
       }
@@ -1449,7 +2117,7 @@
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "A graceful cascade of crystal blooms, crafted to catch the light with every movement.",
-    "price": 1160,
+    "price": 1162,
     "originalPrice": 1320,
     "discount": 12,
     "discountType": "percent",
@@ -1457,12 +2125,12 @@
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/celestia-white_white.png",
     "badge": "New Drop",
-    "inStock": true,
-    "stockQty": 1,
+    "inStock": false,
+    "stockQty": 0,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 23,
+    "featuredRank": 28,
     "seoKeywords": [
       "Celestia Vine Crystal Necklace & Earring Set",
       "jewelry",
@@ -1470,6 +2138,14 @@
       "Dhaka boutique"
     ],
     "details": [
+      "**Set Type:** Necklace & Matching Drop Earrings",
+      "**Design: **Floral vine / cascading crystal",
+      "**Stone Color:** Clear / White",
+      "**Stone Shape:** Round & teardrop",
+      "**Finish:** Silver-tone polished metal",
+      "**Style:** Elegant, feminine & occasion wear",
+      "**Closure:** Lobster-claw style necklace clasp",
+      "**Material:** Artificial fashion jewellery with crystal-style stones",
       "**Set Type:** Necklace & Matching Drop Earrings",
       "**Design: **Floral vine / cascading crystal",
       "**Stone Color:** Clear / White",
@@ -1490,9 +2166,19 @@
         "hex": "#ffffff",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "clear-crystal-silver-tone-finish",
+        "name": "Clear Crystal & Silver-Tone Finish",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/celestia-white_white.png"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/celestia-white_white.png"
       }
@@ -1500,32 +2186,41 @@
   },
   {
     "id": "prod-imperial-amethyst-vine-crystal-necklace-earring-set-1791038733155",
-    "slug": "imperial-amethyst-vine-crystal-necklace-earring-set",
-    "name": "Imperial Amethyst Vine Crystal Necklace & Earring Set",
+    "slug": "celestia-lavender-crystal-necklace-earring-set",
+    "name": "Celestia Lavender Crystal Necklace & Earring Set",
     "category": "jewelry",
     "categoryLabel": "Fine Jewelry Sets",
     "tagline": "Lavender crystal blooms woven into a graceful golden vine for an enchanting statement.",
-    "price": 1160,
+    "price": 1162,
     "originalPrice": 1320,
     "discount": 12,
     "discountType": "percent",
-    "description": "Delicate purple floral clusters bloom along intertwined golden vines, finished with sparkling clear accents and luminous teardrop crystals. A romantic statement set with a regal touch.",
+    "description": "Delicate lavender floral clusters bloom along intertwined golden vines, accented with sparkling clear stones and luminous lavender teardrop crystals. A romantic statement set with a touch of timeless elegance.",
     "complimentaryItem": null,
     "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-purple.png",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 1,
+    "stockQty": 4,
     "isNewDrop": true,
     "isGiftPick": false,
     "isBestseller": false,
-    "featuredRank": 24,
+    "featuredRank": 27,
     "seoKeywords": [
-      "Imperial Amethyst Vine Crystal Necklace & Earring Set",
+      "Celestia Lavender Crystal Necklace & Earring Set",
       "jewelry",
       "premium jewelry",
       "Dhaka boutique"
     ],
     "details": [
+      "**Set Type:** Necklace & Matching Drop Earrings",
+      "**Design: **Floral vine / cascading crystal",
+      "**Main Stone Color:** Amethyst Purple",
+      "**Accent Stone Color:** Clear / White",
+      "**Stone Shape:** Round, floral cluster & teardrop",
+      "**Finish:** Gold-tone polished metal",
+      "**Style:** Regal, feminine & occasion wear",
+      "**Closure:** Lobster-claw style necklace clasp",
+      "**Material:** Artificial fashion jewellery with crystal-style stones",
       "**Set Type:** Necklace & Matching Drop Earrings",
       "**Design: **Floral vine / cascading crystal",
       "**Main Stone Color:** Amethyst Purple",
@@ -1547,9 +2242,19 @@
         "hex": "#ca74e2",
         "inStock": true,
         "image": null
+      },
+      {
+        "id": "lavender",
+        "name": "Lavender",
+        "hex": "#ca74e2",
+        "inStock": true,
+        "image": null
       }
     ],
     "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-purple.png"
+      },
       {
         "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Jewellery%20All/Celestia-purple.png"
       }
@@ -1571,11 +2276,11 @@
     "featuredImage": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-CART.png?v=1784728682",
     "badge": "New Drop",
     "inStock": true,
-    "stockQty": 5,
+    "stockQty": 4,
     "isNewDrop": true,
     "isGiftPick": true,
     "isBestseller": false,
-    "featuredRank": 27,
+    "featuredRank": 34,
     "seoKeywords": [
       "Horizon Compact UV Protection Folding Umbrella",
       "more",
@@ -1589,12 +2294,33 @@
       "Compact Travel Fold: Collapses down to a slim, travel-friendly size that fits easily into any handbag",
       "Travel-Ready Wrap: Includes a snug wrap sleeve and matching wrist strap for effortless carrying",
       "Opening Mechanism: Smooth manual open/close mechanism with secure locking runner",
+      "Available Colors: Blush Pink and Sky Blue",
+      "Full Coverage Canopy: Opens wide to keep you (and a friend) protected through sudden downpours",
+      "Dual-Tone UV Black Underside: High-density black undercoating offers UPF 50+ UV sun and heat protection",
+      "Reinforced Windproof Frame: Sturdy ribs withstand gusts and daily use without bending",
+      "Compact Travel Fold: Collapses down to a slim, travel-friendly size that fits easily into any handbag",
+      "Travel-Ready Wrap: Includes a snug wrap sleeve and matching wrist strap for effortless carrying",
+      "Opening Mechanism: Smooth manual open/close mechanism with secure locking runner",
       "Available Colors: Blush Pink and Sky Blue"
     ],
     "piecesIncluded": [
       "1x Horizon Compact UV Protection Folding Umbrella"
     ],
     "colorways": [
+      {
+        "id": "blush-pink",
+        "name": "Blush Pink",
+        "hex": "#E8A5B8",
+        "inStock": true,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-CART.png?v=1784728682"
+      },
+      {
+        "id": "sky-blue",
+        "name": "Sky Blue",
+        "hex": "#7BAFD4",
+        "inStock": false,
+        "image": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-CART.png?v=1784728337"
+      },
       {
         "id": "blush-pink",
         "name": "Blush Pink",
@@ -1634,6 +2360,255 @@
       },
       {
         "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-WRAP.png?v=1784728337"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-CART.png?v=1784728682"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-OUT.png?v=1784728682"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-IN.png?v=1784728682"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/PINK-WRAP.png?v=1784728682"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-CART.png?v=1784728337"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-OUT.png?v=1784728337"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-IN.png?v=1784728337"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0693/0402/5136/files/BLUE-WRAP.png?v=1784728337"
+      }
+    ]
+  },
+  {
+    "id": "prod-royal-bloom-bangle-6-set-1794163472041",
+    "slug": "royal-bloom-bangle-6-set",
+    "name": "Royal Bloom Bangle (6  Set)",
+    "category": "churi",
+    "categoryLabel": "Bangles & Churi",
+    "tagline": "Royal Bloom Bangle (6  Set) - Boutique Premium Luxury",
+    "price": 1139,
+    "originalPrice": 1340,
+    "discount": 15,
+    "discountType": "percent",
+    "description": "Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.",
+    "complimentaryItem": "1 x Churi Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 5,
+    "isNewDrop": true,
+    "isGiftPick": false,
+    "isBestseller": false,
+    "featuredRank": 2,
+    "seoKeywords": [
+      "Royal Bloom Bangle (6  Set)",
+      "churi",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Design:** Traditional floral gold-embellished design",
+      "**Color:** Yellow, Burgundy, Green, Fuchsia, Black, Red & Royal Blue",
+      "**Embellishment:** Golden floral detailing",
+      "**Finish:** Glossy, glittering finish",
+      "**Style:** Traditional ethnic / Festive",
+      "**Collection:** Multicolor bangle set",
+      "**Occasion:** Wedding, Eid, Party & Festive Wear"
+    ],
+    "piecesIncluded": [
+      "1 × Set (7 Color Collections)"
+    ],
+    "colorways": [
+      {
+        "id": "multicolor-gold-floral",
+        "name": "Multicolor Gold Floral",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-yellow.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-maroon.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-green.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-pink.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-black.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-red.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-dark_blue.png"
+      }
+    ]
+  },
+  {
+    "id": "prod-royal-bloom-bangle-12-set-1794163612106",
+    "slug": "royal-bloom-bangle-12-set",
+    "name": "Royal Bloom Bangle (12  Set)",
+    "category": "churi",
+    "categoryLabel": "Bangles & Churi",
+    "tagline": "Royal Bloom Bangle (12  Set) - Boutique Premium Luxury",
+    "price": 1668,
+    "originalPrice": 1940,
+    "discount": 14,
+    "discountType": "percent",
+    "description": "Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.",
+    "complimentaryItem": "1 x Churi Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 4,
+    "isNewDrop": true,
+    "isGiftPick": false,
+    "isBestseller": false,
+    "featuredRank": 3,
+    "seoKeywords": [
+      "Royal Bloom Bangle (12  Set)",
+      "churi",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Design:** Traditional floral gold-embellished design",
+      "**Color:** Yellow, Burgundy, Green, Fuchsia, Black, Red & Royal Blue",
+      "**Embellishment:** Golden floral detailing",
+      "**Finish:** Glossy, glittering finish",
+      "**Style:** Traditional ethnic / Festive",
+      "**Collection:** Multicolor bangle set",
+      "**Occasion:** Wedding, Eid, Party & Festive Wear"
+    ],
+    "piecesIncluded": [
+      "1 × Set (7 Color Collections)"
+    ],
+    "colorways": [
+      {
+        "id": "cw-copy-1794163500579-0",
+        "name": "Multicolor Gold Floral",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-yellow.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-maroon.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-green.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-pink.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-black.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-red.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-dark_blue.png"
+      }
+    ]
+  },
+  {
+    "id": "prod-royal-bloom-bangle-24-set-1794163690598",
+    "slug": "royal-bloom-bangle-24-set",
+    "name": "Royal Bloom Bangle (24  Set)",
+    "category": "churi",
+    "categoryLabel": "Bangles & Churi",
+    "tagline": "Royal Bloom Bangle (24 Set) - Boutique Premium Luxury",
+    "price": 2737,
+    "originalPrice": 3220,
+    "discount": 15,
+    "discountType": "percent",
+    "description": "Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.",
+    "complimentaryItem": "1 x Churi Box",
+    "featuredImage": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png",
+    "badge": "New Drop",
+    "inStock": true,
+    "stockQty": 3,
+    "isNewDrop": true,
+    "isGiftPick": false,
+    "isBestseller": false,
+    "featuredRank": 1,
+    "seoKeywords": [
+      "Royal Bloom Bangle (24  Set)",
+      "churi",
+      "premium jewelry",
+      "Dhaka boutique"
+    ],
+    "details": [
+      "**Design:** Traditional floral gold-embellished design",
+      "**Color:** Yellow, Burgundy, Green, Fuchsia, Black, Red & Royal Blue",
+      "**Embellishment:** Golden floral detailing",
+      "**Finish:** Glossy, glittering finish",
+      "**Style:** Traditional ethnic / Festive",
+      "**Collection:** Multicolor bangle set",
+      "**Occasion:** Wedding, Eid, Party & Festive Wear"
+    ],
+    "piecesIncluded": [
+      "1 × Set (7 Color Collections)"
+    ],
+    "colorways": [
+      {
+        "id": "cw-copy-1794163619888-0",
+        "name": "Multicolor Gold Floral",
+        "hex": "#ffffff",
+        "inStock": true,
+        "image": null
+      }
+    ],
+    "galleryImages": [
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-yellow.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/Colorful%20Glittering%20Bangle%20Collection.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-maroon.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-green.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-pink.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-black.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-red.png"
+      },
+      {
+        "url": "https://ik.imagekit.io/adorousfashion/Website%20Purpose%20pictures/Churi%20Collections/ceramic-dark_blue.png"
       }
     ]
   }

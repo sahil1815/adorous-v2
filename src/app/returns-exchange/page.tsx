@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: '7-Day Doorstep Exchange Policy | Adorous Fashion',
   description:
     'Hassle-free 7-day doorstep size and style exchange policy across Bangladesh. Guaranteed fit on all Churi bangles, jewelry, and luxury bags.',
+  alternates: {
+    canonical: '/returns-exchange',
+  },
 };
 
 export default function ReturnsExchangePage() {

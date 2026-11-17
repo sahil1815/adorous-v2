@@ -10,7 +10,7 @@ import { Tag, ShieldCheck, Truck, MessageCircle, ArrowRight, CheckCircle2 } from
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Official Pricing & Product Catalogue | Adorous Fashion Dhaka',
+  title: 'Official Pricing & Product Catalogue | Adorous Fashion',
   description: 'Complete itemized price list in Bangladeshi Taka (৳ BDT) for luxury Pakistani jewelry suites, velvet churi bangles, and ladies satchels. Cash on Delivery across Bangladesh.',
   alternates: {
     canonical: '/pricing',

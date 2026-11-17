@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
 
       {/* Bottom Legal / Security Notice */}
       <div className="max-w-md mx-auto w-full text-center text-xs text-zinc-500 space-y-1">
-        <p>© {new Date().getFullYear()} Adorous Fashion Ltd. Restricted Admin Access.</p>
+        <p>© {new Date().getFullYear()} Adorous Fashion Atelier. Restricted Admin Access.</p>
         <p className="text-zinc-600">
           Unauthorized inspection or penetration testing attempts are logged.
         </p>

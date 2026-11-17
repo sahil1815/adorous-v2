@@ -1,6 +1,6 @@
 # Adorous Fashion — Complete Product Catalogue & Operational Knowledge Base
 
-> Adorous Fashion (https://adorousfashion.store) is a premier direct-to-consumer luxury South Asian boutique studio based in Bangladesh. We curate handcrafted 5-piece bridal suites, heritage crystal sets, hand-wrapped velvet & silk thread churi (bangles), architectural satchels, and artisanal lifestyle keepsakes. We provide nationwide Cash on Delivery (COD) across all 64 districts in Bangladesh with personal WhatsApp confirmation for every order.
+> Adorous Fashion (https://adorousfashion.store) is a premier direct-to-consumer boutique studio based in Bangladesh. We curate handcrafted 5-piece suites, heritage crystal sets, hand-wrapped velvet & silk thread churi (bangles), architectural satchels, and artisanal lifestyle keepsakes. We provide nationwide Cash on Delivery (COD) across all 64 districts in Bangladesh with personal WhatsApp confirmation for every order.
 
 ---
 
@@ -30,7 +30,7 @@
   - Every single order placed on the website receives a personal verification message from the atelier team (+8801577731381) to verify address accuracy, preferred delivery timing, and bangle size measurements before handing to couriers.
 - **Payment Methods Accepted**:
   - Cash on Delivery (COD)
-  - bKash Merchant / Personal
+  - bKash (Send Money / Online Payment with discount)
   - Nagad
   - Rocket
 
@@ -60,18 +60,54 @@ Because traditional metal and velvet bangles are rigid and must slide over the h
 
 ---
 
-## 5. Active Product Catalogue (28 Products)
+## 5. Active Product Catalogue (35 Products)
 
-### 1. The Woven Tweed Structured Satchel White Bag
+### 1. Luxe Black Crystal Gemstone Suite (5-Piece Box Set)
+- **Category**: Fine Jewelry Sets
+- **Price**: ৳1522 BDT (Original: ৳1770)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-black-crystal-gemstone-suite-5-piece-box-set
+- **Overview**: Discover the perfect balance of luxury and value with the Luxe Black Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.
+  - **Included Pieces**: 1x Adjustable Black Crystal Drop Necklace, 1x Pair Matching Black Crystal Earrings, 1x Adjustable Black Crystal Bracelet, 1x Adjustable Black Crystal Ring, 1x Velvet Keepsake Presentation Box
+  - **Colorways**: Charcoal Black
+
+### 2. Luxe Blue Crystal Gemstone Suite (5-Piece Box Set)
+- **Category**: Fine Jewelry Sets
+- **Price**: ৳1522 BDT (Original: ৳1770)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-blue-crystal-gemstone-suite-5-piece-box-set
+- **Overview**: Discover the perfect balance of luxury and value with the Luxe Blue Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.
+  - **Included Pieces**: 1x Adjustable Black Crystal Ring, 1x Adjustable Blue Crystal Drop Necklace, 1x Pair Matching Blue Crystal Earrings, 1x Adjustable Blue Crystal Bracelet, 1x Adjustable Blue Crystal Ring
+  - **Colorways**: Royal Blue
+
+### 3. Luxe Red Crystal Gemstone Suite (5-Piece Box Set)
+- **Category**: Fine Jewelry Sets
+- **Price**: ৳1522 BDT (Original: ৳1770)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-red-crystal-gemstone-suite-5-piece-box-set
+- **Overview**: Discover the perfect balance of luxury and value with the Luxe Red Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.
+  - **Included Pieces**: 1x Adjustable Red Crystal Ring, 1x Adjustable Red Crystal Drop Necklace, 1x Pair Matching Red Crystal Earrings, 1x Adjustable Red Crystal Bracelet, 1x Adjustable Red Crystal Ring
+  - **Colorways**: Red Ruby
+
+### 4. Celestia Mint Green Crystal Necklace & Earring Set
+- **Category**: Fine Jewelry Sets
+- **Price**: ৳1162 BDT (Original: ৳1320)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/jewelry/celestia-mint-green-crystal-necklace-earring-set
+- **Overview**: Inspired by the refreshing beauty of soft mint hues, delicate floral clusters flow along a graceful silver-tone vine. Luminous mint green teardrop crystals add a graceful and elegant finishing touch.
+  - **Included Pieces**: 1 × Necklace, 1 × Pair of Matching Earrings
+  - **Colorways**: Mint Green
+
+### 5. The Woven Tweed Structured Satchel White Bag
 - **Category**: Ladies' Handbags
 - **Price**: ৳2390 BDT (Original: ৳2690)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-tweed-structured-satchel-white-bag
 - **Overview**: The Woven Tweed Structured Satchel brings a touch of timeless French chic and elegance to any wardrobe. Crafted with woven tweed-style fabric enriched with subtle sparkling gold threading, this bag offers a sophisticated texture that effortlessly transitions from day to night.
   - **Included Pieces**: 1x Woven Tweed Structured Satchel Bag, 1x Detachable Mock-Croc Crossbody Strap
-  - **Colorways**: Ivory & Gold Tweed
+  - **Colorways**: Ivory & Gold Tweed, Ivory & Gold Tweed
 
-### 2. The Woven Tweed Structured Satchel Black Bag
+### 6. The Woven Tweed Structured Satchel Black Bag
 - **Category**: Ladies' Handbags
 - **Price**: ৳2390 BDT (Original: ৳2690)
 - **Availability**: In Stock (Available for Instant Dispatch)
@@ -80,27 +116,27 @@ Because traditional metal and velvet bangles are rigid and must slide over the h
 
 The structured silhouette is beautifully contrasted by a sleek mock-crocodile top handle and an adjustable detachable crossbody strap, giving you multiple ways to style it. Finished with gleaming gold-tone hardware and a statement U-shaped front clasp.
   - **Included Pieces**: 1x Woven Tweed Structured Satchel Bag, 1x Detachable Mock-Croc Crossbody Strap
-  - **Colorways**: Midnight Black & Gold Tweed
+  - **Colorways**: Midnight Black & Gold Tweed, Midnight Black & Gold Tweed
 
-### 3. The Croc-Embossed Structured Satchel White Bag
+### 7. The Croc-Embossed Structured Satchel White Bag
 - **Category**: Ladies' Handbags
 - **Price**: ৳2390 BDT (Original: ৳2890)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-croc-structured-satchel-white-bag
 - **Overview**: Playful yet perfectly polished, The Croc-Embossed Structured Satchel adds modern architectural luxury to your accessory collection. Wrapped in an all-over faux-crocodile embossed texture, this bag offers a sharp, firm silhouette that holds its shape effortlessly.
   - **Included Pieces**: 1x Croc-Embossed Structured Satchel Bag, 1x Detachable Matching Adjustable Crossbody Strap
-  - **Colorways**: Pristine Ivory
+  - **Colorways**: Pristine Ivory, Pristine Ivory
 
-### 4. The Croc-Embossed Structured Satchel Black Bag
+### 8. The Croc-Embossed Structured Satchel Black Bag
 - **Category**: Ladies' Handbags
 - **Price**: ৳2390 BDT (Original: ৳2890)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-croc-embossed-structured-satchel-black-bag
 - **Overview**: Playful yet perfectly polished, The Croc-Embossed Structured Satchel adds modern architectural luxury to your accessory collection. Wrapped in an all-over faux-crocodile embossed texture, this bag offers a sharp, firm silhouette that holds its shape effortlessly.
   - **Included Pieces**: 1x Croc-Embossed Structured Satchel Bag, 1x Detachable Matching Adjustable Crossbody Strap
-  - **Colorways**: Midnight Black
+  - **Colorways**: Midnight Black, Midnight Black
 
-### 5. The Croc-Embossed Structured Satchel Purple Bag
+### 9. The Croc-Embossed Structured Satchel Purple Bag
 - **Category**: Ladies' Handbags
 - **Price**: ৳2390 BDT (Original: ৳2890)
 - **Availability**: In Stock (Available for Instant Dispatch)
@@ -109,44 +145,44 @@ The structured silhouette is beautifully contrasted by a sleek mock-crocodile to
 
 Paired with a matching embossed top handle and a detachable, adjustable crossbody strap, it transitions seamlessly from daytime meetings to elegant evening dinners. Finished with polished gold-tone hardware and a distinctive dual-tone U-shaped front clasp.
   - **Included Pieces**: 1x Croc-Embossed Structured Satchel Bag, 1x Detachable Matching Adjustable Crossbody Strap
-  - **Colorways**: Lavender Lilac
+  - **Colorways**: Lavender Lilac, Lavender Lilac
 
-### 6. The Everyday Casual Commuter White Tote Bag
+### 10. The Everyday Casual Commuter White Tote Bag
 - **Category**: Ladies' Handbags
-- **Price**: ৳750 BDT (Original: ৳899)
+- **Price**: ৳755 BDT (Original: ৳899)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-everyday-casual-commuter-white-tote-bag
 - **Overview**: Step out in effortless style with our Everyday Casual Commuter Tote, the perfect companion for college students and busy women on the go. Inspired by the latest streetwear trends, this shoulder handbag features a chic textured finish complemented by sleek contrast straps and elegant gold-tone hardware.
 
 Designed for practicality and daily wear, this lightweight tote provides one roomy inside chamber for notebooks and makeup kits.
   - **Included Pieces**: 1x Everyday Casual Commuter Tote Bag
-  - **Colorways**: Ivory Cream
+  - **Colorways**: Ivory Cream, Ivory Cream
 
-### 7. The Everyday Casual Commuter Black Tote Bag
+### 11. The Everyday Casual Commuter Black Tote Bag
 - **Category**: Ladies' Handbags
-- **Price**: ৳750 BDT (Original: ৳899)
+- **Price**: ৳755 BDT (Original: ৳899)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-everyday-casual-commuter-black-tote-bag
 - **Overview**: Step out in effortless style with our Everyday Casual Commuter Tote, the perfect companion for college students and busy women on the go. Inspired by the latest streetwear trends, this shoulder handbag features a chic textured finish complemented by sleek contrast straps and elegant gold-tone hardware.
 
 Designed for practicality and daily wear, this lightweight tote provides one roomy inside chamber for notebooks and makeup kits.
   - **Included Pieces**: 1x Everyday Casual Commuter Tote Bag
-  - **Colorways**: Midnight Black
+  - **Colorways**: Midnight Black, Midnight Black
 
-### 8. The Playful Embossed Commuter Tote Bag
+### 12. The Playful Embossed Commuter Tote Bag
 - **Category**: Luxury Bags & Satchels
 - **Price**: ৳720 BDT (Original: ৳990)
-- **Availability**: Sold Out / Pre-Order
+- **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/bags/the-playful-embossed-commuter-tote
 - **Overview**: Add a touch of fun to your daily routine with our Playful Embossed Commuter Tote. This charming white shoulder bag stands out with its adorable, embossed doodle pattern — featuring cute icons like hearts, bows, and smiley faces. It is perfectly finished with contrasting tan straps and a secure top zipper.
 
 Designed for college students and busy women who love a hint of personality in their accessories, this lightweight tote maintains a straightforward, fuss-free design at an unbeatable value. It easily holds your notebooks, daily essentials, or makeup kit, keeping you organized on the go.
   - **Included Pieces**: 1x Playful Embossed Commuter Tote Bag
-  - **Colorways**: Chalk White & Tan Straps
+  - **Colorways**: Chalk White & Tan Straps, Chalk White & Tan Straps
 
-### 9. The Royal Floral Silk Thread Churi Set - Maroon & Teal
+### 13. The Royal Floral Silk Thread Churi Set - Maroon & Teal
 - **Category**: Bangles & Churi
-- **Price**: ৳891 BDT (Original: ৳1049)
+- **Price**: ৳892 BDT (Original: ৳1049)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/churi/the-royal-floral-silk-thread-churi-set-maroon-teal
 - **Overview**: Elevate your ethnic wardrobe with this stunning, exquisitely handcrafted Silk Thread Churi set. Wrapped in rich, contrasting shades of deep maroon and vibrant teal, the centerpiece bangles are embellished with golden floral motifs, delicate faux pearls, and sparkling stones that catch the light from every angle.
@@ -154,11 +190,11 @@ Designed for college students and busy women who love a hint of personality in t
 The set is framed by statement border bangles featuring classic square Kundan-style mirror work and pearl drops, creating a perfectly balanced and luxurious stack.
   - **Included Pieces**: 2x Deep Maroon Silk Floral Bangles, 2x Vibrant Teal Silk Floral Bangles, 4x Gold-Tone Kundan Mirror Border Bangles with Pearl Drops
   - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
-  - **Colorways**: Maroon & Teal Royal Combo
+  - **Colorways**: Maroon & Teal Royal Combo, Maroon & Teal Royal Combo
 
-### 10. Festive Heritage Silk Thread Bangle Collection (4-Pair Set)
+### 14. Festive Heritage Silk Thread Bangle Collection (4-Pair Set)
 - **Category**: Bangles & Churi
-- **Price**: ৳891 BDT (Original: ৳1049)
+- **Price**: ৳892 BDT (Original: ৳1049)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/churi/festive-heritage-silk-thread-bangles
 - **Overview**: Celebrate vibrant color and royal heritage with this handcrafted Silk Thread Bangle Collection. Meticulously hand-wrapped in premium silk thread, this collection features four timeless shades: emerald green, ruby red, classic gold, and midnight black.
@@ -166,11 +202,11 @@ The set is framed by statement border bangles featuring classic square Kundan-st
 Each bangle is adorned with gold-tone floral appliques, delicately studded with Kundan-style stones, and finished with clusters of elegant faux pearls. Designed as four distinct pairs, wear a single matching pair for everyday subtlety or stack all four pairs together for a regal festive statement.
   - **Included Pieces**: 1x Pair Emerald Green Kundan Silk Bangles, 1x Pair Ruby Red Kundan Silk Bangles, 1x Pair Classic Gold Kundan Silk Bangles, 1x Pair Midnight Black Kundan Silk Bangles
   - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
-  - **Colorways**: Festive Multi-Color Quad (Green, Red, Gold, Black)
+  - **Colorways**: Festive Multi-Color Quad (Green, Red, Gold, Black), Festive Multi-Color Quad (Green, Red, Gold, Black)
 
-### 11. The Magenta Majesty Silk Thread Churi Set
+### 15. The Magenta Majesty Silk Thread Churi Set
 - **Category**: Bangles & Churi
-- **Price**: ৳891 BDT (Original: ৳1049)
+- **Price**: ৳892 BDT (Original: ৳1049)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/churi/the-magenta-majesty-silk-thread-churi-set
 - **Overview**: Make a bold and unforgettable statement with this vibrant Silk Thread Churi set. Expertly wrapped in lustrous, deep magenta silk thread, this bangle stack is a masterpiece of traditional craftsmanship mixed with contemporary design.
@@ -178,51 +214,51 @@ Each bangle is adorned with gold-tone floral appliques, delicately studded with 
 The set features a stunning variety of embellishments, including striking geometric Kundan stones (featuring triangle and diamond shapes), intricate gold-tone floral and swirl motifs, and elegant metallic wire detailing. Bordered by delicate faux pearl accents, this stack offers a rich, textured, and luxurious appearance while remaining lightweight on the wrist.
   - **Included Pieces**: 2x Broad Magenta Kundan Statement Bangles, 2x Gold Wire-Wrapped Accent Bangles, 2x Geometric Stone Trim Bangles, 2x Faux Pearl Border Bangles
   - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
-  - **Colorways**: Royal Deep Magenta
+  - **Colorways**: Royal Deep Magenta, Royal Deep Magenta
 
-### 12. Kashmiri Noor-e-Firuzah Peacock Crescent Jhumka Earrings
+### 16. Kashmiri Noor-e-Firuzah Peacock Crescent Jhumka Earrings
 - **Category**: Chandbalis & Jhumkas
-- **Price**: ৳482 BDT (Original: ৳549)
+- **Price**: ৳483 BDT (Original: ৳549)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/earrings/kashmiri-noor-e-firuzah
 - **Overview**: Inspired by the ornate silverwork of Kashmiri artistry, Noor-e-Firuzah captures timeless royal elegance. A carved silver-tone peacock motif crowns each earring, giving way to an intricately detailed floral crescent studded with vivid turquoise stones. A radiant turquoise centerpiece sits at the heart of the design, while cascading silver ghungroo bells bring gentle movement and a soft chime with every step.
 
 Bold, regal, and steeped in heritage craftsmanship — this piece is made for those who want their jewelry to make an unforgettable entrance.
   - **Included Pieces**: 1x Pair Kashmiri Noor-e-Firuzah Peacock Crescent Jhumkas
-  - **Colorways**: Turquoise & Antique Silver
+  - **Colorways**: Turquoise & Antique Silver, Turquoise & Antique Silver
 
-### 13. Kashmiri Noor-e-Sitara Tiered Lotus Jhumka Earrings
+### 17. Kashmiri Noor-e-Sitara Tiered Lotus Jhumka Earrings
 - **Category**: Chandbalis & Jhumkas
-- **Price**: ৳482 BDT (Original: ৳549)
+- **Price**: ৳483 BDT (Original: ৳549)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/earrings/kashmiri-noor-e-sitara
 - **Overview**: Inspired by the ornate silverwork of Kashmiri artistry, Noor-e-Sitara is a statement jhumka built in graceful, layered tiers. Delicate lotus-medallion engravings cradle teardrop teal stones at each level, crowned by a filigree teardrop stud at the top. The crescent base is finished with a cluster of faceted silver-tone beads and cascading ghungroo bells that sway with every movement.
 
 Rich in detail and heritage craftsmanship, this piece brings a regal, star-lit elegance to festive celebrations and bridal occasions alike.
   - **Included Pieces**: 1x Pair Kashmiri Noor-e-Sitara Tiered Jhumkas
-  - **Colorways**: Teal & Antique Silver
+  - **Colorways**: Teal & Antique Silver, Teal & Antique Silver
 
-### 14. Traditional Filigree Floral Bell Jhumka Earrings
+### 18. Traditional Filigree Floral Bell Jhumka Earrings
 - **Category**: Chandbalis & Jhumkas
-- **Price**: ৳467 BDT (Original: ৳529)
+- **Price**: ৳471 BDT (Original: ৳529)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/earrings/traditional-filigree-bell-jhumka
 - **Overview**: Handcrafted with intricate filigree work and finished in a rich oxidized silver tone, the Bell Jhumka brings timeless ethnic elegance to modern styling. A striking centerpiece stone sits at the center, framed by delicate floral detailing, while cascading ghungroo bells add graceful movement and a soft jingle with every step — a signature touch of traditional jhumka charm.
 
 Whether for a festive occasion, a wedding reception, or to elevate your everyday ethnic look, this piece adds a regal statement to any outfit.
   - **Included Pieces**: 1x Pair Traditional Filigree Floral Bell Jhumkas
-  - **Colorways**: Moonstone White, Ruby Red, Jade Green, Rich Violet, Royal Blue
+  - **Colorways**: Moonstone White, Ruby Red, Jade Green, Rich Violet, Royal Blue, Moonstone White, Ruby Red, Jade Green, Rich Violet, Royal Blue
 
-### 15. Luxe Crystal Gemstone Suite (5-Piece Box Set)
+### 19. Luxe Crystal Gemstone Suite (5-Piece Box Set)
 - **Category**: Fine Jewelry Sets
 - **Price**: ৳1488 BDT (Original: ৳1750)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-crystal-gemstone-suite-5-piece-box-set
 - **Overview**: Discover the perfect balance of luxury and value with the Luxe Crystal Gemstone Suite. Designed to add a touch of glamour to any outfit.
-  - **Included Pieces**: 1x Adjustable Crystal Drop Necklace, 1x Pair Matching Crystal Earrings, 1x Adjustable Crystal Bracelet, 1x Adjustable Crystal Ring
-  - **Colorways**: Diamond White & Silver
+  - **Included Pieces**: 1x Adjustable Crystal Drop Necklace, 1x Pair Matching Crystal Earrings, 1x Adjustable Crystal Bracelet, 1x Adjustable Crystal Ring, 1x Velvet Keepsake Presentation Box
+  - **Colorways**: Diamond White & Silver, Diamond White & Silver
 
-### 16. Luxe Crystal Gemstone Simple Suite (5-Piece Box Set)
+### 20. Luxe Crystal Gemstone Simple Suite (5-Piece Box Set)
 - **Category**: Fine Jewelry Sets
 - **Price**: ৳1393 BDT (Original: ৳1620)
 - **Availability**: In Stock (Available for Instant Dispatch)
@@ -230,111 +266,111 @@ Whether for a festive occasion, a wedding reception, or to elevate your everyday
 - **Overview**: Embrace the power of understated elegance. The Luxe Crystal Gemstone Simple Suite offers a delicate and refined take on luxury. This complete 5-piece collection is designed for those who appreciate clean lines, effortless style, and a subtle, sophisticated sparkle.
 
 Perfect for seamlessly transitioning from daytime wear to evening elegance, this minimalist set arrives beautifully packaged in a premium presentation box, making it an ideal gift or a highly versatile addition to your own jewelry collection.
-  - **Included Pieces**: 1x Dainty Adjustable Crystal Pendant Necklace, 1x Pair Subtle Minimalist Crystal Earrings, 1x Slender Minimalist Crystal Bracelet, 1x Refined Adjustable Crystal Ring
-  - **Colorways**: Diamond White & Silver
+  - **Included Pieces**: 1x Dainty Adjustable Crystal Pendant Necklace, 1x Pair Subtle Minimalist Crystal Earrings, 1x Slender Minimalist Crystal Bracelet, 1x Refined Adjustable Crystal Ring, 1x Velvet Keepsake Presentation Box
+  - **Colorways**: Diamond White & Silver, Diamond White & Silver
 
-### 17. Luxe Golden Crystal Gemstone Suite (5-Piece Box Set)
+### 21. Luxe Golden Crystal Gemstone Suite (5-Piece Box Set)
 - **Category**: Fine Jewelry Sets
 - **Price**: ৳1522 BDT (Original: ৳1770)
-- **Availability**: In Stock (Available for Instant Dispatch)
+- **Availability**: Sold Out / Pre-Order
 - **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-golden-crystal-gemstone-suite-5-piece-box-set
 - **Overview**: Experience the timeless beauty of gold paired with striking brilliance.
-  - **Included Pieces**: 1x Golden Adjustable Crystal Necklace, 1x Pair Matching Golden Crystal Earrings, 1x Golden Adjustable Crystal Bracelet, 1x Adjustable Crystal Ring
-  - **Colorways**: Radiant Gold & White Crystal
+  - **Included Pieces**: 1x Golden Adjustable Crystal Necklace, 1x Pair Matching Golden Crystal Earrings, 1x Golden Adjustable Crystal Bracelet, 1x Adjustable Crystal Ring, 1x Velvet Keepsake Presentation Box
+  - **Colorways**: Radiant Gold & White Crystal, Radiant Gold & White Crystal
 
-### 18. Luxe Crystal Gemstone Suite (2-Piece Set)
+### 22. Luxe Crystal Gemstone Suite (2-Piece Set)
 - **Category**: Fine Jewelry Sets
 - **Price**: ৳988 BDT (Original: ৳1149)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-crystal-gemstone-suite-2-piece-set
 - **Overview**: Experience the perfect balance of luxury and brilliance with the Luxe Crystal Gemstone 2-Piece Suite.
   - **Included Pieces**: 1x Adjustable Crystal Drop Necklace, 1x Pair Matching Crystal Earrings
-  - **Colorways**: Silver White
+  - **Colorways**: Silver White, Silver White
 
-### 19. Luxe Golden Crystal Gemstone Suite (2-Piece Set)
+### 23. Luxe Golden Crystal Gemstone Suite (2-Piece Set)
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳990 BDT (Original: ৳1155)
-- **Availability**: Sold Out / Pre-Order
+- **Price**: ৳989 BDT (Original: ৳1150)
+- **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/luxe-golden-crystal-gemstone-suite-2-piece-set
 - **Overview**: Experience the perfect balance of luxury and brilliance with the Luxe Crystal Gemstone 2-Piece Suite.
   - **Included Pieces**: 1x Adjustable Crystal Drop Necklace, 1x Pair Matching Crystal Earrings
-  - **Colorways**: Radiant Gold
+  - **Colorways**: Radiant Gold, Radiant Gold
 
-### 20. Blush Pink Crystal Duo
+### 24. Blush Pink Crystal Duo
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳995 BDT (Original: ৳1149)
+- **Price**: ৳998 BDT (Original: ৳1160)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/blush-pink-crystal-duo
 - **Overview**: Discover captivating beauty with the Blush Pink Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance, this set is the perfect statement centerpiece for formal galas, weddings, and memorable evenings.
   - **Included Pieces**: 1x Floral Crystal Cluster Necklace with Teardrop Halo Pendant, 1x Pair Matching Crystal Teardrop Drop Earrings
-  - **Colorways**: Blush Rose Pink
+  - **Colorways**: Blush Rose Pink, Blush Rose Pink
 
-### 21. Imperial Purple Crystal Duo
+### 25. Imperial Purple Crystal Duo
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳995 BDT (Original: ৳1149)
+- **Price**: ৳998 BDT (Original: ৳1160)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/imperial-purple-crystal-duo
 - **Overview**: Discover captivating beauty with the Imperial Purple Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance, this set is the perfect statement centerpiece for formal galas, weddings, and memorable evenings.
   - **Included Pieces**: 1x Floral Crystal Cluster Necklace with Teardrop Halo Pendant, 1x Pair Matching Crystal Teardrop Drop Earrings
-  - **Colorways**: Imperial Amethyst Purple
+  - **Colorways**: Imperial Amethyst Purple, Imperial Amethyst Purple
 
-### 22. Moonlit Pearl Suite (2-Piece Set)
+### 26. Moonlit Pearl Suite (2-Piece Set)
 - **Category**: Fine Jewelry Sets
 - **Price**: ৳861 BDT (Original: ৳990)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/moonlit-pearl-suite-2-piece-set
 - **Overview**: Lustrous ivory pearls meet an intricately pavé-set chevron pendant, anchored by a radiant faceted teardrop crystal and paired with matching halo pearl drop earrings.
   - **Included Pieces**: 1x Moonlit Pearl & Teardrop Pendant Necklace, 1x Pair Matching Pearl & Halo Drop Earrings
-  - **Colorways**: Silver & Pristine Pearl
+  - **Colorways**: Silver & Pristine Pearl, Silver & Pristine Pearl
 
-### 23. Sapphire Blue Crystal Duo
+### 27. Sapphire Blue Crystal Duo
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳995 BDT (Original: ৳1149)
+- **Price**: ৳998 BDT (Original: ৳1160)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/sapphire-blue-crystal-duo
 - **Overview**: Exuding regal poise and cinematic sparkle, the Sapphire Blue Crystal Duo pairs luminous marquise crystal foliage with a breathtaking teardrop halo pendant.
 
 Accompanied by matching teardrop earrings, this set creates an unforgettable statement for grand galas, bridal celebrations, and formal evenings.
   - **Included Pieces**: 1x Floral Crystal Cluster Necklace with Teardrop Halo Pendant, 1x Pair Matching Crystal Teardrop Drop Earrings
-  - **Colorways**: Royal Sapphire Blue
+  - **Colorways**: Royal Sapphire Blue, Royal Sapphire Blue
 
-### 24. Obsidian Black Crystal Duo
+### 28. Obsidian Black Crystal Duo
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳995 BDT (Original: ৳1149)
+- **Price**: ৳998 BDT (Original: ৳1160)
 - **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/obsidian-black-crystal-duo
 - **Overview**: Discover captivating beauty with the Obsidian Black Crystal Duo. Accompanied by a pair of perfectly matched teardrop drop earrings that frame the face with delicate radiance
   - **Included Pieces**: 1x Floral Crystal Cluster Necklace with Teardrop Halo Pendant, 1x Pair Matching Crystal Teardrop Drop Earrings
-  - **Colorways**: Obsidian Black
+  - **Colorways**: Obsidian Black, Obsidian Black
 
-### 25. Celestia Ocean Blue Crystal Necklace & Earring Set
+### 29. Celestia Ocean Blue Crystal Necklace & Earring Set
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳1160 BDT (Original: ৳1320)
-- **Availability**: Sold Out / Pre-Order
+- **Price**: ৳1162 BDT (Original: ৳1320)
+- **Availability**: In Stock (Available for Instant Dispatch)
 - **Direct Product Link**: https://adorousfashion.store/jewelry/celestia-ocean-blue-crystal-necklace-earring-set
 - **Overview**: Inspired by the calm beauty of clear blue waters, delicate floral clusters flow along a graceful silver-tone vine. Luminous teardrop crystals add an elegant finishing touch.
   - **Included Pieces**: 1 × Necklace, 1 × Pair of Matching Earrings
-  - **Colorways**: Ocean Blue • Clear Crystal • Silver-Tone Finish
+  - **Colorways**: Ocean Blue • Clear Crystal • Silver-Tone Finish, Ocean Blue • Clear Crystal • Silver-Tone Finish
 
-### 26. Celestia Vine Crystal Necklace & Earring Set
+### 30. Celestia Vine Crystal Necklace & Earring Set
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳1160 BDT (Original: ৳1320)
-- **Availability**: In Stock (Available for Instant Dispatch)
+- **Price**: ৳1162 BDT (Original: ৳1320)
+- **Availability**: Sold Out / Pre-Order
 - **Direct Product Link**: https://adorousfashion.store/jewelry/celestia-vine-crystal-necklace-earring-set
 - **Overview**: Delicate floral branches curve into an elegant V-shaped silhouette, accented with sparkling clear stones and teardrop crystals. A refined statement set designed for weddings, festive occasions, and timeless evening elegance.
   - **Included Pieces**: 1 × Necklace, 1 × Pair of Matching Earrings
-  - **Colorways**: Clear Crystal & Silver-Tone Finish
+  - **Colorways**: Clear Crystal & Silver-Tone Finish, Clear Crystal & Silver-Tone Finish
 
-### 27. Imperial Amethyst Vine Crystal Necklace & Earring Set
+### 31. Celestia Lavender Crystal Necklace & Earring Set
 - **Category**: Fine Jewelry Sets
-- **Price**: ৳1160 BDT (Original: ৳1320)
+- **Price**: ৳1162 BDT (Original: ৳1320)
 - **Availability**: In Stock (Available for Instant Dispatch)
-- **Direct Product Link**: https://adorousfashion.store/jewelry/imperial-amethyst-vine-crystal-necklace-earring-set
-- **Overview**: Delicate purple floral clusters bloom along intertwined golden vines, finished with sparkling clear accents and luminous teardrop crystals. A romantic statement set with a regal touch.
+- **Direct Product Link**: https://adorousfashion.store/jewelry/celestia-lavender-crystal-necklace-earring-set
+- **Overview**: Delicate lavender floral clusters bloom along intertwined golden vines, accented with sparkling clear stones and luminous lavender teardrop crystals. A romantic statement set with a touch of timeless elegance.
   - **Included Pieces**: 1 × Necklace, 1 × Pair of Matching Earrings
-  - **Colorways**: Amethyst Purple • Clear Crystal • Gold-Tone Finish
+  - **Colorways**: Amethyst Purple • Clear Crystal • Gold-Tone Finish, Lavender
 
-### 28. Horizon Compact UV Protection Folding Umbrella
+### 32. Horizon Compact UV Protection Folding Umbrella
 - **Category**: More
 - **Price**: ৳891 BDT (Original: ৳990)
 - **Availability**: In Stock (Available for Instant Dispatch)
@@ -343,7 +379,37 @@ Accompanied by matching teardrop earrings, this set creates an unforgettable sta
 
 Its compact fold, reinforced windproof frame, and lightweight design mean you can carry reliable protection anywhere — in your handbag, car compartment, or travel carry-on. Includes a travel wrap and wrist strap.
   - **Included Pieces**: 1x Horizon Compact UV Protection Folding Umbrella
-  - **Colorways**: Blush Pink, Sky Blue
+  - **Colorways**: Blush Pink, Sky Blue, Blush Pink, Sky Blue
+
+### 33. Royal Bloom Bangle (6  Set)
+- **Category**: Bangles & Churi
+- **Price**: ৳1139 BDT (Original: ৳1340)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/churi/royal-bloom-bangle-6-set
+- **Overview**: Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.
+  - **Included Pieces**: 1 × Set (7 Color Collections)
+  - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
+  - **Colorways**: Multicolor Gold Floral
+
+### 34. Royal Bloom Bangle (12  Set)
+- **Category**: Bangles & Churi
+- **Price**: ৳1668 BDT (Original: ৳1940)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/churi/royal-bloom-bangle-12-set
+- **Overview**: Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.
+  - **Included Pieces**: 1 × Set (7 Color Collections)
+  - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
+  - **Colorways**: Multicolor Gold Floral
+
+### 35. Royal Bloom Bangle (24  Set)
+- **Category**: Bangles & Churi
+- **Price**: ৳2737 BDT (Original: ৳3220)
+- **Availability**: In Stock (Available for Instant Dispatch)
+- **Direct Product Link**: https://adorousfashion.store/churi/royal-bloom-bangle-24-set
+- **Overview**: Inspired by the timeless beauty of traditional South Asian jewelry, the Royal Bloom Bangle Set brings together seven vibrant colors adorned with delicate golden floral embellishments. Each bangle features a sparkling finish that beautifully catches the light, creating a festive yet elegant look. Designed for celebrations, weddings, Eid, and special occasions, this multicolor collection adds a graceful touch of tradition and charm to every outfit.
+  - **Included Pieces**: 1 × Set (7 Color Collections)
+  - **Available Sizes**: 2-4 (57mm), 2-6 (60mm), 2-8 (64mm)
+  - **Colorways**: Multicolor Gold Floral
 
 ---
 

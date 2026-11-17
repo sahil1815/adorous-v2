@@ -13,8 +13,11 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getCachedLookbookSettings();
   return {
-    title: `${settings.pageTitle} | Adorous Fashion Dhaka`,
+    title: `${settings.pageTitle} | Adorous Fashion`,
     description: settings.pageDescription,
+    alternates: {
+      canonical: '/lookbook',
+    },
   };
 }
 

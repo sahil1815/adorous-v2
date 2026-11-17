@@ -123,7 +123,9 @@ export default async function HomePage() {
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-gold" />
                   ))}
-                  <span className="text-ink font-medium ml-1">4.9/5 (200+ Clients)</span>
+                  <a href="#client-stories" className="text-ink font-medium ml-1 hover:text-gold-deep transition-colors">
+                    4.9/5 Rating (Client Stories)
+                  </a>
                 </div>
                 <span className="text-ink/30 hidden sm:inline">·</span>
                 <Link
@@ -379,7 +381,7 @@ export default async function HomePage() {
       </section>
 
       {/* 10. REVIEWS & CLIENT CONFIDENCE */}
-      <section className="py-16 bg-sand/50 border-t border-line">
+      <section id="client-stories" className="py-16 bg-sand/50 border-t border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-10">
             <div className="text-xs font-semibold tracking-[0.2em] uppercase text-gold-ink">
@@ -398,7 +400,7 @@ export default async function HomePage() {
                 ))}
               </div>
               <p className="text-xs text-ink/80 leading-relaxed italic">
-                "Ordered the Zari Choker Set for my sister's wedding in Gulshan. The finishing looks indistinguishable from real 22k gold jewellery. The WhatsApp team confirmed my delivery within 10 minutes!"
+                "Ordered the Zari Choker Set for my sister's wedding in Gulshan. The intricate antique gold-tone filigree finish is stunning and so lightweight to wear. The WhatsApp team confirmed my delivery within 10 minutes!"
               </p>
               <div className="mt-4 pt-3 border-t border-line/60 flex items-center justify-between text-xs">
                 <span className="font-semibold text-ink">Nafisa K.</span>

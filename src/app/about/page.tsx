@@ -7,8 +7,11 @@ import { ShieldCheck, Sparkles, Truck, Heart, ArrowRight, MessageCircle, Gem, Co
 export const metadata: Metadata = {
   title: 'Our Story & Vision | Adorous Fashion',
   description:
-    'Discover the philosophy of Adorous Fashion. Premium South Asian fine jewelry, velvet churi stacks, and curated accessories captured exclusively in high-end still-life photography.',
+    'Discover the philosophy of Adorous Fashion. Premium South Asian boutique jewelry, velvet churi stacks, and curated accessories captured exclusively in high-end still-life photography.',
   keywords: ['Adorous Fashion', 'boutique jewelry Bangladesh', 'still life jewelry photography', 'velvet churi craft'],
+  alternates: {
+    canonical: '/about',
+  },
 };
 
 export default function AboutPage() {
@@ -109,9 +112,9 @@ export default function AboutPage() {
               <div className="w-10 h-10 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold-deep">
                 <Gem className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg text-ink font-medium">22k Antique Electroplating</h3>
+              <h3 className="font-serif text-lg text-ink font-medium">22k Gold-Tone Antique Electroplating</h3>
               <p className="text-xs text-text-muted leading-relaxed">
-                Brass cores coated with thick antique matte 22k gold and sealed with a hypoallergenic anti-tarnish lacquer that resists Dhaka monsoon humidity.
+                Brass cores coated with thick antique matte 22k gold-tone plating and sealed with a hypoallergenic anti-tarnish protective lacquer that resists tropical humidity.
               </p>
             </div>
             <span className="text-[10px] text-gold-ink font-semibold tracking-wider uppercase pt-2">

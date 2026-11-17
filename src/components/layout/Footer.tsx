@@ -216,7 +216,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-line flex flex-col sm:flex-row items-center justify-between text-xs text-ink space-y-4 sm:space-y-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-ink/75">
-            <span>© {new Date().getFullYear()} Adorous Fashion Ltd.</span>
+            <span>© {new Date().getFullYear()} Adorous Fashion</span>
             <span className="hidden sm:inline">·</span>
             <Link href="/about" className="hover:text-gold-deep transition-colors">About</Link>
             <span>·</span>
@@ -231,10 +231,10 @@ export default function Footer() {
             <Link href="/llms.txt" className="hover:text-gold-deep transition-colors font-mono text-[10px]">llms.txt</Link>
           </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-[11px] font-medium text-ink/80">
-            <span>Cash on Delivery</span>
+            <span>Cash on Delivery (COD)</span>
             <span>bKash</span>
             <span>Nagad</span>
-            <span>Visa / Mastercard</span>
+            <span>WhatsApp Verification</span>
           </div>
         </div>
       </div>

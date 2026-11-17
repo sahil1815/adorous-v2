@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ShieldCheck, Truck, RotateCcw, MessageCircle, FileText } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Adorous Fashion Dhaka',
+  title: 'Terms of Service | Adorous Fashion',
   description: 'Terms of service, sales policy, Cash on Delivery procedures, and customer agreements for Adorous Fashion Bangladesh.',
   alternates: {
     canonical: '/terms',
@@ -116,7 +116,7 @@ export default function TermsPage() {
               5. Intellectual Property & Photography Policy
             </h2>
             <p>
-              All still-life imagery, product photography, text descriptions, branding assets, and software code on adorousfashion.store are the exclusive intellectual property of Adorous Fashion Ltd.
+              All still-life imagery, product photography, text descriptions, branding assets, and software code on adorousfashion.store are the exclusive intellectual property of Adorous Fashion.
             </p>
             <p>
               In accordance with our strict brand ethos, all visual assets consist exclusively of high-end still-life product photography (warm stone architectural plinths, velvet display stands, and macro craftsmanship details). Unauthorized replication, scraping, or commercial reuse of our media is strictly prohibited.
