@@ -4,7 +4,9 @@ import { notFound, redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { decrypt } from '@/lib/session';
 import { getAllProducts, getProductBySlug } from '@/app/actions/productActions';
-import { ProductCategory } from '@/types';
+import { prisma } from '@/lib/db';
+import { PRODUCTS } from '@/data/catalogue';
+import { Product, ProductCategory } from '@/types';
 import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
 import { EyeOff } from 'lucide-react';
@@ -46,6 +48,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       images: [
         {
           url: product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`,
+          width: 1200,
+          height: 630,
+          alt: `${product.name} Still Life Photography`,
+        },
+        {
+          url: product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`,
           width: 800,
           height: 1000,
           alt: `${product.name} Still Life Photography`,
@@ -53,6 +61,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       ],
       locale: 'en_US',
       type: 'website',
+    },
+    other: {
+      'product:price:amount': String(Math.round(product.price)),
+      'product:price:currency': 'BDT',
+      'product:availability': (product.inStock && (product.stockQty === null || product.stockQty > 0)) ? 'in stock' : 'out of stock',
+      'product:condition': 'new',
+      'product:brand': 'Adorous Fashion',
+      'product:retailer_item_id': product.id,
     },
   };
 }
@@ -104,22 +120,51 @@ export default async function ProductPage({ params }: ProductPageProps) {
     seoKeywords: productDb.seoKeywords ? productDb.seoKeywords.split(',') : []
   };
 
-  // Find 3-4 cross-category pairings for the "Pairs Well With" section
-  const allProductsDb = await getAllProducts();
-  const allProducts = allProductsDb.map(p => ({
-    ...p,
-    category: p.category as ProductCategory,
-    description: p.description ?? "",
-    tagline: p.tagline ?? "",
-    originalPrice: p.originalPrice ?? undefined,
-    featuredRank: p.featuredRank ?? 999,
-    details: p.details.map(d => d.text),
-    piecesIncluded: p.piecesIncluded.map(pi => pi.text),
-    galleryImages: p.galleryImages.map(gi => gi.url),
-    seoKeywords: p.seoKeywords ? p.seoKeywords.split(',') : []
-  }));
-  
-  const pairsWellWith = allProducts.filter((p) => p.category !== product.category && p.id !== product.id).slice(0, 4);
+  // Find 3-4 cross-category pairings for the "Pairs Well With" section (targeted query)
+  let pairsWellWith: Product[] = [];
+  try {
+    const pairingsDb = await prisma.product.findMany({
+      where: {
+        category: { not: product.category },
+        isHidden: false,
+        id: { not: product.id },
+      },
+      take: 4,
+      include: {
+        colorways: true,
+        galleryImages: true,
+        details: true,
+        piecesIncluded: true,
+      },
+      orderBy: { featuredRank: 'asc' },
+    });
+
+    pairsWellWith = pairingsDb.map((p) => ({
+      ...p,
+      category: p.category as ProductCategory,
+      description: p.description ?? '',
+      tagline: p.tagline ?? '',
+      originalPrice: p.originalPrice ?? undefined,
+      featuredRank: p.featuredRank ?? 999,
+      details: p.details.map((d: any) => d.text),
+      piecesIncluded: p.piecesIncluded.map((pi: any) => pi.text),
+      galleryImages: p.galleryImages.map((gi: any) => gi.url),
+      seoKeywords: p.seoKeywords ? p.seoKeywords.split(',') : [],
+      colorways: (p.colorways || []).map((cw: any) => ({
+        id: cw.colorId || cw.id,
+        name: cw.name,
+        hex: cw.hex,
+        inStock: cw.inStock ?? true,
+        image: cw.image || null,
+      })),
+    }));
+  } catch {
+    pairsWellWith = PRODUCTS.filter((p) => p.category !== product.category && p.id !== product.id).slice(0, 4);
+  }
+
+  // Dynamic stock and expiration calculation
+  const isInStock = (product.inStock ?? true) && (product.stockQty === null || product.stockQty === undefined || product.stockQty > 0);
+  const nextYear = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   // JSON-LD structured data for Google Rich Results
   const jsonLd = {
@@ -127,7 +172,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     '@type': 'Product',
     name: product.name,
     image: [product.featuredImage.startsWith('http') ? product.featuredImage : `https://adorousfashion.store${product.featuredImage}`],
-    description: product.description,
+    description: product.description || product.tagline,
     sku: product.id,
     brand: {
       '@type': 'Brand',
@@ -137,16 +182,33 @@ export default async function ProductPage({ params }: ProductPageProps) {
       '@type': 'Offer',
       url: `https://adorousfashion.store/${product.category}/${product.slug}`,
       priceCurrency: 'BDT',
-      price: product.price,
-      priceValidUntil: '2026-12-31',
-      availability: 'https://schema.org/InStock',
+      price: Math.round(product.price),
+      priceValidUntil: nextYear,
+      availability: isInStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: 'Adorous Fashion',
+        url: 'https://adorousfashion.store',
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'BD',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
           value: product.price >= 2000 ? 0 : 80,
           currency: 'BDT',
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'BD',
         },
         deliveryTime: {
           '@type': 'ShippingDeliveryTime',
@@ -161,11 +223,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://adorousfashion.store',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: product.categoryLabel || product.category,
+        item: `https://adorousfashion.store/${product.category}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.name,
+        item: `https://adorousfashion.store/${product.category}/${product.slug}`,
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {isPreviewForAdmin && (
         <div className="bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2.5 px-4 text-center font-medium flex items-center justify-center gap-2 sticky top-0 z-50 backdrop-blur-xs shadow-md">

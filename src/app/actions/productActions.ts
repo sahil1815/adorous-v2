@@ -5,6 +5,7 @@ import { PRODUCTS } from '@/data/catalogue';
 import { Product } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { calculateSellingPrice } from '@/lib/pricing';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 // Helper to normalize colorway inStock flags against overall product stock
 function normalizeProductColorways<T extends { inStock?: boolean; stockQty?: number | null; colorways?: any[] }>(p: T): T {
@@ -187,6 +188,11 @@ export async function getProductById(id: string) {
 }
 
 export async function createProductAction(productData: Product) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) {
       return { success: true, message: 'Saved to local storage fallback (No DATABASE_URL configured)' };
@@ -312,6 +318,11 @@ export async function updateProductAction(
     customNotePrompt?: string | null;
   }
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) {
       return { success: false, error: 'No DATABASE_URL configured' };
@@ -451,6 +462,11 @@ export async function updateProductAction(
 }
 
 export async function updateStockAction(productIdOrSlug: string, stockQty: number | null) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) return { success: true };
     const inStock = stockQty === null || stockQty > 0;
@@ -545,6 +561,11 @@ export async function updateProductBadgesAction(
   productIdOrSlug: string,
   badges: { isNewDrop?: boolean; isBestseller?: boolean }
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) return { success: true };
     const existing = await prisma.product.findFirst({
@@ -588,6 +609,11 @@ export async function updateProductPriceAction(
   discount?: number | null,
   discountType?: 'percent' | 'flat' | string | null
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) return { success: true };
     const existing = await prisma.product.findFirst({
@@ -650,6 +676,11 @@ export async function updateProductPriceAction(
 }
 
 export async function deleteProductAction(productIdOrSlug: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) {
       return { success: true };
@@ -702,6 +733,11 @@ export async function deleteProductAction(productIdOrSlug: string) {
 }
 
 export async function toggleProductVisibilityAction(productIdOrSlug: string, isHidden: boolean) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) return { success: true, isHidden };
     const existing = await prisma.product.findFirst({
@@ -740,6 +776,11 @@ export async function toggleProductVisibilityAction(productIdOrSlug: string, isH
 }
 
 export async function duplicateProductAction(productIdOrSlug: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (!process.env.DATABASE_URL) return { success: false, error: 'No database configured' };
 

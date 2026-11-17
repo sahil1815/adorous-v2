@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/adminAuth';
 import {
   LookbookLook,
   LookbookSettingsData,
@@ -137,6 +138,11 @@ export async function saveLookbookLook(
     isActive?: boolean;
   }
 ): Promise<{ success: boolean; look?: LookbookLook; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const paletteJson = JSON.stringify(input.palette || []);
     const itemIds = Array.isArray(input.itemIds) ? input.itemIds : [];
@@ -208,6 +214,11 @@ export async function saveLookbookLook(
  * Delete a lookbook look
  */
 export async function deleteLookbookLook(id: string): Promise<{ success: boolean; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.lookbookLook.delete({
       where: { id },
@@ -230,6 +241,11 @@ export async function deleteLookbookLook(id: string): Promise<{ success: boolean
 export async function reorderLookbookLooks(
   orderedIds: string[]
 ): Promise<{ success: boolean; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     for (let index = 0; index < orderedIds.length; index++) {
       const id = orderedIds[index];
@@ -297,6 +313,11 @@ export async function getLookbookSettings(): Promise<LookbookSettingsData> {
 export async function updateLookbookSettings(
   input: Partial<Omit<LookbookSettingsData, 'id' | 'updatedAt'>>
 ): Promise<{ success: boolean; settings?: LookbookSettingsData; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const updated = await prisma.lookbookSettings.upsert({
       where: { id: 'default' },

@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Admin authentication required.' },
+      { status: 401 }
+    );
+  }
+
   try {
     // 1. Fetch Registered Users with their orders and saved addresses
     const users = await prisma.customerUser.findMany({

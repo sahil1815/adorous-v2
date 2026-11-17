@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
-import { useOrders } from '@/context/OrdersContext';
+import { createOrder } from '@/app/actions/orderActions';
 import { useCoupons } from '@/context/CouponsContext';
 import { BANGLADESH_DISTRICTS, getDistrictDeliveryFee } from '@/data/districts';
 import { CartItem } from '@/types';
@@ -44,7 +44,6 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart, updateQuantity, removeItem, addItem, updateItemColor } = useCart();
-  const { addOrder } = useOrders();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
   const { isOfferActive, discountPercent, calculateDiscount, calculateCompareDiscount, markUsed, settings } = useNewVisitorOffer();
@@ -486,7 +485,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await addOrder(orderData);
+      const res = await createOrder(orderData);
       if (!res || !res.success || !res.order) {
         throw new Error(res?.error || 'Failed to place order. Please try again.');
       }

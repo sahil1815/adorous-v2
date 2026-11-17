@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/adminAuth';
 import {
   type PaymentSettingsData,
   DEFAULT_PAYMENT_SETTINGS,
@@ -76,6 +77,11 @@ export async function getPaymentSettings(): Promise<PaymentSettingsData> {
 export async function updatePaymentSettings(
   data: Partial<PaymentSettingsData>
 ): Promise<{ success: boolean; settings?: PaymentSettingsData; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const updated = await prisma.paymentSettings.upsert({
       where: { id: 'default' },
@@ -122,6 +128,11 @@ export async function updatePaymentSettings(
  * Resets the online payment settings back to system defaults.
  */
 export async function resetPaymentSettings(): Promise<{ success: boolean; settings?: PaymentSettingsData; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const reset = await prisma.paymentSettings.upsert({
       where: { id: 'default' },

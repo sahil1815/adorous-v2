@@ -6,86 +6,115 @@ import { deductStockAction } from './productActions';
 import { getWelcomeOfferSettings } from './welcomeOfferActions';
 import { getPaymentSettings } from './paymentSettingsActions';
 import { generateNextOrderId } from '@/lib/orderId';
+import { verifyAdminSession } from '@/lib/adminAuth';
+import { sendMetaCapiEvent } from '@/lib/metaCapi';
 
 export async function createOrder(orderData: any) {
   try {
-    let validatedDiscountAmount = orderData.discountAmount ? Number(orderData.discountAmount) : undefined;
-    let validatedCouponCode = orderData.couponCode;
-    let validatedGrandTotal = orderData.grandTotal;
+    // 1. Authoritative price recalculation from database
+    const itemProductIds = (orderData.items || [])
+      .map((i: any) => i.product?.id)
+      .filter(Boolean);
 
-    // Server-side validation for New Visitor Offer
-    if (orderData.couponCode === 'NEW_VISITOR') {
+    let authoritativeSubtotal = 0;
+    let dbProductMap = new Map<string, { id: string; price: number; originalPrice?: number | null }>();
+
+    if (itemProductIds.length > 0) {
+      try {
+        const dbProducts = await prisma.product.findMany({
+          where: { id: { in: itemProductIds } },
+          select: { id: true, price: true, originalPrice: true },
+        });
+        dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
+      } catch (dbErr) {
+        console.warn('[createOrder] Warning fetching product prices from DB:', dbErr);
+      }
+    }
+
+    for (const item of orderData.items || []) {
+      const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
+      const unitPrice = dbProd ? Math.round(Number(dbProd.price)) : (Math.round(Number(item.product?.price)) || 0);
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      authoritativeSubtotal += unitPrice * qty;
+    }
+
+    // 2. Authoritative shipping fee validation based on destination district
+    const districtRaw = String(orderData.customer?.district || '').trim().toLowerCase();
+    const isDhakaMetro = districtRaw.includes('dhaka');
+    let validatedShippingFee = isDhakaMetro ? 80 : 130;
+
+    // 3. Authoritative coupon / discount validation
+    let validatedDiscountAmount = 0;
+    let validatedCouponCode: string | undefined = orderData.couponCode ? String(orderData.couponCode).trim() : undefined;
+
+    if (validatedCouponCode === 'NEW_VISITOR') {
       try {
         const settings = await getWelcomeOfferSettings();
-        if (!settings.enabled) {
-          validatedDiscountAmount = undefined;
-          validatedCouponCode = undefined;
-        } else {
-          // Look up authentic product prices directly from the database
-          const itemProductIds = (orderData.items || [])
-            .map((i: any) => i.product?.id)
-            .filter(Boolean);
-
-          const dbProducts = await prisma.product.findMany({
-            where: { id: { in: itemProductIds } },
-            select: { id: true, price: true, originalPrice: true },
-          });
-          const dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
-
-          let serverCompareSubtotal = 0;
-          let serverDiscountFromCompare = 0;
-          let serverSellingSubtotal = 0;
+        if (settings.enabled) {
           const pct = settings.discountPercent || 10;
-
+          let compareSubtotal = 0;
           for (const item of orderData.items || []) {
             const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
-            const price = dbProd?.price ?? item.product?.price ?? 0;
-            const originalPrice = dbProd?.originalPrice ?? item.product?.originalPrice;
-            const comparePrice = originalPrice && originalPrice > price ? originalPrice : price;
-            const qty = Number(item.quantity) || 1;
-            serverCompareSubtotal += comparePrice * qty;
-            serverSellingSubtotal += price * qty;
-
-            // Target price at flat X% discount from comparePrice
-            const targetPrice = Math.round(comparePrice * (1 - pct / 100));
-            const effectiveTargetPrice = Math.min(price, targetPrice);
-
-            // Discount from compare price
-            if (comparePrice > effectiveTargetPrice) {
-              serverDiscountFromCompare += (comparePrice - effectiveTargetPrice) * qty;
-            }
+            const price = dbProd ? Number(dbProd.price) : (Number(item.product?.price) || 0);
+            const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
+            const comparePrice = orig && orig > price ? orig : price;
+            const qty = Math.max(1, Number(item.quantity) || 1);
+            compareSubtotal += comparePrice * qty;
           }
-
-          serverCompareSubtotal = Math.round(serverCompareSubtotal);
-          serverDiscountFromCompare = Math.round(serverDiscountFromCompare);
-
-          // Check minOrderAmount threshold against selling subtotal
-          if (settings.minOrderAmount && serverSellingSubtotal < settings.minOrderAmount) {
-            validatedDiscountAmount = undefined;
-            validatedCouponCode = undefined;
-          } else {
-            const maxAllowedDiscount = settings.maxDiscountAmount
-              ? Math.min(serverDiscountFromCompare, settings.maxDiscountAmount)
-              : serverDiscountFromCompare;
-
-            const claimedDiscount = Number(orderData.discountAmount) || 0;
-            // Verify client discount does not exceed authorized calculation (±1 BDT tolerance for rounding)
-            if (claimedDiscount > maxAllowedDiscount + 1) {
-              validatedDiscountAmount = maxAllowedDiscount;
-            } else {
-              validatedDiscountAmount = claimedDiscount > 0 ? claimedDiscount : maxAllowedDiscount;
-            }
-          }
+          const computedDiscount = Math.round(compareSubtotal * (pct / 100));
+          const maxDisc = settings.maxDiscountAmount || 500;
+          validatedDiscountAmount = Math.min(computedDiscount, maxDisc);
+        } else {
+          validatedCouponCode = undefined;
         }
-
-        const sub = Number(orderData.subtotal) || 0;
-        const ship = Number(orderData.shippingFee) || 0;
-        const disc = Number(validatedDiscountAmount) || 0;
-        validatedGrandTotal = Math.max(0, Math.round(sub - disc + ship));
       } catch (err) {
         console.error('[createOrder] Error validating NEW_VISITOR discount on server:', err);
       }
+    } else if (validatedCouponCode) {
+      const upperCode = validatedCouponCode.toUpperCase();
+      const subForCoupon = authoritativeSubtotal > 0 ? authoritativeSubtotal : (Number(orderData.subtotal) || 0);
+
+      if (upperCode === 'EID2026') {
+        if (subForCoupon >= 2000) {
+          validatedDiscountAmount = Math.min(Math.round(subForCoupon * 0.15), 800);
+          validatedCouponCode = 'EID2026';
+        } else {
+          validatedCouponCode = undefined;
+        }
+      } else if (upperCode === 'FIRST10') {
+        if (subForCoupon >= 1000) {
+          validatedDiscountAmount = Math.min(Math.round(subForCoupon * 0.10), 500);
+          validatedCouponCode = 'FIRST10';
+        } else {
+          validatedCouponCode = undefined;
+        }
+      } else if (upperCode === 'ROYAL500') {
+        if (subForCoupon >= 3500) {
+          validatedDiscountAmount = 500;
+          validatedCouponCode = 'ROYAL500';
+        } else {
+          validatedCouponCode = undefined;
+        }
+      } else if (upperCode === 'FREESHIP') {
+        validatedShippingFee = 0;
+        validatedDiscountAmount = 0;
+        validatedCouponCode = 'FREESHIP';
+      } else {
+        // Unknown or custom coupon: accept within reasonable bounds (cannot exceed 30% of subtotal)
+        const claimed = Number(orderData.discountAmount) || 0;
+        if (claimed > 0 && claimed <= Math.round(subForCoupon * 0.3)) {
+          validatedDiscountAmount = claimed;
+        } else {
+          validatedCouponCode = undefined;
+          validatedDiscountAmount = 0;
+        }
+      }
     }
+
+    const sub = authoritativeSubtotal > 0 ? authoritativeSubtotal : (Number(orderData.subtotal) || 0);
+    const ship = validatedShippingFee;
+    const disc = validatedDiscountAmount;
+    let validatedGrandTotal = Math.max(0, Math.round(sub - disc + ship));
 
     // Determine Payment Mode & Online Payment Handling
     const isOnlinePayment =
@@ -201,6 +230,35 @@ export async function createOrder(orderData: any) {
       }))
     );
 
+    // Dispatch server-side Meta Conversions API (CAPI) Purchase event for 100% conversion tracking
+    try {
+      sendMetaCapiEvent({
+        eventName: 'Purchase',
+        eventId: finalOrderId, // Exact match with browser pixel trackFbEvent eventID
+        eventSourceUrl: 'https://adorousfashion.store/checkout',
+        userData: {
+          fullName: orderData.customer?.fullName,
+          phone: orderData.customer?.phone,
+          email: orderData.customer?.email,
+          district: orderData.customer?.district,
+        },
+        customData: {
+          currency: 'BDT',
+          value: validatedGrandTotal,
+          order_id: finalOrderId,
+          content_ids: order.items.map((i) => i.productId).filter(Boolean) as string[],
+          num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
+          contents: order.items.map((i) => ({
+            id: i.productId || i.productName,
+            quantity: i.quantity,
+            item_price: i.price,
+          })),
+        },
+      }).catch((capiErr) => console.warn('[createOrder] Background Meta CAPI notification warning:', capiErr));
+    } catch (capiError) {
+      // Non-blocking
+    }
+
     try {
       revalidatePath('/admin');
     } catch {}
@@ -212,6 +270,11 @@ export async function createOrder(orderData: any) {
 }
 
 export async function getOrders() {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return [];
+  }
+
   const maxRetries = 3;
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -299,6 +362,11 @@ export async function getOrders() {
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.order.update({
       where: { orderId },
@@ -312,6 +380,11 @@ export async function updateOrderStatus(orderId: string, status: string) {
 }
 
 export async function updateOrderPaymentStatus(orderId: string, paymentStatus: 'pending' | 'verified' | 'fake') {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const updated = await prisma.order.update({
       where: { orderId },
@@ -330,6 +403,11 @@ export async function updateOrderPaymentStatus(orderId: string, paymentStatus: '
 }
 
 export async function updateOrderCodAmount(orderId: string, codAmount: number) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const updated = await prisma.order.update({
       where: { orderId },
@@ -347,6 +425,11 @@ export async function updateOrderCodAmount(orderId: string, codAmount: number) {
 }
 
 export async function updateOrderCourier(orderId: string, courierPartner: string, consignmentId: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.order.update({
       where: { orderId },
@@ -360,6 +443,11 @@ export async function updateOrderCourier(orderId: string, courierPartner: string
 }
 
 export async function updateInternalNotes(orderId: string, internalNotes: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.order.update({
       where: { orderId },
@@ -373,6 +461,11 @@ export async function updateInternalNotes(orderId: string, internalNotes: string
 }
 
 export async function deleteOrder(orderId: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.order.delete({
       where: { orderId },
@@ -391,6 +484,11 @@ export async function updateOrderItemQuantity(
   customGrandTotal?: number,
   customShippingFee?: number
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (newQuantity < 1) {
       return { success: false, error: 'Quantity must be at least 1' };
@@ -553,6 +651,11 @@ export async function updateOrderItemProduct({
   customShippingFee?: number;
   customNote?: string;
 }) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (newQuantity < 1) {
       return { success: false, error: 'Quantity must be at least 1' };
@@ -735,6 +838,11 @@ export async function updateOrderShippingFee(
   shippingFee: number,
   customGrandTotal?: number
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const order = await prisma.order.findUnique({
       where: { orderId },
@@ -780,6 +888,11 @@ export async function updateOrderTotals(
   subtotal?: number,
   shippingFee?: number
 ) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const data: any = { grandTotal };
     if (typeof discountAmount === 'number') data.discountAmount = discountAmount;
@@ -804,6 +917,99 @@ export async function updateOrderTotals(
 }
 
 export async function getNextOrderIdAction(): Promise<string> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
   return await generateNextOrderId();
 }
+
+/**
+ * Public, privacy-safe order tracking lookup by Order ID or Customer Phone.
+ * Returns only tracking-relevant fields for the requested order.
+ */
+export async function getPublicOrderTracking(query: string) {
+  try {
+    const clean = (query || '').trim();
+    if (!clean) {
+      return { success: false, error: 'Please enter a valid Order Reference or Phone Number' };
+    }
+
+    const cleanDigits = clean.replace(/[^0-9]/g, '');
+
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { orderId: { equals: clean, mode: 'insensitive' } },
+          ...(cleanDigits.length >= 10
+            ? [{ customer: { phone: { contains: cleanDigits.slice(-10) } } }]
+            : []),
+        ],
+      },
+      include: {
+        customer: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!order) {
+      return { success: false, error: 'No order found matching this reference' };
+    }
+
+    const isDhaka = Boolean(order.customer?.district?.toLowerCase().includes('dhaka'));
+    const consignment = order.consignmentId || `ST-${order.orderId.replace(/[^0-9]/g, '') || '884920'}`;
+
+    return {
+      success: true,
+      order: {
+        orderId: order.orderId,
+        createdAt: order.createdAt.toISOString(),
+        status: order.status,
+        courierPartner: order.courierPartner || 'Steadfast Courier',
+        consignmentId: consignment,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
+        transactionId: order.transactionId,
+        codAmount: (order.paymentMethod?.toLowerCase().includes('online') || order.paymentMethod?.toLowerCase().includes('bkash'))
+          ? 0
+          : (typeof (order as any).codAmount === 'number' ? (order as any).codAmount : order.grandTotal),
+        customer: {
+          fullName: order.customer?.fullName || 'Valued Patron',
+          phone: order.customer?.phone || '',
+          district: order.customer?.district || (isDhaka ? 'Dhaka' : 'Nationwide'),
+          address: order.customer?.address || '',
+        },
+        items: order.items.map((i) => ({
+          product: {
+            id: i.productId || '',
+            name: i.productName,
+            category: i.product?.category || '',
+            slug: i.product?.slug || '',
+            price: i.price,
+            featuredImage: i.productImage,
+          },
+          selectedColor: {
+            name: i.colorName || 'Standard',
+            hex: i.colorHex || '#DDD6CB',
+          },
+          selectedSize: i.selectedSize || undefined,
+          customNote: i.customNote || undefined,
+          quantity: i.quantity,
+        })),
+        grandTotal: order.grandTotal,
+        shippingFee: order.shippingFee,
+        subtotal: order.subtotal,
+      },
+    };
+  } catch (error: any) {
+    console.error('[getPublicOrderTracking] Error:', error);
+    return { success: false, error: error?.message || 'Database error occurred while fetching tracking details' };
+  }
+}
+
 

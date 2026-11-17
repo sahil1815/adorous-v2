@@ -9,6 +9,8 @@ import { useReviews } from '@/context/ReviewsContext';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminQuickSearchModal from '@/components/admin/AdminQuickSearchModal';
+import { AdminAuthProvider } from '@/context/AdminAuthContext';
+import { OrdersProvider } from '@/context/OrdersContext';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -17,7 +19,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, adminUser, logout, isLoading } = useAdminAuth();
@@ -143,5 +145,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         onClose={() => setIsSearchModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminAuthProvider>
+      <OrdersProvider>
+        <AdminLayoutInner>{children}</AdminLayoutInner>
+      </OrdersProvider>
+    </AdminAuthProvider>
   );
 }

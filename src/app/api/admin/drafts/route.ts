@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateNextOrderId } from '@/lib/orderId';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Admin authentication required.' },
+      { status: 401 }
+    );
+  }
+
   try {
     const rawCheckouts = await prisma.draftCheckout.findMany({
       orderBy: { updatedAt: 'desc' },
@@ -79,6 +88,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: Admin authentication required.' },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { action } = body;

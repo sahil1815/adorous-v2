@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { decrypt } from '@/lib/session';
 import { HOMEPAGE_MARKDOWN } from '@/lib/homepageMarkdown';
+import { getPageMarkdown } from '@/lib/pageMarkdown';
 import { NOT_FOUND_HTML } from '@/lib/notFoundHtml';
 import { CATEGORIES } from '@/data/catalogue';
 
@@ -26,6 +27,7 @@ const VALID_STATIC_PATHS = new Set([
   'privacy',
   'pricing',
   'llms.txt',
+  'llms-full.txt',
   'robots.txt',
   'sitemap.xml',
   'apple-icon.png',
@@ -70,15 +72,18 @@ export default async function proxy(req: NextRequest) {
     acceptHeader.includes('text/x-markdown') ||
     req.nextUrl.searchParams.get('format') === 'markdown';
 
-  if (path === '/' && wantsMarkdown) {
-    return new NextResponse(HOMEPAGE_MARKDOWN, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/markdown; charset=utf-8',
-        'Vary': 'Accept',
-        'Link': '</llms.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"',
-      },
-    });
+  if (wantsMarkdown) {
+    const markdownContent = getPageMarkdown(path);
+    if (markdownContent) {
+      return new NextResponse(markdownContent, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+          'Vary': 'Accept',
+          'Link': '</llms.txt>; rel="describedby"; type="text/plain", </llms-full.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"',
+        },
+      });
+    }
   }
 
   // 3. Early 404 validation for missing pages so agents receive real HTTP 404
@@ -119,25 +124,32 @@ export default async function proxy(req: NextRequest) {
   }
 
   // 4. Admin Route Protection
-  const isProtectedRoute =
+  const isAdminApi = path.startsWith('/api/admin');
+  const isAdminPage =
     protectedRoutes.some((route) => path.startsWith(route)) &&
     !publicRoutes.some((route) => path.startsWith(route));
 
-  if (isProtectedRoute) {
+  if (isAdminApi || isAdminPage) {
     const sessionCookie = req.cookies.get('adorous_admin_session')?.value;
     const session = await decrypt(sessionCookie);
 
     if (!session) {
+      if (isAdminApi) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized: Admin authentication required.' },
+          { status: 401 }
+        );
+      }
       return NextResponse.redirect(new URL('/admin/login', req.nextUrl));
     }
   }
 
-  // 5. Default response with RFC 8288 Link header for homepage
+  // 5. Default response with RFC 8288 Link headers for machine discoverability
   const response = NextResponse.next();
-  if (path === '/') {
+  if (!path.startsWith('/admin') && !path.startsWith('/api/admin')) {
     response.headers.set(
       'Link',
-      '</llms.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"'
+      '</llms.txt>; rel="describedby"; type="text/plain", </llms-full.txt>; rel="describedby"; type="text/plain", </?format=markdown>; rel="alternate"; type="text/markdown"'
     );
   }
 

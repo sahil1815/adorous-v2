@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 export type SortOrder = 'manual' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating';
 
@@ -68,6 +69,11 @@ export async function upsertLandingPage(data: {
   sortOrder?: SortOrder;
   isActive?: boolean;
 }) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const cleanSlug = data.slug.trim().toLowerCase();
     const page = await prisma.landingPage.upsert({
@@ -102,6 +108,11 @@ export async function upsertLandingPage(data: {
 }
 
 export async function deleteLandingPageAction(idOrSlug: string) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.landingPage.deleteMany({
       where: {
@@ -118,6 +129,11 @@ export async function deleteLandingPageAction(idOrSlug: string) {
 }
 
 export async function syncLandingPagesFromClient(clientPages: LandingPageData[]) {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   if (!Array.isArray(clientPages) || clientPages.length === 0) {
     return { success: true, synced: 0 };
   }

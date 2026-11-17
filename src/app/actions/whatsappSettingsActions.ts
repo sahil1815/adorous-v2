@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { DEFAULT_WHATSAPP_VERIFICATION_TEMPLATE } from '@/lib/whatsappTemplate';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 export interface WhatsAppSettingsData {
   id: string;
@@ -66,6 +67,11 @@ export async function getWhatsAppSettings(): Promise<WhatsAppSettingsData> {
 export async function updateWhatsAppVerificationTemplate(
   template: string
 ): Promise<{ success: boolean; settings?: WhatsAppSettingsData; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     if (typeof template !== 'string' || !template.trim()) {
       return { success: false, error: 'Template content cannot be empty.' };

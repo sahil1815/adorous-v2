@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 export type AdminSortOrder = 'manual' | 'most-purchased' | 'newest' | 'oldest' | 'best-rating';
 
@@ -83,6 +84,11 @@ export async function savePageOrdering(
   pageKey: string,
   ordering: PageOrdering
 ): Promise<{ success: boolean; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const manualOrder = Array.isArray(ordering.manualOrder) ? ordering.manualOrder : [];
 
@@ -145,6 +151,11 @@ export async function savePageOrdering(
  * Reset a page's ordering back to default
  */
 export async function resetPageOrdering(pageKey: string): Promise<{ success: boolean; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     await prisma.productPageOrdering.deleteMany({
       where: { pageKey },

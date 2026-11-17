@@ -133,6 +133,12 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshOrders = async () => {
+    // Only fetch admin orders if navigating within /admin
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/admin')) {
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       // 1. Direct REST endpoint (fast, zero RSC serialization issues)
@@ -446,10 +452,27 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useOrders() {
+export function useOrders(): OrdersContextType {
   const context = useContext(OrdersContext);
   if (!context) {
-    throw new Error('useOrders must be used within an OrdersProvider');
+    return {
+      orders: [],
+      isLoading: false,
+      refreshOrders: async () => {},
+      addOrder: async () => ({ success: false }),
+      updateOrderStatus: async () => {},
+      updateOrderPaymentStatus: async () => ({ success: false }),
+      updateOrderCodAmount: async () => ({ success: false }),
+      updateOrderCourier: async () => {},
+      updateInternalNotes: async () => {},
+      deleteOrder: async () => {},
+      updateOrderItemQuantity: async () => ({ success: false }),
+      updateOrderItemProduct: async () => ({ success: false }),
+      updateOrderShippingFee: async () => ({ success: false }),
+      updateOrderTotals: async () => ({ success: false }),
+      getOrderByIdOrPhone: () => undefined,
+      resetToSampleOrders: () => {},
+    };
   }
   return context;
 }

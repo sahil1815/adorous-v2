@@ -10,6 +10,24 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: 'The Full Collection | Adorous Fashion Dhaka',
   description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, luxury bags, and accessories.',
+  alternates: {
+    canonical: '/shop',
+  },
+  openGraph: {
+    title: 'The Full Collection | Adorous Fashion Dhaka',
+    description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, and luxury bags.',
+    url: 'https://adorousfashion.store/shop',
+    images: [
+      {
+        url: '/images/hero/hero-still-life.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Adorous Fashion Atelier Still Life Collection',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default async function ShopPage() {
@@ -50,15 +68,64 @@ export default async function ShopPage() {
     });
   }
 
+  const shopJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://adorousfashion.store/shop#webpage',
+        url: 'https://adorousfashion.store/shop',
+        name: 'The Full Collection | Adorous Fashion Dhaka',
+        description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, luxury bags, and accessories.',
+        isPartOf: {
+          '@id': 'https://adorousfashion.store/#website',
+        },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://adorousfashion.store/shop#itemlist',
+        name: 'Adorous Fashion Catalogue',
+        numberOfItems: initialProducts.length,
+        itemListElement: initialProducts.map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: p.name,
+          url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          item: {
+            '@type': 'Product',
+            name: p.name,
+            description: p.tagline || p.description,
+            image: p.featuredImage.startsWith('http') ? p.featuredImage : `https://adorousfashion.store${p.featuredImage}`,
+            url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+            sku: p.id,
+            offers: {
+              '@type': 'Offer',
+              price: Math.round(p.price),
+              priceCurrency: 'BDT',
+              availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+            },
+          },
+        })),
+      },
+    ],
+  };
+
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">
-          Loading collection...
-        </div>
-      }
-    >
-      <ShopClient initialProducts={initialProducts} initialOrdering={orderingSettings} />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(shopJsonLd) }}
+      />
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">
+            Loading collection...
+          </div>
+        }
+      >
+        <ShopClient initialProducts={initialProducts} initialOrdering={orderingSettings} />
+      </Suspense>
+    </>
   );
 }

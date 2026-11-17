@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/adminAuth';
 import {
   WelcomeOfferSettingsData,
   DEFAULT_WELCOME_OFFER_SETTINGS,
@@ -77,6 +78,11 @@ export async function getWelcomeOfferSettings(): Promise<WelcomeOfferSettingsDat
 export async function updateWelcomeOfferSettings(
   input: Partial<Omit<WelcomeOfferSettingsData, 'id' | 'updatedAt'>>
 ): Promise<{ success: boolean; settings?: WelcomeOfferSettingsData; error?: string }> {
+  const session = await verifyAdminSession();
+  if (!session) {
+    return { success: false, error: 'Unauthorized: Admin authentication required.' };
+  }
+
   try {
     const updated = await prisma.welcomeOfferSettings.upsert({
       where: { id: 'default' },

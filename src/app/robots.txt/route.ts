@@ -4,11 +4,15 @@ export const dynamic = 'force-static';
 
 const robotsTxtContent = `User-Agent: *
 Allow: /
-Disallow: /checkout
-Disallow: /order-success/
-Disallow: /api/
+Allow: /api/mcp
+Allow: /api/products
+Allow: /api/catalog/
+Allow: /.well-known/mcp/
+Disallow: /api/admin/
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /checkout
+Disallow: /order-success/
 Disallow: /promo/
 Disallow: /promo/*
 Disallow: /collections/

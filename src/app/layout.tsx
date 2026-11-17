@@ -8,8 +8,6 @@ import Footer from "@/components/layout/Footer";
 import MobileStickyBar from "@/components/layout/MobileStickyBar";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
-import { AdminAuthProvider } from "@/context/AdminAuthContext";
-import { OrdersProvider } from "@/context/OrdersContext";
 import { InventoryProvider } from "@/context/InventoryContext";
 import { CouponsProvider } from "@/context/CouponsContext";
 import { ReviewsProvider } from "@/context/ReviewsContext";
@@ -118,31 +116,27 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden bg-paper text-ink selection:bg-gold-light selection:text-ink">
-        <AdminAuthProvider>
-          <OrdersProvider>
-            <InventoryProvider>
-              <CouponsProvider>
-                <ReviewsProvider>
-                  <ProductOrderingProvider>
-                    <LandingPagesProvider>
-                      <CartProvider>
-                        <WishlistProvider>
-                          <CustomerAuthProvider>
-                            <NewVisitorOfferProvider>
-                              <StorefrontLayoutWrapper>
-                                {children}
-                              </StorefrontLayoutWrapper>
-                            </NewVisitorOfferProvider>
-                          </CustomerAuthProvider>
-                        </WishlistProvider>
-                      </CartProvider>
-                    </LandingPagesProvider>
-                  </ProductOrderingProvider>
-                </ReviewsProvider>
-              </CouponsProvider>
-            </InventoryProvider>
-          </OrdersProvider>
-        </AdminAuthProvider>
+        <InventoryProvider>
+          <CouponsProvider>
+            <ReviewsProvider>
+              <ProductOrderingProvider>
+                <LandingPagesProvider>
+                  <CartProvider>
+                    <WishlistProvider>
+                      <CustomerAuthProvider>
+                        <NewVisitorOfferProvider>
+                          <StorefrontLayoutWrapper>
+                            {children}
+                          </StorefrontLayoutWrapper>
+                        </NewVisitorOfferProvider>
+                      </CustomerAuthProvider>
+                    </WishlistProvider>
+                  </CartProvider>
+                </LandingPagesProvider>
+              </ProductOrderingProvider>
+            </ReviewsProvider>
+          </CouponsProvider>
+        </InventoryProvider>
         <Analytics />
         <MetaPixel pixelId={fbPixelId} />
         <GoogleAnalytics gaId={gaMeasurementId} />

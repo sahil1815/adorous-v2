@@ -27,6 +27,7 @@ const llmsTxtContent = `# Adorous Fashion
 - [Privacy Policy](https://adorousfashion.store/privacy): Customer data protection and privacy standards.
 
 ## Machine-Readable Resources
+- [Full Knowledge Base & Product Manifest](https://adorousfashion.store/llms-full.txt): Complete product catalogue, specs, churi sizing, and nationwide shipping terms.
 - [Sitemap](https://adorousfashion.store/sitemap.xml): Complete XML sitemap of all product and category URLs.
 - [MCP Server Card](https://adorousfashion.store/.well-known/mcp/server-card.json): SEP-1649 Model Context Protocol server capabilities.
 - [Robots Configuration](https://adorousfashion.store/robots.txt): Search crawler directives with Content-Signal declared.

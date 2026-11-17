@@ -105,16 +105,86 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     });
   }
 
+  const categoryJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `https://adorousfashion.store/${cat.slug}#webpage`,
+        url: `https://adorousfashion.store/${cat.slug}`,
+        name: `${cat.name} Collection | Adorous Fashion`,
+        description: cat.blurb,
+        isPartOf: {
+          '@id': 'https://adorousfashion.store/#website',
+        },
+        breadcrumb: {
+          '@id': `https://adorousfashion.store/${cat.slug}#breadcrumb`,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `https://adorousfashion.store/${cat.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://adorousfashion.store',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: cat.name,
+            item: `https://adorousfashion.store/${cat.slug}`,
+          },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `https://adorousfashion.store/${cat.slug}#itemlist`,
+        name: `${cat.name} Catalog`,
+        numberOfItems: categoryProducts.length,
+        itemListElement: categoryProducts.map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: p.name,
+          url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+          item: {
+            '@type': 'Product',
+            name: p.name,
+            description: p.tagline || p.description,
+            image: p.featuredImage.startsWith('http') ? p.featuredImage : `https://adorousfashion.store${p.featuredImage}`,
+            url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+            sku: p.id,
+            offers: {
+              '@type': 'Offer',
+              price: Math.round(p.price),
+              priceCurrency: 'BDT',
+              availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              url: `https://adorousfashion.store/${p.category}/${p.slug}`,
+            },
+          },
+        })),
+      },
+    ],
+  };
+
   return (
-    <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading collection...</div>}>
-      <CategoryPageClient
-        categorySlug={cat.slug}
-        categoryName={cat.name}
-        categoryBlurb={cat.blurb}
-        categoryImage={heroImage}
-        products={categoryProducts}
-        initialOrdering={orderingSetting}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
       />
-    </Suspense>
+      <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading collection...</div>}>
+        <CategoryPageClient
+          categorySlug={cat.slug}
+          categoryName={cat.name}
+          categoryBlurb={cat.blurb}
+          categoryImage={heroImage}
+          products={categoryProducts}
+          initialOrdering={orderingSetting}
+        />
+      </Suspense>
+    </>
   );
 }

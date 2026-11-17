@@ -22,7 +22,7 @@ import {
   Phone
 } from 'lucide-react';
 import { PRODUCTS } from '@/data/catalogue';
-import { useOrders } from '@/context/OrdersContext';
+import { getPublicOrderTracking } from '@/app/actions/orderActions';
 import { formatPrice } from '@/lib/formatPrice';
 
 interface TrackingStep {
@@ -79,10 +79,10 @@ const getCourierPortalUrl = (courierPartner: string | null | undefined, consignm
 function TrackOrderContent() {
   const searchParams = useSearchParams();
   const initialRef = searchParams.get('ref') || searchParams.get('phone') || '';
-  const { getOrderByIdOrPhone } = useOrders();
 
   const [inputQuery, setInputQuery] = useState(initialRef);
   const [searched, setSearched] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [recentOrder, setRecentOrder] = useState<any>(null);
 
@@ -99,115 +99,123 @@ function TrackOrderContent() {
   }, []);
 
   // Perform tracking search
-  const handleSearch = (queryToSearch: string) => {
+  const handleSearch = async (queryToSearch: string) => {
     const cleanQuery = queryToSearch.trim();
     if (!cleanQuery) return;
 
     setSearched(true);
+    setIsSearching(true);
 
-    // 1. Check active database via OrdersContext (Live sync with Admin Desk!)
-    const dbOrder = getOrderByIdOrPhone(cleanQuery);
-    if (dbOrder) {
-      const isDhaka = dbOrder.customer.district.toLowerCase().includes('dhaka');
-      const consignment = dbOrder.consignmentId || `ST-${dbOrder.orderId.replace(/[^0-9]/g, '') || '884920'}`;
+    try {
+      // 1. Check active database via secure public tracking server action
+      const res = await getPublicOrderTracking(cleanQuery);
+      if (res.success && res.order) {
+        const dbOrder = res.order;
+        const isDhaka = Boolean(dbOrder.customer.district?.toLowerCase().includes('dhaka'));
+        const consignment = dbOrder.consignmentId || `ST-${dbOrder.orderId.replace(/[^0-9]/g, '') || '884920'}`;
 
-      let statusText = 'Order Confirmed & Queued for Packaging';
-      let statusBadge: 'confirmed' | 'packaging' | 'transit' | 'out_for_delivery' | 'delivered' = 'confirmed';
-      let currentStepIndex = 0;
+        let statusText = 'Order Confirmed & Queued for Packaging';
+        let statusBadge: 'confirmed' | 'packaging' | 'transit' | 'out_for_delivery' | 'delivered' = 'confirmed';
+        let currentStepIndex = 0;
 
-      if (dbOrder.status === 'verified') {
-        statusText = 'WhatsApp Verified · In Packaging Queue';
-        statusBadge = 'packaging';
-        currentStepIndex = 1;
-      } else if (dbOrder.status === 'packaging') {
-        statusText = 'Undergoing Keepsake Packaging & Micro-Inspection';
-        statusBadge = 'packaging';
-        currentStepIndex = 1;
-      } else if (dbOrder.status === 'handed_to_courier') {
-        statusText = isDhaka ? 'Out for Doorstep Delivery in Dhaka' : 'In Transit via Steadfast Courier Hub';
-        statusBadge = isDhaka ? 'out_for_delivery' : 'transit';
-        currentStepIndex = isDhaka ? 3 : 2;
-      } else if (dbOrder.status === 'delivered') {
-        statusText = 'Delivered to Doorstep & Payment Collected';
-        statusBadge = 'delivered';
-        currentStepIndex = 3;
-      } else if (dbOrder.status === 'returned') {
-        statusText = 'Consignment Returned to Merchant (RTO)';
-        statusBadge = 'transit';
-        currentStepIndex = 2;
-      } else if (dbOrder.status === 'cancelled') {
-        statusText = 'Order Cancelled';
-        statusBadge = 'confirmed';
-        currentStepIndex = 0;
+        if (dbOrder.status === 'verified') {
+          statusText = 'WhatsApp Verified · In Packaging Queue';
+          statusBadge = 'packaging';
+          currentStepIndex = 1;
+        } else if (dbOrder.status === 'packaging') {
+          statusText = 'Undergoing Keepsake Packaging & Micro-Inspection';
+          statusBadge = 'packaging';
+          currentStepIndex = 1;
+        } else if (dbOrder.status === 'handed_to_courier') {
+          statusText = isDhaka ? 'Out for Doorstep Delivery in Dhaka' : 'In Transit via Steadfast Courier Hub';
+          statusBadge = isDhaka ? 'out_for_delivery' : 'transit';
+          currentStepIndex = isDhaka ? 3 : 2;
+        } else if (dbOrder.status === 'delivered') {
+          statusText = 'Delivered to Doorstep & Payment Collected';
+          statusBadge = 'delivered';
+          currentStepIndex = 3;
+        } else if (dbOrder.status === 'returned') {
+          statusText = 'Consignment Returned to Merchant (RTO)';
+          statusBadge = 'transit';
+          currentStepIndex = 2;
+        } else if (dbOrder.status === 'cancelled') {
+          statusText = 'Order Cancelled';
+          statusBadge = 'confirmed';
+          currentStepIndex = 0;
+        }
+
+        setTrackingData({
+          orderId: dbOrder.orderId,
+          consignmentId: consignment,
+          courierName: dbOrder.courierPartner || 'Steadfast Courier Bangladesh',
+          courierUrl: getCourierPortalUrl(dbOrder.courierPartner, consignment),
+          statusText,
+          statusBadge,
+          currentStepIndex,
+          recipientName: dbOrder.customer.fullName,
+          recipientPhone: dbOrder.customer.phone,
+          district: dbOrder.customer.district,
+          address: dbOrder.customer.address,
+          estimatedDelivery: isDhaka ? 'Within 24–48 Hours' : 'Within 48–72 Hours',
+          paymentMethod: dbOrder.paymentMethod,
+          transactionId: dbOrder.transactionId || null,
+          paymentStatus: (dbOrder.paymentStatus as any) || 'pending',
+          codAmount: (dbOrder.paymentMethod?.toLowerCase().includes('online') || dbOrder.paymentMethod?.toLowerCase().includes('bkash'))
+            ? 0
+            : (typeof (dbOrder as any).codAmount === 'number' ? (dbOrder as any).codAmount : dbOrder.grandTotal),
+          items: dbOrder.items.map((i: any) => ({
+            name: i.product?.name || i.name,
+            category: i.product?.category || i.category,
+            image: i.product?.featuredImage || i.image,
+            color: i.selectedColor?.name || i.color || 'Standard',
+            size: i.selectedSize || i.size,
+            customNote: i.customNote,
+            quantity: i.quantity,
+            price: i.product?.price || i.price,
+          })),
+          timeline: [
+            {
+              title: 'Order Confirmed',
+              location: 'Adorous Desk, Rajshahi',
+              time: 'Order Verified',
+              completed: true,
+              current: currentStepIndex === 0,
+              description: 'Order logged and confirmed for Cash on Delivery dispatch.',
+            },
+            {
+              title: 'Keepsake Box Packaging & Seal',
+              location: 'Quality Inspection Desk, Rajshahi',
+              time: currentStepIndex >= 1 ? 'Micro-Inspected' : 'Upcoming',
+              completed: currentStepIndex >= 1,
+              current: currentStepIndex === 1,
+              description: 'Carefully wrapped in signature velvet keepsake pouch and sealed.',
+            },
+            {
+              title: 'Handed to Courier Partner',
+              location: 'Steadfast Central Sorting Hub (Tejgaon)',
+              time: currentStepIndex >= 2 ? 'Consignment Dispatched' : 'Upcoming',
+              completed: currentStepIndex >= 2,
+              current: currentStepIndex === 2,
+              description: `Scanned into ${dbOrder.courierPartner || 'Steadfast'} central logistics network.`,
+            },
+            {
+              title: isDhaka ? 'Out for Doorstep Delivery' : 'En Route to District Delivery Hub',
+              location: isDhaka ? `${dbOrder.customer.district} Delivery Area` : `${dbOrder.customer.district} Hub`,
+              time: currentStepIndex >= 3 ? 'With Courier Rider' : 'Estimated',
+              completed: currentStepIndex >= 3,
+              current: currentStepIndex >= 3,
+              description: isDhaka
+                ? 'Rider will call prior to arrival. Cash on Delivery payable upon receipt.'
+                : 'Parcel moving via secure expressway transit to your home district.',
+            },
+          ],
+        });
+        return;
       }
-
-      setTrackingData({
-        orderId: dbOrder.orderId,
-        consignmentId: consignment,
-        courierName: dbOrder.courierPartner || 'Steadfast Courier Bangladesh',
-        courierUrl: getCourierPortalUrl(dbOrder.courierPartner, consignment),
-        statusText,
-        statusBadge,
-        currentStepIndex,
-        recipientName: dbOrder.customer.fullName,
-        recipientPhone: dbOrder.customer.phone,
-        district: dbOrder.customer.district,
-        address: dbOrder.customer.address,
-        estimatedDelivery: isDhaka ? 'Within 24–48 Hours' : 'Within 48–72 Hours',
-        paymentMethod: dbOrder.paymentMethod,
-        transactionId: dbOrder.transactionId || null,
-        paymentStatus: dbOrder.paymentStatus || 'pending',
-        codAmount: (dbOrder.paymentMethod?.toLowerCase().includes('online') || dbOrder.paymentMethod?.toLowerCase().includes('bkash'))
-          ? 0
-          : (typeof dbOrder.codAmount === 'number' ? dbOrder.codAmount : dbOrder.grandTotal),
-        items: dbOrder.items.map((i) => ({
-          name: i.product.name,
-          category: i.product.category,
-          image: i.product.featuredImage,
-          color: i.selectedColor?.name || 'Standard',
-          size: i.selectedSize,
-          customNote: (i as any).customNote,
-          quantity: i.quantity,
-          price: i.product.price,
-        })),
-        timeline: [
-          {
-            title: 'Order Confirmed',
-            location: 'Adorous Desk, Rajshahi',
-            time: 'Order Verified',
-            completed: true,
-            current: currentStepIndex === 0,
-            description: 'Order logged and confirmed for Cash on Delivery dispatch.',
-          },
-          {
-            title: 'Keepsake Box Packaging & Seal',
-            location: 'Quality Inspection Desk, Rajshahi',
-            time: currentStepIndex >= 1 ? 'Micro-Inspected' : 'Upcoming',
-            completed: currentStepIndex >= 1,
-            current: currentStepIndex === 1,
-            description: 'Carefully wrapped in signature velvet keepsake pouch and sealed.',
-          },
-          {
-            title: 'Handed to Courier Partner',
-            location: 'Steadfast Central Sorting Hub (Tejgaon)',
-            time: currentStepIndex >= 2 ? 'Consignment Dispatched' : 'Upcoming',
-            completed: currentStepIndex >= 2,
-            current: currentStepIndex === 2,
-            description: `Scanned into ${dbOrder.courierPartner || 'Steadfast'} central logistics network.`,
-          },
-          {
-            title: isDhaka ? 'Out for Doorstep Delivery' : 'En Route to District Delivery Hub',
-            location: isDhaka ? `${dbOrder.customer.district} Delivery Area` : `${dbOrder.customer.district} Hub`,
-            time: currentStepIndex >= 3 ? 'With Courier Rider' : 'Estimated',
-            completed: currentStepIndex >= 3,
-            current: currentStepIndex >= 3,
-            description: isDhaka
-              ? 'Rider will call prior to arrival. Cash on Delivery payable upon receipt.'
-              : 'Parcel moving via secure expressway transit to your home district.',
-          },
-        ],
-      });
-      return;
+    } catch (searchErr) {
+      console.warn('[track-order] Server action search failed, checking localStorage fallback:', searchErr);
+    } finally {
+      setIsSearching(false);
     }
 
     // 2. Check if matches local recent order
