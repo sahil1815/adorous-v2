@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
 import { formatPrice } from '@/lib/formatPrice';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles, Gift } from 'lucide-react';
+import { isColorwayOutOfStock } from '@/lib/productStock';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, MessageCircle, Truck, ShieldCheck, ChevronDown, Sparkles, Gift, AlertCircle } from 'lucide-react';
 
 export default function CartDrawer() {
   const {
@@ -17,6 +18,7 @@ export default function CartDrawer() {
     removeItem,
     updateQuantity,
     updateItemColor,
+    hasOutOfStockItems,
     totalItems,
     subtotal,
     freeShippingThreshold,
@@ -127,8 +129,13 @@ export default function CartDrawer() {
               </button>
             </div>
           ) : (
-            items.map((item) => (
-              <div key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize || ''}-${item.customNote || ''}`} className="py-4 first:pt-0 last:pb-0 flex space-x-4">
+            items.map((item) => {
+              const isItemOos = isColorwayOutOfStock(item.product, item.selectedColor);
+              return (
+              <div
+                key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize || ''}-${item.customNote || ''}`}
+                className={`py-4 first:pt-0 last:pb-0 flex space-x-4 ${isItemOos ? 'bg-red-50/30 p-2 rounded border border-red-200/60' : ''}`}
+              >
                 {/* Thumbnail */}
                 <div className="relative w-20 h-24 bg-stone shrink-0 border border-line overflow-hidden">
                   {(() => {
@@ -154,12 +161,19 @@ export default function CartDrawer() {
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-start justify-between">
-                      <h5 className="font-medium text-sm text-ink line-clamp-1">
-                        {item.product.name}
-                      </h5>
+                      <div className="min-w-0 pr-1">
+                        <h5 className="font-medium text-sm text-ink line-clamp-1">
+                          {item.product.name}
+                        </h5>
+                        {isItemOos && (
+                          <span className="inline-block mt-0.5 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200 rounded-xs">
+                            Out of Stock
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={() => removeItem(item.product.id, item.selectedColor.id, item.selectedSize, item.customNote)}
-                        className="text-text-muted hover:text-danger p-1 transition-colors"
+                        className="text-text-muted hover:text-danger p-1 transition-colors shrink-0"
                         title="Remove item"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -216,7 +230,7 @@ export default function CartDrawer() {
                       )}
 
                       {/* Quick "+ Add another color" action if there are other colors */}
-                      {(() => {
+                      {!isItemOos && (() => {
                         const otherColors = (item.product.colorways || []).filter(
                           (c) => c.id !== item.selectedColor.id
                         );
@@ -235,6 +249,12 @@ export default function CartDrawer() {
                         );
                       })()}
                     </div>
+
+                    {isItemOos && (
+                      <p className="text-[10px] text-red-600 font-medium mt-1">
+                        Sold out. Please remove to proceed.
+                      </p>
+                    )}
 
                     {/* Customer Custom Note / Special Instructions */}
                     {item.customNote && (
@@ -260,7 +280,8 @@ export default function CartDrawer() {
                       </span>
                       <button
                         onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote)}
-                        className="p-1 text-ink hover:bg-sand transition-colors"
+                        disabled={isItemOos}
+                        className="p-1 text-ink hover:bg-sand transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Increase quantity"
                       >
                         <Plus className="w-3 h-3" />
@@ -273,7 +294,8 @@ export default function CartDrawer() {
                   </div>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
 
@@ -312,25 +334,44 @@ export default function CartDrawer() {
               <span>Cash on Delivery (COD) · Zero advance payment required</span>
             </p>
 
-            <div className="space-y-2 pt-1">
-              <Link
-                href="/checkout"
-                onClick={closeCart}
-                className="w-full flex items-center justify-center space-x-2 py-3 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[2px] transition-colors shadow-sm"
-              >
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+            {hasOutOfStockItems && (
+              <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xs flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>Your bag contains out of stock items. Please remove them to proceed.</span>
+              </div>
+            )}
 
-              <a
-                href={generateWhatsAppOrderUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gold hover:bg-gold-deep text-ink  border border-gold/40 text-xs tracking-wider uppercase font-medium rounded-[2px] transition-colors"
-              >
-                <MessageCircle className="w-4 h-4 text-whatsapp" />
-                <span>Instant Order via WhatsApp</span>
-              </a>
+            <div className="space-y-2 pt-1">
+              {hasOutOfStockItems ? (
+                <button
+                  type="button"
+                  disabled
+                  className="w-full flex items-center justify-center space-x-2 py-3 bg-stone-200 text-stone-500 font-semibold text-xs tracking-wider uppercase rounded-[2px] cursor-not-allowed shadow-none"
+                >
+                  <span>Cannot Checkout (Items Out of Stock)</span>
+                </button>
+              ) : (
+                <Link
+                  href="/checkout"
+                  onClick={closeCart}
+                  className="w-full flex items-center justify-center space-x-2 py-3 bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase rounded-[2px] transition-colors shadow-sm"
+                >
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+
+              {!hasOutOfStockItems && (
+                <a
+                  href={generateWhatsAppOrderUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gold hover:bg-gold-deep text-ink  border border-gold/40 text-xs tracking-wider uppercase font-medium rounded-[2px] transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-whatsapp" />
+                  <span>Instant Order via WhatsApp</span>
+                </a>
+              )}
             </div>
           </div>
         )}

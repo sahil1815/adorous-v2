@@ -11,19 +11,20 @@ import { sendMetaCapiEvent } from '@/lib/metaCapi';
 
 export async function createOrder(orderData: any) {
   try {
-    // 1. Authoritative price recalculation from database
+    // 1. Authoritative price recalculation & stock validation from database
     const itemProductIds = (orderData.items || [])
       .map((i: any) => i.product?.id)
       .filter(Boolean);
 
-    let authoritativeSubtotal = 0;
-    let dbProductMap = new Map<string, { id: string; price: number; originalPrice?: number | null }>();
+    let authoritativeCompareSubtotal = 0;
+    let authoritativeSellingSubtotal = 0;
+    let dbProductMap = new Map<string, { id: string; slug?: string; name: string; price: number; originalPrice?: number | null; inStock: boolean; stockQty: number | null; colorways: any[] }>();
 
     if (itemProductIds.length > 0) {
       try {
         const dbProducts = await prisma.product.findMany({
           where: { id: { in: itemProductIds } },
-          select: { id: true, price: true, originalPrice: true },
+          select: { id: true, slug: true, name: true, price: true, originalPrice: true, inStock: true, stockQty: true, colorways: true },
         });
         dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
       } catch (dbErr) {
@@ -31,17 +32,49 @@ export async function createOrder(orderData: any) {
       }
     }
 
+    // Server-side strict Out of Stock verification
     for (const item of orderData.items || []) {
       const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
-      const unitPrice = dbProd ? Math.round(Number(dbProd.price)) : (Math.round(Number(item.product?.price)) || 0);
+      if (dbProd) {
+        const isProductOos = dbProd.inStock === false || (dbProd.stockQty !== null && dbProd.stockQty <= 0);
+        const matchingColor = item.selectedColor
+          ? dbProd.colorways?.find(
+              (c: any) =>
+                (c.id && item.selectedColor.id && c.id.toLowerCase() === item.selectedColor.id.toLowerCase()) ||
+                (c.colorId && item.selectedColor.colorId && c.colorId.toLowerCase() === item.selectedColor.colorId.toLowerCase()) ||
+                (c.name && item.selectedColor.name && c.name.toLowerCase() === item.selectedColor.name.toLowerCase())
+            )
+          : null;
+        const isColorOos = matchingColor && matchingColor.inStock === false;
+
+        if (isProductOos || isColorOos) {
+          return {
+            success: false,
+            error: `"${dbProd.name || item.product?.name || 'A selected piece'}" is currently out of stock. Please remove it from your bag to proceed.`,
+          };
+        }
+      }
+
+      const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
+      const sell = dbProd ? Math.round(Number(dbProd.price)) : (Math.round(Number(item.product?.price)) || 0);
+      const comparePrice = orig && Number(orig) > sell ? Math.round(Number(orig)) : sell;
       const qty = Math.max(1, Number(item.quantity) || 1);
-      authoritativeSubtotal += unitPrice * qty;
+
+      authoritativeCompareSubtotal += comparePrice * qty;
+      authoritativeSellingSubtotal += sell * qty;
     }
+
+    const storeDiscountAmount = Math.max(0, authoritativeCompareSubtotal - authoritativeSellingSubtotal);
 
     // 2. Authoritative shipping fee validation based on destination district
     const districtRaw = String(orderData.customer?.district || '').trim().toLowerCase();
     const isDhakaMetro = districtRaw.includes('dhaka');
     let validatedShippingFee = isDhakaMetro ? 80 : 130;
+
+    // Free delivery threshold: 2000 BDT based on selling subtotal
+    if (authoritativeSellingSubtotal >= 2000) {
+      validatedShippingFee = 0;
+    }
 
     // 3. Authoritative coupon / discount validation
     let validatedDiscountAmount = 0;
@@ -52,69 +85,65 @@ export async function createOrder(orderData: any) {
         const settings = await getWelcomeOfferSettings();
         if (settings.enabled) {
           const pct = settings.discountPercent || 10;
-          let compareSubtotal = 0;
-          for (const item of orderData.items || []) {
-            const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
-            const price = dbProd ? Number(dbProd.price) : (Number(item.product?.price) || 0);
-            const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
-            const comparePrice = orig && orig > price ? orig : price;
-            const qty = Math.max(1, Number(item.quantity) || 1);
-            compareSubtotal += comparePrice * qty;
-          }
-          const computedDiscount = Math.round(compareSubtotal * (pct / 100));
+          const computedDiscount = Math.round(authoritativeCompareSubtotal * (pct / 100));
           const maxDisc = settings.maxDiscountAmount || 500;
           validatedDiscountAmount = Math.min(computedDiscount, maxDisc);
         } else {
-          validatedCouponCode = undefined;
+          validatedCouponCode = storeDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined;
+          validatedDiscountAmount = storeDiscountAmount;
         }
       } catch (err) {
         console.error('[createOrder] Error validating NEW_VISITOR discount on server:', err);
+        validatedDiscountAmount = storeDiscountAmount;
       }
-    } else if (validatedCouponCode) {
+    } else if (validatedCouponCode && validatedCouponCode !== 'STORE_DISCOUNT') {
       const upperCode = validatedCouponCode.toUpperCase();
-      const subForCoupon = authoritativeSubtotal > 0 ? authoritativeSubtotal : (Number(orderData.subtotal) || 0);
+      let couponSavings = 0;
 
       if (upperCode === 'EID2026') {
-        if (subForCoupon >= 2000) {
-          validatedDiscountAmount = Math.min(Math.round(subForCoupon * 0.15), 800);
+        if (authoritativeSellingSubtotal >= 2000) {
+          couponSavings = Math.min(Math.round(authoritativeSellingSubtotal * 0.15), 800);
           validatedCouponCode = 'EID2026';
         } else {
-          validatedCouponCode = undefined;
+          validatedCouponCode = storeDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined;
         }
       } else if (upperCode === 'FIRST10') {
-        if (subForCoupon >= 1000) {
-          validatedDiscountAmount = Math.min(Math.round(subForCoupon * 0.10), 500);
+        if (authoritativeSellingSubtotal >= 1000) {
+          couponSavings = Math.min(Math.round(authoritativeSellingSubtotal * 0.10), 500);
           validatedCouponCode = 'FIRST10';
         } else {
-          validatedCouponCode = undefined;
+          validatedCouponCode = storeDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined;
         }
       } else if (upperCode === 'ROYAL500') {
-        if (subForCoupon >= 3500) {
-          validatedDiscountAmount = 500;
+        if (authoritativeSellingSubtotal >= 3500) {
+          couponSavings = 500;
           validatedCouponCode = 'ROYAL500';
         } else {
-          validatedCouponCode = undefined;
+          validatedCouponCode = storeDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined;
         }
       } else if (upperCode === 'FREESHIP') {
         validatedShippingFee = 0;
-        validatedDiscountAmount = 0;
+        couponSavings = 0;
         validatedCouponCode = 'FREESHIP';
       } else {
-        // Unknown or custom coupon: accept within reasonable bounds (cannot exceed 30% of subtotal)
-        const claimed = Number(orderData.discountAmount) || 0;
-        if (claimed > 0 && claimed <= Math.round(subForCoupon * 0.3)) {
-          validatedDiscountAmount = claimed;
+        // Unknown or custom coupon: accept within reasonable bounds (cannot exceed 30% of selling subtotal)
+        const claimed = Math.max(0, (Number(orderData.discountAmount) || 0) - storeDiscountAmount);
+        if (claimed > 0 && claimed <= Math.round(authoritativeSellingSubtotal * 0.3)) {
+          couponSavings = claimed;
         } else {
-          validatedCouponCode = undefined;
-          validatedDiscountAmount = 0;
+          validatedCouponCode = storeDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined;
         }
       }
+      validatedDiscountAmount = storeDiscountAmount + couponSavings;
+    } else {
+      // Store discount or no coupon: difference between compare subtotal and selling subtotal
+      validatedDiscountAmount = storeDiscountAmount;
+      if (storeDiscountAmount > 0) {
+        validatedCouponCode = 'STORE_DISCOUNT';
+      } else {
+        validatedCouponCode = undefined;
+      }
     }
-
-    const sub = authoritativeSubtotal > 0 ? authoritativeSubtotal : (Number(orderData.subtotal) || 0);
-    const ship = validatedShippingFee;
-    const disc = validatedDiscountAmount;
-    let validatedGrandTotal = Math.max(0, Math.round(sub - disc + ship));
 
     // Determine Payment Mode & Online Payment Handling
     const isOnlinePayment =
@@ -148,15 +177,17 @@ export async function createOrder(orderData: any) {
       } catch (err) {
         console.error('[createOrder] Error fetching payment settings:', err);
       }
+    }
 
-      // Recompute grand total incorporating online discount
-      const sub = Number(orderData.subtotal) || 0;
-      const ship = Number(orderData.shippingFee) || 0;
-      const promoDisc = Number(validatedDiscountAmount) || 0;
-      const onlineDisc = Number(finalOnlineDiscountAmount) || 0;
-      validatedGrandTotal = Math.max(0, Math.round(sub - promoDisc - onlineDisc + ship));
+    // Authoritative grand total calculation ensuring mathematical harmony:
+    // subtotal - discountAmount - onlineDiscount + shippingFee === grandTotal
+    const onlineDisc = Number(finalOnlineDiscountAmount) || 0;
+    let validatedGrandTotal = Math.max(
+      0,
+      Math.round(authoritativeCompareSubtotal - validatedDiscountAmount - onlineDisc + validatedShippingFee)
+    );
 
-      // On online payment, the courier collects 0 COD!
+    if (isOnlinePayment) {
       finalCodAmount = 0;
     } else {
       finalCodAmount = validatedGrandTotal;
@@ -180,10 +211,10 @@ export async function createOrder(orderData: any) {
         paymentStatus: finalPaymentStatus,
         onlineDiscountAmount: finalOnlineDiscountAmount,
         codAmount: finalCodAmount,
-        subtotal: orderData.subtotal,
-        shippingFee: orderData.shippingFee,
-        discountAmount: validatedDiscountAmount,
-        couponCode: validatedCouponCode,
+        subtotal: authoritativeCompareSubtotal,
+        shippingFee: validatedShippingFee,
+        discountAmount: validatedDiscountAmount > 0 ? validatedDiscountAmount : null,
+        couponCode: validatedCouponCode || null,
         grandTotal: validatedGrandTotal,
         internalNotes: orderData.internalNotes,
         customer: {
@@ -199,12 +230,13 @@ export async function createOrder(orderData: any) {
         },
         items: {
           create: (orderData.items || []).map((item: any) => {
-            const orig = item.product?.originalPrice;
-            const sellPrice = item.product?.price ?? 0;
-            const itemPrice = orig && orig > sellPrice ? orig : sellPrice;
+            const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
+            const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
+            const sellPrice = dbProd ? Number(dbProd.price) : (item.product?.price ?? 0);
+            const itemPrice = orig && Number(orig) > sellPrice ? Math.round(Number(orig)) : Math.round(sellPrice);
             return {
-              productId: item.product?.id || null,
-              productName: item.product?.name || 'Jewelry item',
+              productId: dbProd?.id || item.product?.id || null,
+              productName: dbProd?.name || item.product?.name || 'Jewelry item',
               productImage: item.product?.featuredImage || '',
               price: itemPrice,
               quantity: Number(item.quantity) || 1,

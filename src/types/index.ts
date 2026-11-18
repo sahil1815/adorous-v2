@@ -2,6 +2,7 @@ export type ProductCategory = 'jewelry' | 'bags' | 'earrings' | 'churi' | 'more'
 
 export interface Colorway {
   id: string;
+  colorId?: string;
   name: string;
   hex: string;
   inStock: boolean;

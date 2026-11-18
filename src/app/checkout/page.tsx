@@ -16,6 +16,7 @@ import { saveDraftCheckoutAction, markDraftCheckoutConvertedAction } from '@/app
 import { getPaymentSettings } from '@/app/actions/paymentSettingsActions';
 import { type PaymentSettingsData, DEFAULT_PAYMENT_SETTINGS } from '@/lib/paymentSettings';
 import { formatPrice } from '@/lib/formatPrice';
+import { isColorwayOutOfStock } from '@/lib/productStock';
 import { event as trackFbEvent } from '@/lib/fpixel';
 import { trackBeginCheckout, trackPurchase } from '@/lib/gtag';
 import {
@@ -43,10 +44,15 @@ import {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, clearCart, updateQuantity, removeItem, addItem, updateItemColor } = useCart();
+  const { items, subtotal, clearCart, updateQuantity, removeItem, addItem, updateItemColor, refreshCart, hasOutOfStockItems } = useCart();
   const { validateCoupon, recordCouponUsage } = useCoupons();
   const { customer } = useCustomerAuth();
   const { isOfferActive, discountPercent, calculateDiscount, calculateCompareDiscount, markUsed, settings } = useNewVisitorOffer();
+
+  // Authoritative background refresh of prices and stock on checkout mount
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
 
   // Persistent session ID for abandoned checkout recovery
   const [draftSessionId, setDraftSessionId] = useState('');
@@ -413,9 +419,15 @@ export default function CheckoutPage() {
     setErrorMsg(null);
     setTransactionIdError(null);
 
+    // Prevent placing order if cart contains out of stock items
+    if (hasOutOfStockItems) {
+      setErrorMsg('One or more items in your bag are currently out of stock. Please remove them before placing your order.');
+      return;
+    }
+
     // Validation with smooth scrolling & error focusing
     if (!fullName.trim()) {
-      setErrorMsg('Please enter the recipient full name.');
+      setErrorMsg('Please enter the recipient name.');
       fullNameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       fullNameInputRef.current?.focus();
       return;
@@ -480,7 +492,7 @@ export default function CheckoutPage() {
       subtotal: checkoutSubtotal,
       shippingFee,
       discountAmount: totalDiscount > 0 ? totalDiscount : undefined,
-      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : undefined,
+      couponCode: useNvo ? 'NEW_VISITOR' : appliedCoupon ? appliedCoupon.code : (adminDiscountAmount > 0 ? 'STORE_DISCOUNT' : undefined),
       grandTotal,
     };
 
@@ -651,10 +663,10 @@ export default function CheckoutPage() {
             <div className="bg-paper border border-line p-5 sm:p-7 rounded-[2px] shadow-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 
-                {/* 1. Full Name */}
+                {/* 1. Name */}
                 <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
-                    Full Name <span className="text-red-500">*</span>
+                    Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     ref={fullNameInputRef}
@@ -663,8 +675,8 @@ export default function CheckoutPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     onBlur={triggerDraftSave}
-                    placeholder="Enter your full name"
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
+                    placeholder="Enter your name"
+                    className="w-full px-3.5 py-3 sm:py-3.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
                   />
                 </div>
 
@@ -674,7 +686,7 @@ export default function CheckoutPage() {
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-text-muted font-medium select-none">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted font-medium select-none pointer-events-none">
                       +880
                     </span>
                     <input
@@ -685,27 +697,12 @@ export default function CheckoutPage() {
                       onChange={(e) => setPhone(e.target.value)}
                       onBlur={triggerDraftSave}
                       placeholder="Enter your phone number"
-                      className="w-full pl-16 pr-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted font-mono"
+                      className="w-full pl-16 pr-3.5 py-3 sm:py-3.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted font-mono"
                     />
                   </div>
                 </div>
 
-                {/* 3. Email Address (Moved to Top) */}
-                <div className="space-y-1 sm:col-span-2">
-                  <label className="block text-ink font-medium">
-                    Email Address <span className="text-text-muted text-[10px]">(Optional)</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={triggerDraftSave}
-                    placeholder="example@gmail.com"
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted"
-                  />
-                </div>
-
-                {/* 4. Division / District */}
+                {/* 3. Division / District */}
                 <div className="space-y-1 sm:col-span-2 relative" ref={districtContainerRef}>
                   <div className="flex items-center justify-between">
                     <label className="block text-ink font-medium">
@@ -727,7 +724,7 @@ export default function CheckoutPage() {
                         if (e.key === 'Escape') setIsDistrictDropdownOpen(false);
                       }}
                       placeholder="Choose division and district"
-                      className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink placeholder:text-text-muted focus:outline-none focus:border-gold rounded-xs transition-colors"
+                      className="w-full px-3.5 py-3 sm:py-3.5 bg-sand/30 border border-line text-ink placeholder:text-text-muted focus:outline-none focus:border-gold rounded-xs transition-colors"
                       autoComplete="off"
                     />
                     <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center space-x-1">
@@ -794,7 +791,7 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {/* 5. Address */}
+                {/* 4. Address */}
                 <div className="space-y-1 sm:col-span-2">
                   <label className="block text-ink font-medium">
                     Address <span className="text-red-500">*</span>
@@ -802,12 +799,12 @@ export default function CheckoutPage() {
                   <textarea
                     ref={addressInputRef}
                     required
-                    rows={2}
+                    rows={3}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     onBlur={triggerDraftSave}
                     placeholder="House, road and other address details"
-                    className="w-full px-3.5 py-2.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
+                    className="w-full px-3.5 py-3 sm:py-3.5 bg-sand/30 border border-line text-ink focus:outline-none focus:border-gold rounded-xs placeholder:text-text-muted leading-relaxed"
                   />
                 </div>
               </div>
@@ -833,6 +830,7 @@ export default function CheckoutPage() {
               <div className="divide-y divide-line max-h-96 overflow-y-auto pr-1">
                 {items.map((item, idx) => {
                   const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
+                  const isItemOos = isColorwayOutOfStock(item.product, item.selectedColor);
                   const baseUnitPrice = getItemComparePrice(item);
                   const baseLineTotal = baseUnitPrice * item.quantity;
 
@@ -853,7 +851,7 @@ export default function CheckoutPage() {
                     : 0;
 
                   return (
-                    <div key={itemKey} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0">
+                    <div key={itemKey} className={`py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0 ${isItemOos ? 'bg-red-50/20 p-2.5 rounded-xs border border-red-200/50' : ''}`}>
                       {/* Product Info */}
                       <div className="flex items-start space-x-3 min-w-0 flex-1">
                         <div className="relative w-12 h-14 bg-stone rounded-xs overflow-hidden shrink-0 border border-line">
@@ -867,9 +865,28 @@ export default function CheckoutPage() {
                           })()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-medium text-ink truncate block">
-                            {item.product.name}
-                          </h4>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="text-xs font-medium text-ink truncate block">
+                              {item.product.name}
+                            </h4>
+                            {isItemOos && (
+                              <span className="px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200 rounded-xs">
+                                Out of Stock
+                              </span>
+                            )}
+                          </div>
+                          {isItemOos && (
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-red-600 font-medium">Sold out.</span>
+                              <button
+                                type="button"
+                                onClick={() => setItemToDelete(item)}
+                                className="text-[10px] text-red-600 hover:text-red-800 underline font-semibold"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
                           <div className="text-[10px] text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
                             {item.product.colorways && item.product.colorways.length > 1 ? (
                               <div className="relative inline-flex items-center">
@@ -1417,6 +1434,16 @@ export default function CheckoutPage() {
                 />
               </div>
 
+              {/* Out of Stock Notice above Desktop Button */}
+              {hasOutOfStockItems && (
+                <div className="hidden lg:flex p-3 bg-red-50 border border-red-300 text-red-800 text-xs rounded-xs items-center space-x-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <div className="font-medium leading-snug">
+                    Your bag contains out of stock items. Please remove them before placing your order.
+                  </div>
+                </div>
+              )}
+
               {/* Error Notice above Desktop Button */}
               {errorMsg && (
                 <div className="hidden lg:flex p-3 bg-red-50 border border-red-300 text-red-800 text-xs rounded-xs items-start space-x-2 animate-in fade-in">
@@ -1428,12 +1455,16 @@ export default function CheckoutPage() {
               {/* Desktop Submit Button (Hidden on Mobile) */}
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="hidden lg:flex w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all items-center justify-center space-x-2 shadow-md"
+                disabled={isSubmitting || hasOutOfStockItems}
+                className="hidden lg:flex w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all items-center justify-center space-x-2 shadow-md disabled:cursor-not-allowed"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>
-                  {isSubmitting ? 'Processing Order...' : `Place Order (৳${formatPrice(grandTotal)})`}
+                  {isSubmitting
+                    ? 'Processing Order...'
+                    : hasOutOfStockItems
+                    ? 'Cannot Place Order (Items Out of Stock)'
+                    : `Place Order (৳${formatPrice(grandTotal)})`}
                 </span>
               </button>
             </div>
@@ -1442,6 +1473,14 @@ export default function CheckoutPage() {
 
         {/* Mobile Sticky Footer (Hidden on Desktop) */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-paper px-4 py-3 sm:p-4 border-t border-line shadow-[0_-8px_16px_rgba(0,0,0,0.04)] z-[9999] space-y-2.5 pb-safe">
+          {hasOutOfStockItems && (
+            <div className="p-2.5 bg-red-50 border border-red-300 text-red-800 text-[11px] rounded-xs flex items-center space-x-2 animate-in fade-in">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600" />
+              <div className="font-medium leading-tight">
+                Your bag contains out of stock items. Remove them to place order.
+              </div>
+            </div>
+          )}
           {errorMsg && (
             <div className="p-2.5 bg-red-50 border border-red-300 text-red-800 text-[11px] rounded-xs flex items-start space-x-2 animate-in fade-in">
               <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-600" />
@@ -1457,12 +1496,16 @@ export default function CheckoutPage() {
           <button
             type="submit"
             form="checkout-form"
-            disabled={isSubmitting}
-            className="w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 shadow-md"
+            disabled={isSubmitting || hasOutOfStockItems}
+            className="w-full py-4 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink font-semibold text-xs tracking-wider uppercase rounded-xs transition-all flex items-center justify-center space-x-2 shadow-md disabled:cursor-not-allowed"
           >
             <Lock className="w-3.5 h-3.5" />
             <span>
-              {isSubmitting ? 'Processing Order...' : `Place Order (৳${formatPrice(grandTotal)})`}
+              {isSubmitting
+                ? 'Processing Order...'
+                : hasOutOfStockItems
+                ? 'Cannot Place Order (Items Out of Stock)'
+                : `Place Order (৳${formatPrice(grandTotal)})`}
             </span>
           </button>
         </div>

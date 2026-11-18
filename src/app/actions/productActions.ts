@@ -869,3 +869,106 @@ export async function duplicateProductAction(productIdOrSlug: string) {
   }
 }
 
+export interface SyncedCartProduct {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  originalPrice: number | null;
+  discount: number | null;
+  discountType: string | null;
+  inStock: boolean;
+  stockQty: number | null;
+  featuredImage: string;
+  colorways: Array<{
+    id: string;
+    colorId: string;
+    name: string;
+    hex: string;
+    inStock: boolean;
+    image: string | null;
+  }>;
+}
+
+export async function syncCartProductsAction(
+  items: Array<{ productId?: string; slug?: string }>
+): Promise<{ success: boolean; products: SyncedCartProduct[] }> {
+  try {
+    const ids = Array.from(new Set((items || []).map((i) => i.productId).filter(Boolean))) as string[];
+    const slugs = Array.from(new Set((items || []).map((i) => i.slug).filter(Boolean))) as string[];
+
+    if (ids.length === 0 && slugs.length === 0) {
+      return { success: true, products: [] };
+    }
+
+    if (process.env.DATABASE_URL) {
+      const orClauses: any[] = [];
+      if (ids.length > 0) orClauses.push({ id: { in: ids } });
+      if (slugs.length > 0) orClauses.push({ slug: { in: slugs } });
+
+      const dbProducts = await prisma.product.findMany({
+        where: { OR: orClauses },
+        include: { colorways: true },
+      });
+
+      const synced = dbProducts.map((p) => {
+        const isOverallInStock = p.inStock && (p.stockQty === null || p.stockQty > 0);
+        return {
+          id: p.id,
+          slug: p.slug,
+          name: p.name,
+          price: Math.round(Number(p.price) || 0),
+          originalPrice: p.originalPrice !== null && p.originalPrice !== undefined ? Math.round(Number(p.originalPrice)) : null,
+          discount: p.discount !== null && p.discount !== undefined ? Math.round(Number(p.discount)) : null,
+          discountType: p.discountType || 'percent',
+          inStock: isOverallInStock,
+          stockQty: p.stockQty,
+          featuredImage: p.featuredImage || '',
+          colorways: (p.colorways || []).map((c) => ({
+            id: c.id,
+            colorId: c.colorId,
+            name: c.name,
+            hex: c.hex,
+            inStock: c.inStock && isOverallInStock,
+            image: c.image || null,
+          })),
+        };
+      });
+
+      return { success: true, products: synced };
+    }
+
+    // Fallback: static catalogue
+    const staticMatches = PRODUCTS.filter((p) => ids.includes(p.id) || slugs.includes(p.slug));
+    const synced = staticMatches.map((p) => {
+      const isOverallInStock = p.inStock !== false && ((p as any).stockQty === null || (p as any).stockQty === undefined || (p as any).stockQty > 0);
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        price: Math.round(Number(p.price) || 0),
+        originalPrice: p.originalPrice ? Math.round(Number(p.originalPrice)) : null,
+        discount: p.discount ? Math.round(Number(p.discount)) : null,
+        discountType: p.discountType || 'percent',
+        inStock: isOverallInStock,
+        stockQty: (p as any).stockQty ?? null,
+        featuredImage: p.featuredImage || '',
+        colorways: (p.colorways || []).map((c) => ({
+          id: c.id,
+          colorId: (c as any).colorId || c.id,
+          name: c.name,
+          hex: c.hex,
+          inStock: c.inStock !== false && isOverallInStock,
+          image: c.image || null,
+        })),
+      };
+    });
+
+    return { success: true, products: synced };
+  } catch (error: any) {
+    console.error('[syncCartProductsAction] Error syncing cart products:', error);
+    return { success: false, products: [] };
+  }
+}
+
+
