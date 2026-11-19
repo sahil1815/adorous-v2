@@ -4,11 +4,35 @@ import Link from 'next/link';
 import { RotateCcw, ShieldCheck, Check, Clock, AlertCircle, MessageCircle, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: '7-Day Doorstep Exchange Policy | Adorous Fashion',
+  title: '7-Day Doorstep Exchange & 6-Month Guarantee',
   description:
-    'Hassle-free 7-day doorstep size and style exchange policy across Bangladesh. Guaranteed fit on all Churi bangles, jewelry, and luxury bags.',
+    'Hassle-free 7-day doorstep size and style exchange policy across Bangladesh with our official 6-Month Guarantee on all artisan jewelry and Churi bangles.',
   alternates: {
-    canonical: '/returns-exchange',
+    canonical: 'https://adorousfashion.store/returns-exchange',
+  },
+  openGraph: {
+    title: '7-Day Doorstep Exchange & 6-Month Guarantee | Adorous Fashion',
+    description:
+      'Hassle-free 7-day doorstep size and style exchange policy across Bangladesh with our official 6-Month Guarantee on all artisan jewelry and Churi bangles.',
+    url: 'https://adorousfashion.store/returns-exchange',
+    siteName: 'Adorous Fashion',
+    images: [
+      {
+        url: '/images/hero/hero-still-life.jpg',
+        width: 1200,
+        height: 675,
+        alt: 'Adorous Fashion 7-Day Exchange & 6-Month Guarantee Policy',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '7-Day Doorstep Exchange & 6-Month Guarantee | Adorous Fashion',
+    description:
+      'Hassle-free 7-day doorstep size and style exchange policy across Bangladesh with our official 6-Month Guarantee on all artisan jewelry.',
+    images: ['/images/hero/hero-still-life.jpg'],
   },
 };
 
@@ -70,32 +94,59 @@ export default function ReturnsExchangePage() {
           </div>
         </div>
 
-        {/* 6-Month Color & Plating Assurance Guarantee Banner */}
-        <section className="p-6 sm:p-8 bg-sand/40 border border-gold/40 rounded-xs space-y-3">
+        {/* ৬ মাসের গ্যারান্টি (6-Month Official Atelier Guarantee) Banner */}
+        <section className="p-6 sm:p-8 bg-sand/40 border border-gold/40 rounded-xs space-y-4">
           <div className="flex items-center space-x-2.5 text-gold-deep">
             <ShieldCheck className="w-5 h-5 text-gold-deep shrink-0" />
             <span className="text-[11px] font-semibold tracking-wider text-gold-ink uppercase">
-              Long-Term Craftsmanship Protection
+              Official Quality Promise · অফিসিয়াল গুণগত নিশ্চয়তা
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-serif text-ink font-medium">
-            6-Month Color &amp; Plating Assurance Guarantee
-          </h2>
-          <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-            Every Adorous jewelry piece is electroplated with premium 22k gold-tone or rhodium finish and sealed with an anti-tarnish protective lacquer. We proudly back our craftsmanship:
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs text-ink/90 list-none">
-            <li className="flex items-start gap-2 bg-paper p-3 border border-line rounded-xs">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-serif text-ink font-medium">
+              ৬ মাসের গ্যারান্টি (6-Month Official Atelier Guarantee)
+            </h2>
+            <p className="text-xs sm:text-sm text-text-muted mt-1 leading-relaxed">
+              অ্যাডোরেবল ফ্যাশনের প্রতিটি জুয়েলারি তৈরিতে ব্যবহার করা হয় প্রিমিয়াম অ্যান্টিক গোল্ড-ফিনিশ কোটিং এবং সূক্ষ্ম হ্যান্ড-সেটিং। আমাদের প্রতিটি পিসের সাথে গ্রাহক পাচ্ছেন পূর্ণ ৬ মাসের নিশ্চয়তা:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs text-ink/90">
+            <div className="flex items-start gap-2.5 bg-paper p-3.5 border border-line rounded-xs">
               <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Free Re-plating or Replacement:</strong> If noticeable color fading occurs within 6 months of normal wear.</span>
-            </li>
-            <li className="flex items-start gap-2 bg-paper p-3 border border-line rounded-xs">
+              <div>
+                <strong className="block text-ink font-semibold">১. কালার ও প্লেটিং স্থায়িত্ব (Color Longevity):</strong>
+                <span className="text-text-muted">স্বাভাবিক ব্যবহারে ৬ মাসের মধ্যে দৃশ্যমান কোনো কালার ফেইড বা ডিসকালারেশন হলে বিনামূল্যে রিপ্লেসমেন্ট বা সার্ভিসিং।</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5 bg-paper p-3.5 border border-line rounded-xs">
               <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Simple WhatsApp Verification:</strong> Just share a clear photo of the piece with your Order ID on WhatsApp (+8801577731381).</span>
-            </li>
-          </ul>
-          <p className="text-[11px] text-text-muted italic pt-1">
-            *Guarantee terms: Valid under standard non-chemical use. Keep pieces away from direct spray of perfumes, alcohol sanitizers, and water immersion.
+              <div>
+                <strong className="block text-ink font-semibold">২. পাথর সেটিং ও কারিগরী সুরক্ষা (Stone Setting &amp; Craft):</strong>
+                <span className="text-text-muted">ফিটিং বা ম্যানুফ্যাকচারিং কোনো ত্রুটির কারণে পাথর আলগা হলে আমাদের নিজস্ব কারিগর দ্বারা ফ্রি মেরামত বা পিস রিপ্লেসমেন্ট।</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5 bg-paper p-3.5 border border-line rounded-xs">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-ink font-semibold">৩. সহজ হোয়াটসঅ্যাপ ক্লেইম (Easy WhatsApp Claim):</strong>
+                <span className="text-text-muted">কোনো জটিল শর্ত নেই। শুধুমাত্র অর্ডার আইডি এবং সমস্যাযুক্ত পিসের ছবি আমাদের অফিসিয়াল হোয়াটসঅ্যাপে (+8801577731381) পাঠালেই সমাধান।</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5 bg-paper p-3.5 border border-line rounded-xs">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-ink font-semibold">৪. ডোরস্টেপ রিপ্লেসমেন্ট সুবিধা (Doorstep Pickup):</strong>
+                <span className="text-text-muted">কুরিয়ার অফিসে গিয়ে ভোগান্তি পোহাতে হবে না; কুরিয়ার ডেলিভারিম্যান আপনার বাসায় নতুন পিস পৌঁছে দিয়ে পুরাতন পিস সংগ্রহ করবে।</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-text-muted italic pt-1 border-t border-line/60">
+            * ব্যবহারের শর্তাবলী: উৎসব বা ঘরোয়া সাধারণ ব্যবহারে এই গ্যারান্টি পূর্ণ কার্যকর। প্রটেক্টিভ কোটিং ও পাথরের দীর্ঘস্থায়িত্ব রক্ষার জন্য পারফিউম স্প্রে, স্যানিটাইজার বা সরাসরি পানির দীর্ঘ সংস্পর্শ পরিহার করুন এবং অসাবধানতাবশত আছাড় লেগে ভেঙে ফেলা বা বিকৃত করা থেকে বিরত থাকুন।
           </p>
         </section>
 

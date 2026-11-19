@@ -360,7 +360,7 @@ export default function AdminDraftsPage() {
 
     const name = draft.fullName && draft.fullName !== 'Anonymous Visitor' ? draft.fullName : 'Customer';
 
-    const message = `Hello ${name}, Assalamu Alaikum from Adorous Fashion!\n\nWe noticed you were selecting:\n${itemsSummary || 'luxury churi & fine jewelry'}\nTotal: ৳${formatPrice(draft.grandTotal)}\n\nWould you like any assistance completing your Cash on Delivery order, or would you like our team to confirm and dispatch this for you? Please let us know!`;
+    const message = `Hello ${name}, Assalamu Alaikum from Adorous Fashion!\n\nWe noticed you were selecting:\n${itemsSummary || 'luxury churi & fashion jewelry'}\nTotal: ৳${formatPrice(draft.grandTotal)}\n\nWould you like any assistance completing your Cash on Delivery order, or would you like our team to confirm and dispatch this for you? Please let us know!`;
 
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   };

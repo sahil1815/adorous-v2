@@ -376,7 +376,18 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       return pSlug === cleanSlug && catMatches;
     });
 
-    if (!found) return undefined;
+    if (!found) {
+      const cleanTarget = cleanSlug.replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+      const fuzzy = allProducts.find((p: Product) => {
+        const norm = p.slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+        return norm === cleanTarget || (cleanTarget.length > 8 && (norm.includes(cleanTarget) || cleanTarget.includes(norm)));
+      });
+      if (fuzzy) {
+        if (!allowHidden && fuzzy.isHidden) return undefined;
+        return getEffectiveProduct(fuzzy);
+      }
+      return undefined;
+    }
     if (found.isHidden && !allowHidden) return undefined;
     return getEffectiveProduct(found);
   };

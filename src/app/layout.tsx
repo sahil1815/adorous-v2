@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adorous Fashion — Boutique Accessories & Fine Jewelry",
+    title: "Adorous Fashion — Boutique Accessories & Fashion Jewelry",
     description: "Curated premium jewelry sets, churi bangles, and luxury bags. Cash on Delivery across Bangladesh.",
     images: ["/images/hero/hero-still-life.jpg"],
   },

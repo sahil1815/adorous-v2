@@ -48,6 +48,7 @@ next-env.d.ts
 *.pdf
 
 # database migration backups and scripts
+backups/
 adorous_complete_migration_data.json
 old_db_products_and_users.json
 restore_*.js

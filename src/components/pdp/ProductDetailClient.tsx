@@ -551,7 +551,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const generateDirectWhatsAppLink = () => {
     let message = `Hello Adorous Fashion,\n\nI would like to place an order for:\n`;
     message += `Product: ${product.name}\n`;
-    message += `Category: ${product.categoryLabel}\n`;
+    message += `Category: ${product.categoryLabel === 'Fine Jewelry Sets' ? 'Fashion Jewelry Sets' : product.categoryLabel}\n`;
 
     if (purchaseMode === 'mix') {
       const activeColorItems = (product.colorways || []).filter(
@@ -609,7 +609,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
           <Link href="/shop" className="hover:text-ink transition-colors">Explore All</Link>
           <span>/</span>
           <Link href={`/${product.category}`} className="hover:text-ink transition-colors">
-            {product.categoryLabel}
+            {product.categoryLabel === 'Fine Jewelry Sets' ? 'Fashion Jewelry Sets' : product.categoryLabel}
           </Link>
           <span>/</span>
           <span className="text-ink font-medium">{product.name}</span>
@@ -1557,24 +1557,28 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <span>Order Directly on WhatsApp</span>
               </a>
 
-              {/* Trust & Delivery Card */}
-              <div className="mt-6 p-3.5 bg-paper border border-line rounded-lg shadow-xs">
-                <div className="space-y-2 text-xs text-ink/90">
-                  <div className="flex items-center gap-2 text-emerald-800 font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span><strong>Warranty :</strong> 6-Month Color &amp; Plating Assurance</span>
+              {/* Trust & Delivery Card with 6-Month Official Guarantee */}
+              <div className="mt-6 p-4 bg-[#FAF8F5] border border-gold/30 rounded-lg shadow-xs space-y-3">
+                <div className="flex items-start gap-2.5 text-emerald-900 bg-emerald-50/80 p-2.5 rounded-md border border-emerald-200/60">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <div className="text-xs leading-relaxed">
+                    <span className="font-semibold block text-emerald-950">
+                      ৬ মাসের গ্যারান্টি (6-Month Official Guarantee)
+                    </span>
+                    <span className="text-[11px] text-emerald-800/90 block mt-0.5">
+                      কালার ও প্লেটিং স্থায়িত্ব এবং পাথর সেটিংয়ের কারিগরী সুরক্ষা অন্তর্ভুক্ত। ফ্রি ডোরস্টেপ সার্ভিসিং বা এক্সচেঞ্জ।
+                    </span>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-ink/90 pt-1">
                   <div className="flex items-center gap-2">
                     <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>Return :</strong> 7 Days Exchange</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>Exchange :</strong> Size & Finish Exchangeable</span>
+                    <span><strong>৭ দিনের এক্সচেঞ্জ :</strong> সাইজ ও ফিনিশ পরিবর্তনযোগ্য</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>Promised Delivery by</strong> {deliveryDates}</span>
+                    <span><strong>ডেলিভারি :</strong> {deliveryDates}</span>
                   </div>
                 </div>
               </div>

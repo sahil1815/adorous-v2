@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 function sanitizeDbUrl(url: string): string {
   // Fix unencoded '@' characters inside the password part of the URL
   // e.g., postgresql://user:pass@word@host:port/db -> postgresql://user:pass%40word@host:port/db
-  const match = url.match(/^(postgres(?:ql)?:\/\/[^:]+:)(.*)@([^@]+)$/);
+  const match = url.match(/^((?:postgres(?:ql)?|mysql):\/\/[^:]+:)(.*)@([^@]+)$/);
   if (match) {
     const [, prefix, rawPassword, hostAndRest] = match;
     const encodedPassword = rawPassword.replace(/@/g, '%40');
@@ -17,9 +17,9 @@ function sanitizeDbUrl(url: string): string {
 }
 
 /**
- * Normalizes PostgreSQL connection string for Supabase / PgBouncer.
- * Sets connection_limit=1 & pool_timeout=30 for serverless instances,
- * and sets pgbouncer=true on transaction pooler (port 6543).
+ * Normalizes connection string:
+ * - PostgreSQL: configures connection_limit & pool_timeout, sets pgbouncer=true on transaction pooler.
+ * - MySQL: configures healthy connection limits and timeouts for serverless / persistent instances.
  */
 function getDatasourceUrl(): string | undefined {
   const rawUrl = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
@@ -29,15 +29,22 @@ function getDatasourceUrl(): string | undefined {
     const cleanUrl = sanitizeDbUrl(rawUrl);
     const parsed = new URL(cleanUrl);
 
-    // Healthy connection limits for serverless instances (connection_limit=1 avoids session pool exhaustion)
-    parsed.searchParams.set('connection_limit', '1');
-    parsed.searchParams.set('pool_timeout', '30');
+    if (parsed.protocol.startsWith('postgres')) {
+      parsed.searchParams.set('connection_limit', '1');
+      parsed.searchParams.set('pool_timeout', '30');
 
-    // On transaction pooler (port 6543), pgbouncer=true is required
-    if (parsed.port === '6543') {
-      parsed.searchParams.set('pgbouncer', 'true');
-    } else if (parsed.port === '5432') {
-      parsed.searchParams.delete('pgbouncer');
+      if (parsed.port === '6543') {
+        parsed.searchParams.set('pgbouncer', 'true');
+      } else if (parsed.port === '5432') {
+        parsed.searchParams.delete('pgbouncer');
+      }
+    } else if (parsed.protocol.startsWith('mysql')) {
+      if (!parsed.searchParams.has('connection_limit')) {
+        parsed.searchParams.set('connection_limit', '5');
+      }
+      if (!parsed.searchParams.has('connect_timeout')) {
+        parsed.searchParams.set('connect_timeout', '15');
+      }
     }
 
     return parsed.toString();

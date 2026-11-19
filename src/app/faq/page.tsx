@@ -79,14 +79,14 @@ const FAQ_DATA: FaqCategory[] = [
     icon: Gem,
     items: [
       {
-        question: 'Do you offer a warranty or guarantee on jewelry color and plating?',
+        question: 'আপনাদের কি ৬ মাসের গ্যারান্টি আছে? / Do you offer an official 6-Month Guarantee?',
         answer:
-          'Yes! Every Adorous jewelry piece is backed by our 6-Month Color & Plating Assurance Guarantee. If any noticeable color fading occurs within 6 months of normal non-chemical wear, simply message our WhatsApp concierge (+8801577731381) with your Order ID for free doorstep replacement or re-plating assistance.',
+          'হ্যাঁ, নিশ্চয়ই! প্রতিটি অ্যাডোরেবল জুয়েলারিতে রয়েছে আমাদের অফিসিয়াল ৬ মাসের গ্যারান্টি (6-Month Official Atelier Guarantee)। এর আওতায় অন্তর্ভুক্ত: (১) কালার ও প্লেটিং স্থায়িত্ব—স্বাভাবিক ব্যবহারে ৬ মাসের মধ্যে কালার ফেইড হলে ফ্রি এক্সচেঞ্জ বা পলিশিং; (২) পাথর সেটিং সুরক্ষা—ফিটিং বা ম্যানুফ্যাকচারিং ত্রুটির কারণে পাথর আলগা হলে ফ্রি রিপেয়ার বা পিস রিপ্লেসমেন্ট। ক্লেইম করতে শুধুমাত্র আপনার অর্ডার আইডি ও সমস্যাযুক্ত অংশের ছবি আমাদের হোয়াটসঅ্যাপে (+8801577731381) পাঠালেই ডোরস্টেপ সমাধান পাবেন।',
       },
       {
-        question: 'Will the 22k gold-tone antique finish tarnish in Bangladesh humidity?',
+        question: 'Will the antique gold-tone finish last in Bangladesh humidity?',
         answer:
-          'Our brass-alloy pieces are electroplated with thick antique 22k gold-tone finish and sealed with a protective anti-tarnish lacquer formulated specifically to resist oxidation in tropical South Asian climates.',
+          'Our brass and alloy pieces are finished with a rich antique gold-tone polish and sealed with a skin-gentle protective coat formulated to help resist oxidation in South Asian festive and humid conditions. To maintain eternal luster, avoid direct spray of perfumes, alcohol sanitizers, and water.',
       },
       {
         question: 'How should I store and care for my accessories?',

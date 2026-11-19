@@ -5,12 +5,36 @@ import Image from 'next/image';
 import { ShieldCheck, Sparkles, Truck, Heart, ArrowRight, MessageCircle, Gem, Compass, Feather } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Our Story & Vision | Adorous Fashion',
+  title: 'Our Story & Vision',
   description:
-    'Discover the philosophy of Adorous Fashion. Premium South Asian boutique jewelry, velvet churi stacks, and curated accessories captured exclusively in high-end still-life photography.',
+    'Discover the philosophy of Adorous Fashion. Curated South Asian boutique jewelry, velvet churi stacks, and artisanal accessories captured exclusively in high-end still-life photography.',
   keywords: ['Adorous Fashion', 'boutique jewelry Bangladesh', 'still life jewelry photography', 'velvet churi craft'],
   alternates: {
-    canonical: '/about',
+    canonical: 'https://adorousfashion.store/about',
+  },
+  openGraph: {
+    title: 'Our Story & Vision | Adorous Fashion',
+    description:
+      'Discover the philosophy of Adorous Fashion. Curated South Asian boutique jewelry, velvet churi stacks, and artisanal accessories captured exclusively in high-end still-life photography.',
+    url: 'https://adorousfashion.store/about',
+    siteName: 'Adorous Fashion',
+    images: [
+      {
+        url: '/images/hero/hero-still-life.jpg',
+        width: 1200,
+        height: 675,
+        alt: 'Adorous Still Life Philosophy on Limestone Plinth',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Our Story & Vision | Adorous Fashion',
+    description:
+      'Curated South Asian boutique jewelry, velvet churi stacks, and artisanal accessories captured exclusively in still-life photography.',
+    images: ['/images/hero/hero-still-life.jpg'],
   },
 };
 
@@ -112,13 +136,13 @@ export default function AboutPage() {
               <div className="w-10 h-10 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold-deep">
                 <Gem className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg text-ink font-medium">22k Gold-Tone Antique Electroplating</h3>
+              <h3 className="font-serif text-lg text-ink font-medium">Artisan Antique Gold-Finish Plating</h3>
               <p className="text-xs text-text-muted leading-relaxed">
-                Brass cores coated with thick antique matte 22k gold-tone plating and sealed with a skin-friendly protective clear lacquer that resists tropical humidity.
+                Durable brass and alloy cores finished in a rich 22k antique gold-tone polish, sealed with a skin-gentle clear protective coat tailored to help resist humidity in South Asian festive conditions.
               </p>
             </div>
             <span className="text-[10px] text-gold-ink font-semibold tracking-wider uppercase pt-2">
-              Lasting Quality
+              Lasting Polish
             </span>
           </div>
 

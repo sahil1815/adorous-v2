@@ -24,29 +24,29 @@ export async function generateMetadata({
 
   if (!page || !page.isActive) {
     return {
-      title: 'Collection Not Found | Adorous Fashion',
+      title: 'Collection Not Found',
     };
   }
 
-  const title = `${page.title} | Adorous Fashion`;
+  const title = page.title;
   const description = page.subtitle || page.headline;
 
   return {
     title,
     description,
     openGraph: {
-      title: page.headline,
+      title: `${page.headline} | Adorous Fashion`,
       description,
       type: 'website',
       url: `https://adorousfashion.store/collections/${page.slug}`,
     },
     twitter: {
       card: 'summary_large_image',
-      title: page.headline,
+      title: `${page.headline} | Adorous Fashion`,
       description,
     },
     alternates: {
-      canonical: `/collections/${page.slug}`,
+      canonical: `https://adorousfashion.store/collections/${page.slug}`,
     },
   };
 }
@@ -64,6 +64,7 @@ export default async function CollectionLandingPage({ params }: CollectionPagePr
   const initialProducts: Product[] = productsDb.map((p) => ({
     ...p,
     category: p.category as ProductCategory,
+    sizes: Array.isArray((p as any).sizes) ? ((p as any).sizes as string[]) : [],
     description: p.description ?? '',
     tagline: p.tagline ?? '',
     originalPrice: p.originalPrice ?? undefined,

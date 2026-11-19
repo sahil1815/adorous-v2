@@ -7,7 +7,11 @@
     "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:switch:mysql": "tsx scripts/switch_db.ts mysql",
+    "db:switch:postgres": "tsx scripts/switch_db.ts postgres",
+    "db:migrate:pg2mysql": "tsx scripts/migrate_postgres_to_mysql.ts",
+    "db:sync:mysql2pg": "tsx scripts/sync_mysql_to_postgres.ts"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

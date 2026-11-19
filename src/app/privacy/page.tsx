@@ -4,10 +4,18 @@ import Link from 'next/link';
 import { Lock, ShieldCheck, Mail, Phone } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Adorous Fashion',
+  title: 'Privacy Policy',
   description: 'Privacy policy and customer data protection standards for Adorous Fashion Bangladesh.',
   alternates: {
-    canonical: '/privacy',
+    canonical: 'https://adorousfashion.store/privacy',
+  },
+  openGraph: {
+    title: 'Privacy Policy | Adorous Fashion',
+    description: 'Privacy policy and customer data protection standards for Adorous Fashion Bangladesh.',
+    url: 'https://adorousfashion.store/privacy',
+    siteName: 'Adorous Fashion',
+    locale: 'en_US',
+    type: 'website',
   },
 };
 

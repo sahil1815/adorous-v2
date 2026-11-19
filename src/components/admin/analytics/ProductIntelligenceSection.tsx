@@ -127,7 +127,7 @@ export default function ProductIntelligenceSection({
                       </h4>
                       <div className="flex items-center space-x-2 text-[11px] text-zinc-400 mt-0.5">
                         <span className="capitalize text-gold-light/80 font-medium">
-                          {p.category || 'Fine Jewelry'}
+                          {p.category || 'Fashion Jewelry'}
                         </span>
                         <span>•</span>
                         <span>{p.ordersCount} orders</span>

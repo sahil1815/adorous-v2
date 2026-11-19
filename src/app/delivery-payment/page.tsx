@@ -5,11 +5,20 @@ import { Truck, ShieldCheck, Clock, MapPin, Check, AlertCircle, MessageCircle, A
 import { BANGLADESH_DISTRICTS } from '@/data/districts';
 
 export const metadata: Metadata = {
-  title: 'Delivery & Cash on Delivery (COD) Policy | Adorous Fashion',
+  title: 'Delivery & Cash on Delivery (COD) Policy',
   description:
     'Complete guide to Cash on Delivery (COD), shipping charges, and delivery timelines across all 64 districts of Bangladesh by Adorous Fashion.',
   alternates: {
-    canonical: '/delivery-payment',
+    canonical: 'https://adorousfashion.store/delivery-payment',
+  },
+  openGraph: {
+    title: 'Delivery & Cash on Delivery (COD) Policy | Adorous Fashion',
+    description:
+      'Complete guide to Cash on Delivery (COD), shipping charges, and delivery timelines across all 64 districts of Bangladesh by Adorous Fashion.',
+    url: 'https://adorousfashion.store/delivery-payment',
+    siteName: 'Adorous Fashion',
+    locale: 'en_US',
+    type: 'website',
   },
 };
 

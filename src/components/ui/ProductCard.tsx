@@ -244,7 +244,9 @@ export default function ProductCard({ product: rawProduct }: ProductCardProps) {
         <div className="min-w-0">
           {/* Eyebrow / Category & Stock indicator */}
           <div className="flex items-center justify-between gap-1 text-[10px] tracking-[0.16em] uppercase text-text-muted font-medium min-w-0">
-            <span className="truncate">{product.categoryLabel}</span>
+            <span className="truncate">
+              {product.categoryLabel === 'Fine Jewelry Sets' ? 'Fashion Jewelry Sets' : product.categoryLabel}
+            </span>
             {isCurrentColorOutOfStock ? (
               <span className="shrink-0 text-[9px] sm:text-[10px] font-bold tracking-[0.12em] text-[#9E2A2B] uppercase flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#9E2A2B]" />

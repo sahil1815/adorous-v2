@@ -4,11 +4,20 @@ import Link from 'next/link';
 import { Ruler, ShieldCheck, RotateCcw, Check, ArrowRight, MessageCircle, Info } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Churi & Jewelry Sizing Guide | Adorous Fashion',
+  title: 'Churi & Jewelry Sizing Guide',
   description:
     'Comprehensive sizing chart for traditional South Asian Churi bangles, rigid Hasli collars, and bridal chokers. Measure hand knuckle circumference accurately.',
   alternates: {
-    canonical: '/size-fit',
+    canonical: 'https://adorousfashion.store/size-fit',
+  },
+  openGraph: {
+    title: 'Churi & Jewelry Sizing Guide | Adorous Fashion',
+    description:
+      'Comprehensive sizing chart for traditional South Asian Churi bangles, rigid Hasli collars, and bridal chokers. Measure hand knuckle circumference accurately.',
+    url: 'https://adorousfashion.store/size-fit',
+    siteName: 'Adorous Fashion',
+    locale: 'en_US',
+    type: 'website',
   },
 };
 

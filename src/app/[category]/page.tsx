@@ -26,7 +26,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     notFound();
   }
 
-  const title = `${cat.name} Collection | Adorous Fashion`;
+  const pageTitle = `${cat.name} Collection`;
+  const ogTitle = `${cat.name} Collection | Adorous Fashion`;
   const description = `${cat.blurb} Premium South Asian accessories available for Cash on Delivery across Bangladesh.`;
 
   const heroSetting = await getCachedCategoryHeroSettings(category);
@@ -36,14 +37,14 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   return {
-    title,
+    title: pageTitle,
     description,
     keywords: [cat.name, 'Adorous Fashion', 'boutique jewelry', 'accessories Bangladesh', 'Cash on delivery BD'],
     alternates: {
-      canonical: `/${cat.slug}`,
+      canonical: `https://adorousfashion.store/${cat.slug}`,
     },
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url: `https://adorousfashion.store/${cat.slug}`,
       images: [
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description,
       images: [heroImage],
     },
@@ -87,6 +88,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const categoryProducts = categoryProductsDb.map(p => ({
     ...p,
     category: p.category as ProductCategory,
+    sizes: Array.isArray((p as any).sizes) ? ((p as any).sizes as string[]) : [],
     description: p.description ?? "",
     tagline: p.tagline ?? "",
     originalPrice: p.originalPrice ?? undefined,
@@ -184,16 +186,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
       />
-      <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading collection...</div>}>
-        <CategoryPageClient
-          categorySlug={cat.slug}
-          categoryName={cat.name}
-          categoryBlurb={cat.blurb}
-          categoryImage={heroImage}
-          products={categoryProducts}
-          initialOrdering={orderingSetting}
-        />
-      </Suspense>
+      <CategoryPageClient
+        categorySlug={cat.slug}
+        categoryName={cat.name}
+        categoryBlurb={cat.blurb}
+        categoryImage={heroImage}
+        products={categoryProducts}
+        initialOrdering={orderingSetting}
+      />
     </>
   );
 }

@@ -13,10 +13,18 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getCachedLookbookSettings();
   return {
-    title: `${settings.pageTitle} | Adorous Fashion`,
+    title: settings.pageTitle,
     description: settings.pageDescription,
     alternates: {
-      canonical: '/lookbook',
+      canonical: 'https://adorousfashion.store/lookbook',
+    },
+    openGraph: {
+      title: `${settings.pageTitle} | Adorous Fashion`,
+      description: settings.pageDescription,
+      url: 'https://adorousfashion.store/lookbook',
+      siteName: 'Adorous Fashion',
+      locale: 'en_US',
+      type: 'website',
     },
   };
 }

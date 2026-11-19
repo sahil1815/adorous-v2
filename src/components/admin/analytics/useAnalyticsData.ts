@@ -513,7 +513,7 @@ export function useAnalyticsData(
         const rawCat = (item.product?.category || 'jewelry').toLowerCase().trim();
         const formatted =
           rawCat === 'jewelry'
-            ? 'Fine Jewelry'
+            ? 'Fashion Jewelry'
             : rawCat === 'churi'
             ? 'Churi & Bangles'
             : rawCat === 'earrings'

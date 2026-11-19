@@ -8,10 +8,10 @@ import ShopClient from '@/components/shop/ShopClient';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'The Full Collection | Adorous Fashion',
+  title: 'The Full Collection',
   description: 'Explore the complete boutique collection of South Asian bridal and party jewelry, handcrafted velvet bangles, luxury bags, and accessories.',
   alternates: {
-    canonical: '/shop',
+    canonical: 'https://adorousfashion.store/shop',
   },
   openGraph: {
     title: 'The Full Collection | Adorous Fashion',
@@ -39,6 +39,7 @@ export default async function ShopPage() {
   const initialProducts: Product[] = productsDb.map((p) => ({
     ...p,
     category: p.category as ProductCategory,
+    sizes: Array.isArray((p as any).sizes) ? ((p as any).sizes as string[]) : [],
     description: p.description ?? '',
     tagline: p.tagline ?? '',
     originalPrice: p.originalPrice ?? undefined,

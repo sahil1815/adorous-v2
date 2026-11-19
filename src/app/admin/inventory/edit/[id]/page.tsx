@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const CATEGORY_OPTIONS: { slug: ProductCategory; label: string }[] = [
-  { slug: 'jewelry', label: 'Fine Jewelry Sets' },
+  { slug: 'jewelry', label: 'Fashion Jewelry Sets' },
   { slug: 'bags', label: "Ladies' Handbags" },
   { slug: 'churi', label: 'Bangles & Churi' },
   { slug: 'earrings', label: 'Chandbalis & Jhumkas' },

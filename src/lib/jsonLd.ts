@@ -144,7 +144,7 @@ export const ROOT_JSON_LD = {
       '@type': 'WebPage',
       '@id': 'https://adorousfashion.store/#webpage',
       url: 'https://adorousfashion.store',
-      name: 'Adorous Fashion — Boutique Accessories & Fine Jewelry | Rajshahi, Bangladesh',
+      name: 'Adorous Fashion — Boutique Accessories & Fashion Jewelry | Rajshahi, Bangladesh',
       description: 'Curated premium jewelry sets, velvet churi bangles, luxury bags, and fashion accessories. Cash on Delivery across all 64 districts in Bangladesh.',
       isPartOf: {
         '@id': 'https://adorousfashion.store/#website',

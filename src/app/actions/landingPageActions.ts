@@ -43,7 +43,7 @@ export async function getLandingPageBySlug(slug: string): Promise<LandingPageDat
     if (!page) {
       page = await prisma.landingPage.findFirst({
         where: {
-          slug: { equals: cleanSlug, mode: 'insensitive' },
+          slug: cleanSlug,
         },
       });
     }

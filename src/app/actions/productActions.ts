@@ -117,19 +117,46 @@ export async function getProductBySlug(slug: string, allowHidden = false) {
   try {
     if (!process.env.DATABASE_URL) {
       const match = PRODUCTS.find((p) => p.slug === slug && (allowHidden || !p.isHidden));
-      return match ? toDbShape(match) : null;
+      if (match) return toDbShape(match);
+      const cleanTarget = slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+      const fuzzy = PRODUCTS.find((p) => {
+        if (!allowHidden && p.isHidden) return false;
+        const norm = p.slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+        return norm === cleanTarget || (cleanTarget.length > 8 && (norm.includes(cleanTarget) || cleanTarget.includes(norm)));
+      });
+      return fuzzy ? toDbShape(fuzzy) : null;
     }
-    const product = await prisma.product.findUnique({
+    let product = await prisma.product.findUnique({
       where: { slug },
       include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
     });
+    if (!product) {
+      // Smart alias match for close URLs or dropped keywords (e.g. without -crystal-)
+      const allActive = await prisma.product.findMany({
+        where: allowHidden ? {} : { isHidden: false },
+        include: { colorways: true, galleryImages: true, details: true, piecesIncluded: true },
+      });
+      const cleanTarget = slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+      const fuzzy = allActive.find((p) => {
+        const norm = p.slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+        return norm === cleanTarget || (cleanTarget.length > 8 && (norm.includes(cleanTarget) || cleanTarget.includes(norm)));
+      });
+      if (fuzzy) product = fuzzy;
+    }
     if (!product) return null;
     if (product.isHidden && !allowHidden) return null;
     return normalizeProductColorways(product);
   } catch (error) {
     console.warn(`[getProductBySlug] Falling back to static catalogue for slug "${slug}":`, error);
     const match = PRODUCTS.find((p) => p.slug === slug && (allowHidden || !p.isHidden));
-    return match ? toDbShape(match) : null;
+    if (match) return toDbShape(match);
+    const cleanTarget = slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+    const fuzzy = PRODUCTS.find((p) => {
+      if (!allowHidden && p.isHidden) return false;
+      const norm = p.slug.toLowerCase().replace(/[-_]+/g, '').replace(/crystal|set|box|piece/g, '');
+      return norm === cleanTarget || (cleanTarget.length > 8 && (norm.includes(cleanTarget) || cleanTarget.includes(norm)));
+    });
+    return fuzzy ? toDbShape(fuzzy) : null;
   }
 }
 

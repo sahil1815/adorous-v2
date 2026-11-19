@@ -1,11 +1,20 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Contact Atelier & Concierge | Adorous Fashion',
+  title: 'Contact Atelier & Concierge',
   description:
     'Get in touch with the Adorous Fashion atelier concierge team via WhatsApp (+8801577731381), phone, or email for styling advice, custom sizing, and order tracking.',
   alternates: {
-    canonical: '/contact',
+    canonical: 'https://adorousfashion.store/contact',
+  },
+  openGraph: {
+    title: 'Contact Atelier & Concierge | Adorous Fashion',
+    description:
+      'Get in touch with the Adorous Fashion atelier concierge team via WhatsApp (+8801577731381), phone, or email for styling advice, custom sizing, and order tracking.',
+    url: 'https://adorousfashion.store/contact',
+    siteName: 'Adorous Fashion',
+    locale: 'en_US',
+    type: 'website',
   },
 };
 

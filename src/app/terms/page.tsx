@@ -4,10 +4,18 @@ import Link from 'next/link';
 import { ShieldCheck, Truck, RotateCcw, MessageCircle, FileText } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Adorous Fashion',
-  description: 'Terms of service, sales policy, Cash on Delivery procedures, and customer agreements for Adorous Fashion Bangladesh.',
+  title: 'Terms of Service',
+  description: 'Terms of service, sales policy, 7-Day Exchange, and 6-Month Official Guarantee for Adorous Fashion Bangladesh.',
   alternates: {
-    canonical: '/terms',
+    canonical: 'https://adorousfashion.store/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service | Adorous Fashion',
+    description: 'Terms of service, sales policy, 7-Day Exchange, and 6-Month Official Guarantee for Adorous Fashion Bangladesh.',
+    url: 'https://adorousfashion.store/terms',
+    siteName: 'Adorous Fashion',
+    locale: 'en_US',
+    type: 'website',
   },
 };
 
@@ -89,25 +97,27 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="font-serif text-xl sm:text-2xl text-ink font-semibold">
-              4. 7-Day Exchange &amp; 6-Month Color Warranty
+              4. 7-Day Exchange &amp; ৬ মাসের গ্যারান্টি (6-Month Official Guarantee)
             </h2>
             <p>
-              We maintain meticulous quality inspection prior to packaging. In the rare event of transit damage, sizing discrepancy, or plating issues:
+              We maintain meticulous quality inspection prior to packaging. In the rare event of transit damage, sizing discrepancy, or craftsmanship issues:
             </p>
             <ul className="list-disc pl-5 space-y-2">
               <li>
                 Clients are requested to inspect the parcel exterior upon receipt and contact us within 24 hours if a transit defect is observed.
               </li>
               <li>
-                Unworn pieces in original luxury packaging with seals intact qualify for a 7-day size or style exchange.
+                Unworn pieces in original luxury packaging qualify for a 7-day size or style exchange with doorstep courier pickup across Bangladesh.
               </li>
               <li>
-                <strong>6-Month Color Assurance:</strong> Authentic electroplated pieces are covered by a 6-month color assurance against premature fading under standard non-chemical wear.
+                <strong>৬ মাসের গ্যারান্টি (6-Month Official Guarantee):</strong> Every Adorous jewelry piece is backed by our official 6-month warranty covering:
+                (1) Color &amp; plating longevity against premature fading under normal wear;
+                (2) Stone setting craftsmanship and loose prong repair or piece replacement for manufacturing defects.
               </li>
               <li>
-                Full policy details are accessible at{' '}
+                Full policy details and easy WhatsApp claim steps are accessible at{' '}
                 <Link href="/returns-exchange" className="text-gold-deep underline">
-                  Returns & Exchange Policy
+                  Returns &amp; Exchange Policy
                 </Link>
                 .
               </li>

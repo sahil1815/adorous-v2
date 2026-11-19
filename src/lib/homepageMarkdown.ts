@@ -6,7 +6,7 @@ export const HOMEPAGE_MARKDOWN = `# Adorous Fashion — Luxury Boutique Jewelry,
 - **Cash on Delivery (COD)**: Available nationwide across all 64 districts in Bangladesh.
 - **Fast Dispatch**: Dhaka Metro: 1–2 days (৳80 delivery fee); Outside Dhaka: 2–4 days (৳130 delivery fee).
 - **Personal Order Confirmation**: Every parcel is confirmed via Phone & WhatsApp (+8801577731381) before dispatch.
-- **6-Month Color Assurance**: 6-month color & plating warranty against fading under normal non-chemical care.
+- **৬ মাসের গ্যারান্টি (6-Month Official Guarantee)**: Official guarantee covering plating color longevity and stone setting craftsmanship under normal festive wear. Free doorstep exchange or servicing.
 - **7-Day Exchange**: Hassle-free size and style exchange for complete peace of mind.
 
 ## Core Collections

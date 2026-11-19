@@ -972,7 +972,7 @@ export async function getPublicOrderTracking(query: string) {
     const order = await prisma.order.findFirst({
       where: {
         OR: [
-          { orderId: { equals: clean, mode: 'insensitive' } },
+          { orderId: clean },
           ...(cleanDigits.length >= 10
             ? [{ customer: { phone: { contains: cleanDigits.slice(-10) } } }]
             : []),

@@ -31,8 +31,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     notFound();
   }
 
-  const title = `${product.name} | Adorous Fashion`;
-  const description = `${product.tagline}. Premium boutique South Asian accessories. Cash on Delivery across Bangladesh. Price: ৳${product.price}.`;
+  const pageTitle = product.name;
+  const ogTitle = `${product.name} | Adorous Fashion`;
+  const description = `${product.tagline}. Boutique artisan jewelry and accessories. Cash on Delivery across Bangladesh. Price: ৳${product.price}.`;
 
   let featuredImg = product.featuredImage.startsWith('http')
     ? product.featuredImage
@@ -42,14 +43,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   return {
-    title,
+    title: pageTitle,
     description,
     keywords: [...(product.seoKeywords ? product.seoKeywords.split(',') : []), 'Adorous Fashion', 'Bangladesh boutique', 'Cash on Delivery BD'],
     alternates: {
-      canonical: `/${product.category}/${product.slug}`,
+      canonical: `https://adorousfashion.store/${product.category}/${product.slug}`,
     },
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url: `https://adorousfashion.store/${product.category}/${product.slug}`,
       images: [
@@ -71,7 +72,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description,
       images: [featuredImg],
     },
@@ -110,6 +111,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     } catch {}
   }
   
+  if (productDb && (productDb.slug !== slug || productDb.category.toLowerCase() !== category.toLowerCase())) {
+    redirect(`/${productDb.category}/${productDb.slug}`);
+  }
+
   const categoryMatches =
     productDb &&
     (productDb.category.toLowerCase() === category.toLowerCase() ||
@@ -123,6 +128,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = {
     ...productDb,
     category: productDb.category as ProductCategory,
+    sizes: Array.isArray((productDb as any).sizes) ? ((productDb as any).sizes as string[]) : [],
     description: productDb.description ?? "",
     tagline: productDb.tagline ?? "",
     originalPrice: productDb.originalPrice ?? undefined,
@@ -155,6 +161,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     pairsWellWith = pairingsDb.map((p) => ({
       ...p,
       category: p.category as ProductCategory,
+      sizes: Array.isArray((p as any).sizes) ? ((p as any).sizes as string[]) : [],
       description: p.description ?? '',
       tagline: p.tagline ?? '',
       originalPrice: p.originalPrice ?? undefined,
