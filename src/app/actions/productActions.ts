@@ -7,25 +7,58 @@ import { revalidatePath } from 'next/cache';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { verifyAdminSession } from '@/lib/adminAuth';
 
-// Helper to normalize colorway inStock flags against overall product stock
-function normalizeProductColorways<T extends { inStock?: boolean; stockQty?: number | null; colorways?: any[] }>(p: T): T {
+// Helper to normalize colorway inStock flags against overall product stock & deduplicate details and images
+function normalizeProductColorways<T extends { inStock?: boolean; stockQty?: number | null; colorways?: any[]; details?: any[]; galleryImages?: any[] }>(p: T): T {
   if (!p) return p;
+
+  let details = p.details;
+  if (Array.isArray(details)) {
+    const seenDetails = new Set<string>();
+    details = details.filter((item) => {
+      const text = typeof item === 'string' ? item.trim() : (item?.text || '').trim();
+      const key = text.toLowerCase();
+      if (!key || seenDetails.has(key)) return false;
+      seenDetails.add(key);
+      return true;
+    });
+  }
+
+  let galleryImages = p.galleryImages;
+  if (Array.isArray(galleryImages)) {
+    const seenImages = new Set<string>();
+    galleryImages = galleryImages.filter((item) => {
+      const url = typeof item === 'string' ? item.trim() : (item?.url || '').trim();
+      const key = url.toLowerCase();
+      if (!key || seenImages.has(key)) return false;
+      seenImages.add(key);
+      return true;
+    });
+  }
+
   const isProdInStock = (p.inStock ?? true) && (p.stockQty === null || p.stockQty === undefined || p.stockQty > 0);
   if (isProdInStock && Array.isArray(p.colorways) && p.colorways.length > 0) {
     const singleOrAllFalse = p.colorways.length === 1 || p.colorways.every((c: any) => !c.inStock);
     if (singleOrAllFalse) {
       return {
         ...p,
+        details,
+        galleryImages,
         colorways: p.colorways.map((cw: any) => ({ ...cw, inStock: true })),
       };
     }
   } else if ((p.inStock === false || p.stockQty === 0) && Array.isArray(p.colorways)) {
     return {
       ...p,
+      details,
+      galleryImages,
       colorways: p.colorways.map((cw: any) => ({ ...cw, inStock: false })),
     };
   }
-  return p;
+  return {
+    ...p,
+    details,
+    galleryImages,
+  };
 }
 
 // Helper to convert static Product to the shape expected by frontend PDP & Category pages

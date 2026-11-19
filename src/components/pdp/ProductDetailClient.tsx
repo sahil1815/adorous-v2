@@ -157,6 +157,18 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
     ])
   );
 
+  // Safeguard: Deduplicate highlight bullet points
+  const uniqueDetails = React.useMemo(() => {
+    const seen = new Set<string>();
+    return (product.details || []).filter((detail: any) => {
+      const text = typeof detail === 'string' ? detail.trim() : (detail?.text || '').trim();
+      const key = text.toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [product.details]);
+
   // Interactive Magnifier / Localized Zoom State (Hover on laptop, Touch on phone)
   const [isHoverZooming, setIsHoverZooming] = useState(false);
   const [isTouchZooming, setIsTouchZooming] = useState(false);
@@ -1582,7 +1594,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   !isDescriptionExpanded ? 'max-h-40 overflow-hidden' : 'max-h-[1200px]'
                 }`}>
                   <ul className="space-y-2 list-none">
-                    {product.details.map((detail, idx) => (
+                    {uniqueDetails.map((detail, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-gold-deep mt-1.5 shrink-0" />
                         <span>{renderFormattedText(detail, 'font-bold text-ink')}</span>
