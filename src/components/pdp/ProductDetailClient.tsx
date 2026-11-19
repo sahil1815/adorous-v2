@@ -147,13 +147,6 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
   const [copiedLink, setCopiedLink] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  // Dynamic delivery date for Bangladeshi logistics (Screenshot 1 matching)
-  const deliveryDates = React.useMemo(() => {
-    const now = new Date();
-    const d1 = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-    const d2 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-    return `${d1.getDate()}–${d2.getDate()} ${d2.toLocaleString('en-US', { month: 'short' })}`;
-  }, []);
 
   // All unique photos across featured, gallery, and colorways
   const allDisplayImages = Array.from(
@@ -1578,7 +1571,7 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                   </div>
                   <div className="flex items-center gap-2">
                     <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>ডেলিভারি :</strong> {deliveryDates}</span>
+                    <span><strong>ডেলিভারি :</strong> 1–3 days</span>
                   </div>
                 </div>
               </div>
