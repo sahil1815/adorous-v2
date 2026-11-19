@@ -26,43 +26,31 @@ async function getMaxExistingOrderSeq(
   db: Prisma.TransactionClient | typeof prisma
 ): Promise<number> {
   try {
-    const rows = await db.$queryRawUnsafe<{ maxSeq: string | number }[]>(
-      `SELECT COALESCE(MAX(CAST(SUBSTRING("orderId" FROM '^AF-' || $1 || '-([0-9]+)$') AS BIGINT)), 0)::text as "maxSeq"
-       FROM "Order"
-       WHERE "orderId" LIKE 'AF-' || $1 || '-%'`,
-      year
-    );
-    const parsed = parseInt(String(rows[0]?.maxSeq || '0'), 10);
-    return isNaN(parsed) ? 0 : parsed;
+    const orders = await db.order.findMany({
+      where: { orderId: { startsWith: `AF-${year}-` } },
+      select: { orderId: true },
+      take: 200,
+      orderBy: { createdAt: 'desc' },
+    });
+    let maxSeq = 0;
+    for (const o of orders) {
+      const match = o.orderId.match(new RegExp(`^AF-${year}-(\\d+)$`));
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxSeq) maxSeq = num;
+      }
+    }
+    return maxSeq;
   } catch (err) {
     console.warn(`[orderId] Error querying max sequence from Order table for year ${year}:`, err);
-    try {
-      const orders = await db.order.findMany({
-        where: { orderId: { startsWith: `AF-${year}-` } },
-        select: { orderId: true },
-        take: 100,
-        orderBy: { createdAt: 'desc' },
-      });
-      let maxSeq = 0;
-      for (const o of orders) {
-        const match = o.orderId.match(new RegExp(`^AF-${year}-(\\d+)$`));
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxSeq) maxSeq = num;
-        }
-      }
-      return maxSeq;
-    } catch {
-      return 0;
-    }
+    return 0;
   }
 }
 
 /**
  * Atomically generates the next continuous Order ID for the given year (or current Bangladesh year).
  * Format: AF-(year)-10001, AF-(year)-10002, AF-(year)-10003, ...
- * Uses PostgreSQL row-level atomic UPSERT on "OrderSequence" to prevent race conditions,
- * duplicate IDs, or numbering gaps.
+ * Uses native Prisma atomic operations on OrderSequence, fully compatible with both MySQL/MariaDB and PostgreSQL.
  * 
  * Self-healing: If "OrderSequence" is ever missing, reset, or falls behind existing orders
  * (e.g. after a backup restore, legacy data import, or manual inserts), it automatically
@@ -75,62 +63,74 @@ export async function generateNextOrderId(
   const db = client || prisma;
   const year = forcedYear || getCurrentBangladeshYear();
 
-  // Ensure table exists (self-healing if migrations have not run yet)
-  await db.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS "OrderSequence" (
-      "year" INTEGER NOT NULL,
-      "lastSeq" INTEGER NOT NULL,
-      CONSTRAINT "OrderSequence_pkey" PRIMARY KEY ("year")
-    );
-  `);
-
   // Query highest existing sequence in the Order table for this year
   const maxExisting = await getMaxExistingOrderSeq(year, db);
   // Base starting sequence floor is at least 10000, or the highest existing order
   let floorSeq = Math.max(10000, maxExisting);
-  let initialSeq = floorSeq + 1;
 
   let attempts = 0;
   while (attempts < 50) {
     attempts++;
 
-    // Atomic increment/upsert in PostgreSQL
-    // If no row for this year exists, initialize at initialSeq (>= 10001 and > maxExisting).
-    // If row exists, ensure it is at least floorSeq, then increment by 1.
-    const rows = await db.$queryRawUnsafe<{ lastSeq: number }[]>(
-      `
-      INSERT INTO "OrderSequence" ("year", "lastSeq")
-      VALUES ($1, $2)
-      ON CONFLICT ("year")
-      DO UPDATE SET "lastSeq" = GREATEST("OrderSequence"."lastSeq", $3) + 1
-      RETURNING "lastSeq";
-      `,
-      year,
-      initialSeq,
-      floorSeq
-    );
+    try {
+      const existingRecord = await db.orderSequence.findUnique({
+        where: { year },
+      });
 
-    const seq = Number(rows[0]?.lastSeq);
-    if (!seq) {
-      throw new Error(`Failed to generate sequence for year ${year}`);
+      let currentSeq: number;
+
+      if (!existingRecord) {
+        // Initialize sequence for new year
+        const created = await db.orderSequence.upsert({
+          where: { year },
+          create: {
+            year,
+            lastSeq: floorSeq + 1,
+          },
+          update: {
+            lastSeq: { increment: 1 },
+          },
+        });
+        currentSeq = created.lastSeq;
+      } else if (existingRecord.lastSeq < floorSeq) {
+        // Self-healing: catch up if sequence record fell behind existing orders
+        const updated = await db.orderSequence.update({
+          where: { year },
+          data: {
+            lastSeq: floorSeq + 1,
+          },
+        });
+        currentSeq = updated.lastSeq;
+      } else {
+        // Standard atomic increment (works natively across MySQL, MariaDB, and PostgreSQL)
+        const updated = await db.orderSequence.update({
+          where: { year },
+          data: {
+            lastSeq: { increment: 1 },
+          },
+        });
+        currentSeq = updated.lastSeq;
+      }
+
+      const candidateId = `AF-${year}-${currentSeq}`;
+
+      // Verify candidateId does not clash with any pre-existing or legacy Order
+      const existing = await db.order.findUnique({
+        where: { orderId: candidateId },
+        select: { id: true },
+      });
+
+      if (!existing) {
+        return candidateId;
+      }
+
+      // If occupied, re-evaluate floor
+      const latestMax = await getMaxExistingOrderSeq(year, db);
+      floorSeq = Math.max(currentSeq, latestMax);
+    } catch (err) {
+      if (attempts >= 50) throw err;
+      await new Promise((r) => setTimeout(r, 20 * attempts));
     }
-
-    const candidateId = `AF-${year}-${seq}`;
-
-    // Verify candidateId does not clash with any pre-existing or legacy Order
-    const existing = await db.order.findUnique({
-      where: { orderId: candidateId },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return candidateId;
-    }
-
-    // In the rare event candidateId was already occupied, re-evaluate floorSeq
-    const latestMax = await getMaxExistingOrderSeq(year, db);
-    floorSeq = Math.max(seq, latestMax);
-    initialSeq = floorSeq + 1;
   }
 
   // Emergency deterministic fallback (only reached if 50 attempts somehow failed)

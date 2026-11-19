@@ -22,7 +22,22 @@ function sanitizeDbUrl(url: string): string {
  * - MySQL: configures healthy connection limits and timeouts for serverless / persistent instances.
  */
 function getDatasourceUrl(): string | undefined {
-  const rawUrl = process.env.DATABASE_URL_POOLED || process.env.DATABASE_URL;
+  let rawUrl = process.env.DATABASE_URL;
+  const pooledUrl = process.env.DATABASE_URL_POOLED;
+
+  // Only prioritize DATABASE_URL_POOLED if it matches the active database protocol
+  if (pooledUrl) {
+    if (rawUrl) {
+      const isRawMysql = rawUrl.startsWith('mysql');
+      const isPooledMysql = pooledUrl.startsWith('mysql');
+      if (isRawMysql === isPooledMysql) {
+        rawUrl = pooledUrl;
+      }
+    } else {
+      rawUrl = pooledUrl;
+    }
+  }
+
   if (!rawUrl) return undefined;
 
   try {
