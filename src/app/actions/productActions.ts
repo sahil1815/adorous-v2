@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { PRODUCTS } from '@/data/catalogue';
-import { Product } from '@/types';
+import { Product, BangleSetTier } from '@/types';
 import { revalidatePath } from 'next/cache';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { verifyAdminSession } from '@/lib/adminAuth';
@@ -54,10 +54,20 @@ function normalizeProductColorways<T extends { inStock?: boolean; stockQty?: num
       colorways: p.colorways.map((cw: any) => ({ ...cw, inStock: false })),
     };
   }
+  let setTiers = (p as any).setTiers;
+  if (typeof setTiers === 'string') {
+    try {
+      setTiers = JSON.parse(setTiers);
+    } catch {
+      setTiers = [];
+    }
+  }
+
   return {
     ...p,
     details,
     galleryImages,
+    setTiers: Array.isArray(setTiers) ? setTiers : [],
   };
 }
 
@@ -94,6 +104,11 @@ function toDbShape(product: Product) {
     allowMultipleSizes: Boolean((product as any).allowMultipleSizes),
     hasCustomNote: Boolean((product as any).hasCustomNote),
     customNotePrompt: (product as any).customNotePrompt ?? null,
+    hasSetPricing: Boolean((product as any).hasSetPricing),
+    setPricingBanner: (product as any).setPricingBanner ?? null,
+    setTiers: Array.isArray((product as any).setTiers)
+      ? (product as any).setTiers
+      : (typeof (product as any).setTiers === 'string' ? JSON.parse((product as any).setTiers) : []),
     hasCustomTrustPolicy: Boolean((product as any).hasCustomTrustPolicy),
     trustGuaranteeTitle: (product as any).trustGuaranteeTitle ?? null,
     trustGuaranteeText: (product as any).trustGuaranteeText ?? null,
@@ -311,6 +326,9 @@ export async function createProductAction(productData: Product) {
         allowMultipleSizes: Boolean(productData.allowMultipleSizes),
         hasCustomNote: Boolean(productData.hasCustomNote),
         customNotePrompt: productData.customNotePrompt?.trim() || null,
+        hasSetPricing: Boolean((productData as any).hasSetPricing),
+        setPricingBanner: (productData as any).setPricingBanner?.trim() || null,
+        setTiers: Array.isArray((productData as any).setTiers) ? (productData as any).setTiers : [],
         hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
         trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
         trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
@@ -396,6 +414,9 @@ export async function updateProductAction(
     allowMultipleSizes?: boolean;
     hasCustomNote?: boolean;
     customNotePrompt?: string | null;
+    hasSetPricing?: boolean;
+    setPricingBanner?: string | null;
+    setTiers?: BangleSetTier[];
     hasCustomTrustPolicy?: boolean;
     trustGuaranteeTitle?: string | null;
     trustGuaranteeText?: string | null;
@@ -481,6 +502,9 @@ export async function updateProductAction(
           allowMultipleSizes: Boolean(productData.allowMultipleSizes),
           hasCustomNote: Boolean(productData.hasCustomNote),
           customNotePrompt: productData.customNotePrompt?.trim() || null,
+          hasSetPricing: Boolean(productData.hasSetPricing),
+          setPricingBanner: productData.setPricingBanner?.trim() || null,
+          setTiers: (Array.isArray(productData.setTiers) ? productData.setTiers : []) as any,
           hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
           trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
           trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
@@ -528,6 +552,9 @@ export async function updateProductAction(
           allowMultipleSizes: Boolean(productData.allowMultipleSizes),
           hasCustomNote: Boolean(productData.hasCustomNote),
           customNotePrompt: productData.customNotePrompt?.trim() || null,
+          hasSetPricing: Boolean(productData.hasSetPricing),
+          setPricingBanner: productData.setPricingBanner?.trim() || null,
+          setTiers: (Array.isArray(productData.setTiers) ? productData.setTiers : []) as any,
           hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
           trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
           trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,

@@ -81,6 +81,9 @@ function fromDbProduct(p: any): Product {
     allowMultipleSizes: p.allowMultipleSizes,
     hasCustomNote: p.hasCustomNote,
     customNotePrompt: p.customNotePrompt,
+    hasSetPricing: p.hasSetPricing,
+    setPricingBanner: p.setPricingBanner,
+    setTiers: p.setTiers,
     featuredImage: p.featuredImage,
     galleryImages: Array.isArray(p.galleryImages)
       ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))

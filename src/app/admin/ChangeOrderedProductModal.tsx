@@ -50,6 +50,7 @@ export default function ChangeOrderedProductModal({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedColor, setSelectedColor] = useState<Colorway | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedSet, setSelectedSet] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   const [shippingFee, setShippingFee] = useState<number>(0);
@@ -92,6 +93,7 @@ export default function ChangeOrderedProductModal({
       });
 
       setSelectedSize(targetItem.selectedSize || currentProd.sizes?.[0] || '');
+      setSelectedSet((targetItem as any).selectedSet || '');
     } else {
       // Fallback pseudo-product from targetItem
       setSelectedProduct({
@@ -125,6 +127,7 @@ export default function ChangeOrderedProductModal({
         inStock: true,
       });
       setSelectedSize(targetItem.selectedSize || '');
+      setSelectedSet((targetItem as any).selectedSet || '');
     }
   }, [isOpen, targetItem, order, availableProducts]);
 
@@ -159,7 +162,18 @@ export default function ChangeOrderedProductModal({
   // Switch chosen product
   const handleSelectProduct = (p: Product) => {
     setSelectedProduct(p);
-    setUnitPrice(p.price);
+    let initialPrice = p.price;
+    let initialSet = '';
+
+    if (p.hasSetPricing && Array.isArray(p.setTiers) && p.setTiers.length > 0) {
+      const defaultTier = p.setTiers.find((t) => t.isDefault) || p.setTiers[0];
+      if (defaultTier) {
+        initialSet = defaultTier.name;
+        initialPrice = defaultTier.price;
+      }
+    }
+    setSelectedSet(initialSet);
+    setUnitPrice(initialPrice);
     // Pick first colorway or maintain current if matching name
     const matchCol = p.colorways?.find(
       (c) => c.name.toLowerCase() === selectedColor?.name.toLowerCase()
@@ -252,6 +266,7 @@ export default function ChangeOrderedProductModal({
           hex: selectedColor.hex,
         },
         newSize: selectedSize || undefined,
+        newSet: selectedSet || undefined,
         newQuantity: quantity,
         customUnitPrice: unitPrice,
         customShippingFee: shippingFee,
@@ -346,6 +361,9 @@ export default function ChangeOrderedProductModal({
                     style={{ backgroundColor: targetItem.selectedColor.hex }}
                   />
                   <span>{targetItem.selectedColor.name}</span>
+                  {(targetItem as any).selectedSet && (
+                    <span className="text-amber-300 font-semibold">· Set: {(targetItem as any).selectedSet}</span>
+                  )}
                   {targetItem.selectedSize && <span>· Size {targetItem.selectedSize}</span>}
                   <span>· Qty: {targetItem.quantity}</span>
                   <span className="text-gold font-bold">· ৳{formatPrice(targetItem.product.price)} each</span>
@@ -524,6 +542,41 @@ export default function ChangeOrderedProductModal({
 
               {/* Sizes (if available) & Quantity / Unit Price */}
               <div className="space-y-3">
+                {/* Bangle Set Tier Selector */}
+                {selectedProduct.hasSetPricing && Array.isArray(selectedProduct.setTiers) && selectedProduct.setTiers.length > 0 && (
+                  <div className="space-y-1.5 p-2.5 rounded bg-gold/5 border border-gold/20">
+                    <label className="text-[11px] uppercase tracking-wider text-gold font-bold flex items-center justify-between">
+                      <span>Bangle Set Tier:</span>
+                      {selectedSet && <span className="text-paper/70 font-normal">Active: {selectedSet}</span>}
+                    </label>
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {selectedProduct.setTiers.map((tier) => (
+                        <button
+                          key={tier.name}
+                          type="button"
+                          onClick={() => {
+                            setSelectedSet(tier.name);
+                            setUnitPrice(tier.price);
+                          }}
+                          className={`px-2.5 py-1 text-xs rounded-xs border transition-colors flex items-center gap-1.5 ${
+                            selectedSet === tier.name
+                              ? 'bg-gold text-ink font-bold border-gold shadow-sm'
+                              : 'bg-[#222] border-white/10 text-paper/70 hover:text-paper hover:border-white/30'
+                          }`}
+                        >
+                          <span>{tier.name}</span>
+                          <span className={selectedSet === tier.name ? 'text-ink/80' : 'text-gold'}>৳{formatPrice(tier.price)}</span>
+                          {tier.badge && (
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-semibold uppercase">
+                              {tier.badge}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                   <div className="space-y-1.5">
                     <label className="text-[11px] uppercase tracking-wider text-paper/70 font-semibold block">

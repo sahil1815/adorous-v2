@@ -501,6 +501,11 @@ export default function OrderCard({
                             style={{ backgroundColor: item.selectedColor.hex }}
                           />
                           <span className="text-zinc-200">{item.selectedColor.name}</span>
+                          {(item as any).selectedSet && (
+                            <span className="font-semibold text-gold bg-gold/15 px-1.5 py-0.2 rounded border border-gold/30 text-[10px]">
+                              Set: {(item as any).selectedSet}
+                            </span>
+                          )}
                           {item.selectedSize && (
                             <span className="text-zinc-300">· {item.selectedSize}</span>
                           )}

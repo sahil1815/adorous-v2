@@ -41,6 +41,7 @@ export interface AdminOrderItem {
     hex: string;
   };
   selectedSize?: string;
+  selectedSet?: string;
   customNote?: string;
   quantity: number;
 }
@@ -114,6 +115,7 @@ interface OrdersContextType {
       hex: string;
     };
     newSize?: string;
+    newSet?: string;
     newQuantity: number;
     customUnitPrice?: number;
     customGrandTotal?: number;
@@ -291,13 +293,14 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
       hex: string;
     };
     newSize?: string;
+    newSet?: string;
     newQuantity: number;
     customUnitPrice?: number;
     customGrandTotal?: number;
     customShippingFee?: number;
     customNote?: string;
   }) => {
-    const { orderId, itemId, newProduct, newColor, newSize, newQuantity, customUnitPrice, customGrandTotal, customShippingFee, customNote } = payload;
+    const { orderId, itemId, newProduct, newColor, newSize, newSet, newQuantity, customUnitPrice, customGrandTotal, customShippingFee, customNote } = payload;
     const unitPrice = typeof customUnitPrice === 'number' && !isNaN(customUnitPrice) ? customUnitPrice : newProduct.price;
 
     // Optimistic update
@@ -321,6 +324,7 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
                 hex: newColor.hex,
               },
               selectedSize: newSize || undefined,
+              selectedSet: newSet !== undefined ? (newSet || undefined) : it.selectedSet,
               customNote: customNote !== undefined ? customNote : it.customNote,
               quantity: newQuantity,
             };

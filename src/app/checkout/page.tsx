@@ -294,6 +294,7 @@ export default function CheckoutPage() {
         },
         selectedColor: i.selectedColor,
         selectedSize: i.selectedSize,
+        selectedSet: i.selectedSet,
         customNote: i.customNote,
         quantity: i.quantity,
       })),
@@ -340,12 +341,12 @@ export default function CheckoutPage() {
 
   // Quantity and Item Removal Handlers
   const handleIncreaseQuantity = (item: CartItem) => {
-    updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote);
+    updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote, item.selectedSet);
   };
 
   const handleDecreaseQuantity = (item: CartItem) => {
     if (item.quantity > 1) {
-      updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote);
+      updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote, item.selectedSet);
     } else {
       // Trigger confirmation popup if reducing from 1 to 0
       setItemToDelete(item);
@@ -354,7 +355,7 @@ export default function CheckoutPage() {
 
   const handleConfirmDelete = () => {
     if (itemToDelete) {
-      removeItem(itemToDelete.product.id, itemToDelete.selectedColor.id, itemToDelete.selectedSize, itemToDelete.customNote);
+      removeItem(itemToDelete.product.id, itemToDelete.selectedColor.id, itemToDelete.selectedSize, itemToDelete.customNote, itemToDelete.selectedSet);
       setItemToDelete(null);
     }
   };
@@ -829,7 +830,7 @@ export default function CheckoutPage() {
               {/* Items List */}
               <div className="divide-y divide-line max-h-96 overflow-y-auto pr-1">
                 {items.map((item, idx) => {
-                  const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${idx}`;
+                  const itemKey = `${item.product.id}-${item.selectedColor.id}-${item.selectedSize || 'default'}-${item.selectedSet || 'default'}-${idx}`;
                   const isItemOos = isColorwayOutOfStock(item.product, item.selectedColor);
                   const baseUnitPrice = getItemComparePrice(item);
                   const baseLineTotal = baseUnitPrice * item.quantity;
@@ -904,7 +905,7 @@ export default function CheckoutPage() {
                                     onChange={(e) => {
                                       const newC = item.product.colorways.find((c) => c.id === e.target.value);
                                       if (newC) {
-                                        updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote);
+                                        updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote, item.selectedSet);
                                       }
                                     }}
                                     className="bg-transparent text-[10px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
@@ -928,6 +929,12 @@ export default function CheckoutPage() {
                               </span>
                             )}
 
+                            {item.selectedSet && (
+                              <span className="font-semibold text-gold-deep bg-sand/60 px-1 py-0.2 rounded border border-line/60">
+                                Set: {item.selectedSet}
+                              </span>
+                            )}
+
                             {item.selectedSize && <span>· Size {item.selectedSize}</span>}
 
                             {/* Customer Custom Note */}
@@ -948,7 +955,7 @@ export default function CheckoutPage() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote);
+                                    addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote, item.selectedSet);
                                   }}
                                   className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline flex items-center gap-0.5 ml-1"
                                   title={`Add ${otherColors[0].name} to order`}
@@ -1560,6 +1567,7 @@ export default function CheckoutPage() {
                     style={{ backgroundColor: itemToDelete.selectedColor.hex }}
                   />
                   <span className="truncate">{itemToDelete.selectedColor.name}</span>
+                  {itemToDelete.selectedSet && <span>· Set {itemToDelete.selectedSet}</span>}
                   {itemToDelete.selectedSize && <span>· Size {itemToDelete.selectedSize}</span>}
                 </div>
                 {(() => {

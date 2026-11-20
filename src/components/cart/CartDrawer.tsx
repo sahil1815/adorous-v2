@@ -34,6 +34,9 @@ export default function CartDrawer() {
     let text = `Hello Adorous Fashion, I would like to place a Cash on Delivery order for:\n\n`;
     items.forEach((item, index) => {
       text += `${index + 1}. ${item.product.name}\n   Colour: ${item.selectedColor.name}\n`;
+      if (item.selectedSet) {
+        text += `   Set: ${item.selectedSet}\n`;
+      }
       if (item.selectedSize) {
         text += `   Size: ${item.selectedSize}\n`;
       }
@@ -133,7 +136,7 @@ export default function CartDrawer() {
               const isItemOos = isColorwayOutOfStock(item.product, item.selectedColor);
               return (
               <div
-                key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize || ''}-${item.customNote || ''}`}
+                key={`${item.product.id}-${item.selectedColor.id}-${item.selectedSize || ''}-${item.selectedSet || ''}-${item.customNote || ''}`}
                 className={`py-4 first:pt-0 last:pb-0 flex space-x-4 ${isItemOos ? 'bg-red-50/30 p-2 rounded border border-red-200/60' : ''}`}
               >
                 {/* Thumbnail */}
@@ -172,7 +175,7 @@ export default function CartDrawer() {
                         )}
                       </div>
                       <button
-                        onClick={() => removeItem(item.product.id, item.selectedColor.id, item.selectedSize, item.customNote)}
+                        onClick={() => removeItem(item.product.id, item.selectedColor.id, item.selectedSize, item.customNote, item.selectedSet)}
                         className="text-text-muted hover:text-danger p-1 transition-colors shrink-0"
                         title="Remove item"
                       >
@@ -198,7 +201,7 @@ export default function CartDrawer() {
                               onChange={(e) => {
                                 const newC = item.product.colorways.find((c) => c.id === e.target.value);
                                 if (newC) {
-                                  updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote);
+                                  updateItemColor(item.product.id, item.selectedColor.id, newC, item.selectedSize, item.customNote, item.selectedSet);
                                 }
                               }}
                               className="bg-transparent text-[11px] font-medium text-ink pr-3 py-0 appearance-none cursor-pointer focus:outline-none"
@@ -222,6 +225,15 @@ export default function CartDrawer() {
                         </span>
                       )}
 
+                      {item.selectedSet && (
+                        <>
+                          <span>•</span>
+                          <span className="font-semibold text-gold-deep bg-sand/60 px-1 py-0.2 rounded border border-line/60">
+                            Set: {item.selectedSet}
+                          </span>
+                        </>
+                      )}
+
                       {item.selectedSize && (
                         <>
                           <span>•</span>
@@ -239,7 +251,7 @@ export default function CartDrawer() {
                           <button
                             type="button"
                             onClick={() => {
-                              addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote);
+                              addItem(item.product, otherColors[0], item.selectedSize, 1, item.customNote, item.selectedSet);
                             }}
                             className="text-[10px] text-gold-ink hover:text-gold-deep font-semibold underline ml-auto flex items-center gap-0.5"
                             title={`Add ${otherColors[0].name} to bag`}
@@ -269,7 +281,7 @@ export default function CartDrawer() {
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center border border-line rounded-[2px] bg-sand/40">
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote)}
+                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity - 1, item.selectedSize, item.customNote, item.selectedSet)}
                         className="p-1 text-ink hover:bg-sand transition-colors"
                         aria-label="Decrease quantity"
                       >
@@ -279,7 +291,7 @@ export default function CartDrawer() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote)}
+                        onClick={() => updateQuantity(item.product.id, item.selectedColor.id, item.quantity + 1, item.selectedSize, item.customNote, item.selectedSet)}
                         disabled={isItemOos}
                         className="p-1 text-ink hover:bg-sand transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Increase quantity"

@@ -12,15 +12,15 @@ interface CartContextType {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (product: Product, selectedColor: Colorway, selectedSize?: string, quantity?: number, customNote?: string) => void;
+  addItem: (product: Product, selectedColor: Colorway, selectedSize?: string, quantity?: number, customNote?: string, selectedSet?: string) => void;
   addMultipleItems: (
-    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string }[],
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string; selectedSet?: string }[],
     openDrawer?: boolean
   ) => void;
-  addToCart: (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity?: number, customNote?: string) => void;
-  removeItem: (productId: string, colorId: string, size?: string, customNote?: string) => void;
-  updateQuantity: (productId: string, colorId: string, quantity: number, size?: string, customNote?: string) => void;
-  updateItemColor: (productId: string, oldColorId: string, newColor: Colorway, size?: string, customNote?: string) => void;
+  addToCart: (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity?: number, customNote?: string, selectedSet?: string) => void;
+  removeItem: (productId: string, colorId: string, size?: string, customNote?: string, selectedSet?: string) => void;
+  updateQuantity: (productId: string, colorId: string, quantity: number, size?: string, customNote?: string, selectedSet?: string) => void;
+  updateItemColor: (productId: string, oldColorId: string, newColor: Colorway, size?: string, customNote?: string, selectedSet?: string) => void;
   clearCart: () => void;
   refreshCart: () => Promise<void>;
   isSyncing: boolean;
@@ -44,13 +44,15 @@ function getCartItemKey(
   product: { id: string; slug?: string },
   selectedColor: { id: string; colorId?: string; name: string },
   size?: string,
-  customNote?: string
+  customNote?: string,
+  selectedSet?: string
 ): string {
   const prodKey = (product.slug || product.id || '').trim().toLowerCase();
   const colorKey = (selectedColor.colorId || selectedColor.name || selectedColor.id || '').trim().toLowerCase();
   const sizeKey = (size || 'default').trim().toLowerCase();
+  const setKey = (selectedSet || 'default').trim().toLowerCase();
   const noteKey = (customNote || '').trim();
-  return `${prodKey}::${colorKey}::${sizeKey}::${noteKey}`;
+  return `${prodKey}::${colorKey}::${sizeKey}::${setKey}::${noteKey}`;
 }
 
 /**
@@ -61,7 +63,8 @@ function matchesCartItem(
   productIdOrSlug: string,
   colorIdOrName: string,
   size?: string,
-  customNote?: string
+  customNote?: string,
+  selectedSet?: string
 ): boolean {
   const targetProd = productIdOrSlug.trim().toLowerCase();
   const prodMatches =
@@ -81,8 +84,11 @@ function matchesCartItem(
   const noteMatches =
     customNote === undefined ||
     (item.customNote?.trim() || undefined) === (customNote?.trim() || undefined);
+  const setMatches =
+    selectedSet === undefined ||
+    (item.selectedSet?.trim() || undefined) === (selectedSet?.trim() || undefined);
 
-  return Boolean(prodMatches && colorMatches && sizeMatches && noteMatches);
+  return Boolean(prodMatches && colorMatches && sizeMatches && noteMatches && setMatches);
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -167,24 +173,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        let effectiveProduct = updatedProduct;
+        if (item.selectedSet && Array.isArray((updatedProduct as any).setTiers)) {
+          const matchingTier = (updatedProduct as any).setTiers.find(
+            (t: any) => t.name === item.selectedSet || t.id === item.selectedSet
+          );
+          if (matchingTier && matchingTier.price) {
+            effectiveProduct = {
+              ...updatedProduct,
+              price: matchingTier.price,
+              originalPrice: matchingTier.originalPrice || updatedProduct.originalPrice,
+            };
+          }
+        }
+
         const canonicalKey = getCartItemKey(
-          updatedProduct,
+          effectiveProduct,
           updatedColor,
           item.selectedSize,
-          item.customNote
+          item.customNote,
+          item.selectedSet
         );
 
         if (mergedMap.has(canonicalKey)) {
           const existing = mergedMap.get(canonicalKey)!;
           existing.quantity += item.quantity;
           // Ensure product details reflect the freshest data
-          existing.product = updatedProduct;
+          existing.product = effectiveProduct;
           existing.selectedColor = updatedColor;
+          existing.selectedSet = item.selectedSet;
         } else {
           mergedMap.set(canonicalKey, {
-            product: updatedProduct,
+            product: effectiveProduct,
             selectedColor: updatedColor,
             selectedSize: item.selectedSize,
+            selectedSet: item.selectedSet,
             quantity: item.quantity,
             customNote: item.customNote,
           });
@@ -268,17 +291,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     selectedColor: Colorway,
     selectedSize?: string,
     quantity: number = 1,
-    customNote?: string
+    customNote?: string,
+    selectedSet?: string
   ) => {
     // Guard: block add if product or variant is explicitly out of stock
     if (product.inStock === false || (product as any).stockQty === 0 || selectedColor.inStock === false) return;
 
     const trimmedNote = customNote?.trim() || undefined;
-    const targetKey = getCartItemKey(product, selectedColor, selectedSize, trimmedNote);
+    const targetKey = getCartItemKey(product, selectedColor, selectedSize, trimmedNote, selectedSet);
 
     setItems((prev) => {
       const existingIndex = prev.findIndex(
-        (item) => getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote) === targetKey
+        (item) => getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote, item.selectedSet) === targetKey
       );
 
       if (existingIndex > -1) {
@@ -287,11 +311,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ...updated[existingIndex],
           product, // refresh product to latest snapshot
           selectedColor, // refresh colorway to latest snapshot
+          selectedSet,
           quantity: updated[existingIndex].quantity + quantity,
         };
         return updated;
       } else {
-        return [...prev, { product, selectedColor, selectedSize, quantity, customNote: trimmedNote }];
+        return [...prev, { product, selectedColor, selectedSize, selectedSet, quantity, customNote: trimmedNote }];
       }
     });
 
@@ -315,7 +340,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addMultipleItems = (
-    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string }[],
+    itemsToAdd: { product: Product; selectedColor: Colorway; selectedSize?: string; quantity: number; customNote?: string; selectedSet?: string }[],
     openDrawer: boolean = true
   ) => {
     const validItems = itemsToAdd.filter(
@@ -332,9 +357,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const updated = [...prev];
       for (const entry of validItems) {
         const trimmedNote = entry.customNote?.trim() || undefined;
-        const targetKey = getCartItemKey(entry.product, entry.selectedColor, entry.selectedSize, trimmedNote);
+        const targetKey = getCartItemKey(entry.product, entry.selectedColor, entry.selectedSize, trimmedNote, entry.selectedSet);
         const existingIndex = updated.findIndex(
-          (item) => getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote) === targetKey
+          (item) => getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote, item.selectedSet) === targetKey
         );
 
         if (existingIndex > -1) {
@@ -342,6 +367,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ...updated[existingIndex],
             product: entry.product,
             selectedColor: entry.selectedColor,
+            selectedSet: entry.selectedSet,
             quantity: updated[existingIndex].quantity + entry.quantity,
           };
         } else {
@@ -349,6 +375,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             product: entry.product,
             selectedColor: entry.selectedColor,
             selectedSize: entry.selectedSize,
+            selectedSet: entry.selectedSet,
             quantity: entry.quantity,
             customNote: trimmedNote,
           });
@@ -362,25 +389,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addToCart = (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity: number = 1, customNote?: string) => {
+  const addToCart = (product: Product, selectedColor?: Colorway, selectedSize?: string, quantity: number = 1, customNote?: string, selectedSet?: string) => {
     const color = selectedColor || product.colorways[0];
-    addItem(product, color, selectedSize, quantity, customNote);
+    addItem(product, color, selectedSize, quantity, customNote, selectedSet);
   };
 
-  const removeItem = (productId: string, colorId: string, size?: string, customNote?: string) => {
+  const removeItem = (productId: string, colorId: string, size?: string, customNote?: string, selectedSet?: string) => {
     setItems((prev) =>
-      prev.filter((item) => !matchesCartItem(item, productId, colorId, size, customNote))
+      prev.filter((item) => !matchesCartItem(item, productId, colorId, size, customNote, selectedSet))
     );
   };
 
-  const updateQuantity = (productId: string, colorId: string, quantity: number, size?: string, customNote?: string) => {
+  const updateQuantity = (productId: string, colorId: string, quantity: number, size?: string, customNote?: string, selectedSet?: string) => {
     if (quantity <= 0) {
-      removeItem(productId, colorId, size, customNote);
+      removeItem(productId, colorId, size, customNote, selectedSet);
       return;
     }
     setItems((prev) =>
       prev.map((item) => {
-        if (matchesCartItem(item, productId, colorId, size, customNote)) {
+        if (matchesCartItem(item, productId, colorId, size, customNote, selectedSet)) {
           return { ...item, quantity };
         }
         return item;
@@ -393,21 +420,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     oldColorId: string,
     newColor: Colorway,
     size?: string,
-    customNote?: string
+    customNote?: string,
+    selectedSet?: string
   ) => {
     setItems((prev) => {
       const targetIndex = prev.findIndex((item) =>
-        matchesCartItem(item, productId, oldColorId, size, customNote)
+        matchesCartItem(item, productId, oldColorId, size, customNote, selectedSet)
       );
       if (targetIndex === -1) return prev;
 
       const itemToUpdate = prev[targetIndex];
-      const targetNewKey = getCartItemKey(itemToUpdate.product, newColor, size, itemToUpdate.customNote);
+      const targetNewKey = getCartItemKey(itemToUpdate.product, newColor, size, itemToUpdate.customNote, selectedSet);
 
       const existingNewColorIndex = prev.findIndex(
         (item, idx) =>
           idx !== targetIndex &&
-          getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote) === targetNewKey
+          getCartItemKey(item.product, item.selectedColor, item.selectedSize, item.customNote, item.selectedSet) === targetNewKey
       );
 
       if (existingNewColorIndex > -1) {

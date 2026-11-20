@@ -393,6 +393,8 @@ export async function getCustomerOrdersAction() {
         colorName: i.colorName,
         colorHex: i.colorHex,
         selectedSize: i.selectedSize,
+        selectedSet: i.selectedSet,
+        customNote: i.customNote,
       })),
     }));
 

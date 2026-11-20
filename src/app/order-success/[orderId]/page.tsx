@@ -50,6 +50,7 @@ interface OrderData {
       hex: string;
     };
     selectedSize?: string;
+    selectedSet?: string;
     customNote?: string;
     quantity: number;
   }>;
@@ -224,6 +225,7 @@ export default function OrderSuccessPage() {
                             style={{ backgroundColor: item.selectedColor.hex }}
                           />
                           <span>{item.selectedColor.name}</span>
+                          {item.selectedSet && <span className="font-semibold text-gold-deep">· Set: {item.selectedSet}</span>}
                           {item.selectedSize && <span>· Size {item.selectedSize}</span>}
                           <span>· Qty {item.quantity}</span>
                         </div>

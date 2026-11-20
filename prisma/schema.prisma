@@ -35,6 +35,9 @@ model Product {
   allowMultipleSizes  Boolean           @default(false)
   hasCustomNote       Boolean           @default(false)
   customNotePrompt    String?           @db.Text
+  hasSetPricing       Boolean           @default(false)
+  setPricingBanner    String?           @db.Text
+  setTiers            Json?             @default("[]")
   hasCustomTrustPolicy Boolean          @default(false)
   trustGuaranteeTitle String?
   trustGuaranteeText  String?           @db.Text
@@ -189,6 +192,7 @@ model OrderItem {
   colorName    String
   colorHex     String
   selectedSize String?
+  selectedSet  String?
   customNote   String?  @db.Text
 
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)

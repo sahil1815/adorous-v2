@@ -158,12 +158,13 @@ export function renderWhatsAppVerificationMessage(template: string | null | unde
   const items = (order.items || [])
     .map((item: any) => {
       const name = item.product?.name || item.productName || 'Item';
+      const set = item.selectedSet ? ` (${item.selectedSet})` : '';
       const color = item.selectedColor?.name || item.colorName || '';
       const size = item.selectedSize ? ` [${item.selectedSize}]` : '';
       const note = item.customNote ? ` (Note: ${item.customNote})` : '';
       const qty = item.quantity ? ` x${item.quantity}` : '';
       const variant = color ? ` (${color}${size})` : (size ? ` (${size})` : '');
-      return `${name}${variant}${note}${qty}`;
+      return `${name}${set}${variant}${note}${qty}`;
     })
     .join(', ') || 'Pieces from Adorous Fashion';
 
@@ -171,13 +172,14 @@ export function renderWhatsAppVerificationMessage(template: string | null | unde
   const itemsDetailed = (order.items || [])
     .map((item: any) => {
       const name = item.product?.name || item.productName || 'Item';
+      const set = item.selectedSet ? ` (${item.selectedSet})` : '';
       const color = item.selectedColor?.name || item.colorName || '';
       const size = item.selectedSize ? ` - Size: ${item.selectedSize}` : '';
       const note = item.customNote ? ` - Note: "${item.customNote}"` : '';
       const qty = item.quantity ?? 1;
-      const unitPrice = item.product?.price || item.price ? `৳${formatPrice(item.product?.price || item.price)}` : '';
+      const unitPrice = item.price || item.product?.price ? `৳${formatPrice(item.price || item.product?.price)}` : '';
       const variant = color ? ` (${color})` : '';
-      return `• ${name}${variant}${size} - Qty: ${qty}${unitPrice ? ` - ${unitPrice}` : ''}${note}`;
+      return `• ${name}${set}${variant}${size} - Qty: ${qty}${unitPrice ? ` - ${unitPrice}` : ''}${note}`;
     })
     .join('\n') || `• ${items}`;
 

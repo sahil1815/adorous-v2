@@ -853,9 +853,15 @@ export default function AdminDraftsPage() {
                                     <span className="text-zinc-200">{item.selectedColor.name}</span>
                                   </span>
                                 )}
+                                {item.selectedSet && <span className="text-amber-400 font-semibold">• Set: {item.selectedSet}</span>}
                                 {item.selectedSize && <span>• {item.selectedSize}</span>}
                                 <span className="font-bold text-white">• Qty: {item.quantity}</span>
                               </div>
+                              {item.customNote && (
+                                <div className="text-[10px] text-amber-300 font-medium bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-500/30 mt-0.5 inline-block">
+                                  Note: "{item.customNote}"
+                                </div>
+                              )}
                               <span className="text-gold-light font-extrabold text-xs sm:text-sm tabular-nums block mt-0.5">
                                 ৳{formatPrice(item.product?.price * item.quantity)}
                               </span>

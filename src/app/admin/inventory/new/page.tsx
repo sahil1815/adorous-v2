@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useInventory } from '@/context/InventoryContext';
-import { ProductCategory, Product, Colorway } from '@/types';
+import { ProductCategory, Product, Colorway, BangleSetTier } from '@/types';
 import { createProductAction, getProductById } from '@/app/actions/productActions';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import BangleSizingEditor, { DEFAULT_BANGLE_SIZES } from '@/components/admin/BangleSizingEditor';
+import BangleSetPricingEditor, { DEFAULT_CHURI_SET_TIERS } from '@/components/admin/BangleSetPricingEditor';
 import ProductTrustPolicyEditor from '@/components/admin/ProductTrustPolicyEditor';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/formatPrice';
@@ -219,6 +220,13 @@ function AddProductContent() {
         if ((prod as any).customNotePrompt) {
           setCustomNotePrompt((prod as any).customNotePrompt);
         }
+        setHasSetPricing(Boolean((prod as any).hasSetPricing));
+        if ((prod as any).setPricingBanner) {
+          setSetPricingBanner((prod as any).setPricingBanner);
+        }
+        if (Array.isArray((prod as any).setTiers) && (prod as any).setTiers.length > 0) {
+          setSetTiers((prod as any).setTiers);
+        }
         setHasCustomTrustPolicy(Boolean((prod as any).hasCustomTrustPolicy));
         setTrustGuaranteeTitle((prod as any).trustGuaranteeTitle || '');
         setTrustGuaranteeText((prod as any).trustGuaranteeText || '');
@@ -289,6 +297,11 @@ function AddProductContent() {
   const [allowMultipleSizes, setAllowMultipleSizes] = useState(false);
   const [hasCustomNote, setHasCustomNote] = useState(true);
   const [customNotePrompt, setCustomNotePrompt] = useState('Custom wrist measurement (mm), size breakdown, or special instructions...');
+
+  // Set / Tiered Pricing
+  const [hasSetPricing, setHasSetPricing] = useState(false);
+  const [setPricingBanner, setSetPricingBanner] = useState('২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)');
+  const [setTiers, setSetTiers] = useState<BangleSetTier[]>(DEFAULT_CHURI_SET_TIERS);
 
   // Trust & Guarantee policy
   const [hasCustomTrustPolicy, setHasCustomTrustPolicy] = useState(false);
@@ -527,6 +540,9 @@ function AddProductContent() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasSetPricing: category === 'churi' ? hasSetPricing : false,
+      setPricingBanner: category === 'churi' && hasSetPricing ? setPricingBanner.trim() : null,
+      setTiers: category === 'churi' && hasSetPricing ? setTiers : [],
       hasCustomTrustPolicy,
       trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
       trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
@@ -1046,6 +1062,16 @@ function AddProductContent() {
                     )}
                   </div>
                 </div>
+
+                {/* 4. Bangle Set / Quantity Tier Pricing */}
+                <BangleSetPricingEditor
+                  hasSetPricing={hasSetPricing}
+                  onHasSetPricingChange={setHasSetPricing}
+                  setPricingBanner={setPricingBanner}
+                  onSetPricingBannerChange={setSetPricingBanner}
+                  setTiers={setTiers}
+                  onSetTiersChange={setSetTiers}
+                />
               </div>
             )}
           </div>

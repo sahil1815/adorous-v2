@@ -9,6 +9,16 @@ export interface Colorway {
   image?: string | null;
 }
 
+export interface BangleSetTier {
+  id: string; // e.g. 'tier-6', 'tier-12', 'tier-24'
+  name: string; // e.g. '6-Set', '12-Set', '24-Set' or '১ ডজন'
+  price: number; // Total price in BDT, e.g. 1920
+  originalPrice?: number | null; // Optional compare-at price in BDT, e.g. 2400
+  perSetPriceText?: string | null; // e.g. 'প্রতি সেটের প্রাইস ৮০ টাকা' or '৳80 / set'
+  badge?: string | null; // e.g. 'Best Value', 'Most Popular'
+  isDefault?: boolean; // True if this tier is pre-selected
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -31,6 +41,9 @@ export interface Product {
   allowMultipleSizes?: boolean; // For churi: allow selecting multiple sizes in one order
   hasCustomNote?: boolean; // For churi: allow extra field for customer custom notes / wrist sizing
   customNotePrompt?: string | null; // For churi: custom placeholder or label for extra note field
+  hasSetPricing?: boolean; // For churi: allow set / bundle tier pricing
+  setPricingBanner?: string | null; // For churi: promo highlight banner text, e.g. '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৮০ টাকা'
+  setTiers?: BangleSetTier[] | any; // For churi: list of configured set tiers
   hasCustomTrustPolicy?: boolean;
   trustGuaranteeTitle?: string | null;
   trustGuaranteeText?: string | null;
@@ -59,6 +72,7 @@ export interface CartItem {
   selectedColor: Colorway;
   selectedSize?: string;
   selectedSizes?: string[]; // Multiple sizes when enabled
+  selectedSet?: string; // For churi: e.g. '24-Set'
   customNote?: string; // Extra information / customer note (e.g. wrist circumference, customization)
   quantity: number;
 }

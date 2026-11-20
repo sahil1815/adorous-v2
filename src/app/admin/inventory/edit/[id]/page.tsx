@@ -7,12 +7,13 @@ import Link from 'next/link';
 import { getProductById, updateProductAction, updateStockAction } from '@/app/actions/productActions';
 import { setCategoryHeroImage } from '@/app/actions/categoryHeroActions';
 import { useInventory } from '@/context/InventoryContext';
-import { ProductCategory, Colorway } from '@/types';
+import { ProductCategory, Colorway, BangleSetTier } from '@/types';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import BangleSizingEditor, { DEFAULT_BANGLE_SIZES } from '@/components/admin/BangleSizingEditor';
+import BangleSetPricingEditor, { DEFAULT_CHURI_SET_TIERS } from '@/components/admin/BangleSetPricingEditor';
 import ProductTrustPolicyEditor from '@/components/admin/ProductTrustPolicyEditor';
 import {
   ArrowLeft, Sparkles, Upload, Image as ImageIcon, CheckCircle2, AlertCircle,
@@ -95,6 +96,11 @@ export default function EditProductPage() {
   const [allowMultipleSizes, setAllowMultipleSizes] = useState(false);
   const [hasCustomNote, setHasCustomNote] = useState(false);
   const [customNotePrompt, setCustomNotePrompt] = useState('Custom wrist measurement (mm), size breakdown, or special instructions...');
+
+  // Set / Tiered Pricing
+  const [hasSetPricing, setHasSetPricing] = useState(false);
+  const [setPricingBanner, setSetPricingBanner] = useState('২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)');
+  const [setTiers, setSetTiers] = useState<BangleSetTier[]>(DEFAULT_CHURI_SET_TIERS);
 
   // Trust & Guarantee policy
   const [hasCustomTrustPolicy, setHasCustomTrustPolicy] = useState(false);
@@ -188,6 +194,15 @@ export default function EditProductPage() {
       setHasCustomNote(Boolean(product.hasCustomNote));
       if (product.customNotePrompt) {
         setCustomNotePrompt(product.customNotePrompt);
+      }
+      setHasSetPricing(Boolean((product as any).hasSetPricing));
+      if ((product as any).setPricingBanner) {
+        setSetPricingBanner((product as any).setPricingBanner);
+      }
+      if (Array.isArray((product as any).setTiers) && (product as any).setTiers.length > 0) {
+        setSetTiers((product as any).setTiers);
+      } else {
+        setSetTiers(DEFAULT_CHURI_SET_TIERS);
       }
 
       setHasCustomTrustPolicy(Boolean(product.hasCustomTrustPolicy));
@@ -417,6 +432,9 @@ export default function EditProductPage() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasSetPricing: category === 'churi' ? hasSetPricing : false,
+      setPricingBanner: category === 'churi' && hasSetPricing ? setPricingBanner.trim() : null,
+      setTiers: category === 'churi' && hasSetPricing ? setTiers : [],
       hasCustomTrustPolicy,
       trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
       trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
@@ -478,6 +496,9 @@ export default function EditProductPage() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasSetPricing: category === 'churi' ? hasSetPricing : false,
+      setPricingBanner: category === 'churi' && hasSetPricing ? setPricingBanner.trim() : null,
+      setTiers: category === 'churi' && hasSetPricing ? setTiers : [],
       hasCustomTrustPolicy,
       trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
       trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
@@ -993,6 +1014,16 @@ export default function EditProductPage() {
                     )}
                   </div>
                 </div>
+
+                {/* 4. Bangle Set / Quantity Tier Pricing */}
+                <BangleSetPricingEditor
+                  hasSetPricing={hasSetPricing}
+                  onHasSetPricingChange={setHasSetPricing}
+                  setPricingBanner={setPricingBanner}
+                  onSetPricingBannerChange={setSetPricingBanner}
+                  setTiers={setTiers}
+                  onSetTiersChange={setSetTiers}
+                />
               </div>
             )}
           </div>

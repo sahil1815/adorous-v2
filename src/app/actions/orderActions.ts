@@ -18,13 +18,13 @@ export async function createOrder(orderData: any) {
 
     let authoritativeCompareSubtotal = 0;
     let authoritativeSellingSubtotal = 0;
-    let dbProductMap = new Map<string, { id: string; slug?: string; name: string; price: number; originalPrice?: number | null; inStock: boolean; stockQty: number | null; colorways: any[] }>();
+    let dbProductMap = new Map<string, { id: string; slug?: string; name: string; price: number; originalPrice?: number | null; inStock: boolean; stockQty: number | null; colorways: any[]; hasSetPricing?: boolean; setTiers?: any }>();
 
     if (itemProductIds.length > 0) {
       try {
         const dbProducts = await prisma.product.findMany({
           where: { id: { in: itemProductIds } },
-          select: { id: true, slug: true, name: true, price: true, originalPrice: true, inStock: true, stockQty: true, colorways: true },
+          select: { id: true, slug: true, name: true, price: true, originalPrice: true, inStock: true, stockQty: true, colorways: true, hasSetPricing: true, setTiers: true },
         });
         dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
       } catch (dbErr) {
@@ -55,8 +55,22 @@ export async function createOrder(orderData: any) {
         }
       }
 
-      const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
-      const sell = dbProd ? Math.round(Number(dbProd.price)) : (Math.round(Number(item.product?.price)) || 0);
+      let orig = dbProd?.originalPrice ?? item.product?.originalPrice;
+      let sell = dbProd ? Math.round(Number(dbProd.price)) : (Math.round(Number(item.product?.price)) || 0);
+
+      // Check for set tier pricing
+      if (dbProd?.hasSetPricing && Array.isArray((dbProd as any).setTiers) && item.selectedSet) {
+        const matchingTier = (dbProd as any).setTiers.find(
+          (t: any) => t.name === item.selectedSet || t.id === item.selectedSet
+        );
+        if (matchingTier && matchingTier.price) {
+          sell = Math.round(Number(matchingTier.price));
+          if (matchingTier.originalPrice) {
+            orig = Math.round(Number(matchingTier.originalPrice));
+          }
+        }
+      }
+
       const comparePrice = orig && Number(orig) > sell ? Math.round(Number(orig)) : sell;
       const qty = Math.max(1, Number(item.quantity) || 1);
 
@@ -231,8 +245,22 @@ export async function createOrder(orderData: any) {
         items: {
           create: (orderData.items || []).map((item: any) => {
             const dbProd = item.product?.id ? dbProductMap.get(item.product.id) : null;
-            const orig = dbProd?.originalPrice ?? item.product?.originalPrice;
-            const sellPrice = dbProd ? Number(dbProd.price) : (item.product?.price ?? 0);
+            let orig = dbProd?.originalPrice ?? item.product?.originalPrice;
+            let sellPrice = dbProd ? Number(dbProd.price) : (item.product?.price ?? 0);
+
+            // Handle set pricing tier
+            if (dbProd?.hasSetPricing && Array.isArray((dbProd as any).setTiers) && item.selectedSet) {
+              const matchingTier = (dbProd as any).setTiers.find(
+                (t: any) => t.name === item.selectedSet || t.id === item.selectedSet
+              );
+              if (matchingTier && matchingTier.price) {
+                sellPrice = Number(matchingTier.price);
+                if (matchingTier.originalPrice) {
+                  orig = Number(matchingTier.originalPrice);
+                }
+              }
+            }
+
             const itemPrice = orig && Number(orig) > sellPrice ? Math.round(Number(orig)) : Math.round(sellPrice);
             return {
               productId: dbProd?.id || item.product?.id || null,
@@ -243,6 +271,7 @@ export async function createOrder(orderData: any) {
               colorName: item.selectedColor?.name || (typeof item.selectedColor === 'string' ? item.selectedColor : 'Standard'),
               colorHex: item.selectedColor?.hex || '#C5A880',
               selectedSize: item.selectedSize || (Array.isArray(item.selectedSizes) ? item.selectedSizes.join(', ') : null),
+              selectedSet: item.selectedSet?.trim() || null,
               customNote: item.customNote?.trim() || null,
             };
           }),
@@ -376,6 +405,7 @@ export async function getOrders() {
             hex: item.colorHex,
           },
           selectedSize: item.selectedSize || undefined,
+          selectedSet: item.selectedSet || undefined,
           customNote: item.customNote || undefined,
           quantity: item.quantity,
         })),
@@ -661,6 +691,7 @@ export async function updateOrderItemProduct({
   customGrandTotal,
   customShippingFee,
   customNote,
+  newSet,
 }: {
   orderId: string;
   itemId: string;
@@ -682,6 +713,7 @@ export async function updateOrderItemProduct({
   customGrandTotal?: number;
   customShippingFee?: number;
   customNote?: string;
+  newSet?: string;
 }) {
   const session = await verifyAdminSession();
   if (!session) {
@@ -789,6 +821,7 @@ export async function updateOrderItemProduct({
           colorName: newColor.name,
           colorHex: newColor.hex,
           selectedSize: newSize || null,
+          selectedSet: newSet !== undefined ? (newSet || null) : (targetItem as any).selectedSet,
           customNote: customNote !== undefined ? (customNote || null) : targetItem.customNote,
         },
       });
@@ -1030,6 +1063,7 @@ export async function getPublicOrderTracking(query: string) {
             hex: i.colorHex || '#DDD6CB',
           },
           selectedSize: i.selectedSize || undefined,
+          selectedSet: i.selectedSet || undefined,
           customNote: i.customNote || undefined,
           quantity: i.quantity,
         })),

@@ -179,6 +179,7 @@ export async function POST(req: Request) {
               colorName: item.selectedColorway?.name || item.colorName || 'Standard',
               colorHex: item.selectedColorway?.hex || item.colorHex || '#C6A96E',
               selectedSize: item.selectedSize || null,
+              selectedSet: item.selectedSet || null,
               customNote: item.customNote || null,
             })),
           },

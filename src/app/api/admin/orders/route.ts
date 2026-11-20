@@ -80,6 +80,7 @@ export async function GET() {
           hex: item.colorHex,
         },
         selectedSize: item.selectedSize || undefined,
+        selectedSet: item.selectedSet || undefined,
         customNote: item.customNote || undefined,
         quantity: item.quantity,
       })),

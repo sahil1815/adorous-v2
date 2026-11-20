@@ -257,6 +257,7 @@ export default function CustomerOrdersPage() {
                             />
                             <span>{item.colorName}</span>
                           </span>
+                          {item.selectedSet && <span className="font-semibold text-gold-deep">• Set: {item.selectedSet}</span>}
                           {item.selectedSize && <span>• Size: {item.selectedSize}</span>}
                           <span>• Qty: {item.quantity}</span>
                         </div>

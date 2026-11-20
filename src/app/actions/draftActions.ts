@@ -277,6 +277,8 @@ export async function convertDraftCheckoutToOrderAction(
               colorName,
               colorHex,
               selectedSize: item.selectedSize || null,
+              selectedSet: item.selectedSet || null,
+              customNote: item.customNote || null,
             };
           }),
         },
