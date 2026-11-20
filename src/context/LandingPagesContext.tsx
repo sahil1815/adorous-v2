@@ -52,7 +52,21 @@ export function LandingPagesProvider({ children }: { children: React.ReactNode }
 
   const refreshPages = useCallback(async () => {
     try {
-      const serverPages = await getAllLandingPages();
+      let serverPages: any[] | null = null;
+      try {
+        const res = await fetch('/api/collections/pages');
+        const data = await res.json();
+        if (data?.success && Array.isArray(data.pages)) {
+          serverPages = data.pages;
+        }
+      } catch {
+        // Fallback to server action if API fetch fails
+      }
+
+      if (!serverPages) {
+        serverPages = await getAllLandingPages();
+      }
+
       if (serverPages && serverPages.length > 0) {
         setPages(serverPages as LandingPage[]);
         try {
@@ -80,9 +94,21 @@ export function LandingPagesProvider({ children }: { children: React.ReactNode }
         }
       } catch (e) {}
 
-      // 2. Fetch authoritative records from PostgreSQL
+      // 2. Fetch authoritative records from API / Database
       try {
-        const dbPages = await getAllLandingPages();
+        let dbPages: any[] | null = null;
+        try {
+          const res = await fetch('/api/collections/pages');
+          const data = await res.json();
+          if (data?.success && Array.isArray(data.pages)) {
+            dbPages = data.pages;
+          }
+        } catch {}
+
+        if (!dbPages) {
+          dbPages = await getAllLandingPages();
+        }
+
         if (mounted) {
           setPages((dbPages || []) as LandingPage[]);
           try {

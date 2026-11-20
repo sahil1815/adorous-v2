@@ -33,6 +33,13 @@ const VALID_STATIC_PATHS = new Set([
   'apple-icon.png',
   'icon.png',
   'favicon.ico',
+  'manifest.json',
+  'manifest.webmanifest',
+  'file.svg',
+  'globe.svg',
+  'next.svg',
+  'vercel.svg',
+  'window.svg',
 ]);
 
 const VALID_CATEGORIES = new Set([
@@ -42,12 +49,23 @@ const VALID_CATEGORIES = new Set([
   'collections',
 ]);
 
-const VALID_PREFIXES = new Set(['admin', 'account', 'api', '.well-known']);
+const VALID_PREFIXES = new Set(['admin', 'account', 'api', '.well-known', '_next']);
 
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // 1. Clean Facebook tracking parameter (?fbclid=...) and set official Meta attribution cookie
+  // 1. Return empty JS for any cached Vercel analytics requests (prevents 404 in logs)
+  if (path.startsWith('/_vercel/')) {
+    return new NextResponse('/* @vercel/analytics disabled on custom host */\n', {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    });
+  }
+
+  // 2. Clean Facebook tracking parameter (?fbclid=...) and set official Meta attribution cookie
   const fbclid = req.nextUrl.searchParams.get('fbclid');
   if (fbclid) {
     const cleanUrl = req.nextUrl.clone();
@@ -65,28 +83,44 @@ export default async function proxy(req: NextRequest) {
     return response;
   }
 
-  // 2. Content negotiation: Serve Markdown when requested by agents
-  const acceptHeader = req.headers.get('accept') || '';
-  const wantsMarkdown =
-    acceptHeader.includes('text/markdown') ||
-    acceptHeader.includes('text/x-markdown') ||
-    req.nextUrl.searchParams.get('format') === 'markdown';
+  // 2. Safeguard against empty or malformed Server Action POST requests (prevents 500 JSON.parse crash)
+  if (req.headers.has('next-action') && req.headers.get('content-length') === '0') {
+    return new NextResponse('Invalid server action payload: body is empty', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  }
 
-  if (wantsMarkdown) {
-    const markdownContent = getPageMarkdown(path);
-    if (markdownContent) {
-      return new NextResponse(markdownContent, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/markdown; charset=utf-8',
-          'Vary': 'Accept',
-          'Link': '</llms.txt>; rel="describedby"; type="text/plain", </llms-full.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"',
-        },
-      });
+  // 3. Gracefully handle raw non-action POST requests to homepage to prevent 405/500 crashes
+  if (path === '/' && req.method === 'POST' && !req.headers.has('next-action')) {
+    return NextResponse.redirect(new URL('/', req.nextUrl), 303);
+  }
+
+  // 4. Content negotiation: Serve Markdown when requested by agents (read-only methods only)
+  const isReadMethod = req.method === 'GET' || req.method === 'HEAD';
+  if (isReadMethod) {
+    const acceptHeader = req.headers.get('accept') || '';
+    const wantsMarkdown =
+      acceptHeader.includes('text/markdown') ||
+      acceptHeader.includes('text/x-markdown') ||
+      req.nextUrl.searchParams.get('format') === 'markdown';
+
+    if (wantsMarkdown) {
+      const markdownContent = getPageMarkdown(path);
+      if (markdownContent) {
+        return new NextResponse(markdownContent, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/markdown; charset=utf-8',
+            'Vary': 'Accept',
+            'Link': '</llms.txt>; rel="describedby"; type="text/plain", </llms-full.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"',
+          },
+        });
+      }
     }
   }
 
-  // 3. Early 404 validation for missing pages so agents receive real HTTP 404
+  // 4. Early 404 validation for missing pages so agents receive real HTTP 404
   const segments = path.split('/').filter(Boolean);
   if (segments.length === 1) {
     const root = segments[0].toLowerCase();
@@ -123,7 +157,7 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  // 4. Admin Route Protection
+  // 5. Admin Route Protection
   const isAdminApi = path.startsWith('/api/admin');
   const isAdminPage =
     protectedRoutes.some((route) => path.startsWith(route)) &&
@@ -144,7 +178,7 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  // 5. Default response with RFC 8288 Link headers for machine discoverability
+  // 6. Default response with RFC 8288 Link headers for machine discoverability
   const response = NextResponse.next();
   if (!path.startsWith('/admin') && !path.startsWith('/api/admin')) {
     response.headers.set(
@@ -162,9 +196,11 @@ export const config = {
      * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * - _next/data (data files)
      * - images/ (public images)
+     * - fonts/ (public fonts)
+     * - favicon.ico and other static assets
      */
-    '/((?!_next/static|_next/image|images/|favicon.ico).*)',
+    '/((?!_next/static|_next/image|_next/data|_next|images/|fonts/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2|woff|ttf)$).*)',
   ],
 };

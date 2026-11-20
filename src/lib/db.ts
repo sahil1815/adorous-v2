@@ -55,10 +55,13 @@ function getDatasourceUrl(): string | undefined {
       }
     } else if (parsed.protocol.startsWith('mysql')) {
       if (!parsed.searchParams.has('connection_limit')) {
-        parsed.searchParams.set('connection_limit', '5');
+        parsed.searchParams.set('connection_limit', '15');
       }
       if (!parsed.searchParams.has('connect_timeout')) {
-        parsed.searchParams.set('connect_timeout', '15');
+        parsed.searchParams.set('connect_timeout', '20');
+      }
+      if (!parsed.searchParams.has('pool_timeout')) {
+        parsed.searchParams.set('pool_timeout', '30');
       }
     }
 

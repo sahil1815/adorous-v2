@@ -197,7 +197,7 @@ export default function Footer() {
             <p className="text-xs text-ink leading-relaxed">
               Receive private notifications when a new collection drops before public release.
             </p>
-            <form className="space-y-2 pt-1" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-2 pt-1" action="#" method="GET" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="tel"
                 placeholder="Your WhatsApp number (e.g. 017XXXXXXXX)"

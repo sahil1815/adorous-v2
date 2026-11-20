@@ -209,18 +209,27 @@ export function NewVisitorOfferProvider({ children }: { children: React.ReactNod
       setIsPreviewMode(isPreview);
 
       try {
-        const dbSettings = await getWelcomeOfferSettings();
+        const res = await fetch('/api/welcome-offer');
+        const data = await res.json();
+        const dbSettings = data?.settings || DEFAULT_WELCOME_OFFER_SETTINGS;
         if (!isCancelled) {
           setSettings(dbSettings);
           settingsLoadedRef.current = true;
           startOfferLifecycle(dbSettings, isPreview);
         }
       } catch (err) {
-        console.error('Failed to load welcome offer settings, falling back:', err);
+        console.warn('Failed to load welcome offer settings from API, falling back:', err);
         if (!isCancelled) {
-          setSettings(DEFAULT_WELCOME_OFFER_SETTINGS);
-          settingsLoadedRef.current = true;
-          startOfferLifecycle(DEFAULT_WELCOME_OFFER_SETTINGS, isPreview);
+          try {
+            const fallbackSettings = await getWelcomeOfferSettings();
+            setSettings(fallbackSettings || DEFAULT_WELCOME_OFFER_SETTINGS);
+            settingsLoadedRef.current = true;
+            startOfferLifecycle(fallbackSettings || DEFAULT_WELCOME_OFFER_SETTINGS, isPreview);
+          } catch {
+            setSettings(DEFAULT_WELCOME_OFFER_SETTINGS);
+            settingsLoadedRef.current = true;
+            startOfferLifecycle(DEFAULT_WELCOME_OFFER_SETTINGS, isPreview);
+          }
         }
       }
     }

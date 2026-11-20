@@ -48,6 +48,23 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/_vercel/insights/:path*',
+          destination: '/api/noop-script',
+        },
+      ],
+      afterFiles: [],
+      fallback: [
+        {
+          source: '/_next/static/media/:path*.woff2',
+          destination: '/fonts/fallback.woff2',
+        },
+      ],
+    };
+  },
   async headers() {
     return [
       {

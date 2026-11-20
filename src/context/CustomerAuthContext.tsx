@@ -34,11 +34,22 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
   const refreshCustomer = useCallback(async () => {
     try {
-      const active = await getCurrentCustomerAction();
-      setCustomer(active);
+      const res = await fetch('/api/account/session');
+      const data = await res.json();
+      if (data?.success) {
+        setCustomer(data.customer || null);
+      } else {
+        const active = await getCurrentCustomerAction();
+        setCustomer(active);
+      }
     } catch (err) {
       console.warn('[CustomerAuthProvider] Error checking session:', err);
-      setCustomer(null);
+      try {
+        const active = await getCurrentCustomerAction();
+        setCustomer(active);
+      } catch {
+        setCustomer(null);
+      }
     } finally {
       setIsLoading(false);
     }

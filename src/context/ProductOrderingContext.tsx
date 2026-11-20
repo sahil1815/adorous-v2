@@ -33,7 +33,21 @@ export function ProductOrderingProvider({ children }: { children: React.ReactNod
   // 1. Initial hydration: fast load from localStorage, followed by authoritative fetch from DB
   const refreshOrderings = useCallback(async () => {
     try {
-      const dbOrderings = await getAllPageOrderings();
+      let dbOrderings: Record<string, PageOrdering> | null = null;
+      try {
+        const res = await fetch('/api/catalog/ordering');
+        const data = await res.json();
+        if (data?.success && data.orderings) {
+          dbOrderings = data.orderings;
+        }
+      } catch {
+        // Fallback to server action if API fetch fails
+      }
+
+      if (!dbOrderings) {
+        dbOrderings = await getAllPageOrderings();
+      }
+
       if (dbOrderings && Object.keys(dbOrderings).length > 0) {
         setOrderings((prev) => {
           const merged = { ...prev, ...dbOrderings };
