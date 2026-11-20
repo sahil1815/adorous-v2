@@ -1134,7 +1134,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 pt-1">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 pt-1">
                     {activeTiers.map((tier) => {
                       const isSelected = selectedSetTier?.id === tier.id || selectedSetTier?.name === tier.name;
                       const isBestValue = /best|value|সাশ্রয়/i.test(tier.badge || '');
@@ -1143,21 +1143,21 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                           key={tier.id || tier.name}
                           type="button"
                           onClick={() => setSelectedSetTier(tier)}
-                          className={`p-2.5 sm:p-3 rounded-[3px] border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                          className={`p-2 sm:p-2.5 rounded-[3px] border text-left transition-all flex flex-col justify-between cursor-pointer min-w-0 ${
                             isSelected
                               ? 'border-ink bg-gold/20 shadow-xs ring-1.5 ring-gold'
                               : 'border-line bg-sand/30 hover:border-ink/60'
                           }`}
                         >
                           {/* Top Row: Set Name on Left, Badge & Checkmark on Right (Same Level Inside Box) */}
-                          <div className="flex items-center justify-between gap-1.5 min-h-[22px]">
-                            <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-ink font-semibold' : 'text-ink'}`}>
+                          <div className="flex items-center justify-between gap-1 min-h-[20px] w-full min-w-0">
+                            <span className={`text-xs sm:text-sm font-bold whitespace-nowrap shrink-0 ${isSelected ? 'text-ink font-semibold' : 'text-ink'}`}>
                               {tier.name}
                             </span>
-                            <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex items-center gap-1 shrink-0">
                               {tier.badge && (
                                 <span
-                                  className={`inline-flex items-center px-1.5 py-0.5 rounded-[3px] text-[9px] sm:text-[10px] font-bold tracking-wider uppercase border shadow-2xs pointer-events-none ${
+                                  className={`inline-flex items-center px-1 py-0.5 rounded-[2px] text-[8px] sm:text-[9px] font-bold tracking-tight uppercase border shadow-2xs whitespace-nowrap shrink-0 pointer-events-none ${
                                     isBestValue
                                       ? 'bg-[#7A1828] text-white border-[#9B2335]'
                                       : 'bg-[#6E5018] text-white border-[#8C6824]'
@@ -1166,29 +1166,37 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                                   <span>{tier.badge}</span>
                                 </span>
                               )}
-                              {isSelected && <Check className="w-3.5 h-3.5 text-ink stroke-[2.5]" />}
+                              {isSelected && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-ink stroke-[2.5] shrink-0" />}
                             </div>
                           </div>
 
-                          {/* Per-Set Price Pill: Sized comfortably without truncation */}
+                          {/* Per-Set Price Pill: Stacked 2-line layout that never overflows or truncates */}
                           {tier.perSetPriceText && (() => {
                             const match = tier.perSetPriceText.match(/([0-9০-৯]+(?:\s*(?:টাকা|tk|\/set|set))?)/i);
                             const numPart = match ? match[0] : '';
                             const prefix = match ? tier.perSetPriceText.replace(numPart, '').trim() : tier.perSetPriceText;
                             return (
                               <div
-                                className={`mt-2 py-1.5 px-1.5 sm:px-2 rounded-[3px] border transition-all flex items-center justify-center text-center ${
+                                className={`mt-2 py-1 px-1 sm:px-2 rounded-[3px] border transition-all flex flex-col items-center justify-center text-center w-full min-w-0 ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-amber-500/50 text-amber-950 shadow-2xs ring-1 ring-amber-400/30'
                                     : 'bg-sand/70 border-gold/35 text-ink/90 hover:border-gold/60'
                                 }`}
                               >
-                                <span className="text-[11px] sm:text-xs font-medium tracking-tight whitespace-nowrap">
-                                  {prefix ? `${prefix} ` : ''}
-                                  <strong className="font-extrabold text-amber-950 text-[11.5px] sm:text-xs tabular-nums">
-                                    {numPart || tier.perSetPriceText}
-                                  </strong>
-                                </span>
+                                {numPart ? (
+                                  <>
+                                    <span className="text-[9.5px] sm:text-[10.5px] font-medium text-ink/75 leading-tight truncate max-w-full">
+                                      {prefix || 'প্রতি সেটের প্রাইস'}
+                                    </span>
+                                    <strong className="font-extrabold text-amber-950 text-[11px] sm:text-xs tabular-nums leading-tight mt-0.5">
+                                      {numPart}
+                                    </strong>
+                                  </>
+                                ) : (
+                                  <span className="text-[10px] sm:text-[11px] font-bold text-amber-950 truncate max-w-full">
+                                    {tier.perSetPriceText}
+                                  </span>
+                                )}
                               </div>
                             );
                           })()}
