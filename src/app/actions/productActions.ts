@@ -94,6 +94,16 @@ function toDbShape(product: Product) {
     allowMultipleSizes: Boolean((product as any).allowMultipleSizes),
     hasCustomNote: Boolean((product as any).hasCustomNote),
     customNotePrompt: (product as any).customNotePrompt ?? null,
+    hasCustomTrustPolicy: Boolean((product as any).hasCustomTrustPolicy),
+    trustGuaranteeTitle: (product as any).trustGuaranteeTitle ?? null,
+    trustGuaranteeText: (product as any).trustGuaranteeText ?? null,
+    trustExchangeTitle: (product as any).trustExchangeTitle ?? null,
+    trustExchangeText: (product as any).trustExchangeText ?? null,
+    trustDeliveryTitle: (product as any).trustDeliveryTitle ?? null,
+    trustDeliveryText: (product as any).trustDeliveryText ?? null,
+    showTrustGuarantee: (product as any).showTrustGuarantee !== undefined ? (product as any).showTrustGuarantee : true,
+    showTrustExchange: (product as any).showTrustExchange !== undefined ? (product as any).showTrustExchange : true,
+    showTrustDelivery: (product as any).showTrustDelivery !== undefined ? (product as any).showTrustDelivery : true,
     details: (product.details || []).map((text, idx) => ({ id: `detail-${idx}`, text, productId: product.id })),
     piecesIncluded: (product.piecesIncluded || []).map((text, idx) => ({ id: `piece-${idx}`, text, productId: product.id })),
     colorways: (product.colorways || []).map((cw) => ({
@@ -301,6 +311,16 @@ export async function createProductAction(productData: Product) {
         allowMultipleSizes: Boolean(productData.allowMultipleSizes),
         hasCustomNote: Boolean(productData.hasCustomNote),
         customNotePrompt: productData.customNotePrompt?.trim() || null,
+        hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
+        trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
+        trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
+        trustExchangeTitle: productData.trustExchangeTitle?.trim() || null,
+        trustExchangeText: productData.trustExchangeText?.trim() || null,
+        trustDeliveryTitle: productData.trustDeliveryTitle?.trim() || null,
+        trustDeliveryText: productData.trustDeliveryText?.trim() || null,
+        showTrustGuarantee: productData.showTrustGuarantee !== undefined ? productData.showTrustGuarantee : true,
+        showTrustExchange: productData.showTrustExchange !== undefined ? productData.showTrustExchange : true,
+        showTrustDelivery: productData.showTrustDelivery !== undefined ? productData.showTrustDelivery : true,
         seoKeywords: Array.isArray(productData.seoKeywords) ? productData.seoKeywords.join(',') : (productData.seoKeywords || ''),
         details: { create: (productData.details || []).map((text) => ({ text })) },
         piecesIncluded: { create: (productData.piecesIncluded || []).map((text) => ({ text })) },
@@ -376,6 +396,16 @@ export async function updateProductAction(
     allowMultipleSizes?: boolean;
     hasCustomNote?: boolean;
     customNotePrompt?: string | null;
+    hasCustomTrustPolicy?: boolean;
+    trustGuaranteeTitle?: string | null;
+    trustGuaranteeText?: string | null;
+    trustExchangeTitle?: string | null;
+    trustExchangeText?: string | null;
+    trustDeliveryTitle?: string | null;
+    trustDeliveryText?: string | null;
+    showTrustGuarantee?: boolean | null;
+    showTrustExchange?: boolean | null;
+    showTrustDelivery?: boolean | null;
   }
 ) {
   const session = await verifyAdminSession();
@@ -451,6 +481,16 @@ export async function updateProductAction(
           allowMultipleSizes: Boolean(productData.allowMultipleSizes),
           hasCustomNote: Boolean(productData.hasCustomNote),
           customNotePrompt: productData.customNotePrompt?.trim() || null,
+          hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
+          trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
+          trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
+          trustExchangeTitle: productData.trustExchangeTitle?.trim() || null,
+          trustExchangeText: productData.trustExchangeText?.trim() || null,
+          trustDeliveryTitle: productData.trustDeliveryTitle?.trim() || null,
+          trustDeliveryText: productData.trustDeliveryText?.trim() || null,
+          showTrustGuarantee: productData.showTrustGuarantee !== undefined ? productData.showTrustGuarantee : true,
+          showTrustExchange: productData.showTrustExchange !== undefined ? productData.showTrustExchange : true,
+          showTrustDelivery: productData.showTrustDelivery !== undefined ? productData.showTrustDelivery : true,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },
@@ -488,6 +528,16 @@ export async function updateProductAction(
           allowMultipleSizes: Boolean(productData.allowMultipleSizes),
           hasCustomNote: Boolean(productData.hasCustomNote),
           customNotePrompt: productData.customNotePrompt?.trim() || null,
+          hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
+          trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
+          trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
+          trustExchangeTitle: productData.trustExchangeTitle?.trim() || null,
+          trustExchangeText: productData.trustExchangeText?.trim() || null,
+          trustDeliveryTitle: productData.trustDeliveryTitle?.trim() || null,
+          trustDeliveryText: productData.trustDeliveryText?.trim() || null,
+          showTrustGuarantee: productData.showTrustGuarantee !== undefined ? productData.showTrustGuarantee : true,
+          showTrustExchange: productData.showTrustExchange !== undefined ? productData.showTrustExchange : true,
+          showTrustDelivery: productData.showTrustDelivery !== undefined ? productData.showTrustDelivery : true,
           seoKeywords: productData.seoKeywords.join(','),
           details: { create: productData.details.map((text) => ({ text })) },
           piecesIncluded: { create: productData.piecesIncluded.map((text) => ({ text })) },

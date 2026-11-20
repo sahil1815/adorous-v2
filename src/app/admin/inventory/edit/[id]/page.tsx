@@ -13,6 +13,7 @@ import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import BangleSizingEditor, { DEFAULT_BANGLE_SIZES } from '@/components/admin/BangleSizingEditor';
+import ProductTrustPolicyEditor from '@/components/admin/ProductTrustPolicyEditor';
 import {
   ArrowLeft, Sparkles, Upload, Image as ImageIcon, CheckCircle2, AlertCircle,
   Plus, Trash2, ShieldAlert, Tag, Loader2, Package, Infinity, Star, Layers, Palette, X,
@@ -95,6 +96,18 @@ export default function EditProductPage() {
   const [hasCustomNote, setHasCustomNote] = useState(false);
   const [customNotePrompt, setCustomNotePrompt] = useState('Custom wrist measurement (mm), size breakdown, or special instructions...');
 
+  // Trust & Guarantee policy
+  const [hasCustomTrustPolicy, setHasCustomTrustPolicy] = useState(false);
+  const [trustGuaranteeTitle, setTrustGuaranteeTitle] = useState('');
+  const [trustGuaranteeText, setTrustGuaranteeText] = useState('');
+  const [trustExchangeTitle, setTrustExchangeTitle] = useState('৭ দিনের এক্সচেঞ্জ :');
+  const [trustExchangeText, setTrustExchangeText] = useState('সাইজ ও ফিনিশ পরিবর্তনযোগ্য');
+  const [trustDeliveryTitle, setTrustDeliveryTitle] = useState('ডেলিভারি :');
+  const [trustDeliveryText, setTrustDeliveryText] = useState('1–3 days');
+  const [showTrustGuarantee, setShowTrustGuarantee] = useState(true);
+  const [showTrustExchange, setShowTrustExchange] = useState(true);
+  const [showTrustDelivery, setShowTrustDelivery] = useState(true);
+
   // Stock management
   const [stockMode, setStockMode] = useState<'unlimited' | 'tracked'>('unlimited');
   const [stockQty, setStockQty] = useState<number>(0);
@@ -176,6 +189,17 @@ export default function EditProductPage() {
       if (product.customNotePrompt) {
         setCustomNotePrompt(product.customNotePrompt);
       }
+
+      setHasCustomTrustPolicy(Boolean(product.hasCustomTrustPolicy));
+      setTrustGuaranteeTitle(product.trustGuaranteeTitle || '');
+      setTrustGuaranteeText(product.trustGuaranteeText || '');
+      setTrustExchangeTitle(product.trustExchangeTitle || '৭ দিনের এক্সচেঞ্জ :');
+      setTrustExchangeText(product.trustExchangeText || 'সাইজ ও ফিনিশ পরিবর্তনযোগ্য');
+      setTrustDeliveryTitle(product.trustDeliveryTitle || 'ডেলিভারি :');
+      setTrustDeliveryText(product.trustDeliveryText || '1–3 days');
+      setShowTrustGuarantee(product.showTrustGuarantee !== false);
+      setShowTrustExchange(product.showTrustExchange !== false);
+      setShowTrustDelivery(product.showTrustDelivery !== false);
 
       if (product.stockQty === null || product.stockQty === undefined) {
         setStockMode('unlimited');
@@ -393,6 +417,16 @@ export default function EditProductPage() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasCustomTrustPolicy,
+      trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
+      trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
+      trustExchangeTitle: hasCustomTrustPolicy ? trustExchangeTitle.trim() || null : null,
+      trustExchangeText: hasCustomTrustPolicy ? trustExchangeText.trim() || null : null,
+      trustDeliveryTitle: hasCustomTrustPolicy ? trustDeliveryTitle.trim() || null : null,
+      trustDeliveryText: hasCustomTrustPolicy ? trustDeliveryText.trim() || null : null,
+      showTrustGuarantee: hasCustomTrustPolicy ? showTrustGuarantee : true,
+      showTrustExchange: hasCustomTrustPolicy ? showTrustExchange : true,
+      showTrustDelivery: hasCustomTrustPolicy ? showTrustDelivery : true,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
       details,
       piecesIncluded,
@@ -444,6 +478,16 @@ export default function EditProductPage() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasCustomTrustPolicy,
+      trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
+      trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
+      trustExchangeTitle: hasCustomTrustPolicy ? trustExchangeTitle.trim() || null : null,
+      trustExchangeText: hasCustomTrustPolicy ? trustExchangeText.trim() || null : null,
+      trustDeliveryTitle: hasCustomTrustPolicy ? trustDeliveryTitle.trim() || null : null,
+      trustDeliveryText: hasCustomTrustPolicy ? trustDeliveryText.trim() || null : null,
+      showTrustGuarantee: hasCustomTrustPolicy ? showTrustGuarantee : true,
+      showTrustExchange: hasCustomTrustPolicy ? showTrustExchange : true,
+      showTrustDelivery: hasCustomTrustPolicy ? showTrustDelivery : true,
       featuredRank: 1,
       seoKeywords: [name.trim(), category, 'premium jewelry', 'Dhaka boutique'],
     });
@@ -1616,6 +1660,31 @@ export default function EditProductPage() {
             )}
           </div>
         </div>
+
+        {/* Section 6: Trust, Guarantee & Exchange Policy */}
+        <ProductTrustPolicyEditor
+          category={category}
+          hasCustomTrustPolicy={hasCustomTrustPolicy}
+          onHasCustomTrustPolicyChange={setHasCustomTrustPolicy}
+          trustGuaranteeTitle={trustGuaranteeTitle}
+          onTrustGuaranteeTitleChange={setTrustGuaranteeTitle}
+          trustGuaranteeText={trustGuaranteeText}
+          onTrustGuaranteeTextChange={setTrustGuaranteeText}
+          trustExchangeTitle={trustExchangeTitle}
+          onTrustExchangeTitleChange={setTrustExchangeTitle}
+          trustExchangeText={trustExchangeText}
+          onTrustExchangeTextChange={setTrustExchangeText}
+          trustDeliveryTitle={trustDeliveryTitle}
+          onTrustDeliveryTitleChange={setTrustDeliveryTitle}
+          trustDeliveryText={trustDeliveryText}
+          onTrustDeliveryTextChange={setTrustDeliveryText}
+          showTrustGuarantee={showTrustGuarantee}
+          onShowTrustGuaranteeChange={setShowTrustGuarantee}
+          showTrustExchange={showTrustExchange}
+          onShowTrustExchangeChange={setShowTrustExchange}
+          showTrustDelivery={showTrustDelivery}
+          onShowTrustDeliveryChange={setShowTrustDelivery}
+        />
 
         {/* Submit */}
         <div className="flex items-center justify-end space-x-4 pt-4 border-t border-white/10">

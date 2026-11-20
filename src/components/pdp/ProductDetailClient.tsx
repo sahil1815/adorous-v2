@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,13 +41,18 @@ import {
   X,
   ZoomIn
 } from 'lucide-react';
+import { resolveTrustPolicy, ResolvedTrustPolicy } from '@/lib/trustPolicies';
 
 interface ProductDetailClientProps {
   product: Product;
   pairsWellWith: Product[];
+  trustPolicy?: ResolvedTrustPolicy;
 }
 
-export default function ProductDetailClient({ product, pairsWellWith }: ProductDetailClientProps) {
+export default function ProductDetailClient({ product, pairsWellWith, trustPolicy }: ProductDetailClientProps) {
+  const activeTrustPolicy = useMemo(() => {
+    return trustPolicy || resolveTrustPolicy(product);
+  }, [trustPolicy, product]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addItem, addMultipleItems, closeCart, openCart, totalItems } = useCart();
@@ -1562,31 +1567,45 @@ export default function ProductDetailClient({ product, pairsWellWith }: ProductD
                 <span>Order Directly on WhatsApp</span>
               </a>
 
-              {/* Trust & Delivery Card with 6-Month Official Guarantee */}
-              <div className="mt-6 p-4 bg-[#FAF8F5] border border-gold/30 rounded-lg shadow-xs space-y-3">
-                <div className="flex items-start gap-2.5 text-emerald-900 bg-emerald-50/80 p-2.5 rounded-md border border-emerald-200/60">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                  <div className="text-xs leading-relaxed">
-                    <span className="font-semibold block text-emerald-950">
-                      ৬ মাসের গ্যারান্টি (6-Month Official Guarantee)
-                    </span>
-                    <span className="text-[11px] text-emerald-800/90 block mt-0.5">
-                      কালার ও প্লেটিং স্থায়িত্ব এবং পাথর সেটিংয়ের কারিগরী সুরক্ষা অন্তর্ভুক্ত। ফ্রি ডোরস্টেপ সার্ভিসিং বা এক্সচেঞ্জ।
-                    </span>
-                  </div>
-                </div>
+              {/* Trust & Delivery Card */}
+              {(activeTrustPolicy.showGuarantee || activeTrustPolicy.showExchange || activeTrustPolicy.showDelivery) && (
+                <div className="mt-6 p-4 bg-[#FAF8F5] border border-gold/30 rounded-lg shadow-xs space-y-3">
+                  {activeTrustPolicy.showGuarantee && (
+                    <div className="flex items-start gap-2.5 text-emerald-900 bg-emerald-50/80 p-2.5 rounded-md border border-emerald-200/60">
+                      <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                      <div className="text-xs leading-relaxed">
+                        <span className="font-semibold block text-emerald-950">
+                          {activeTrustPolicy.guaranteeTitle}
+                        </span>
+                        <span className="text-[11px] text-emerald-800/90 block mt-0.5">
+                          {activeTrustPolicy.guaranteeText}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-ink/90 pt-1">
-                  <div className="flex items-center gap-2">
-                    <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>৭ দিনের এক্সচেঞ্জ :</strong> সাইজ ও ফিনিশ পরিবর্তনযোগ্য</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
-                    <span><strong>ডেলিভারি :</strong> 1–3 days</span>
-                  </div>
+                  {(activeTrustPolicy.showExchange || activeTrustPolicy.showDelivery) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-ink/90 pt-1">
+                      {activeTrustPolicy.showExchange && (
+                        <div className="flex items-center gap-2">
+                          <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                          <span>
+                            <strong>{activeTrustPolicy.exchangeTitle}</strong> {activeTrustPolicy.exchangeText}
+                          </span>
+                        </div>
+                      )}
+                      {activeTrustPolicy.showDelivery && (
+                        <div className="flex items-center gap-2">
+                          <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                          <span>
+                            <strong>{activeTrustPolicy.deliveryTitle}</strong> {activeTrustPolicy.deliveryText}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Collapsible Highlights & Details Card with Overlapping See More (Screenshot 1 & 2 matching) */}
               <div className="mt-6 mb-7 border border-line rounded-lg p-4 bg-paper relative shadow-xs">

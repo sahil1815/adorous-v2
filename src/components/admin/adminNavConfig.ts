@@ -14,6 +14,7 @@ import {
   Sparkles,
   MessageCircle,
   CreditCard,
+  ShieldCheck,
   LucideIcon,
 } from 'lucide-react';
 
@@ -144,6 +145,12 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         href: '/admin/payment-settings',
         icon: CreditCard,
         description: 'Configure bKash, Nagad numbers, account types & online discount',
+      },
+      {
+        title: 'Trust & Guarantee Policies',
+        href: '/admin/trust-policies',
+        icon: ShieldCheck,
+        description: 'Configure official guarantees, exchange terms & delivery promises by section',
       },
     ],
   },

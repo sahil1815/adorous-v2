@@ -9,6 +9,8 @@ import { PRODUCTS } from '@/data/catalogue';
 import { Product, ProductCategory } from '@/types';
 import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
+import { getTrustPolicyById } from '@/app/actions/trustPolicyActions';
+import { resolveTrustPolicy } from '@/lib/trustPolicies';
 import { EyeOff } from 'lucide-react';
 
 const getCachedProductBySlug = cache(getProductBySlug);
@@ -268,6 +270,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ],
   };
 
+  // Resolve dynamic trust, guarantee & exchange policy for this category & piece
+  const [categoryPolicy, globalPolicy] = await Promise.all([
+    getTrustPolicyById(product.category),
+    getTrustPolicyById('global'),
+  ]);
+  const resolvedTrustPolicy = resolveTrustPolicy(product, categoryPolicy, globalPolicy);
+
   return (
     <>
       <script
@@ -287,7 +296,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       )}
       <Suspense fallback={<div className="min-h-screen bg-paper flex items-center justify-center text-xs text-text-muted">Loading product...</div>}>
-        <ProductDetailClient product={product} pairsWellWith={pairsWellWith} />
+        <ProductDetailClient
+          product={product}
+          pairsWellWith={pairsWellWith}
+          trustPolicy={resolvedTrustPolicy}
+        />
       </Suspense>
     </>
   );

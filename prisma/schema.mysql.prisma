@@ -35,6 +35,16 @@ model Product {
   allowMultipleSizes  Boolean           @default(false)
   hasCustomNote       Boolean           @default(false)
   customNotePrompt    String?           @db.Text
+  hasCustomTrustPolicy Boolean          @default(false)
+  trustGuaranteeTitle String?
+  trustGuaranteeText  String?           @db.Text
+  trustExchangeTitle  String?
+  trustExchangeText   String?
+  trustDeliveryTitle  String?
+  trustDeliveryText   String?
+  showTrustGuarantee  Boolean?          @default(true)
+  showTrustExchange   Boolean?          @default(true)
+  showTrustDelivery   Boolean?          @default(true)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
@@ -334,4 +344,19 @@ model PaymentSettings {
   instructions         String   @default("Please Send Money to our bKash or Nagad Personal number or Payment to Merchant, then enter the Transaction ID below.") @db.Text
   updatedAt            DateTime @updatedAt
   createdAt            DateTime @default(now())
+}
+
+model TrustPolicySettings {
+  id             String   @id // 'global' | 'jewelry' | 'bags' | 'churi' | 'earrings' | 'more'
+  guaranteeTitle String   @default("৬ মাসের গ্যারান্টি (6-Month Official Guarantee)")
+  guaranteeText  String   @db.Text
+  exchangeTitle  String   @default("৭ দিনের এক্সচেঞ্জ :")
+  exchangeText   String   @default("সাইজ ও ফিনিশ পরিবর্তনযোগ্য")
+  deliveryTitle  String   @default("ডেলিভারি :")
+  deliveryText   String   @default("1–3 days")
+  showGuarantee  Boolean  @default(true)
+  showExchange   Boolean  @default(true)
+  showDelivery   Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now())
 }

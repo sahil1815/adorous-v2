@@ -31,6 +31,16 @@ export interface Product {
   allowMultipleSizes?: boolean; // For churi: allow selecting multiple sizes in one order
   hasCustomNote?: boolean; // For churi: allow extra field for customer custom notes / wrist sizing
   customNotePrompt?: string | null; // For churi: custom placeholder or label for extra note field
+  hasCustomTrustPolicy?: boolean;
+  trustGuaranteeTitle?: string | null;
+  trustGuaranteeText?: string | null;
+  trustExchangeTitle?: string | null;
+  trustExchangeText?: string | null;
+  trustDeliveryTitle?: string | null;
+  trustDeliveryText?: string | null;
+  showTrustGuarantee?: boolean | null;
+  showTrustExchange?: boolean | null;
+  showTrustDelivery?: boolean | null;
   featuredImage: string;
   galleryImages: string[];
   isNewDrop?: boolean;
@@ -88,4 +98,20 @@ export interface CustomerProfile {
   createdAt: string;
   savedAddresses?: SavedAddress[];
 }
+
+export interface TrustPolicyData {
+  id: string; // 'global' | 'jewelry' | 'bags' | 'churi' | 'earrings' | 'more'
+  guaranteeTitle: string;
+  guaranteeText: string;
+  exchangeTitle: string;
+  exchangeText: string;
+  deliveryTitle: string;
+  deliveryText: string;
+  showGuarantee: boolean;
+  showExchange: boolean;
+  showDelivery: boolean;
+  updatedAt?: string | Date;
+  createdAt?: string | Date;
+}
+
 

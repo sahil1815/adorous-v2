@@ -9,6 +9,7 @@ import { ProductCategory, Product, Colorway } from '@/types';
 import { createProductAction, getProductById } from '@/app/actions/productActions';
 import CraftSpecificationsEditor from '@/components/admin/CraftSpecificationsEditor';
 import BangleSizingEditor, { DEFAULT_BANGLE_SIZES } from '@/components/admin/BangleSizingEditor';
+import ProductTrustPolicyEditor from '@/components/admin/ProductTrustPolicyEditor';
 import { calculateSellingPrice } from '@/lib/pricing';
 import { formatPrice } from '@/lib/formatPrice';
 import { getProductPieceInfo } from '@/lib/productPieces';
@@ -218,6 +219,16 @@ function AddProductContent() {
         if ((prod as any).customNotePrompt) {
           setCustomNotePrompt((prod as any).customNotePrompt);
         }
+        setHasCustomTrustPolicy(Boolean((prod as any).hasCustomTrustPolicy));
+        setTrustGuaranteeTitle((prod as any).trustGuaranteeTitle || '');
+        setTrustGuaranteeText((prod as any).trustGuaranteeText || '');
+        setTrustExchangeTitle((prod as any).trustExchangeTitle || '৭ দিনের এক্সচেঞ্জ :');
+        setTrustExchangeText((prod as any).trustExchangeText || 'সাইজ ও ফিনিশ পরিবর্তনযোগ্য');
+        setTrustDeliveryTitle((prod as any).trustDeliveryTitle || 'ডেলিভারি :');
+        setTrustDeliveryText((prod as any).trustDeliveryText || '1–3 days');
+        setShowTrustGuarantee((prod as any).showTrustGuarantee !== false);
+        setShowTrustExchange((prod as any).showTrustExchange !== false);
+        setShowTrustDelivery((prod as any).showTrustDelivery !== false);
         setIsNewDrop(true);
         setIsBestseller(false);
         setIsGiftPick(Boolean(prod.isGiftPick));
@@ -278,6 +289,19 @@ function AddProductContent() {
   const [allowMultipleSizes, setAllowMultipleSizes] = useState(false);
   const [hasCustomNote, setHasCustomNote] = useState(true);
   const [customNotePrompt, setCustomNotePrompt] = useState('Custom wrist measurement (mm), size breakdown, or special instructions...');
+
+  // Trust & Guarantee policy
+  const [hasCustomTrustPolicy, setHasCustomTrustPolicy] = useState(false);
+  const [trustGuaranteeTitle, setTrustGuaranteeTitle] = useState('');
+  const [trustGuaranteeText, setTrustGuaranteeText] = useState('');
+  const [trustExchangeTitle, setTrustExchangeTitle] = useState('৭ দিনের এক্সচেঞ্জ :');
+  const [trustExchangeText, setTrustExchangeText] = useState('সাইজ ও ফিনিশ পরিবর্তনযোগ্য');
+  const [trustDeliveryTitle, setTrustDeliveryTitle] = useState('ডেলিভারি :');
+  const [trustDeliveryText, setTrustDeliveryText] = useState('1–3 days');
+  const [showTrustGuarantee, setShowTrustGuarantee] = useState(true);
+  const [showTrustExchange, setShowTrustExchange] = useState(true);
+  const [showTrustDelivery, setShowTrustDelivery] = useState(true);
+
   const [isNewDrop, setIsNewDrop] = useState(true);
   const [isBestseller, setIsBestseller] = useState(false);
   const [isGiftPick, setIsGiftPick] = useState(false);
@@ -503,6 +527,16 @@ function AddProductContent() {
       allowMultipleSizes: category === 'churi' ? Boolean(includeSizes && allowMultipleSizes) : false,
       hasCustomNote: category === 'churi' ? hasCustomNote : false,
       customNotePrompt: category === 'churi' && hasCustomNote ? customNotePrompt.trim() : null,
+      hasCustomTrustPolicy,
+      trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
+      trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
+      trustExchangeTitle: hasCustomTrustPolicy ? trustExchangeTitle.trim() || null : null,
+      trustExchangeText: hasCustomTrustPolicy ? trustExchangeText.trim() || null : null,
+      trustDeliveryTitle: hasCustomTrustPolicy ? trustDeliveryTitle.trim() || null : null,
+      trustDeliveryText: hasCustomTrustPolicy ? trustDeliveryText.trim() || null : null,
+      showTrustGuarantee: hasCustomTrustPolicy ? showTrustGuarantee : true,
+      showTrustExchange: hasCustomTrustPolicy ? showTrustExchange : true,
+      showTrustDelivery: hasCustomTrustPolicy ? showTrustDelivery : true,
       featuredImage,
       galleryImages: galleryImages.length > 0 ? galleryImages : [featuredImage],
       isNewDrop,
@@ -1689,6 +1723,31 @@ function AddProductContent() {
             )}
           </div>
         </div>
+
+        {/* Section 6: Trust, Guarantee & Exchange Policy */}
+        <ProductTrustPolicyEditor
+          category={category}
+          hasCustomTrustPolicy={hasCustomTrustPolicy}
+          onHasCustomTrustPolicyChange={setHasCustomTrustPolicy}
+          trustGuaranteeTitle={trustGuaranteeTitle}
+          onTrustGuaranteeTitleChange={setTrustGuaranteeTitle}
+          trustGuaranteeText={trustGuaranteeText}
+          onTrustGuaranteeTextChange={setTrustGuaranteeText}
+          trustExchangeTitle={trustExchangeTitle}
+          onTrustExchangeTitleChange={setTrustExchangeTitle}
+          trustExchangeText={trustExchangeText}
+          onTrustExchangeTextChange={setTrustExchangeText}
+          trustDeliveryTitle={trustDeliveryTitle}
+          onTrustDeliveryTitleChange={setTrustDeliveryTitle}
+          trustDeliveryText={trustDeliveryText}
+          onTrustDeliveryTextChange={setTrustDeliveryText}
+          showTrustGuarantee={showTrustGuarantee}
+          onShowTrustGuaranteeChange={setShowTrustGuarantee}
+          showTrustExchange={showTrustExchange}
+          onShowTrustExchangeChange={setShowTrustExchange}
+          showTrustDelivery={showTrustDelivery}
+          onShowTrustDeliveryChange={setShowTrustDelivery}
+        />
 
         {/* Submit Action Bar */}
         <div className="sticky bottom-4 z-30 p-4 bg-[#141414]/90 backdrop-blur-md border border-gold/40 rounded-xs shadow-2xl flex items-center justify-between gap-4">
