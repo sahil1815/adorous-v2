@@ -113,7 +113,6 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
 
   // Set / Tiered Pricing
   const hasSetPricing = isChuri && Boolean(product.hasSetPricing && Array.isArray(product.setTiers) && product.setTiers.length > 0);
-  const showSetPriceInButtons = Boolean(product.showSetPriceInButtons);
 
   const activeTiers = useMemo<BangleSetTier[]>(() => {
     if (!hasSetPricing || !product.setTiers) return [];
@@ -1183,24 +1182,10 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             {isSelected && <Check className="w-3.5 h-3.5 text-ink stroke-[2.5]" />}
                           </div>
 
-                          {showSetPriceInButtons && (
-                            <>
-                              <div className="mt-1 flex items-baseline gap-1.5">
-                                <span className="text-xs sm:text-sm font-bold text-ink tabular-nums">
-                                  ৳{formatPrice(tier.price)}
-                                </span>
-                                {tier.originalPrice && tier.originalPrice > tier.price && (
-                                  <span className="text-[10px] text-text-muted line-through tabular-nums">
-                                    ৳{formatPrice(tier.originalPrice)}
-                                  </span>
-                                )}
-                              </div>
-                              {tier.perSetPriceText && (
-                                <span className="text-[10px] text-text-muted mt-0.5 block truncate">
-                                  {tier.perSetPriceText}
-                                </span>
-                              )}
-                            </>
+                          {tier.perSetPriceText && (
+                            <span className="text-[10px] sm:text-[11px] text-text-muted mt-1 block truncate">
+                              {tier.perSetPriceText}
+                            </span>
                           )}
                         </button>
                       );

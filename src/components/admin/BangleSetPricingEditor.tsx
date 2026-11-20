@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers, Eye, EyeOff, LayoutTemplate, ShieldCheck } from 'lucide-react';
+import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers, ShieldCheck } from 'lucide-react';
 import { BangleSetTier } from '@/types';
 import { resolveDynamicSetBanner } from '@/lib/bangleSetPricing';
 
@@ -242,44 +242,7 @@ export default function BangleSetPricingEditor({
             )}
           </div>
 
-          {/* 2. Storefront Set Button Display */}
-          <div className="space-y-2 p-3 bg-[#181818] rounded-xs border border-white/10">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-gold uppercase tracking-wider">
-              <LayoutTemplate className="w-3.5 h-3.5 text-gold" />
-              <span>Storefront Button Display Options</span>
-            </div>
-
-            <label className="flex items-start gap-2 cursor-pointer pt-1">
-              <input
-                type="checkbox"
-                checked={showSetPriceInButtons}
-                onChange={(e) => onShowSetPriceInButtonsChange?.(e.target.checked)}
-                className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
-              />
-              <div>
-                <div className="text-xs font-semibold text-paper/90 flex items-center gap-1.5">
-                  {showSetPriceInButtons ? (
-                    <>
-                      <Eye className="w-3.5 h-3.5 text-paper/70" />
-                      <span>Show bundle prices inside set buttons</span>
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="w-3.5 h-3.5 text-gold" />
-                      <span>Clean Buttons: Hide bundle prices inside set buttons (Recommended)</span>
-                    </>
-                  )}
-                </div>
-                <span className="text-[11px] text-paper/50 block mt-0.5 leading-snug">
-                  {showSetPriceInButtons
-                    ? 'Buttons will display the full price (e.g. ৳1,200) and compare price inside each card.'
-                    : 'Buttons will display clean, sleek pills (e.g. 6-Set, 12-Set, 24-Set with luxury badges). Prevents price resistance and visual clutter.'}
-                </span>
-              </div>
-            </label>
-          </div>
-
-          {/* 3. Set Tiers Management */}
+          {/* 2. Set Tiers Management */}
           <div className="space-y-2 pt-1">
             <div className="flex items-center justify-between">
               <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold block">
