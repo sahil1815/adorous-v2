@@ -21,7 +21,15 @@ export function resolveDynamicSetBanner(
   tier: BangleSetTier | null | undefined,
   customBanner?: string | null
 ): string {
-  if (tier && tier.perSetPriceText && tier.perSetPriceText.trim()) {
+  if (!tier) return customBanner?.trim() || '';
+
+  // 1. Direct editable promotional banner configured on this tier
+  if (tier.promoBanner && tier.promoBanner.trim()) {
+    return tier.promoBanner.trim();
+  }
+
+  // 2. Derive dynamically from perSetPriceText and badge
+  if (tier.perSetPriceText && tier.perSetPriceText.trim()) {
     const perSetText = tier.perSetPriceText.trim();
     const tierName = tier.name.trim();
     const badgeSuffix = tier.badge && tier.badge.trim() ? ` (${tier.badge.trim()})` : '';

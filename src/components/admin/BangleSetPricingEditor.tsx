@@ -12,6 +12,7 @@ export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
     price: 650,
     originalPrice: 850,
     perSetPriceText: 'প্রতি সেটের প্রাইস ১০৮ টাকা',
+    promoBanner: '৬ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ১০৮ টাকা',
     badge: '',
     isDefault: false,
   },
@@ -21,6 +22,7 @@ export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
     price: 1200,
     originalPrice: 1600,
     perSetPriceText: 'প্রতি সেটের প্রাইস ১০০ টাকা',
+    promoBanner: '১২ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ১০০ টাকা (Popular)',
     badge: 'Popular',
     isDefault: true,
   },
@@ -30,6 +32,7 @@ export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
     price: 2160,
     originalPrice: 3000,
     perSetPriceText: 'প্রতি সেটের প্রাইস ৯০ টাকা',
+    promoBanner: '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)',
     badge: 'Best Value',
     isDefault: false,
   },
@@ -38,8 +41,8 @@ export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
 interface BangleSetPricingEditorProps {
   hasSetPricing: boolean;
   onHasSetPricingChange: (val: boolean) => void;
-  setPricingBanner: string;
-  onSetPricingBannerChange: (val: string) => void;
+  setPricingBanner?: string;
+  onSetPricingBannerChange?: (val: string) => void;
   setTiers: BangleSetTier[];
   onSetTiersChange: (tiers: BangleSetTier[]) => void;
   showSetPriceInButtons?: boolean;
@@ -53,7 +56,7 @@ interface BangleSetPricingEditorProps {
 export default function BangleSetPricingEditor({
   hasSetPricing,
   onHasSetPricingChange,
-  setPricingBanner,
+  setPricingBanner = '',
   onSetPricingBannerChange,
   setTiers,
   onSetTiersChange,
@@ -72,6 +75,7 @@ export default function BangleSetPricingEditor({
       price: 1000,
       originalPrice: null,
       perSetPriceText: '',
+      promoBanner: '',
       badge: '',
       isDefault: setTiers.length === 0,
     };
@@ -103,13 +107,14 @@ export default function BangleSetPricingEditor({
   // Load standard presets
   const handleApplyPresets = () => {
     onSetTiersChange(JSON.parse(JSON.stringify(DEFAULT_CHURI_SET_TIERS)));
-    if (!setPricingBanner.trim()) {
-      onSetPricingBannerChange('২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)');
+    if (onSetPricingBannerChange) {
+      onSetPricingBannerChange('');
     }
   };
 
   const activeDefaultTier = setTiers.find((t) => t.isDefault) || setTiers[0];
   const [previewTierIdx, setPreviewTierIdx] = useState(0);
+  const activeSelectedTier = setTiers[previewTierIdx < setTiers.length ? previewTierIdx : 0] || setTiers[0];
 
   return (
     <div
@@ -155,36 +160,32 @@ export default function BangleSetPricingEditor({
             </button>
           </div>
 
-          {/* 1. Dynamic Promotional Highlight Banner */}
-          <div className="space-y-2 p-3 bg-[#181818] rounded-xs border border-white/10">
+          {/* 1. Dynamic Promotional Highlight Banner (Editable Per Set) */}
+          <div className="space-y-2.5 p-3.5 bg-[#181818] rounded-xs border border-white/10">
             <div className="flex items-center justify-between">
               <label className="text-[11px] uppercase tracking-wider text-gold font-bold flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-gold" />
                 <span>Top Promotional Banner (Above Pricing / Sets)</span>
               </label>
               <span className="text-[10px] text-gold font-medium bg-gold/15 px-2 py-0.5 rounded-xs border border-gold/30">
-                Dynamic & Auto-Updating
+                Editable Per Set
               </span>
             </div>
             <p className="text-[11px] text-paper/70 leading-snug">
-              This banner dynamically updates on the product page to match whichever set tier the customer selects (using each tier&apos;s <strong>Per-Set Price Text</strong> and <strong>Badge</strong>). You can also set an optional fallback or custom banner below:
+              Select each set tier below to customize the exact promotional banner text displayed above pricing on the product page when that set is selected:
             </p>
-            <input
-              type="text"
-              value={setPricingBanner}
-              onChange={(e) => onSetPricingBannerChange(e.target.value)}
-              placeholder="e.g. ২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)"
-              className="w-full bg-[#121212] border border-white/20 rounded-xs px-2.5 py-1.5 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
-            />
 
-            {/* Live Interactive Dynamic Storefront Preview */}
+            {/* Set Tier Switcher Tabs */}
             {setTiers.length > 0 && (
-              <div className="p-2.5 bg-[#141414] border border-gold/30 rounded-xs space-y-1.5 mt-2">
-                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-paper/70 font-semibold">
-                  <span>Live Storefront Banner Preview:</span>
-                  <span className="text-paper/40 font-normal lowercase">click tier to test dynamic update</span>
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-paper/60 font-semibold">
+                  <span>Select Set to Edit Banner:</span>
+                  <span className="text-gold font-mono">
+                    Editing: {activeSelectedTier?.name || 'Set'}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
+
+                <div className="flex flex-wrap gap-1.5">
                   {setTiers.map((t, idx) => {
                     const isPreviewActive = (previewTierIdx < setTiers.length ? previewTierIdx : 0) === idx;
                     return (
@@ -192,26 +193,51 @@ export default function BangleSetPricingEditor({
                         key={t.id || idx}
                         type="button"
                         onClick={() => setPreviewTierIdx(idx)}
-                        className={`px-2 py-0.5 text-[11px] rounded-xs font-medium border transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1 text-xs rounded-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                           isPreviewActive
-                            ? 'bg-gold text-ink border-gold font-bold shadow-xs'
+                            ? 'bg-gold text-ink border-gold font-bold shadow-xs ring-1 ring-gold/40'
                             : 'bg-[#202020] text-paper/70 border-white/10 hover:border-white/25 hover:text-paper'
                         }`}
                       >
-                        {t.name || `Tier ${idx + 1}`}
+                        <span>{t.name || `Tier ${idx + 1}`}</span>
+                        {t.promoBanner && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
                       </button>
                     );
                   })}
                 </div>
-                <div className="p-2 bg-gold/15 border border-gold/40 rounded-xs flex items-center gap-2 text-xs text-gold-light mt-1">
-                  <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
-                  <span className="font-medium text-[11px] truncate">
-                    {resolveDynamicSetBanner(
-                      setTiers[previewTierIdx < setTiers.length ? previewTierIdx : 0] || setTiers[0],
-                      setPricingBanner
-                    ) || 'প্যাক নির্বাচন করুন'}
-                  </span>
-                </div>
+
+                {/* Direct Editable Input for Selected Set */}
+                {activeSelectedTier && (
+                  <div className="pt-1.5 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] uppercase text-paper/70 font-semibold flex items-center gap-1">
+                        <span>Banner Text for {activeSelectedTier.name}:</span>
+                      </label>
+                      <span className="text-[10px] text-paper/40">Visible when {activeSelectedTier.name} is clicked on PDP</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={activeSelectedTier.promoBanner ?? ''}
+                      onChange={(e) =>
+                        handleUpdateTier(
+                          previewTierIdx < setTiers.length ? previewTierIdx : 0,
+                          'promoBanner',
+                          e.target.value
+                        )
+                      }
+                      placeholder={`e.g. ${resolveDynamicSetBanner(activeSelectedTier) || '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)'}`}
+                      className="w-full bg-[#121212] border border-gold/40 focus:border-gold rounded-xs px-2.5 py-1.5 text-xs text-paper placeholder-paper/30 focus:outline-none"
+                    />
+
+                    {/* Live Storefront Preview (Green Ink replica) */}
+                    <div className="p-2 bg-gold/15 border border-gold/40 rounded-xs flex items-center gap-2 text-xs text-gold-light mt-1">
+                      <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+                      <span className="font-semibold text-[11px] truncate">
+                        {resolveDynamicSetBanner(activeSelectedTier) || 'প্যাক নির্বাচন করুন'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -384,6 +410,20 @@ export default function BangleSetPricingEditor({
                           value={tier.badge ?? ''}
                           onChange={(e) => handleUpdateTier(idx, 'badge', e.target.value)}
                           placeholder="e.g. Best Value, Most Popular, Mega Saving"
+                          className="w-full bg-[#121212] border border-white/15 focus:border-gold rounded-xs px-2 py-1 text-paper text-xs focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Set-Specific Promotional Banner */}
+                      <div className="sm:col-span-4">
+                        <label className="text-[10px] uppercase text-paper/60 font-medium block mb-0.5">
+                          Promotional Banner (Displayed Above Pricing / Sets When This Set Is Selected):
+                        </label>
+                        <input
+                          type="text"
+                          value={tier.promoBanner ?? ''}
+                          onChange={(e) => handleUpdateTier(idx, 'promoBanner', e.target.value)}
+                          placeholder={`e.g. ${resolveDynamicSetBanner(tier) || '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)'}`}
                           className="w-full bg-[#121212] border border-white/15 focus:border-gold rounded-xs px-2 py-1 text-paper text-xs focus:outline-none"
                         />
                       </div>

@@ -15,6 +15,7 @@ export interface BangleSetTier {
   price: number; // Total price in BDT, e.g. 1920
   originalPrice?: number | null; // Optional compare-at price in BDT, e.g. 2400
   perSetPriceText?: string | null; // e.g. 'প্রতি সেটের প্রাইস ৮০ টাকা' or '৳80 / set'
+  promoBanner?: string | null; // Top promotional banner for this set, e.g. '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)'
   badge?: string | null; // e.g. 'Best Value', 'Most Popular'
   isDefault?: boolean; // True if this tier is pre-selected
 }
