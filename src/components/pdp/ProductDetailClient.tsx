@@ -42,7 +42,6 @@ import {
   ZoomIn
 } from 'lucide-react';
 import { resolveTrustPolicy, ResolvedTrustPolicy } from '@/lib/trustPolicies';
-import { resolveDynamicSetBanner } from '@/lib/bangleSetPricing';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -141,12 +140,6 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
     }
     return product;
   }, [product, hasSetPricing, selectedSetTier]);
-
-  // Dynamic Top Promotional Banner based on selected tier
-  const dynamicSetBanner = useMemo(() => {
-    if (!hasSetPricing) return '';
-    return resolveDynamicSetBanner(selectedSetTier, product.setPricingBanner);
-  }, [hasSetPricing, selectedSetTier, product.setPricingBanner]);
 
   const initialSize = product.sizes ? product.sizes[1] || product.sizes[0] || '' : '';
   const [selectedSize, setSelectedSize] = useState<string>(initialSize);
@@ -1129,18 +1122,6 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                 </span>
               </div>
 
-              {/* Dynamic Promotional Set Banner (Above Pricing / Sets) */}
-              {hasSetPricing && dynamicSetBanner && (
-                <div className="mt-2.5 sm:mt-3 p-2.5 sm:p-3 bg-gradient-to-r from-sand/90 via-sand/70 to-sand/40 border border-gold/40 rounded-[3px] flex items-center gap-2 shadow-xs transition-all duration-300">
-                  <div className="w-5 h-5 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
-                  </div>
-                  <span className="text-xs sm:text-[13px] font-semibold text-ink leading-snug">
-                    {dynamicSetBanner}
-                  </span>
-                </div>
-              )}
-
               {/* Set / Bundle Tier Selector */}
               {hasSetPricing && activeTiers.length > 0 && (
                 <div className="mt-3 sm:mt-4 space-y-2">
@@ -1148,11 +1129,6 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                     <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
                       Select Set / প্যাক নির্বাচন করুন:
                     </span>
-                    {selectedSetTier?.perSetPriceText && (
-                      <span className="text-[11px] font-semibold text-gold-deep">
-                        {selectedSetTier.perSetPriceText}
-                      </span>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 pt-1">
@@ -1182,11 +1158,28 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             {isSelected && <Check className="w-3.5 h-3.5 text-ink stroke-[2.5]" />}
                           </div>
 
-                          {tier.perSetPriceText && (
-                            <span className="text-[10px] sm:text-[11px] text-text-muted mt-1 block truncate">
-                              {tier.perSetPriceText}
-                            </span>
-                          )}
+                          {tier.perSetPriceText && (() => {
+                            const match = tier.perSetPriceText.match(/([0-9০-৯]+(?:\s*(?:টাকা|tk|\/set|set))?)/i);
+                            const numPart = match ? match[0] : '';
+                            const prefix = match ? tier.perSetPriceText.replace(numPart, '').trim() : tier.perSetPriceText;
+                            return (
+                              <div
+                                className={`mt-2 py-1 px-2 rounded-[3px] border transition-all flex items-center justify-center gap-1 text-center ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-amber-500/50 text-amber-950 shadow-2xs ring-1 ring-amber-400/30'
+                                    : 'bg-sand/70 border-gold/35 text-ink/90 hover:border-gold/60'
+                                }`}
+                              >
+                                <Sparkles className="w-2.5 h-2.5 text-gold-deep shrink-0" />
+                                <span className="text-[10px] sm:text-[11px] font-medium tracking-tight truncate">
+                                  {prefix ? `${prefix} ` : ''}
+                                  <strong className="font-extrabold text-amber-900 tabular-nums">
+                                    {numPart || tier.perSetPriceText}
+                                  </strong>
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </button>
                       );
                     })}
