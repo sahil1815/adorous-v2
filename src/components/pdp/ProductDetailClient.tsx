@@ -1137,44 +1137,55 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 pt-1">
                     {activeTiers.map((tier) => {
                       const isSelected = selectedSetTier?.id === tier.id || selectedSetTier?.name === tier.name;
+                      const isBestValue = /best|value|সাশ্রয়/i.test(tier.badge || '');
                       return (
                         <button
                           key={tier.id || tier.name}
                           type="button"
                           onClick={() => setSelectedSetTier(tier)}
-                          className={`relative pt-3.5 pb-2.5 px-3 rounded-[3px] border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                          className={`p-2.5 sm:p-3 rounded-[3px] border text-left transition-all flex flex-col justify-between cursor-pointer ${
                             isSelected
                               ? 'border-ink bg-gold/20 shadow-xs ring-1.5 ring-gold'
                               : 'border-line bg-sand/30 hover:border-ink/60'
                           }`}
                         >
-                          {tier.badge && (
-                            <span className="absolute -top-2.5 right-2 sm:right-2.5 z-10 inline-flex items-center px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white font-black text-[9px] sm:text-[10px] tracking-wider uppercase shadow-[0_2px_6px_rgba(217,119,6,0.35)] border border-amber-300/60 pointer-events-none">
-                              <span>{tier.badge}</span>
-                            </span>
-                          )}
-                          <div className="flex items-center justify-between">
+                          {/* Top Row: Set Name on Left, Badge & Checkmark on Right (Same Level Inside Box) */}
+                          <div className="flex items-center justify-between gap-1.5 min-h-[22px]">
                             <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-ink font-semibold' : 'text-ink'}`}>
                               {tier.name}
                             </span>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-ink stroke-[2.5]" />}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {tier.badge && (
+                                <span
+                                  className={`inline-flex items-center px-1.5 py-0.5 rounded-[3px] text-[9px] sm:text-[10px] font-bold tracking-wider uppercase border shadow-2xs pointer-events-none ${
+                                    isBestValue
+                                      ? 'bg-[#7A1828] text-white border-[#9B2335]'
+                                      : 'bg-[#6E5018] text-white border-[#8C6824]'
+                                  }`}
+                                >
+                                  <span>{tier.badge}</span>
+                                </span>
+                              )}
+                              {isSelected && <Check className="w-3.5 h-3.5 text-ink stroke-[2.5]" />}
+                            </div>
                           </div>
 
+                          {/* Per-Set Price Pill: Bigger size for clarity and conversion */}
                           {tier.perSetPriceText && (() => {
                             const match = tier.perSetPriceText.match(/([0-9০-৯]+(?:\s*(?:টাকা|tk|\/set|set))?)/i);
                             const numPart = match ? match[0] : '';
                             const prefix = match ? tier.perSetPriceText.replace(numPart, '').trim() : tier.perSetPriceText;
                             return (
                               <div
-                                className={`mt-2 py-1 px-2 rounded-[3px] border transition-all flex items-center justify-center text-center ${
+                                className={`mt-2.5 py-1.5 px-2.5 rounded-[3px] border transition-all flex items-center justify-center text-center ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-amber-500/50 text-amber-950 shadow-2xs ring-1 ring-amber-400/30'
                                     : 'bg-sand/70 border-gold/35 text-ink/90 hover:border-gold/60'
                                 }`}
                               >
-                                <span className="text-[10px] sm:text-[11px] font-medium tracking-tight truncate">
+                                <span className="text-[11.5px] sm:text-xs font-medium tracking-tight truncate">
                                   {prefix ? `${prefix} ` : ''}
-                                  <strong className="font-extrabold text-amber-900 tabular-nums">
+                                  <strong className="font-extrabold text-amber-950 text-xs sm:text-[13px] tabular-nums">
                                     {numPart || tier.perSetPriceText}
                                   </strong>
                                 </span>
