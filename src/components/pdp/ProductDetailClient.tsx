@@ -1130,7 +1130,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                 <div className="mt-3 sm:mt-4 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
-                      Select Set / প্যাক নির্বাচন করুন:
+                      Select Set:
                     </span>
                   </div>
 
@@ -1170,22 +1170,22 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             </div>
                           </div>
 
-                          {/* Per-Set Price Pill: Bigger size for clarity and conversion */}
+                          {/* Per-Set Price Pill: Sized comfortably without truncation */}
                           {tier.perSetPriceText && (() => {
                             const match = tier.perSetPriceText.match(/([0-9০-৯]+(?:\s*(?:টাকা|tk|\/set|set))?)/i);
                             const numPart = match ? match[0] : '';
                             const prefix = match ? tier.perSetPriceText.replace(numPart, '').trim() : tier.perSetPriceText;
                             return (
                               <div
-                                className={`mt-2.5 py-1.5 px-2.5 rounded-[3px] border transition-all flex items-center justify-center text-center ${
+                                className={`mt-2 py-1.5 px-1.5 sm:px-2 rounded-[3px] border transition-all flex items-center justify-center text-center ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-amber-500/50 text-amber-950 shadow-2xs ring-1 ring-amber-400/30'
                                     : 'bg-sand/70 border-gold/35 text-ink/90 hover:border-gold/60'
                                 }`}
                               >
-                                <span className="text-[11.5px] sm:text-xs font-medium tracking-tight truncate">
+                                <span className="text-[11px] sm:text-xs font-medium tracking-tight whitespace-nowrap">
                                   {prefix ? `${prefix} ` : ''}
-                                  <strong className="font-extrabold text-amber-950 text-xs sm:text-[13px] tabular-nums">
+                                  <strong className="font-extrabold text-amber-950 text-[11.5px] sm:text-xs tabular-nums">
                                     {numPart || tier.perSetPriceText}
                                   </strong>
                                 </span>
