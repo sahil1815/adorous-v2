@@ -112,6 +112,10 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
 
   // Set / Tiered Pricing
   const hasSetPricing = isChuri && Boolean(product.hasSetPricing && Array.isArray(product.setTiers) && product.setTiers.length > 0);
+  const showSetPriceInButtons = Boolean(product.showSetPriceInButtons);
+  const actualPricePosition = (product.actualPricePosition || 'top') as 'top' | 'after_set' | 'after_color' | 'after_quantity';
+  const unitPriceHeaderPrompt = product.unitPriceHeaderPrompt?.trim() || 'প্রতি সেট মাত্র';
+
   const activeTiers = useMemo<BangleSetTier[]>(() => {
     if (!hasSetPricing || !product.setTiers) return [];
     return product.setTiers;
@@ -139,6 +143,74 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
     }
     return product;
   }, [product, hasSetPricing, selectedSetTier]);
+
+  // Actual total bundle price card rendered when actualPricePosition !== 'top'
+  const renderActualPriceCard = (customClass = 'mt-3 sm:mt-3.5') => {
+    if (!hasSetPricing || actualPricePosition === 'top') return null;
+
+    return (
+      <div className={`${customClass} p-3 sm:p-3.5 bg-gradient-to-r from-sand/80 via-sand/40 to-sand/60 border border-gold/40 rounded-[3px] shadow-2xs space-y-1`}>
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-ink uppercase tracking-wider text-[11px] sm:text-xs flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
+            <span>মোট প্রদেয় মূল্য ({selectedSetTier?.name || 'নির্বাচিত প্যাক'}):</span>
+          </span>
+          <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-paper border border-line text-[10px] text-ink font-medium rounded-[2px]">
+            <ShieldCheck className="w-3 h-3 text-success" />
+            <span>Cash on Delivery</span>
+          </span>
+        </div>
+        <div className="flex items-baseline space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
+          {isOfferActive ? (() => {
+            const comparePrice = effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price
+              ? effectiveProduct.originalPrice
+              : effectiveProduct.price;
+            const existingDiscountPct = comparePrice > effectiveProduct.price
+              ? Math.round(((comparePrice - effectiveProduct.price) / comparePrice) * 100)
+              : 0;
+            const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
+            const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
+            const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
+            const nvoFinalPrice = hasHigherExistingDiscount ? Math.round(effectiveProduct.price) : Math.min(Math.round(effectiveProduct.price), targetPrice);
+            const showStrikethrough = comparePrice > nvoFinalPrice;
+
+            return (
+              <>
+                <span className="font-bold text-xl sm:text-2xl text-ink tabular-nums">
+                  ৳{formatPrice(nvoFinalPrice)}
+                </span>
+                {showStrikethrough && (
+                  <span className="text-xs sm:text-sm text-text-muted line-through tabular-nums">
+                    ৳{formatPrice(comparePrice)}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  {effectiveDiscountPct}% OFF · Special Offer
+                </span>
+              </>
+            );
+          })() : (
+            <>
+              <span className="font-bold text-xl sm:text-2xl text-ink tabular-nums">
+                ৳{formatPrice(effectiveProduct.price)}
+              </span>
+              {effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price && (
+                <>
+                  <span className="text-xs sm:text-sm text-text-muted line-through tabular-nums">
+                    ৳{formatPrice(effectiveProduct.originalPrice)}
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                    ({Math.round(((effectiveProduct.originalPrice - effectiveProduct.price) / effectiveProduct.originalPrice) * 100)}% OFF)
+                  </span>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const initialSize = product.sizes ? product.sizes[1] || product.sizes[0] || '' : '';
   const [selectedSize, setSelectedSize] = useState<string>(initialSize);
@@ -1059,67 +1131,102 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                 </p>
               )}
 
-              {/* Price & COD Badge with Discount Percentage (Screenshot 1 matching) */}
-              <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line flex items-center justify-between flex-wrap gap-1.5">
-                <div className="flex items-baseline space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
-                  {isOfferActive ? (() => {
-                    // Compare price is the baseline for all discounts
-                    const comparePrice = effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price
-                      ? effectiveProduct.originalPrice
-                      : effectiveProduct.price;
-                    // Existing discount % baked into the selling price
-                    const existingDiscountPct = comparePrice > effectiveProduct.price
-                      ? Math.round(((comparePrice - effectiveProduct.price) / comparePrice) * 100)
-                      : 0;
-
-                    // Flat rule: if product already has more discount than X%, keep it as is (exception);
-                    // otherwise, make it flat X% discount.
-                    const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
-                    const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
-                    const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
-                    const nvoFinalPrice = hasHigherExistingDiscount ? Math.round(effectiveProduct.price) : Math.min(Math.round(effectiveProduct.price), targetPrice);
-                    const showStrikethrough = comparePrice > nvoFinalPrice;
-
-                    return (
-                      <>
-                        <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                          ৳{formatPrice(nvoFinalPrice)}
-                        </span>
-                        {showStrikethrough && (
-                          <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                            ৳{formatPrice(comparePrice)}
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
-                          <Sparkles className="w-3 h-3" />
-                          {effectiveDiscountPct}% OFF · {hasHigherExistingDiscount ? 'Special Offer' : (settings?.timerLabel?.trim() || 'Special Offer')}
-                        </span>
-                      </>
-                    );
-                  })() : (
-                    <>
-                      <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
-                        ৳{formatPrice(effectiveProduct.price)}
+              {/* Top Price Slot: Psychological Micro-Price Anchor (when actual price moved) OR Standard Price */}
+              {hasSetPricing && actualPricePosition !== 'top' ? (
+                <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line space-y-1.5">
+                  <div className="p-3 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/30 rounded-[3px] shadow-2xs">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 text-xs text-amber-800 dark:text-amber-300 font-bold uppercase tracking-wider">
+                        <Sparkles className="w-3.5 h-3.5 text-gold-deep animate-pulse" />
+                        <span>{unitPriceHeaderPrompt}</span>
+                      </div>
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-sand/80 border border-line text-[10px] text-ink font-medium rounded-[2px]">
+                        <ShieldCheck className="w-3 h-3 text-success" />
+                        <span>ক্যাশ অন ডেলিভারি</span>
                       </span>
-                      {effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price && (
+                    </div>
+
+                    <div className="mt-1 flex items-baseline gap-2.5 flex-wrap">
+                      <span className="font-extrabold text-2xl sm:text-3xl text-gold-deep tabular-nums tracking-tight">
+                        {selectedSetTier?.perSetPriceText || `৳${formatPrice(effectiveProduct.price)}`}
+                      </span>
+                      {selectedSetTier && (
+                        <span className="text-[11px] font-semibold text-ink/80 bg-paper/90 px-2 py-0.5 rounded-[2px] border border-gold/30">
+                          ({selectedSetTier.name} প্যাকের ক্ষেত্রে)
+                        </span>
+                      )}
+                    </div>
+
+                    {selectedSetTier?.badge && (
+                      <div className="mt-1 text-[10px] font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gold-deep" />
+                        <span>{selectedSetTier.badge} · সর্বোচ্চ সাশ্রয়ী অফার</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-3 border-t border-line flex items-center justify-between flex-wrap gap-1.5">
+                  <div className="flex items-baseline space-x-2 sm:space-x-2.5 flex-wrap gap-y-1">
+                    {isOfferActive ? (() => {
+                      // Compare price is the baseline for all discounts
+                      const comparePrice = effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price
+                        ? effectiveProduct.originalPrice
+                        : effectiveProduct.price;
+                      // Existing discount % baked into the selling price
+                      const existingDiscountPct = comparePrice > effectiveProduct.price
+                        ? Math.round(((comparePrice - effectiveProduct.price) / comparePrice) * 100)
+                        : 0;
+
+                      // Flat rule: if product already has more discount than X%, keep it as is (exception);
+                      // otherwise, make it flat X% discount.
+                      const hasHigherExistingDiscount = existingDiscountPct > discountPercent;
+                      const effectiveDiscountPct = hasHigherExistingDiscount ? existingDiscountPct : discountPercent;
+                      const targetPrice = Math.round(comparePrice * (1 - discountPercent / 100));
+                      const nvoFinalPrice = hasHigherExistingDiscount ? Math.round(effectiveProduct.price) : Math.min(Math.round(effectiveProduct.price), targetPrice);
+                      const showStrikethrough = comparePrice > nvoFinalPrice;
+
+                      return (
                         <>
-                          <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
-                            ৳{formatPrice(effectiveProduct.originalPrice)}
+                          <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
+                            ৳{formatPrice(nvoFinalPrice)}
                           </span>
-                          <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
-                            ({Math.round(((effectiveProduct.originalPrice - effectiveProduct.price) / effectiveProduct.originalPrice) * 100)}% OFF)
+                          {showStrikethrough && (
+                            <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
+                              ৳{formatPrice(comparePrice)}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                            <Sparkles className="w-3 h-3" />
+                            {effectiveDiscountPct}% OFF · {hasHigherExistingDiscount ? 'Special Offer' : (settings?.timerLabel?.trim() || 'Special Offer')}
                           </span>
                         </>
-                      )}
-                    </>
-                  )}
-                </div>
+                      );
+                    })() : (
+                      <>
+                        <span className="font-bold text-xl sm:text-3xl text-ink tabular-nums">
+                          ৳{formatPrice(effectiveProduct.price)}
+                        </span>
+                        {effectiveProduct.originalPrice && effectiveProduct.originalPrice > effectiveProduct.price && (
+                          <>
+                            <span className="text-xs sm:text-base text-text-muted line-through tabular-nums">
+                              ৳{formatPrice(effectiveProduct.originalPrice)}
+                            </span>
+                            <span className="text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
+                              ({Math.round(((effectiveProduct.originalPrice - effectiveProduct.price) / effectiveProduct.originalPrice) * 100)}% OFF)
+                            </span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
 
-                <span className="inline-flex items-center space-x-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-sand/70 border border-line text-[11px] sm:text-xs text-ink font-medium rounded-[2px]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-success" />
-                  <span>Cash on Delivery</span>
-                </span>
-              </div>
+                  <span className="inline-flex items-center space-x-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-sand/70 border border-line text-[11px] sm:text-xs text-ink font-medium rounded-[2px]">
+                    <ShieldCheck className="w-3.5 h-3.5 text-success" />
+                    <span>Cash on Delivery</span>
+                  </span>
+                </div>
+              )}
 
               {/* Churi Promotional Set Banner */}
               {hasSetPricing && product.setPricingBanner && (
@@ -1140,7 +1247,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                     <span className="font-medium text-ink uppercase tracking-wider text-[11px] sm:text-xs">
                       Select Set / প্যাক নির্বাচন করুন:
                     </span>
-                    {selectedSetTier?.perSetPriceText && (
+                    {actualPricePosition === 'top' && selectedSetTier?.perSetPriceText && (
                       <span className="text-[11px] font-semibold text-gold-deep">
                         {selectedSetTier.perSetPriceText}
                       </span>
@@ -1172,25 +1279,33 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             </span>
                             {isSelected && <Check className="w-3 h-3 text-ink stroke-[2.5]" />}
                           </div>
-                          <div className="mt-1 flex items-baseline gap-1.5">
-                            <span className="text-xs sm:text-sm font-bold text-ink tabular-nums">
-                              ৳{formatPrice(tier.price)}
-                            </span>
-                            {tier.originalPrice && tier.originalPrice > tier.price && (
-                              <span className="text-[10px] text-text-muted line-through tabular-nums">
-                                ৳{formatPrice(tier.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                          {tier.perSetPriceText && (
-                            <span className="text-[10px] text-text-muted mt-0.5 block truncate">
-                              {tier.perSetPriceText}
-                            </span>
+
+                          {showSetPriceInButtons && (
+                            <>
+                              <div className="mt-1 flex items-baseline gap-1.5">
+                                <span className="text-xs sm:text-sm font-bold text-ink tabular-nums">
+                                  ৳{formatPrice(tier.price)}
+                                </span>
+                                {tier.originalPrice && tier.originalPrice > tier.price && (
+                                  <span className="text-[10px] text-text-muted line-through tabular-nums">
+                                    ৳{formatPrice(tier.originalPrice)}
+                                  </span>
+                                )}
+                              </div>
+                              {tier.perSetPriceText && (
+                                <span className="text-[10px] text-text-muted mt-0.5 block truncate">
+                                  {tier.perSetPriceText}
+                                </span>
+                              )}
+                            </>
                           )}
                         </button>
                       );
                     })}
                   </div>
+
+                  {/* Actual Total Price (when positioned after_set) */}
+                  {actualPricePosition === 'after_set' && renderActualPriceCard()}
                 </div>
               )}
 
@@ -1556,6 +1671,9 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                 )}
               </div>
 
+              {/* Actual Total Price (when positioned after_color) */}
+              {actualPricePosition === 'after_color' && renderActualPriceCard()}
+
               {/* Extra Information / Custom Wrist Note (Only when product.hasCustomNote === true) */}
               {showCustomNoteField && (
                 <div className="mt-3.5 p-3.5 sm:p-4 bg-sand/40 border border-gold/40 rounded-sm space-y-2">
@@ -1593,6 +1711,9 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                   <span>Only <strong>{(product as any).stockQty}</strong> {(product as any).stockQty === 1 ? 'piece' : 'pieces'} left in stock</span>
                 </div>
               )}
+
+              {/* Actual Total Price (when positioned after_quantity) */}
+              {actualPricePosition === 'after_quantity' && renderActualPriceCard('mt-4')}
 
               {/* Desktop-only action buttons */}
               <div className="hidden lg:flex items-center gap-3 w-full pt-4">

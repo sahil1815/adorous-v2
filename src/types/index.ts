@@ -44,6 +44,9 @@ export interface Product {
   hasSetPricing?: boolean; // For churi: allow set / bundle tier pricing
   setPricingBanner?: string | null; // For churi: promo highlight banner text, e.g. '২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৮০ টাকা'
   setTiers?: BangleSetTier[] | any; // For churi: list of configured set tiers
+  showSetPriceInButtons?: boolean; // Whether to show bundle prices inside set buttons (clean minimal pills vs detailed)
+  actualPricePosition?: 'top' | 'after_set' | 'after_color' | 'after_quantity' | string; // Where to display the total order bundle price
+  unitPriceHeaderPrompt?: string | null; // Custom headline for the top micro-price anchor, e.g. 'প্রতি সেট মাত্র'
   hasCustomTrustPolicy?: boolean;
   trustGuaranteeTitle?: string | null;
   trustGuaranteeText?: string | null;

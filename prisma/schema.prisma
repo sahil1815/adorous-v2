@@ -38,6 +38,9 @@ model Product {
   hasSetPricing       Boolean           @default(false)
   setPricingBanner    String?           @db.Text
   setTiers            Json?             @default("[]")
+  showSetPriceInButtons Boolean         @default(false)
+  actualPricePosition String            @default("top")
+  unitPriceHeaderPrompt String?         @db.Text
   hasCustomTrustPolicy Boolean          @default(false)
   trustGuaranteeTitle String?
   trustGuaranteeText  String?           @db.Text

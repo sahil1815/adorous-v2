@@ -227,6 +227,9 @@ function AddProductContent() {
         if (Array.isArray((prod as any).setTiers) && (prod as any).setTiers.length > 0) {
           setSetTiers((prod as any).setTiers);
         }
+        setShowSetPriceInButtons(Boolean((prod as any).showSetPriceInButtons));
+        setActualPricePosition((prod as any).actualPricePosition || 'top');
+        setUnitPriceHeaderPrompt((prod as any).unitPriceHeaderPrompt || '');
         setHasCustomTrustPolicy(Boolean((prod as any).hasCustomTrustPolicy));
         setTrustGuaranteeTitle((prod as any).trustGuaranteeTitle || '');
         setTrustGuaranteeText((prod as any).trustGuaranteeText || '');
@@ -302,6 +305,9 @@ function AddProductContent() {
   const [hasSetPricing, setHasSetPricing] = useState(false);
   const [setPricingBanner, setSetPricingBanner] = useState('২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)');
   const [setTiers, setSetTiers] = useState<BangleSetTier[]>(DEFAULT_CHURI_SET_TIERS);
+  const [showSetPriceInButtons, setShowSetPriceInButtons] = useState(false);
+  const [actualPricePosition, setActualPricePosition] = useState<'top' | 'after_set' | 'after_color' | 'after_quantity'>('top');
+  const [unitPriceHeaderPrompt, setUnitPriceHeaderPrompt] = useState('প্রতি সেট মাত্র');
 
   // Trust & Guarantee policy
   const [hasCustomTrustPolicy, setHasCustomTrustPolicy] = useState(false);
@@ -543,6 +549,9 @@ function AddProductContent() {
       hasSetPricing: category === 'churi' ? hasSetPricing : false,
       setPricingBanner: category === 'churi' && hasSetPricing ? setPricingBanner.trim() : null,
       setTiers: category === 'churi' && hasSetPricing ? setTiers : [],
+      showSetPriceInButtons: category === 'churi' && hasSetPricing ? showSetPriceInButtons : false,
+      actualPricePosition: category === 'churi' && hasSetPricing ? actualPricePosition : 'top',
+      unitPriceHeaderPrompt: category === 'churi' && hasSetPricing ? unitPriceHeaderPrompt.trim() || null : null,
       hasCustomTrustPolicy,
       trustGuaranteeTitle: hasCustomTrustPolicy ? trustGuaranteeTitle.trim() || null : null,
       trustGuaranteeText: hasCustomTrustPolicy ? trustGuaranteeText.trim() || null : null,
@@ -1071,6 +1080,12 @@ function AddProductContent() {
                   onSetPricingBannerChange={setSetPricingBanner}
                   setTiers={setTiers}
                   onSetTiersChange={setSetTiers}
+                  showSetPriceInButtons={showSetPriceInButtons}
+                  onShowSetPriceInButtonsChange={setShowSetPriceInButtons}
+                  actualPricePosition={actualPricePosition}
+                  onActualPricePositionChange={setActualPricePosition}
+                  unitPriceHeaderPrompt={unitPriceHeaderPrompt}
+                  onUnitPriceHeaderPromptChange={setUnitPriceHeaderPrompt}
                 />
               </div>
             )}

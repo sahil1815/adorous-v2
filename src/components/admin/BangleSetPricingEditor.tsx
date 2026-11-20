@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers } from 'lucide-react';
+import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers, Eye, EyeOff, LayoutTemplate, ShieldCheck } from 'lucide-react';
 import { BangleSetTier } from '@/types';
 
 export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
@@ -41,6 +41,12 @@ interface BangleSetPricingEditorProps {
   onSetPricingBannerChange: (val: string) => void;
   setTiers: BangleSetTier[];
   onSetTiersChange: (tiers: BangleSetTier[]) => void;
+  showSetPriceInButtons?: boolean;
+  onShowSetPriceInButtonsChange?: (val: boolean) => void;
+  actualPricePosition?: 'top' | 'after_set' | 'after_color' | 'after_quantity';
+  onActualPricePositionChange?: (pos: 'top' | 'after_set' | 'after_color' | 'after_quantity') => void;
+  unitPriceHeaderPrompt?: string;
+  onUnitPriceHeaderPromptChange?: (val: string) => void;
 }
 
 export default function BangleSetPricingEditor({
@@ -50,6 +56,12 @@ export default function BangleSetPricingEditor({
   onSetPricingBannerChange,
   setTiers,
   onSetTiersChange,
+  showSetPriceInButtons = false,
+  onShowSetPriceInButtonsChange,
+  actualPricePosition = 'top',
+  onActualPricePositionChange,
+  unitPriceHeaderPrompt = '',
+  onUnitPriceHeaderPromptChange,
 }: BangleSetPricingEditorProps) {
   // Add a new tier
   const handleAddTier = () => {
@@ -68,7 +80,6 @@ export default function BangleSetPricingEditor({
   // Remove a tier
   const handleRemoveTier = (idxToRemove: number) => {
     const updated = setTiers.filter((_, idx) => idx !== idxToRemove);
-    // If the removed tier was default, make the first one default
     if (setTiers[idxToRemove]?.isDefault && updated.length > 0) {
       updated[0].isDefault = true;
     }
@@ -79,7 +90,6 @@ export default function BangleSetPricingEditor({
   const handleUpdateTier = (idx: number, field: keyof BangleSetTier, value: any) => {
     const updated = [...setTiers];
     if (field === 'isDefault' && value === true) {
-      // Clear other defaults
       updated.forEach((t, i) => {
         t.isDefault = i === idx;
       });
@@ -97,136 +107,256 @@ export default function BangleSetPricingEditor({
     }
   };
 
+  const activeDefaultTier = setTiers.find((t) => t.isDefault) || setTiers[0];
+
   return (
     <div
       className={`p-4 rounded-xs border transition-all ${
         hasSetPricing ? 'bg-gold/10 border-gold/50 shadow-xs' : 'bg-[#141414] border-white/10'
       }`}
     >
-      {/* Header & Toggle */}
+      {/* Header & Master Toggle */}
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-gold shrink-0" />
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-gold" />
             <span className="text-xs font-bold text-white block">
-              4. Bangle Set / Quantity Tier Pricing (সেট ভিত্তিক মূল্য)
+              Bangle Set Tier Pricing & Psychological Flow
             </span>
           </div>
           <span className="text-[11px] text-paper/60 leading-snug block">
-            Allow customers to toggle between 6-Set, 12-Set, 24-Set with custom main and per-set prices
+            Configure 6-Set, 12-Set, 24-Set tiered bundle pricing, promo banners, and psychological unit-anchor placement.
           </span>
         </div>
         <input
           type="checkbox"
           checked={hasSetPricing}
           onChange={(e) => onHasSetPricingChange(e.target.checked)}
-          className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer shrink-0"
+          className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
         />
       </div>
 
       {hasSetPricing ? (
-        <div className="mt-4 pt-3 border-t border-gold/20 space-y-4">
-          {/* Section 1: Promotional Highlight Banner */}
-          <div className="space-y-1.5 bg-[#171717] p-3 rounded-xs border border-white/10">
+        <div className="mt-3 pt-3 border-t border-gold/20 space-y-4">
+          {/* Quick Presets Button */}
+          <div className="flex items-center justify-between gap-2 bg-[#171717] p-2.5 rounded-xs border border-white/10">
+            <div className="text-[11px] text-paper/80">
+              <span className="text-gold font-semibold">Standard Bundle:</span> 6-Set (৳650), 12-Set (৳1,200), 24-Set (৳2,160).
+            </div>
+            <button
+              type="button"
+              onClick={handleApplyPresets}
+              className="px-2.5 py-1 text-xs bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 rounded-xs font-medium transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-gold" />
+              <span>⚡ Load Standard Presets</span>
+            </button>
+          </div>
+
+          {/* 1. Promotional Highlight Banner */}
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-gold" />
-                <span>Promo Highlight Notice (দেখা যাবে প্রোডাক্ট পেজের উপরে)</span>
+              <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold block">
+                Top Promotional Banner (Above Pricing / Sets):
               </label>
+              <span className="text-[10px] text-paper/40">Visible on product page</span>
             </div>
             <input
               type="text"
               value={setPricingBanner}
               onChange={(e) => onSetPricingBannerChange(e.target.value)}
-              placeholder="e.g. ২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৮০ টাকা"
+              placeholder="e.g. ২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)"
               className="w-full bg-[#1C1C1C] border border-white/20 rounded-xs px-2.5 py-1.5 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
             />
             {setPricingBanner.trim() && (
-              <div className="mt-1.5 p-2 bg-gold/15 border border-gold/30 rounded-xs flex items-center gap-2 text-xs text-paper">
+              <div className="p-2 bg-gold/15 border border-gold/30 rounded-xs flex items-center gap-2 text-xs text-gold-light mt-1">
                 <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
-                <span className="text-[11px] font-medium text-gold-deep">
-                  <strong className="text-white font-semibold">Storefront Preview:</strong> {setPricingBanner}
-                </span>
+                <span className="font-medium text-[11px] truncate">{setPricingBanner}</span>
               </div>
             )}
           </div>
 
-          {/* Section 2: Set Tiers List */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-paper/80 font-bold">
-                  Configured Set Tiers ({setTiers.length})
-                </span>
+          {/* 2. Psychological Layout & Conversion Triggers */}
+          <div className="space-y-3 p-3 bg-[#181818] rounded-xs border border-white/10">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-gold uppercase tracking-wider">
+              <LayoutTemplate className="w-3.5 h-3.5 text-gold" />
+              <span>Storefront Pricing Architecture & Psychological Triggers</span>
+            </div>
+
+            {/* A. Show/Hide Prices in Buttons */}
+            <div className="space-y-1 pt-1">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showSetPriceInButtons}
+                  onChange={(e) => onShowSetPriceInButtonsChange?.(e.target.checked)}
+                  className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-paper/90 flex items-center gap-1.5">
+                    {showSetPriceInButtons ? (
+                      <>
+                        <Eye className="w-3.5 h-3.5 text-paper/70" />
+                        <span>Show bundle prices inside set buttons</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5 text-gold" />
+                        <span>Clean Buttons: Hide bundle prices inside set buttons (Recommended)</span>
+                      </>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-paper/50 block mt-0.5 leading-snug">
+                    {showSetPriceInButtons
+                      ? 'Buttons will display the full price (e.g. ৳1,200) and compare price inside each card.'
+                      : 'Buttons will display clean, sleek pills (e.g. 6-Set, 12-Set, 24-Set with badges). Prevents price resistance and visual clutter.'}
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            {/* B. Actual Total Price Position */}
+            <div className="space-y-1.5 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] uppercase tracking-wider text-paper/70 font-semibold block">
+                  Actual Total Price Placement:
+                </label>
+                <span className="text-[10px] text-gold font-medium">Where total bundle amount appears</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleApplyPresets}
-                  className="text-gold hover:text-gold-light text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  ⚡ Load Standard Presets (6, 12, 24)
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddTier}
-                  className="px-2 py-0.5 bg-gold text-ink font-semibold text-xs rounded-xs hover:bg-gold-deep transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" />
-                  <span>Add Tier</span>
-                </button>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                {[
+                  { id: 'top', label: 'Top of Page', sub: 'Standard layout' },
+                  { id: 'after_set', label: 'After Select Set', sub: 'Recommended' },
+                  { id: 'after_color', label: 'After Color', sub: 'After swatches' },
+                  { id: 'after_quantity', label: 'Above Buy Buttons', sub: 'After quantity' },
+                ].map((pos) => {
+                  const isActive = actualPricePosition === pos.id;
+                  return (
+                    <button
+                      key={pos.id}
+                      type="button"
+                      onClick={() => onActualPricePositionChange?.(pos.id as any)}
+                      className={`p-2 text-left rounded-xs border transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-gold text-ink font-bold border-gold shadow-xs ring-1 ring-gold/40'
+                          : 'bg-[#121212] border-white/10 text-paper/70 hover:border-white/30 hover:text-paper'
+                      }`}
+                    >
+                      <div className="text-xs font-semibold leading-tight">{pos.label}</div>
+                      <div className={`text-[10px] mt-0.5 ${isActive ? 'text-ink/80' : 'text-paper/40'}`}>
+                        {pos.sub}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+
+              {actualPricePosition !== 'top' && (
+                <div className="p-2.5 bg-gold/10 border border-gold/30 rounded-xs space-y-2 mt-2">
+                  <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Psychological Micro-Anchor Activated at Top</span>
+                  </div>
+                  <p className="text-[11px] text-paper/80 leading-snug">
+                    Since the total price is moved {actualPricePosition.replace('_', ' ')}, the top slot now shows the <strong>Per-Set Micro-Price</strong> (e.g. <em>{activeDefaultTier?.perSetPriceText || 'প্রতি সেট মাত্র ৯০ টাকা'}</em>) to anchor customers on extreme affordability!
+                  </p>
+
+                  <div className="pt-1">
+                    <label className="text-[10px] uppercase text-paper/60 font-medium block mb-1">
+                      Top Anchor Prefix / Headline (Optional):
+                    </label>
+                    <input
+                      type="text"
+                      value={unitPriceHeaderPrompt}
+                      onChange={(e) => onUnitPriceHeaderPromptChange?.(e.target.value)}
+                      placeholder="e.g. প্রতি সেট মাত্র or বান্ডেল অফার · প্রতি সেট"
+                      className="w-full bg-[#121212] border border-white/20 rounded-xs px-2.5 py-1 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Set Tiers Management */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold block">
+                Configured Set Tiers ({setTiers.length}):
+              </label>
+              <button
+                type="button"
+                onClick={handleAddTier}
+                className="px-2 py-0.5 text-xs bg-gold text-ink font-semibold rounded-xs hover:bg-gold-light transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Add Tier</span>
+              </button>
             </div>
 
             {setTiers.length === 0 ? (
-              <div className="p-4 text-center bg-[#171717] rounded-xs border border-dashed border-white/15 text-paper/50 text-xs space-y-2">
-                <AlertCircle className="w-4 h-4 mx-auto text-amber-400" />
-                <p>No set tiers added yet. Click &ldquo;Load Standard Presets&rdquo; or &ldquo;Add Tier&rdquo; above.</p>
+              <div className="p-4 text-center border border-dashed border-white/20 rounded-xs text-paper/40 text-xs">
+                No tiers configured. Click &ldquo;⚡ Load Standard Presets&rdquo; or &ldquo;+ Add Tier&rdquo; to begin.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {setTiers.map((tier, idx) => (
                   <div
                     key={tier.id || idx}
-                    className="p-3 bg-[#181818] rounded-xs border border-white/10 hover:border-gold/30 transition-all space-y-2.5"
+                    className={`p-3 rounded-xs border transition-all ${
+                      tier.isDefault
+                        ? 'bg-[#1C1C1C] border-gold/60 shadow-xs'
+                        : 'bg-[#161616] border-white/10'
+                    }`}
                   >
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/10">
                       <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-gold/20 text-gold text-[10px] font-bold flex items-center justify-center">
-                          {idx + 1}
-                        </span>
-                        <input
-                          type="text"
-                          value={tier.name}
-                          onChange={(e) => handleUpdateTier(idx, 'name', e.target.value)}
-                          placeholder="Tier Name (e.g. 6-Set, 12-Set)"
-                          className="bg-[#121212] border border-white/20 rounded-xs px-2 py-0.5 text-xs text-paper font-semibold focus:border-gold focus:outline-none w-36"
-                        />
-                        <label className="flex items-center gap-1 cursor-pointer ml-2 text-[10px] text-paper/70">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-paper/90">
                           <input
                             type="radio"
-                            name="default-tier"
+                            name="default_set_tier"
                             checked={Boolean(tier.isDefault)}
                             onChange={() => handleUpdateTier(idx, 'isDefault', true)}
-                            className="text-gold focus:ring-gold h-3 w-3"
+                            className="text-gold focus:ring-gold bg-[#121212] border-white/20 h-3.5 w-3.5 cursor-pointer"
                           />
-                          <span>Default</span>
+                          <span className={tier.isDefault ? 'text-gold' : 'text-paper/70'}>
+                            {tier.isDefault ? 'Default Selected' : 'Set as Default'}
+                          </span>
                         </label>
+                        {tier.isDefault && (
+                          <span className="px-1.5 py-0.2 bg-gold/20 text-gold text-[10px] font-mono rounded-[2px] border border-gold/40">
+                            Pre-selected
+                          </span>
+                        )}
                       </div>
 
                       <button
                         type="button"
                         onClick={() => handleRemoveTier(idx)}
-                        className="text-paper/40 hover:text-rose-400 transition-colors p-1"
-                        title="Remove tier"
+                        className="text-rose-400 hover:text-rose-300 p-1 rounded-xs transition-colors cursor-pointer"
+                        title="Delete tier"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
-                      {/* Main Selling Price */}
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-2">
+                      {/* Tier Name */}
+                      <div>
+                        <label className="text-[10px] uppercase text-paper/60 font-medium block mb-0.5">
+                          Set Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={tier.name}
+                          onChange={(e) => handleUpdateTier(idx, 'name', e.target.value)}
+                          placeholder="e.g. 24-Set"
+                          className="w-full bg-[#121212] border border-white/15 focus:border-gold rounded-xs px-2 py-1 text-paper font-bold text-xs focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Total Price */}
                       <div>
                         <label className="text-[10px] uppercase text-paper/60 font-medium block mb-0.5">
                           Total Price (৳) *
@@ -271,15 +401,15 @@ export default function BangleSetPricingEditor({
                       </div>
 
                       {/* Badge (Optional) */}
-                      <div>
+                      <div className="sm:col-span-4">
                         <label className="text-[10px] uppercase text-paper/60 font-medium block mb-0.5">
-                          Badge (Optional)
+                          Promotional Badge (Optional):
                         </label>
                         <input
                           type="text"
                           value={tier.badge ?? ''}
                           onChange={(e) => handleUpdateTier(idx, 'badge', e.target.value)}
-                          placeholder="e.g. Best Value"
+                          placeholder="e.g. Best Value, Most Popular, Mega Saving"
                           className="w-full bg-[#121212] border border-white/15 focus:border-gold rounded-xs px-2 py-1 text-paper text-xs focus:outline-none"
                         />
                       </div>

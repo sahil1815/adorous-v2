@@ -109,6 +109,9 @@ function toDbShape(product: Product) {
     setTiers: Array.isArray((product as any).setTiers)
       ? (product as any).setTiers
       : (typeof (product as any).setTiers === 'string' ? JSON.parse((product as any).setTiers) : []),
+    showSetPriceInButtons: Boolean((product as any).showSetPriceInButtons),
+    actualPricePosition: (product as any).actualPricePosition || 'top',
+    unitPriceHeaderPrompt: (product as any).unitPriceHeaderPrompt ?? null,
     hasCustomTrustPolicy: Boolean((product as any).hasCustomTrustPolicy),
     trustGuaranteeTitle: (product as any).trustGuaranteeTitle ?? null,
     trustGuaranteeText: (product as any).trustGuaranteeText ?? null,
@@ -329,6 +332,9 @@ export async function createProductAction(productData: Product) {
         hasSetPricing: Boolean((productData as any).hasSetPricing),
         setPricingBanner: (productData as any).setPricingBanner?.trim() || null,
         setTiers: Array.isArray((productData as any).setTiers) ? (productData as any).setTiers : [],
+        showSetPriceInButtons: Boolean((productData as any).showSetPriceInButtons),
+        actualPricePosition: (productData as any).actualPricePosition || 'top',
+        unitPriceHeaderPrompt: (productData as any).unitPriceHeaderPrompt?.trim() || null,
         hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
         trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
         trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
@@ -417,6 +423,9 @@ export async function updateProductAction(
     hasSetPricing?: boolean;
     setPricingBanner?: string | null;
     setTiers?: BangleSetTier[];
+    showSetPriceInButtons?: boolean;
+    actualPricePosition?: 'top' | 'after_set' | 'after_color' | 'after_quantity';
+    unitPriceHeaderPrompt?: string | null;
     hasCustomTrustPolicy?: boolean;
     trustGuaranteeTitle?: string | null;
     trustGuaranteeText?: string | null;
@@ -505,6 +514,9 @@ export async function updateProductAction(
           hasSetPricing: Boolean(productData.hasSetPricing),
           setPricingBanner: productData.setPricingBanner?.trim() || null,
           setTiers: (Array.isArray(productData.setTiers) ? productData.setTiers : []) as any,
+          showSetPriceInButtons: Boolean(productData.showSetPriceInButtons),
+          actualPricePosition: productData.actualPricePosition || 'top',
+          unitPriceHeaderPrompt: productData.unitPriceHeaderPrompt?.trim() || null,
           hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
           trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
           trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,
@@ -555,6 +567,9 @@ export async function updateProductAction(
           hasSetPricing: Boolean(productData.hasSetPricing),
           setPricingBanner: productData.setPricingBanner?.trim() || null,
           setTiers: (Array.isArray(productData.setTiers) ? productData.setTiers : []) as any,
+          showSetPriceInButtons: Boolean(productData.showSetPriceInButtons),
+          actualPricePosition: productData.actualPricePosition || 'top',
+          unitPriceHeaderPrompt: productData.unitPriceHeaderPrompt?.trim() || null,
           hasCustomTrustPolicy: Boolean(productData.hasCustomTrustPolicy),
           trustGuaranteeTitle: productData.trustGuaranteeTitle?.trim() || null,
           trustGuaranteeText: productData.trustGuaranteeText?.trim() || null,

@@ -84,6 +84,9 @@ function fromDbProduct(p: any): Product {
     hasSetPricing: p.hasSetPricing,
     setPricingBanner: p.setPricingBanner,
     setTiers: p.setTiers,
+    showSetPriceInButtons: p.showSetPriceInButtons,
+    actualPricePosition: p.actualPricePosition,
+    unitPriceHeaderPrompt: p.unitPriceHeaderPrompt,
     featuredImage: p.featuredImage,
     galleryImages: Array.isArray(p.galleryImages)
       ? p.galleryImages.map((g: any) => (typeof g === 'string' ? g : g.url))
