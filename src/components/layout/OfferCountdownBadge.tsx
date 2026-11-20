@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
-import { Clock, Sparkles, X } from 'lucide-react';
+import { Clock, Tag, X } from 'lucide-react';
 
 export default function OfferCountdownBadge() {
   const { isOfferActive, remainingSeconds, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
@@ -154,9 +154,9 @@ export default function OfferCountdownBadge() {
               : '0 4px 20px rgba(0,0,0,0.25)',
         }}
       >
-        {/* Sparkle icon */}
+        {/* Offer Tag icon */}
         <div className="w-6 h-6 rounded-full gold-gradient-bg flex items-center justify-center shrink-0 pointer-events-none">
-          <Sparkles className="w-3 h-3 text-ink" />
+          <Tag className="w-3 h-3 text-ink" />
         </div>
 
         {/* Text */}

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNewVisitorOffer } from '@/context/NewVisitorOfferContext';
-import { Sparkles, Gift, Clock, X, Eye } from 'lucide-react';
+import { Tag, Gift, Clock, X, Eye } from 'lucide-react';
 
 export default function WelcomeOfferModal() {
   const { isModalOpen, dismissModal, discountPercent, settings, isPreviewMode } = useNewVisitorOffer();
@@ -124,7 +124,7 @@ export default function WelcomeOfferModal() {
           <div className="px-6 pb-7 pt-4 text-center">
             {/* Discount badge */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-gold animate-pulse" />
+              <Tag className="w-3.5 h-3.5 text-gold" />
               <span className="text-xs font-medium tracking-wider uppercase text-gold-light">
                 {settings.badgeText || 'Exclusive First Visit Offer'}
               </span>
@@ -132,7 +132,7 @@ export default function WelcomeOfferModal() {
 
             {/* Title */}
             <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-gold-light mb-3 leading-tight">
-              {settings.welcomeTitle || 'Welcome to Adorous Fashion ✨'}
+              {settings.welcomeTitle || 'Welcome to Adorous Fashion'}
             </h2>
 
             {/* Subtitle */}

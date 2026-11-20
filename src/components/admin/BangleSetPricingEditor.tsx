@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers, ShieldCheck } from 'lucide-react';
+import { Zap, Plus, Trash2, CheckCircle2, AlertCircle, Layers, ShieldCheck } from 'lucide-react';
 import { BangleSetTier } from '@/types';
 
 export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
@@ -149,8 +149,8 @@ export default function BangleSetPricingEditor({
               onClick={handleApplyPresets}
               className="px-2.5 py-1 text-xs bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 rounded-xs font-medium transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
             >
-              <Sparkles className="w-3 h-3 text-gold" />
-              <span>⚡ Load Standard Presets</span>
+              <Zap className="w-3 h-3 text-gold" />
+              <span>Load Standard Presets</span>
             </button>
           </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Sparkles,
+  Tag,
   Save,
   CheckCircle2,
   AlertCircle,
@@ -224,7 +224,7 @@ export default function AdminWelcomeOfferPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-ink shadow-sm">
-              <Sparkles className="w-4 h-4" />
+              <Gift className="w-4 h-4" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Welcome & Visitor Offer
@@ -717,7 +717,7 @@ export default function AdminWelcomeOfferPage() {
           <div className="bg-[#141414] border border-white/10 rounded-xs p-6 space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-gold" />
+                <Eye className="w-4 h-4 text-gold" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-paper">
                   Real-Time Popup Preview
                 </h3>
@@ -747,7 +747,7 @@ export default function AdminWelcomeOfferPage() {
                 <div className="px-5 pb-6 pt-2 text-center space-y-3">
                   {/* Badge */}
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/20">
-                    <Sparkles className="w-3 h-3 text-gold" />
+                    <Tag className="w-3 h-3 text-gold" />
                     <span className="text-[10px] font-medium tracking-wider uppercase text-gold-light">
                       {badgeText || 'Exclusive First Visit Offer'}
                     </span>
@@ -755,7 +755,7 @@ export default function AdminWelcomeOfferPage() {
 
                   {/* Title */}
                   <h4 className="text-xl font-bold text-gold-light leading-tight tracking-tight">
-                    {welcomeTitle || 'Welcome to Adorous Fashion ✨'}
+                    {welcomeTitle || 'Welcome to Adorous Fashion'}
                   </h4>
 
                   {/* Subtext */}
@@ -801,7 +801,7 @@ export default function AdminWelcomeOfferPage() {
               <div className="flex items-center justify-center py-2">
                 <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-ink shadow-xl border border-gold/30">
                   <div className="w-5 h-5 rounded-full gold-gradient-bg flex items-center justify-center shrink-0">
-                    <Sparkles className="w-2.5 h-2.5 text-ink" />
+                    <Tag className="w-2.5 h-2.5 text-ink" />
                   </div>
                   <div className="flex flex-col leading-none text-left">
                     <span className="text-[9px] uppercase tracking-wider text-gold/60 font-sans font-medium">

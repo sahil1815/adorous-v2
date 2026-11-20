@@ -30,7 +30,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Share2,
   CheckCircle2,
   Box,
@@ -39,7 +38,11 @@ import {
   Star,
   Loader2,
   X,
-  ZoomIn
+  ZoomIn,
+  Tag,
+  Gem,
+  Palette,
+  PenLine
 } from 'lucide-react';
 import { resolveTrustPolicy, ResolvedTrustPolicy } from '@/lib/trustPolicies';
 
@@ -960,7 +963,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-gold-deep font-medium text-[11px]">
-                    <Sparkles className="w-3 h-3 text-gold" />
+                    <Gem className="w-3 h-3 text-gold" />
                     <span>Boutique Piece</span>
                   </span>
                 )}
@@ -1092,7 +1095,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                           </span>
                         )}
                         <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-[2px] border border-amber-200/60">
-                          <Sparkles className="w-3 h-3" />
+                          <Tag className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                           {effectiveDiscountPct}% OFF · {hasHigherExistingDiscount ? 'Special Offer' : (settings?.timerLabel?.trim() || 'Special Offer')}
                         </span>
                       </>
@@ -1146,8 +1149,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                           }`}
                         >
                           {tier.badge && (
-                            <span className="absolute -top-2.5 right-2 sm:right-2.5 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white font-black text-[9px] sm:text-[10px] tracking-wider uppercase shadow-[0_2px_6px_rgba(217,119,6,0.35)] border border-amber-300/60 pointer-events-none">
-                              <Sparkles className="w-2.5 h-2.5 text-amber-200 shrink-0" />
+                            <span className="absolute -top-2.5 right-2 sm:right-2.5 z-10 inline-flex items-center px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white font-black text-[9px] sm:text-[10px] tracking-wider uppercase shadow-[0_2px_6px_rgba(217,119,6,0.35)] border border-amber-300/60 pointer-events-none">
                               <span>{tier.badge}</span>
                             </span>
                           )}
@@ -1164,13 +1166,12 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             const prefix = match ? tier.perSetPriceText.replace(numPart, '').trim() : tier.perSetPriceText;
                             return (
                               <div
-                                className={`mt-2 py-1 px-2 rounded-[3px] border transition-all flex items-center justify-center gap-1 text-center ${
+                                className={`mt-2 py-1 px-2 rounded-[3px] border transition-all flex items-center justify-center text-center ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-amber-500/15 border-amber-500/50 text-amber-950 shadow-2xs ring-1 ring-amber-400/30'
                                     : 'bg-sand/70 border-gold/35 text-ink/90 hover:border-gold/60'
                                 }`}
                               >
-                                <Sparkles className="w-2.5 h-2.5 text-gold-deep shrink-0" />
                                 <span className="text-[10px] sm:text-[11px] font-medium tracking-tight truncate">
                                   {prefix ? `${prefix} ` : ''}
                                   <strong className="font-extrabold text-amber-900 tabular-nums">
@@ -1247,7 +1248,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                             : 'text-gold-ink hover:text-ink'
                         }`}
                       >
-                        <Sparkles className="w-3 h-3 text-gold-light" />
+                        <Palette className="w-3 h-3 text-gold-light" />
                         <span>Mix Colors</span>
                       </button>
                     </div>
@@ -1356,7 +1357,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                     {quantity > 1 && allowMultiColorSwitch && (
                       <div className="mt-2.5 p-2 sm:p-2.5 bg-sand/50 border border-gold/40 rounded-sm flex items-center justify-between gap-2 text-xs">
                         <span className="text-text-muted text-[11px] flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-gold-deep shrink-0" />
+                          <Palette className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                           <span>Buying {quantity} pieces? Want each in a different color?</span>
                         </span>
                         <button
@@ -1554,7 +1555,7 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                 <div className="mt-3.5 p-3.5 sm:p-4 bg-sand/40 border border-gold/40 rounded-sm space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 font-semibold text-ink text-xs sm:text-sm">
-                      <Sparkles className="w-3.5 h-3.5 text-gold-deep" />
+                      <PenLine className="w-3.5 h-3.5 text-gold-deep" />
                       <span>Custom Instructions / Wrist Note</span>
                     </div>
                     <span className="text-[10px] text-text-muted uppercase tracking-wider font-mono">
