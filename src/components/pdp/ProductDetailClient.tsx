@@ -1805,9 +1805,11 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                         <span className="font-semibold block text-emerald-950">
                           {activeTrustPolicy.guaranteeTitle}
                         </span>
-                        <span className="text-[11px] text-emerald-800/90 block mt-0.5">
-                          {activeTrustPolicy.guaranteeText}
-                        </span>
+                        {Boolean(activeTrustPolicy.guaranteeText && activeTrustPolicy.guaranteeText.trim()) && (
+                          <span className="text-[11px] text-emerald-800/90 block mt-0.5">
+                            {activeTrustPolicy.guaranteeText}
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1818,7 +1820,10 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                         <div className="flex items-center gap-2">
                           <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                           <span>
-                            <strong>{activeTrustPolicy.exchangeTitle}</strong> {activeTrustPolicy.exchangeText}
+                            <strong>{activeTrustPolicy.exchangeTitle}</strong>
+                            {Boolean(activeTrustPolicy.exchangeText && activeTrustPolicy.exchangeText.trim()) && (
+                              <> {activeTrustPolicy.exchangeText}</>
+                            )}
                           </span>
                         </div>
                       )}
@@ -1826,7 +1831,10 @@ export default function ProductDetailClient({ product, pairsWellWith, trustPolic
                         <div className="flex items-center gap-2">
                           <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                           <span>
-                            <strong>{activeTrustPolicy.deliveryTitle}</strong> {activeTrustPolicy.deliveryText}
+                            <strong>{activeTrustPolicy.deliveryTitle}</strong>
+                            {Boolean(activeTrustPolicy.deliveryText && activeTrustPolicy.deliveryText.trim()) && (
+                              <> {activeTrustPolicy.deliveryText}</>
+                            )}
                           </span>
                         </div>
                       )}

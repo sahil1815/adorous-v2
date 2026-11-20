@@ -178,9 +178,11 @@ export default function ProductTrustPolicyEditor({
             <p className="text-[11px] text-emerald-400 font-semibold">
               {categoryDefault.guaranteeTitle}
             </p>
-            <p className="text-[11px] text-paper/60 line-clamp-2">
-              {categoryDefault.guaranteeText}
-            </p>
+            {Boolean(categoryDefault.guaranteeText && categoryDefault.guaranteeText.trim()) && (
+              <p className="text-[11px] text-paper/60 line-clamp-2">
+                {categoryDefault.guaranteeText}
+              </p>
+            )}
             <div className="flex items-center gap-4 text-[11px] text-paper/50 pt-1">
               <span>{categoryDefault.exchangeTitle} {categoryDefault.exchangeText}</span>
               <span>•</span>

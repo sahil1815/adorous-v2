@@ -56,6 +56,45 @@ export async function getAllTrustPolicies(): Promise<Record<string, TrustPolicyD
 }
 
 /**
+ * Retrieves the raw trust policy record directly from DB.
+ * Returns null if no database record exists yet.
+ */
+export async function getTrustPolicyRecord(id: string): Promise<TrustPolicyData | null> {
+  const cleanId = (id || '').toLowerCase().trim();
+  try {
+    if (!prisma.trustPolicySettings) {
+      return null;
+    }
+
+    const record = await prisma.trustPolicySettings.findUnique({
+      where: { id: cleanId },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return {
+      id: record.id,
+      guaranteeTitle: record.guaranteeTitle,
+      guaranteeText: record.guaranteeText,
+      exchangeTitle: record.exchangeTitle,
+      exchangeText: record.exchangeText,
+      deliveryTitle: record.deliveryTitle,
+      deliveryText: record.deliveryText,
+      showGuarantee: record.showGuarantee,
+      showExchange: record.showExchange,
+      showDelivery: record.showDelivery,
+      updatedAt: record.updatedAt ? new Date(record.updatedAt).toISOString() : undefined,
+      createdAt: record.createdAt ? new Date(record.createdAt).toISOString() : undefined,
+    };
+  } catch (error) {
+    console.error(`[getTrustPolicyRecord] Error loading record "${id}":`, error);
+    return null;
+  }
+}
+
+/**
  * Retrieves a single trust policy by category slug or 'global'.
  */
 export async function getTrustPolicyById(id: string): Promise<TrustPolicyData> {
@@ -127,24 +166,24 @@ export async function updateTrustPolicyAction(
     const upserted = await prisma.trustPolicySettings.upsert({
       where: { id: cleanId },
       update: {
-        guaranteeTitle: data.guaranteeTitle.trim(),
-        guaranteeText: data.guaranteeText.trim(),
-        exchangeTitle: data.exchangeTitle.trim(),
-        exchangeText: data.exchangeText.trim(),
-        deliveryTitle: data.deliveryTitle.trim(),
-        deliveryText: data.deliveryText.trim(),
+        guaranteeTitle: (data.guaranteeTitle || '').trim(),
+        guaranteeText: (data.guaranteeText || '').trim(),
+        exchangeTitle: (data.exchangeTitle || '').trim(),
+        exchangeText: (data.exchangeText || '').trim(),
+        deliveryTitle: (data.deliveryTitle || '').trim(),
+        deliveryText: (data.deliveryText || '').trim(),
         showGuarantee: Boolean(data.showGuarantee),
         showExchange: Boolean(data.showExchange),
         showDelivery: Boolean(data.showDelivery),
       },
       create: {
         id: cleanId,
-        guaranteeTitle: data.guaranteeTitle.trim(),
-        guaranteeText: data.guaranteeText.trim(),
-        exchangeTitle: data.exchangeTitle.trim(),
-        exchangeText: data.exchangeText.trim(),
-        deliveryTitle: data.deliveryTitle.trim(),
-        deliveryText: data.deliveryText.trim(),
+        guaranteeTitle: (data.guaranteeTitle || '').trim(),
+        guaranteeText: (data.guaranteeText || '').trim(),
+        exchangeTitle: (data.exchangeTitle || '').trim(),
+        exchangeText: (data.exchangeText || '').trim(),
+        deliveryTitle: (data.deliveryTitle || '').trim(),
+        deliveryText: (data.deliveryText || '').trim(),
         showGuarantee: Boolean(data.showGuarantee),
         showExchange: Boolean(data.showExchange),
         showDelivery: Boolean(data.showDelivery),

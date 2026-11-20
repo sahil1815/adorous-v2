@@ -9,7 +9,7 @@ import { PRODUCTS } from '@/data/catalogue';
 import { Product, ProductCategory } from '@/types';
 import ProductDetailClient from '@/components/pdp/ProductDetailClient';
 import ClientProductDetailResolver from '@/components/pdp/ClientProductDetailResolver';
-import { getTrustPolicyById } from '@/app/actions/trustPolicyActions';
+import { getTrustPolicyRecord } from '@/app/actions/trustPolicyActions';
 import { resolveTrustPolicy } from '@/lib/trustPolicies';
 import { EyeOff } from 'lucide-react';
 
@@ -272,8 +272,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Resolve dynamic trust, guarantee & exchange policy for this category & piece
   const [categoryPolicy, globalPolicy] = await Promise.all([
-    getTrustPolicyById(product.category),
-    getTrustPolicyById('global'),
+    getTrustPolicyRecord(product.category),
+    getTrustPolicyRecord('global'),
   ]);
   const resolvedTrustPolicy = resolveTrustPolicy(product, categoryPolicy, globalPolicy);
 

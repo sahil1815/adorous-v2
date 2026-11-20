@@ -103,12 +103,24 @@ export function resolveTrustPolicy(
   // 1. Tier 1: Product Custom Override
   if (product && product.hasCustomTrustPolicy) {
     return {
-      guaranteeTitle: product.trustGuaranteeTitle?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle,
-      guaranteeText: product.trustGuaranteeText?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeText,
-      exchangeTitle: product.trustExchangeTitle?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle,
-      exchangeText: product.trustExchangeText?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.exchangeText,
-      deliveryTitle: product.trustDeliveryTitle?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle,
-      deliveryText: product.trustDeliveryText?.trim() || DEFAULT_GLOBAL_TRUST_POLICY.deliveryText,
+      guaranteeTitle: product.trustGuaranteeTitle !== undefined && product.trustGuaranteeTitle !== null && product.trustGuaranteeTitle.trim() !== ''
+        ? product.trustGuaranteeTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle,
+      guaranteeText: product.trustGuaranteeText !== undefined && product.trustGuaranteeText !== null
+        ? product.trustGuaranteeText.trim()
+        : '',
+      exchangeTitle: product.trustExchangeTitle !== undefined && product.trustExchangeTitle !== null && product.trustExchangeTitle.trim() !== ''
+        ? product.trustExchangeTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle,
+      exchangeText: product.trustExchangeText !== undefined && product.trustExchangeText !== null
+        ? product.trustExchangeText.trim()
+        : '',
+      deliveryTitle: product.trustDeliveryTitle !== undefined && product.trustDeliveryTitle !== null && product.trustDeliveryTitle.trim() !== ''
+        ? product.trustDeliveryTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle,
+      deliveryText: product.trustDeliveryText !== undefined && product.trustDeliveryText !== null
+        ? product.trustDeliveryText.trim()
+        : '',
       showGuarantee: product.showTrustGuarantee !== undefined && product.showTrustGuarantee !== null ? Boolean(product.showTrustGuarantee) : true,
       showExchange: product.showTrustExchange !== undefined && product.showTrustExchange !== null ? Boolean(product.showTrustExchange) : true,
       showDelivery: product.showTrustDelivery !== undefined && product.showTrustDelivery !== null ? Boolean(product.showTrustDelivery) : true,
@@ -116,18 +128,30 @@ export function resolveTrustPolicy(
     };
   }
 
-  // 2. Tier 2: Category Policy Override
+  // 2. Tier 2: Category Policy Override (if specifically saved in DB)
   const catKey = product?.category?.toLowerCase() || '';
   const catDefault = DEFAULT_CATEGORY_TRUST_POLICIES[catKey];
 
   if (categoryPolicy) {
     return {
-      guaranteeTitle: categoryPolicy.guaranteeTitle || catDefault?.guaranteeTitle || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle,
-      guaranteeText: categoryPolicy.guaranteeText || catDefault?.guaranteeText || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeText,
-      exchangeTitle: categoryPolicy.exchangeTitle || catDefault?.exchangeTitle || DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle,
-      exchangeText: categoryPolicy.exchangeText || catDefault?.exchangeText || DEFAULT_GLOBAL_TRUST_POLICY.exchangeText,
-      deliveryTitle: categoryPolicy.deliveryTitle || catDefault?.deliveryTitle || DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle,
-      deliveryText: categoryPolicy.deliveryText || catDefault?.deliveryText || DEFAULT_GLOBAL_TRUST_POLICY.deliveryText,
+      guaranteeTitle: categoryPolicy.guaranteeTitle !== undefined && categoryPolicy.guaranteeTitle !== null && categoryPolicy.guaranteeTitle.trim() !== ''
+        ? categoryPolicy.guaranteeTitle.trim()
+        : (catDefault?.guaranteeTitle || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle),
+      guaranteeText: categoryPolicy.guaranteeText !== undefined && categoryPolicy.guaranteeText !== null
+        ? categoryPolicy.guaranteeText.trim()
+        : (catDefault?.guaranteeText ?? DEFAULT_GLOBAL_TRUST_POLICY.guaranteeText),
+      exchangeTitle: categoryPolicy.exchangeTitle !== undefined && categoryPolicy.exchangeTitle !== null && categoryPolicy.exchangeTitle.trim() !== ''
+        ? categoryPolicy.exchangeTitle.trim()
+        : (catDefault?.exchangeTitle || DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle),
+      exchangeText: categoryPolicy.exchangeText !== undefined && categoryPolicy.exchangeText !== null
+        ? categoryPolicy.exchangeText.trim()
+        : (catDefault?.exchangeText ?? DEFAULT_GLOBAL_TRUST_POLICY.exchangeText),
+      deliveryTitle: categoryPolicy.deliveryTitle !== undefined && categoryPolicy.deliveryTitle !== null && categoryPolicy.deliveryTitle.trim() !== ''
+        ? categoryPolicy.deliveryTitle.trim()
+        : (catDefault?.deliveryTitle || DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle),
+      deliveryText: categoryPolicy.deliveryText !== undefined && categoryPolicy.deliveryText !== null
+        ? categoryPolicy.deliveryText.trim()
+        : (catDefault?.deliveryText ?? DEFAULT_GLOBAL_TRUST_POLICY.deliveryText),
       showGuarantee: categoryPolicy.showGuarantee ?? true,
       showExchange: categoryPolicy.showExchange ?? true,
       showDelivery: categoryPolicy.showDelivery ?? true,
@@ -135,27 +159,39 @@ export function resolveTrustPolicy(
     };
   }
 
-  // If no DB category policy, but we have a category default
-  if (catDefault) {
-    return {
-      ...catDefault,
-      source: 'category',
-    };
-  }
-
-  // 3. Tier 3: Global Policy
+  // 3. Tier 3: Global Policy (if configured by admin in DB)
   if (globalPolicy) {
     return {
-      guaranteeTitle: globalPolicy.guaranteeTitle || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle,
-      guaranteeText: globalPolicy.guaranteeText || DEFAULT_GLOBAL_TRUST_POLICY.guaranteeText,
-      exchangeTitle: globalPolicy.exchangeTitle || DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle,
-      exchangeText: globalPolicy.exchangeText || DEFAULT_GLOBAL_TRUST_POLICY.exchangeText,
-      deliveryTitle: globalPolicy.deliveryTitle || DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle,
-      deliveryText: globalPolicy.deliveryText || DEFAULT_GLOBAL_TRUST_POLICY.deliveryText,
+      guaranteeTitle: globalPolicy.guaranteeTitle !== undefined && globalPolicy.guaranteeTitle !== null && globalPolicy.guaranteeTitle.trim() !== ''
+        ? globalPolicy.guaranteeTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.guaranteeTitle,
+      guaranteeText: globalPolicy.guaranteeText !== undefined && globalPolicy.guaranteeText !== null
+        ? globalPolicy.guaranteeText.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.guaranteeText,
+      exchangeTitle: globalPolicy.exchangeTitle !== undefined && globalPolicy.exchangeTitle !== null && globalPolicy.exchangeTitle.trim() !== ''
+        ? globalPolicy.exchangeTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.exchangeTitle,
+      exchangeText: globalPolicy.exchangeText !== undefined && globalPolicy.exchangeText !== null
+        ? globalPolicy.exchangeText.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.exchangeText,
+      deliveryTitle: globalPolicy.deliveryTitle !== undefined && globalPolicy.deliveryTitle !== null && globalPolicy.deliveryTitle.trim() !== ''
+        ? globalPolicy.deliveryTitle.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.deliveryTitle,
+      deliveryText: globalPolicy.deliveryText !== undefined && globalPolicy.deliveryText !== null
+        ? globalPolicy.deliveryText.trim()
+        : DEFAULT_GLOBAL_TRUST_POLICY.deliveryText,
       showGuarantee: globalPolicy.showGuarantee ?? true,
       showExchange: globalPolicy.showExchange ?? true,
       showDelivery: globalPolicy.showDelivery ?? true,
       source: 'global',
+    };
+  }
+
+  // 4. Tier 4: Category Default Template (if neither category nor global was saved in DB)
+  if (catDefault) {
+    return {
+      ...catDefault,
+      source: 'category',
     };
   }
 

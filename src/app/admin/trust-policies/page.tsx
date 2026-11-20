@@ -537,9 +537,11 @@ export default function AdminTrustPoliciesPage() {
                     <span className="font-semibold block text-emerald-950">
                       {activePolicy.guaranteeTitle || '৬ মাসের গ্যারান্টি (6-Month Official Guarantee)'}
                     </span>
-                    <span className="text-[11px] text-emerald-800/90 block mt-0.5">
-                      {activePolicy.guaranteeText || 'কালার ও প্লেটিং স্থায়িত্ব এবং পাথর সেটিংয়ের কারিগরী সুরক্ষা অন্তর্ভুক্ত।'}
-                    </span>
+                    {Boolean(activePolicy.guaranteeText && activePolicy.guaranteeText.trim()) && (
+                      <span className="text-[11px] text-emerald-800/90 block mt-0.5">
+                        {activePolicy.guaranteeText}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
@@ -551,8 +553,10 @@ export default function AdminTrustPoliciesPage() {
                     <div className="flex items-center gap-2">
                       <RotateCcw className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                       <span>
-                        <strong>{activePolicy.exchangeTitle || '৭ দিনের এক্সচেঞ্জ :'}</strong>{' '}
-                        {activePolicy.exchangeText || 'সাইজ ও ফিনিশ পরিবর্তনযোগ্য'}
+                        <strong>{activePolicy.exchangeTitle || '৭ দিনের এক্সচেঞ্জ :'}</strong>
+                        {Boolean(activePolicy.exchangeText && activePolicy.exchangeText.trim()) && (
+                          <> {activePolicy.exchangeText}</>
+                        )}
                       </span>
                     </div>
                   )}
@@ -560,8 +564,10 @@ export default function AdminTrustPoliciesPage() {
                     <div className="flex items-center gap-2">
                       <Truck className="w-3.5 h-3.5 text-gold-deep shrink-0" />
                       <span>
-                        <strong>{activePolicy.deliveryTitle || 'ডেলিভারি :'}</strong>{' '}
-                        {activePolicy.deliveryText || '1–3 days'}
+                        <strong>{activePolicy.deliveryTitle || 'ডেলিভারি :'}</strong>
+                        {Boolean(activePolicy.deliveryText && activePolicy.deliveryText.trim()) && (
+                          <> {activePolicy.deliveryText}</>
+                        )}
                       </span>
                     </div>
                   )}
