@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, Layers, Eye, EyeOff, LayoutTemplate, ShieldCheck } from 'lucide-react';
 import { BangleSetTier } from '@/types';
+import { resolveDynamicSetBanner } from '@/lib/bangleSetPricing';
 
 export const DEFAULT_CHURI_SET_TIERS: BangleSetTier[] = [
   {
@@ -108,6 +109,7 @@ export default function BangleSetPricingEditor({
   };
 
   const activeDefaultTier = setTiers.find((t) => t.isDefault) || setTiers[0];
+  const [previewTierIdx, setPreviewTierIdx] = useState(0);
 
   return (
     <div
@@ -121,11 +123,11 @@ export default function BangleSetPricingEditor({
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-gold" />
             <span className="text-xs font-bold text-white block">
-              Bangle Set Tier Pricing & Psychological Flow
+              Bangle Set Tier Pricing & Bundle Configuration
             </span>
           </div>
           <span className="text-[11px] text-paper/60 leading-snug block">
-            Configure 6-Set, 12-Set, 24-Set tiered bundle pricing, promo banners, and psychological unit-anchor placement.
+            Configure 6-Set, 12-Set, 24-Set tiered bundle pricing, dynamic promotional banner, and luxury badges.
           </span>
         </div>
         <input
@@ -153,130 +155,102 @@ export default function BangleSetPricingEditor({
             </button>
           </div>
 
-          {/* 1. Promotional Highlight Banner */}
-          <div className="space-y-1.5">
+          {/* 1. Dynamic Promotional Highlight Banner */}
+          <div className="space-y-2 p-3 bg-[#181818] rounded-xs border border-white/10">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] uppercase tracking-wider text-paper/70 font-semibold block">
-                Top Promotional Banner (Above Pricing / Sets):
+              <label className="text-[11px] uppercase tracking-wider text-gold font-bold flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-gold" />
+                <span>Top Promotional Banner (Above Pricing / Sets)</span>
               </label>
-              <span className="text-[10px] text-paper/40">Visible on product page</span>
+              <span className="text-[10px] text-gold font-medium bg-gold/15 px-2 py-0.5 rounded-xs border border-gold/30">
+                Dynamic & Auto-Updating
+              </span>
             </div>
+            <p className="text-[11px] text-paper/70 leading-snug">
+              This banner dynamically updates on the product page to match whichever set tier the customer selects (using each tier&apos;s <strong>Per-Set Price Text</strong> and <strong>Badge</strong>). You can also set an optional fallback or custom banner below:
+            </p>
             <input
               type="text"
               value={setPricingBanner}
               onChange={(e) => onSetPricingBannerChange(e.target.value)}
               placeholder="e.g. ২৪ সেটের ক্ষেত্রে প্রতি সেটের প্রাইস ৯০ টাকা (সাশ্রয়ী অফার)"
-              className="w-full bg-[#1C1C1C] border border-white/20 rounded-xs px-2.5 py-1.5 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
+              className="w-full bg-[#121212] border border-white/20 rounded-xs px-2.5 py-1.5 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
             />
-            {setPricingBanner.trim() && (
-              <div className="p-2 bg-gold/15 border border-gold/30 rounded-xs flex items-center gap-2 text-xs text-gold-light mt-1">
-                <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
-                <span className="font-medium text-[11px] truncate">{setPricingBanner}</span>
+
+            {/* Live Interactive Dynamic Storefront Preview */}
+            {setTiers.length > 0 && (
+              <div className="p-2.5 bg-[#141414] border border-gold/30 rounded-xs space-y-1.5 mt-2">
+                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-paper/70 font-semibold">
+                  <span>Live Storefront Banner Preview:</span>
+                  <span className="text-paper/40 font-normal lowercase">click tier to test dynamic update</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {setTiers.map((t, idx) => {
+                    const isPreviewActive = (previewTierIdx < setTiers.length ? previewTierIdx : 0) === idx;
+                    return (
+                      <button
+                        key={t.id || idx}
+                        type="button"
+                        onClick={() => setPreviewTierIdx(idx)}
+                        className={`px-2 py-0.5 text-[11px] rounded-xs font-medium border transition-colors cursor-pointer ${
+                          isPreviewActive
+                            ? 'bg-gold text-ink border-gold font-bold shadow-xs'
+                            : 'bg-[#202020] text-paper/70 border-white/10 hover:border-white/25 hover:text-paper'
+                        }`}
+                      >
+                        {t.name || `Tier ${idx + 1}`}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="p-2 bg-gold/15 border border-gold/40 rounded-xs flex items-center gap-2 text-xs text-gold-light mt-1">
+                  <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+                  <span className="font-medium text-[11px] truncate">
+                    {resolveDynamicSetBanner(
+                      setTiers[previewTierIdx < setTiers.length ? previewTierIdx : 0] || setTiers[0],
+                      setPricingBanner
+                    ) || 'প্যাক নির্বাচন করুন'}
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
-          {/* 2. Psychological Layout & Conversion Triggers */}
-          <div className="space-y-3 p-3 bg-[#181818] rounded-xs border border-white/10">
+          {/* 2. Storefront Set Button Display */}
+          <div className="space-y-2 p-3 bg-[#181818] rounded-xs border border-white/10">
             <div className="flex items-center gap-1.5 text-xs font-bold text-gold uppercase tracking-wider">
               <LayoutTemplate className="w-3.5 h-3.5 text-gold" />
-              <span>Storefront Pricing Architecture & Psychological Triggers</span>
+              <span>Storefront Button Display Options</span>
             </div>
 
-            {/* A. Show/Hide Prices in Buttons */}
-            <div className="space-y-1 pt-1">
-              <label className="flex items-start gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showSetPriceInButtons}
-                  onChange={(e) => onShowSetPriceInButtonsChange?.(e.target.checked)}
-                  className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
-                />
-                <div>
-                  <div className="text-xs font-semibold text-paper/90 flex items-center gap-1.5">
-                    {showSetPriceInButtons ? (
-                      <>
-                        <Eye className="w-3.5 h-3.5 text-paper/70" />
-                        <span>Show bundle prices inside set buttons</span>
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="w-3.5 h-3.5 text-gold" />
-                        <span>Clean Buttons: Hide bundle prices inside set buttons (Recommended)</span>
-                      </>
-                    )}
-                  </div>
-                  <span className="text-[11px] text-paper/50 block mt-0.5 leading-snug">
-                    {showSetPriceInButtons
-                      ? 'Buttons will display the full price (e.g. ৳1,200) and compare price inside each card.'
-                      : 'Buttons will display clean, sleek pills (e.g. 6-Set, 12-Set, 24-Set with badges). Prevents price resistance and visual clutter.'}
-                  </span>
+            <label className="flex items-start gap-2 cursor-pointer pt-1">
+              <input
+                type="checkbox"
+                checked={showSetPriceInButtons}
+                onChange={(e) => onShowSetPriceInButtonsChange?.(e.target.checked)}
+                className="rounded-xs text-gold focus:ring-gold bg-[#1C1C1C] border-white/20 mt-0.5 h-4 w-4 cursor-pointer"
+              />
+              <div>
+                <div className="text-xs font-semibold text-paper/90 flex items-center gap-1.5">
+                  {showSetPriceInButtons ? (
+                    <>
+                      <Eye className="w-3.5 h-3.5 text-paper/70" />
+                      <span>Show bundle prices inside set buttons</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5 text-gold" />
+                      <span>Clean Buttons: Hide bundle prices inside set buttons (Recommended)</span>
+                    </>
+                  )}
                 </div>
-              </label>
-            </div>
-
-            {/* B. Actual Total Price Position */}
-            <div className="space-y-1.5 pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] uppercase tracking-wider text-paper/70 font-semibold block">
-                  Actual Total Price Placement:
-                </label>
-                <span className="text-[10px] text-gold font-medium">Where total bundle amount appears</span>
+                <span className="text-[11px] text-paper/50 block mt-0.5 leading-snug">
+                  {showSetPriceInButtons
+                    ? 'Buttons will display the full price (e.g. ৳1,200) and compare price inside each card.'
+                    : 'Buttons will display clean, sleek pills (e.g. 6-Set, 12-Set, 24-Set with luxury badges). Prevents price resistance and visual clutter.'}
+                </span>
               </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {[
-                  { id: 'top', label: 'Top of Page', sub: 'Standard layout' },
-                  { id: 'after_set', label: 'After Select Set', sub: 'Recommended' },
-                  { id: 'after_color', label: 'After Color', sub: 'After swatches' },
-                  { id: 'after_quantity', label: 'Above Buy Buttons', sub: 'After quantity' },
-                ].map((pos) => {
-                  const isActive = actualPricePosition === pos.id;
-                  return (
-                    <button
-                      key={pos.id}
-                      type="button"
-                      onClick={() => onActualPricePositionChange?.(pos.id as any)}
-                      className={`p-2 text-left rounded-xs border transition-all cursor-pointer ${
-                        isActive
-                          ? 'bg-gold text-ink font-bold border-gold shadow-xs ring-1 ring-gold/40'
-                          : 'bg-[#121212] border-white/10 text-paper/70 hover:border-white/30 hover:text-paper'
-                      }`}
-                    >
-                      <div className="text-xs font-semibold leading-tight">{pos.label}</div>
-                      <div className={`text-[10px] mt-0.5 ${isActive ? 'text-ink/80' : 'text-paper/40'}`}>
-                        {pos.sub}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {actualPricePosition !== 'top' && (
-                <div className="p-2.5 bg-gold/10 border border-gold/30 rounded-xs space-y-2 mt-2">
-                  <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Psychological Micro-Anchor Activated at Top</span>
-                  </div>
-                  <p className="text-[11px] text-paper/80 leading-snug">
-                    Since the total price is moved {actualPricePosition.replace('_', ' ')}, the top slot now shows the <strong>Per-Set Micro-Price</strong> (e.g. <em>{activeDefaultTier?.perSetPriceText || 'প্রতি সেট মাত্র ৯০ টাকা'}</em>) to anchor customers on extreme affordability!
-                  </p>
-
-                  <div className="pt-1">
-                    <label className="text-[10px] uppercase text-paper/60 font-medium block mb-1">
-                      Top Anchor Prefix / Headline (Optional):
-                    </label>
-                    <input
-                      type="text"
-                      value={unitPriceHeaderPrompt}
-                      onChange={(e) => onUnitPriceHeaderPromptChange?.(e.target.value)}
-                      placeholder="e.g. প্রতি সেট মাত্র or বান্ডেল অফার · প্রতি সেট"
-                      className="w-full bg-[#121212] border border-white/20 rounded-xs px-2.5 py-1 text-xs text-paper placeholder-paper/30 focus:border-gold focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+            </label>
           </div>
 
           {/* 3. Set Tiers Management */}
